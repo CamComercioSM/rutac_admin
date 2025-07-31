@@ -1,0 +1,88 @@
+@extends('layouts.list', ['titulo'=> 'Inscripciones', 'tituloModal'=> 'Inscripción'])
+
+@section('form-filters')
+
+    <div class="col-12 col-md-4 form-group">
+        <label for="programa">Programa</label>
+        <select class="form-control" name="programa" id="programa">
+            <option value="" disabled selected>Seleccione una opción</option>
+            @foreach ($programas as $item)
+                <option value="{{$item->programa_id}}" >{{$item->nombre}}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-12 col-md-4 form-group">
+        <label for="convocatoria">Convocatoria</label>
+        <select class="form-control" name="convocatoria" id="convocatoria">
+            <option value="" disabled selected>Seleccione una opción</option>
+            @foreach ($convocatorias as $item)
+                <option value="{{$item->convocatoria_id}}" >{{$item->nombre_convocatoria}}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-12 col-md-4 form-group">
+        <label for="estado">Estado inscripción</label>
+        <select class="form-control" name="estado" id="estado">
+            <option value="" disabled selected>Seleccione una opción</option>
+            @foreach ($estados as $item)
+                <option value="{{$item->inscripcionestado_id}}" >{{$item->inscripcionEstadoNOMBRE}}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-12 col-md-6 form-group">
+        <label for="unidad">Unidad productiva</label>
+        <select class="form-control" name="unidad" id="unidad">
+            <option value="" disabled selected>Seleccione una opción</option>
+            @foreach ($unidades as $item)
+                <option value="{{$item->id}}" >{{$item->nombre}}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-12 col-md-3 form-group">
+        <label for="fecha_inicio">Fecha inicio</label>
+        <input class="form-control" type="date" name="fecha_inicio" id="fecha_inicio">
+    </div>
+
+    <div class="col-12 col-md-3 form-group">
+        <label for="fecha_inicio">Fecha fin</label>
+        <input class="form-control" type="date" name="fecha_fin" id="fecha_fin">
+    </div>
+
+@endsection
+
+@section('script')
+    <script src="/libs/select2/select2.min.js"></script>
+    <link rel="stylesheet" href="/libs/select2/select2.min.css">
+    <script> 
+        const TABLA = {
+            urlApi: '/inscriptions',
+            sortName: 'fecha_creacion',
+            acciones: "ver",
+            columns: [
+                { field: 'nombre_convocatoria', title: 'Convocatoria', sortable: true },
+                { field: 'nombre_programa', title: 'Programa', sortable: true },
+                { field: 'nit', title: 'NIT', sortable: true },
+                { field: 'business_name', title: 'Unidad productiva', sortable: true },
+                { field: 'fecha_creacion', title: 'Fecha de inscripcion', sortable: true, formatter: 'formatearFecha' },
+                { field: 'estado', title: 'Estado', sortable: true },
+                { field: 'action', title: 'Acciones', formatter: 'actionFormatter', events: 'actionEvents', class: 'td-acciones' }
+            ]
+        };
+
+        $('#programa').select2();
+        $('#convocatoria').select2();
+        $('#estado').select2();
+        $('#unidad').select2({
+            ajax: {
+                url: '/unidadProductiva/search',
+                dataType: 'json',
+                delay: 300,
+            },
+            minimumInputLength: 3,
+        });
+    </script>
+@endsection

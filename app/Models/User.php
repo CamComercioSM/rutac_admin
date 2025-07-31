@@ -12,15 +12,22 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    protected $table = 'users_admin';
+
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
+        'identification',
         'name',
+        'lastname',
+        'position',
         'email',
         'password',
+        'rol_id',
+        'active'
     ];
 
     /**
@@ -44,5 +51,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'rol_id');
     }
 }
