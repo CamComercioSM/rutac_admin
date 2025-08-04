@@ -2,7 +2,17 @@
 
 namespace App\Models\Empresarios;
 
+use App\Models\Diagnosticos\DiagnosticoResultado;
 use App\Models\Inscripciones\ConvocatoriaInscripcion;
+use App\Models\TablasReferencias\CiiuActividad;
+use App\Models\TablasReferencias\Departamento;
+use App\Models\TablasReferencias\Etapa;
+use App\Models\TablasReferencias\Municipio;
+use App\Models\TablasReferencias\Sector;
+use App\Models\TablasReferencias\UnidadProductivaPersona;
+use App\Models\TablasReferencias\UnidadProductivaTamano;
+use App\Models\TablasReferencias\UnidadProductivaTipo;
+use App\Models\TablasReferencias\VentasAnuales;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
@@ -71,7 +81,7 @@ class UnidadProductiva extends Model
     ];
 
     // Relaciones
-    /*
+    
     public function tipoPersona()
     {
         return $this->belongsTo(UnidadProductivaPersona::class, 'tipopersona_id');
@@ -117,16 +127,11 @@ class UnidadProductiva extends Model
         return $this->belongsTo(UnidadProductivaTipo::class, 'unidadtipo_id');
     }
 
-    public function usuario()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
     public function diagnosticos()
     {
         return $this->HasMany(DiagnosticoResultado::class, 'unidadproductiva_id', 'unidadproductiva_id');
     }
-    */
+    
 
     public function inscripciones()
     {

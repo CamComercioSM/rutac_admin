@@ -26,6 +26,7 @@ Route::as('admin.')
     Route::middleware(ValidateUserMenuAccess::class)
     ->group(function () {
 
+        Route::get('/unidadesProductivas/list', [UnidadProductivaController::class, 'list']);
         Route::get('/inscriptions/list', [InscriptionController::class, 'list']);
         Route::get('/diagnosticosResultados/list', [DiagnosticosResultadosController::class, 'list']);
 
@@ -41,6 +42,7 @@ Route::as('admin.')
     Route::get('/crons/export', [CronController::class, 'export']);
     Route::get('/cronLog/export', [CronLogController::class, 'export']);
     Route::get('/diagnosticosResultados/export', [DiagnosticosResultadosController::class, 'export']);
+    Route::get('/unidadesProductivas/export', [UnidadProductivaController::class, 'export']);
 
     Route::apiResource('users', UserController::class);
     Route::apiResource('menu', MenuController::class);
@@ -48,6 +50,7 @@ Route::as('admin.')
     Route::apiResource('crons', CronController::class);
     Route::apiResource('cronLog', CronLogController::class);
     Route::apiResource('diagnosticosResultados', DiagnosticosResultadosController::class);
+    Route::apiResource('unidadesProductivas', UnidadProductivaController::class);
 
     
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search']);
