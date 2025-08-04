@@ -36,7 +36,6 @@ class UserController extends Controller
     public function show($id)
     {
         $result = User::findOrFail($id);
-        $result->roles = $result->roles()->pluck('role_id')->toArray();
 
         return response()->json($result);
     }
@@ -55,14 +54,10 @@ class UserController extends Controller
         {
             $entity = User::findOrFail($request->id);
             $entity->update($data);
-
-            $entity->roles()->detach();
         } 
         else {
             $entity = User::create($data);
         }
-
-        $entity->roles()->attach( $data['roles'] ?? [] );
 
         return response()->json([ 'message' => 'Stored' ], 201);
     }
