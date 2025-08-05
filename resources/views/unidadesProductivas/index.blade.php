@@ -3,7 +3,7 @@
 @section('form-filters')
 
     <div class="col-12 col-md-4 form-group mb-3">
-        <label for="tipopersona">Tipo de persona</label>
+        <label class="form-label" for="tipopersona">Tipo de persona</label>
         <select class="form-control" name="tipopersona" id="tipopersona">
             <option value="" disabled selected>Seleccione una opción</option>
             @foreach ($tipoPersona as $item)
@@ -13,7 +13,7 @@
     </div>
 
     <div class="col-12 col-md-4 form-group mb-3">
-        <label for="sector">Sector</label>
+        <label class="form-label" for="sector">Sector</label>
         <select class="form-control" name="sector" id="sector">
             <option value="" disabled selected>Seleccione una opción</option>
             @foreach ($sectores as $item)
@@ -23,7 +23,7 @@
     </div>
 
     <div class="col-12 col-md-4 form-group mb-3">
-        <label for="tamano">Tamaño</label>
+        <label class="form-label" for="tamano">Tamaño</label>
         <select class="form-control" name="tamano" id="tamano">
             <option value="" disabled selected>Seleccione una opción</option>
             @foreach ($tamanos as $item)
@@ -33,7 +33,7 @@
     </div>
 
     <div class="col-12 col-md-4 form-group mb-3">
-        <label for="etapa">Etapa</label>
+        <label class="form-label" for="etapa">Etapa</label>
         <select class="form-control" name="etapa" id="etapa">
             <option value="" disabled selected>Seleccione una opción</option>
             @foreach ($etapas as $item)
@@ -43,12 +43,12 @@
     </div>
 
     <div class="col-12 col-md-3 form-group mb-3">
-        <label for="fecha_inicio">Fecha inicio</label>
+        <label class="form-label" for="fecha_inicio">Fecha inicio</label>
         <input class="form-control" type="date" name="fecha_inicio" id="fecha_inicio">
     </div>
 
     <div class="col-12 col-md-3 form-group mb-3">
-        <label for="fecha_inicio">Fecha fin</label>
+        <label class="form-label" for="fecha_inicio">Fecha fin</label>
         <input class="form-control" type="date" name="fecha_fin" id="fecha_fin">
     </div>
 
