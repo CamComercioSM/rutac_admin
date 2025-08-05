@@ -1,9 +1,9 @@
     const preview = document.getElementById('preview');
     const file = document.getElementById('file');
 
-    const btn_editar = `<button class="btn btn-sm btn-outline-primary editar"> <i class="bi bi-pencil-square"></i> </button>`;
-    const btn_ver = `<button class="btn btn-sm btn-outline-info ver"> <i class="bi bi-eye-fill"></i> </button>`;
-    const btn_eliminar = `<button class="btn btn-sm btn-outline-danger eliminar"> <i class="bi bi-trash-fill"></i> </button>`;
+    const btn_editar = `<button class="btn btn-sm btn-outline-primary editar"> <i class="ri-pencil-line"></i> </button>`;
+    const btn_ver = `<button class="btn btn-sm btn-outline-info ver"> <i class="ri-eye-line"></i> </button>`;
+    const btn_eliminar = `<button class="btn btn-sm btn-outline-danger eliminar"> <i class="ri-delete-bin-line"></i> </button>`;
     const btns_acciones = TABLA.acciones.replace('ver', btn_ver).replace('editar', btn_editar).replace('eliminar', btn_eliminar);
     
     window.formatearFecha = function(value) {

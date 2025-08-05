@@ -3,21 +3,21 @@
 @section('form-fiels')
     <div class="row">
 
-        <div class="col-12 col-md-6 form-group">
+        <div class="col-12 col-md-6 form-group mb-3">
             <label for="label">Label</label>
             <input type="text" class="form-control" name="label" id="label" placeholder="Label" required>
         </div>
 
-        <div class="col-12 col-md-6 form-group">
+        <div class="col-12 col-md-6 form-group mb-3">
             <label for="icon">Icono</label>
             <input type="text" class="form-control" name="icon" id="icon" placeholder="Icono" required>
         </div>
-        <div class="col-12 col-md-12 form-group">
+        <div class="col-12 col-md-12 form-group mb-3">
             <label for="url" >URL</label>
             <input type="text" class="form-control" name="url" id="url" placeholder="URL" required>
         </div>
 
-        <div class="col-12 col-md-12 form-group">
+        <div class="col-12 col-md-12 form-group mb-3">
             <label for="roles">Roles</label>
             <select class="form-control" name="roles[]" id="roles" multiple >
                 @foreach ($roles as $item)

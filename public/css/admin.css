@@ -32,11 +32,6 @@
 #Modal .form-group > label{
     font-weight: 600;
 }
-#Modal .form-group > .form-control,
-.custom-switch-lg .custom-control-label::before,
-.select2-container .select2-selection--single{
-    border: 2px solid #ced4da !important;
-}
 
 .custom-switch-lg .custom-control-label::before {
     height: 1.5rem;
@@ -99,11 +94,7 @@
     font-size: 1rem !important;
 }
 
-.select2,
-.select2-container .select2-selection--single{
-    width: 100% !important;
-    height: calc(1.5em + .75rem + 2px) !important;
-}
+
 .td-estado{
     width: 40px;
     text-align: center;
@@ -150,8 +141,15 @@
     color: #999;
 }
 
+.select2,
+.select2-container .select2-selection--single{
+    width: 100% !important;
+    height: auto !important;
+}
+
 .select2-selection__rendered{
-    padding-top: .2rem !important;
+    padding-top: .6rem !important;
+    padding: calc(.6rem - 1px) calc(1rem - 1px) !important;
 }
 
 .select2-selection__arrow{

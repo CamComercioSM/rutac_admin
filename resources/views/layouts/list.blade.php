@@ -4,36 +4,38 @@
 <div class="container card my-3 shadow-sm">
 
     @if (View::hasSection('form-filters'))
-        <form class="row justify-content-center bg-light pt-3 mb-4" id="filters" novalidate >
-            @yield('form-filters')
+        <form class="border p-3 mt-3" id="filters" novalidate >
+            <div class="row justify-content-center">
 
-            <div class="col-12 col-md-12 my-3 text-center">
-                <button class="btn btn-sm btn-danger mx-1" id="btnLimpiarFiltrar" type="button" >
-                    <i class="bi bi-x-lg"></i> Limpiar
-                </button>
-                <button class="btn btn-sm btn-warning mx-1" id="btnFiltrar" type="button" >
-                    <i class="bi bi-funnel"></i> Filtrar
-                </button>
+                @yield('form-filters')
+
+                <div class="col-12 col-md-12 my-3 text-center">
+                    <button class="btn btn-sm btn-danger mx-1" id="btnLimpiarFiltrar" type="button" >
+                        <i class="ri-filter-off-line"></i> Limpiar
+                    </button>
+                    <button class="btn btn-sm btn-warning mx-1" id="btnFiltrar" type="button" >
+                        <i class="ri-filter-line"></i> Filtrar
+                    </button>
+                </div>
             </div>
-
         </form>
     @endif
 
     <div class="table-responsive p-3 h-100" id="Data" >
         <div id="toolbar" class="d-flex">
             @if (View::hasSection('form-fiels'))
-                <button class="btn btn-success mr-3" onclick="CrearRegistro()">
-                    <i class="bi bi-plus-lg"></i> Crear
+                <button class="btn btn-success me-3" onclick="CrearRegistro()">
+                    <i class="ri-add-line"></i> Crear
                 </button>
             @endif
 
             <a id="btnExport" class="btn btn-info" href="export" target="_blank" >
-                <i class="bi bi-cloud-download"></i> Exportar
+                <i class="ri-download-cloud-2-line me-1"></i> Exportar
             </a>
 
         </div>
 
-        <table id="tabla" class="table table-sm table-striped custom-header-style"></table>
+        <table id="tabla" class="table"></table>
     </div>
 
     <div class="d-none" id="Modal" >
@@ -61,10 +63,15 @@
 </div>
 @endsection
 
-@section('scripts')
+@section('page-script')
+  
   <link rel="stylesheet" href="/libs/bootstrap-table/bootstrap-table.min.css">
+
+  <script src="/libs/axios.min.js"></script>
+  <script src="/libs/jquery.min.js"></script>
   <script src="/libs/bootstrap-table/bootstrap-table.min.js"></script>
   <script src="/libs/bootstrap-table/bootstrap-table-es-ES.min.js"></script>
+
   <script>
         $.extend($.fn.bootstrapTable.locales['es-ES'], {
             formatShowingRows: function (from, to, total) { return `Visualizando ${from}–${to} de ${total}.`; },

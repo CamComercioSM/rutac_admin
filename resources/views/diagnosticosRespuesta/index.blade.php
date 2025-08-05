@@ -2,7 +2,7 @@
 
 @section('form-filters')
 
-    <div class="col-12 col-md-5 form-group">
+    <div class="col-12 col-md-5 form-group mb-3">
         <label for="unidad">Unidad productiva</label>
         <select class="form-control" name="unidad" id="unidad">
             <option value="" disabled selected>Seleccione una opción</option>
@@ -12,7 +12,7 @@
         </select>
     </div>
 
-    <div class="col-12 col-md-3 form-group">
+    <div class="col-12 col-md-3 form-group mb-3">
         <label for="estado">Etapa</label>
         <select class="form-control" name="etapa" id="etapa">
             <option value="" disabled selected>Seleccione una opción</option>
@@ -22,12 +22,12 @@
         </select>
     </div>
 
-    <div class="col-12 col-md-2 form-group">
+    <div class="col-12 col-md-2 form-group mb-3">
         <label for="fecha_inicio">Fecha inicio</label>
         <input class="form-control" type="date" name="fecha_inicio" id="fecha_inicio">
     </div>
 
-    <div class="col-12 col-md-2 form-group">
+    <div class="col-12 col-md-2 form-group mb-3">
         <label for="fecha_inicio">Fecha fin</label>
         <input class="form-control" type="date" name="fecha_fin" id="fecha_fin">
     </div>
