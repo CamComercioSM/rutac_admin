@@ -27,13 +27,13 @@ class MenuController extends Controller
     public function index(Request $request)
     {
         $query = $this->getQuery($request);
-        $data = $this->paginate($query, $request);
+        $data = $query->get();
 
-        $data['rows'] = array_map(function ($item) {
-            $array = $item->toArray();
-            $array['roles'] = collect($array['roles'])->pluck('id')->toArray();
-            return $array;
-        }, $data['rows']);
+        $data = $data->map(function ($item) {
+            $itemArray = $item->toArray();
+            $itemArray['roles'] = $item->roles->pluck('id')->toArray();
+            return $itemArray;
+        })->toArray();
 
         return response()->json( $data );
     }
@@ -78,13 +78,13 @@ class MenuController extends Controller
     {
         $search = $request->get('searchText');
 
-        $query = Menu::with('roles:id');
+        $query = Menu::with('roles:id')->orderBy('order');
 
         if(!empty($search))
         {
-            $filterts = ['identification', 'name', 'lastname', 'position', 'email'];
-            $query->where(function ($q) use ($search, $filterts) {
-                foreach ($filterts as $field) {
+            $filters = ['label', 'url'];
+            $query->where(function ($q) use ($search, $filters) {
+                foreach ($filters as $field) {
                     $q->orWhere($field, 'like', "%{$search}%");
                 }
             });

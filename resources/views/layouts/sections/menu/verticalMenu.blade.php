@@ -16,6 +16,10 @@
 
   <div class="menu-inner-shadow"></div>
 
+  @php
+    $currentRoute = request()->getPathInfo();
+  @endphp
+
   <ul class="menu-inner py-1">
 
     <li class="menu-item">
@@ -26,14 +30,54 @@
 
     @foreach(session('user_menu', []) as $menu)    
 
-        <li class="menu-item">
-          <a href="{{ url($menu->url) }}" class="menu-link" >
-            @isset($menu->icon)
-              <i class="{{ $menu->icon }} me-1"></i>
-            @endisset
-            <div>{{ $menu->label }}</div>
-          </a>
+        @php
+          $isParentActive = false;
+
+          if ($menu->submenus->isNotEmpty()) {
+              foreach ($menu->submenus as $submenu) {
+                  if ($currentRoute === $submenu->url) {
+                      $isParentActive = true;
+                      break;
+                  }
+              }
+          }
+        @endphp
+
+        <li class="menu-item {{$currentRoute === $menu->url ? 'active' : ''}} {{$isParentActive ? 'open' : ''}}">
+                      
+            @if($menu->submenus->isNotEmpty())
+              <a href="javascript:void(0);" class="menu-link menu-toggle" >
+                @isset($menu->icon)
+                  <i class="{{ $menu->icon }} me-1"></i>
+                @endisset
+                <div>{{ $menu->label }}</div>
+              </a>
+
+              <ul class="menu-sub">
+                @foreach($menu->submenus as $submenu)    
+                  <li class="menu-item {{$currentRoute === $submenu->url ? 'active' : ''}}" >
+
+                    <a href="{{ url($submenu->url) }}" class="menu-link" >
+                      @isset($submenu->icon)
+                        <i class="{{ $submenu->icon }} me-1"></i>
+                      @endisset
+                      <div>{{ $submenu->label }}</div>
+                    </a>
+
+                  </li>
+                @endforeach
+              </ul>
+            
+            @else
+              <a href="{{ url($menu->url) }}" class="menu-link" >
+                @isset($menu->icon)
+                  <i class="{{ $menu->icon }} me-1"></i>
+                @endisset
+                <div>{{ $menu->label }} </div>
+              </a>
+            @endif
         </li>
+
     @endforeach
 
   </ul>

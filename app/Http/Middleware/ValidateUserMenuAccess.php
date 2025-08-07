@@ -24,25 +24,51 @@ class ValidateUserMenuAccess
         }
 
         // Ruta actual
-        $currentRoute = ltrim($request->path(), '/');
+        $currentRoute = '/' . ltrim($request->path(), '/');
 
         if ($currentRoute === 'dashboard') {
             return $next($request);
         }
 
         // Obtener rutas del menú de la sesión
-        $menu = session('user_menu', collect());
+        $userMenu = session('user_menu', collect());
+        
+        // Verificar si la ruta existe en el menú principal o en sus hijos
+        $hasAccess = collect($userMenu)->some(function ($menu) use ($currentRoute) {
+            // Verifica si el menú principal coincide
+            if ($menu->url === $currentRoute) { return true; }
 
-        // Extraer solo los URLs permitidos
-        $allowedUrls = $menu->pluck('url')->filter()->map(function ($url) {
-            return ltrim(parse_url($url, PHP_URL_PATH), '/'); // remover slash inicial
+            // Verifica en los submenús
+            foreach ($menu->submenus as $submenu) {
+                if ($submenu->url === $currentRoute) { return true; }
+            }
+
+            return false;
         });
 
-        // Validar acceso
-        if (!$allowedUrls->contains($currentRoute)) {
-            abort(403, 'No tienes permiso para acceder a esta ruta.');
+        if (!$hasAccess) {
+            // Si no tiene acceso, redireccionar o lanzar 403
+            abort(403, 'No tienes acceso a esta ruta.');
         }
 
         return $next($request);
     }
+
+    private function extractUrls($items): array
+    {
+        $urls = [];
+
+        foreach ($items as $item) {
+            if (isset($item['url'])) {
+                $urls[] = $item['url'];
+            }
+
+            if (isset($item['submenus']) && is_array($item['submenus'])) {
+                $urls = array_merge($urls, $this->extractUrls($item['submenus']));
+            }
+        }
+
+        return $urls;
+    }
+
 }

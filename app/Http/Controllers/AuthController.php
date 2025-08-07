@@ -29,12 +29,24 @@ class AuthController extends Controller
         $user = Auth::user();
 
         // ✅ Obtener los menús según el rol del usuario
-        $menus = Menu::whereHas('roles', function ($query) use ($user) {
-            $query->where('roles.id', $user->rol_id);
-        })->get();
+        // Obtener menús según el rol
+        $menus = Menu::with('children') // si tienes relación children
+            ->whereHas('roles', function ($query) use ($user) {
+                $query->where('roles.id', $user->rol_id);
+            })
+            ->orderBy('order')
+            ->get();
+
+        // Agrupar por niveles
+        $groupedMenus = $menus
+            ->whereNull('parent_id') // Menús principales
+            ->map(function ($menu) use ($menus) {
+                $menu->submenus = $menus->where('parent_id', $menu->id)->sortBy('order');
+                return $menu;
+            });
 
         // ✅ Guardar en sesión
-        Session::put('user_menu', $menus);
+        Session::put('user_menu', $groupedMenus);
 
         return redirect()->route('admin.dashboard');
     }
