@@ -27,11 +27,11 @@
     @foreach(session('user_menu', []) as $menu)    
 
         <li class="menu-item">
-          <a href="{{ url($menu->url) }}" class="menu-link" >
-            @isset($menu->icon)
+          <a href="{{ url($menu->url ?? '#') }}" class="menu-link" >
+            @if(!empty($menu->icon))
               <i class="{{ $menu->icon }} me-1"></i>
-            @endisset
-            <div>{{ $menu->label }}</div>
+            @endif
+            <div>{{ $menu->label ?? 'Sin nombre' }}</div>
           </a>
         </li>
     @endforeach

@@ -17,6 +17,17 @@ Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Rutas para autenticación con Google
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+
+// Rutas para reset de contraseña
+Route::post('/auth/send-reset-link', [AuthController::class, 'sendResetLink'])->name('password.email');
+Route::get('/auth/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
+Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+
+
+
 Route::as('admin.')
 ->middleware('auth')
 ->group(function () {
@@ -43,6 +54,9 @@ Route::as('admin.')
     Route::get('/cronLog/export', [CronLogController::class, 'export']);
     Route::get('/diagnosticosResultados/export', [DiagnosticosResultadosController::class, 'export']);
     Route::get('/unidadesProductivas/export', [UnidadProductivaController::class, 'export']);
+
+
+
 
     Route::apiResource('users', UserController::class);
     Route::apiResource('menu', MenuController::class);
