@@ -37,7 +37,7 @@ class AuthController extends Controller
         // ✅ Obtener los menús según el rol del usuario
         $menus = Menu::whereHas('roles', function ($query) use ($user) {
             $query->where('roles.id', $user->rol_id);
-        })->select('id', 'label', 'url', 'icon')->get();
+        })->with('children')->get();
 
         // ✅ Guardar en sesión
         Session::put('user_menu', $menus);
