@@ -109,8 +109,6 @@
 @endsection
 
 @section('script')
-    <script src="/libs/select2/select2.min.js"></script>
-    <link rel="stylesheet" href="/libs/select2/select2.min.css">
     <script> 
         const TABLA = {
             urlApi: '/convocatorias',
@@ -124,10 +122,8 @@
                 { field: 'fecha_apertura_convocatoria', title: 'Fecha inicio', sortable: true, formatter: 'formatearFecha' },
                 { field: 'fecha_cierre_convocatoria', title: 'Fecha finalización', sortable: true, formatter: 'formatearFecha' },
                 { field: 'action', title: 'Acciones', formatter: 'actionFormatter', events: 'actionEvents', class: 'td-acciones' }
-            ]
+            ],
+            initSelects: [ { id:'programa'}, { id:'asesores', setting:{ placeholder: 'Selección multiple'}  } ]
         };
-
-        $('#programa').select2();
-        $('#asesores').select2({ placeholder: 'Selección multiple' });
     </script>
 @endsection

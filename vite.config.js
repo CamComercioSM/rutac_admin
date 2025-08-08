@@ -43,6 +43,8 @@ export default defineConfig({
         'resources/css/app.css',
         'resources/assets/css/demo.css',
         'resources/js/app.js',
+        'resources/js/admin-base.js',
+        'resources/js/admin-menu.js',
         ...pageJsFiles,
         ...vendorJsFiles,
         ...LibsJsFiles,

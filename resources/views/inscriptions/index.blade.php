@@ -55,8 +55,6 @@
 @endsection
 
 @section('script')
-    <script src="/libs/select2/select2.min.js"></script>
-    <link rel="stylesheet" href="/libs/select2/select2.min.css">
     <script> 
         const TABLA = {
             urlApi: '/inscriptions',
@@ -70,19 +68,22 @@
                 { field: 'fecha_creacion', title: 'Fecha de inscripcion', sortable: true, formatter: 'formatearFecha' },
                 { field: 'estado', title: 'Estado', sortable: true },
                 { field: 'action', title: 'Acciones', formatter: 'actionFormatter', events: 'actionEvents', class: 'td-acciones' }
+            ],
+            initSelects: [ 
+                { id:'programa'}, 
+                { id:'convocatoria'}, 
+                { id:'estado'}, 
+                { id:'unidad', setting: {
+                        ajax: {
+                            url: '/unidadProductiva/search',
+                            dataType: 'json',
+                            delay: 300,
+                        },
+                        minimumInputLength: 3,
+                    }
+                } 
             ]
         };
 
-        $('#programa').select2();
-        $('#convocatoria').select2();
-        $('#estado').select2();
-        $('#unidad').select2({
-            ajax: {
-                url: '/unidadProductiva/search',
-                dataType: 'json',
-                delay: 300,
-            },
-            minimumInputLength: 3,
-        });
     </script>
 @endsection

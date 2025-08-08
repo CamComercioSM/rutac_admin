@@ -25,7 +25,7 @@
         <div class="table-responsive p-3 h-100" >
             <div id="toolbar" class="d-flex">
                 @if (View::hasSection('form-fiels'))
-                    <button class="btn btn-success me-3" onclick="CrearRegistro()">
+                    <button class="btn btn-success me-3" id="btnCrear">
                         <i class="ri-add-line"></i> Crear
                     </button>
                 @endif
@@ -67,21 +67,6 @@
 @endsection
 
 @section('page-script')
-  
-  <link rel="stylesheet" href="/libs/bootstrap-table/bootstrap-table.min.css">
-
-  <script src="/libs/axios.min.js"></script>
-  <script src="/libs/jquery.min.js"></script>
-  <script src="/libs/bootstrap-table/bootstrap-table.min.js"></script>
-  <script src="/libs/bootstrap-table/bootstrap-table-es-ES.min.js"></script>
-
-  <script>
-        $.extend($.fn.bootstrapTable.locales['es-ES'], {
-            formatShowingRows: function (from, to, total) { return `Visualizando ${from}–${to} de ${total}.`; },
-        });
-
-        $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['es-ES']);
-  </script>
   @yield('script')
-  <script src="/js/admin-base.js"></script>
+  @vite([ 'resources/js/admin-base.js' ])
 @endsection

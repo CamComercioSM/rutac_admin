@@ -55,8 +55,6 @@
 @endsection
 
 @section('script')
-    <script src="/libs/select2/select2.min.js"></script>
-    <link rel="stylesheet" href="/libs/select2/select2.min.css">
     <script> 
         const TABLA = {
             urlApi: '/unidadesProductivas',

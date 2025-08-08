@@ -23,7 +23,6 @@
             <input type="text" class="form-control" name="ruta" id="ruta" placeholder="Ruta" required>
         </div>
 
-
     </div>
 @endsection
 
@@ -39,9 +38,7 @@
                 { field: 'periodicidad', title: 'Periodicidad', sortable: true },
                 { field: 'ruta', title: 'Ruta', sortable: true },
                 { field: 'action', title: 'Acciones', formatter: 'actionFormatter', events: 'actionEvents', class: 'td-acciones' }
-            ]
+            ],
         };
-
-        $('#roles').select2({ placeholder: 'Seleccione las opciones' });
     </script>
 @endsection

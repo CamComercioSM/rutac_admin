@@ -35,8 +35,6 @@
 @endsection
 
 @section('script')
-    <script src="/libs/select2/select2.min.js"></script>
-    <link rel="stylesheet" href="/libs/select2/select2.min.css">
     <script> 
         const TABLA = {
             urlApi: '/diagnosticosResultados',
@@ -49,17 +47,19 @@
                 { field: 'resultado_puntaje', title: 'Puntaje', sortable: true },
                 { field: 'etapa', title: 'Etapa', sortable: true },
                 { field: 'action', title: 'Acciones', formatter: 'actionFormatter', events: 'actionEvents', class: 'td-acciones' }
+            ],
+            initSelects: [ 
+                { id:'etapa'}, 
+                { id:'unidad', setting: {
+                        ajax: {
+                            url: '/unidadProductiva/search',
+                            dataType: 'json',
+                            delay: 300,
+                        },
+                        minimumInputLength: 3,
+                    }
+                } 
             ]
         };
-
-        $('#etapa').select2();
-        $('#unidad').select2({
-            ajax: {
-                url: '/unidadProductiva/search',
-                dataType: 'json',
-                delay: 300,
-            },
-            minimumInputLength: 3,
-        });
     </script>
 @endsection

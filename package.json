@@ -82,12 +82,14 @@
     "@popperjs/core": "2.11.8",
     "apexcharts-clevision": "3.28.5",
     "bootstrap": "5.3.3",
+    "bootstrap-table": "^1.24.2",
     "highlight.js": "11.9.0",
     "jquery": "^3.7.1",
     "laravel-vite-plugin": "1.2.0",
     "masonry-layout": "4.2.2",
     "node-waves": "0.7.6",
     "perfect-scrollbar": "1.5.5",
-    "remixicon": "4.3.0"
+    "remixicon": "4.3.0",
+    "select2": "^4.1.0-rc.0"
   }
 }

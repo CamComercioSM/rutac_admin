@@ -1,3 +1,26 @@
+    // === IMPORTACIONES NECESARIAS ===
+    import $ from 'jquery';
+    import axios from 'axios';
+
+    window.$ = $;
+    window.jQuery = $;
+    window.axios = axios;
+
+    // Select2 y Bootstrap Table después de jQuery
+    import 'bootstrap-table'
+    import select2 from 'select2';
+    select2($);
+
+    // Si necesitas estilos también:
+    import 'select2/dist/css/select2.min.css'
+    import 'bootstrap-table/dist/bootstrap-table.min.css'
+
+    // === LOCALIZACIÓN DE BOOTSTRAP TABLE ===
+    $.extend($.fn.bootstrapTable.locales['es-ES'], {
+    formatShowingRows: function (from, to, total) { return `Visualizando ${from}–${to} de ${total}.`; }, });
+    $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['es-ES']);
+    
+    
     const preview = document.getElementById('preview');
     const file = document.getElementById('file');
 
@@ -63,6 +86,8 @@
         ajax: ajaxCargarData,
         queryParamsType: ''
     });
+
+    $('#btnCrear').on('click', function () { CrearRegistro(); });
 
     function CrearRegistro(data = null) 
     {
@@ -213,3 +238,13 @@
         
         $('#tabla').bootstrapTable('refresh');
     });
+
+    $(function () {
+        if (TABLA.initSelects) {
+            TABLA.initSelects.forEach(item => {
+                $("#" + item.id).select2(item.setting ?? {});
+            });
+        }
+    });
+    
+
