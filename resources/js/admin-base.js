@@ -113,7 +113,15 @@
             {
                 if ($(input).hasClass('trumbowyg-textarea')) {
                     $('#' + nb).trumbowyg('html', data[nb]);
-                } else {
+                } else 
+                {
+                    if (input.type === 'date') {
+                        data[nb] = formatDateForInput(data[nb]); // YYYY-MM-DD
+                    } 
+                    else if (input.type === 'datetime-local') {
+                        data[nb] = formatDateTimeForInput(data[nb]); // YYYY-MM-DDTHH:mm
+                    }
+                    
                     $(input).val(data[nb]).trigger('change');
                 }       
             }
@@ -239,12 +247,23 @@
         $('#tabla').bootstrapTable('refresh');
     });
 
-    $(function () {
-        if (TABLA.initSelects) {
-            TABLA.initSelects.forEach(item => {
-                $("#" + item.id).select2(item.setting ?? {});
-            });
-        }
-    });
+
+    if (TABLA.initSelects) {
+        TABLA.initSelects.forEach(item => {
+            $("#" + item.id).select2(item.setting ?? {});
+        });
+    }
+
+    function formatDateForInput(dateStr) {
+        const date = new Date(dateStr);
+        if (isNaN(date)) return "";
+        return date.toISOString().split('T')[0];
+    }
+
+    function formatDateTimeForInput(dateStr) {
+        const date = new Date(dateStr);
+        if (isNaN(date)) return "";
+        return date.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+    }
     
 

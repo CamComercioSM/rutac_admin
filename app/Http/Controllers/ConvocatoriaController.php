@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\UsuariosExport;
+use App\Exports\ConvocatoriaExport;
 use App\Http\Controllers\Controller;
 use App\Models\Programas\Programa;
 use App\Models\Programas\ProgramaConvocatoria;
 use App\Models\TablasReferencias\Sector;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ConvocatoriaController extends Controller
@@ -28,7 +27,7 @@ class ConvocatoriaController extends Controller
     function export(Request $request)
     { 
         $query = $this->getQuery($request);
-        return Excel::download(new UsuariosExport($query), 'convocatorias.xlsx');
+        return Excel::download(new ConvocatoriaExport($query), 'convocatorias.xlsx');
     }
 
     public function index(Request $request)
