@@ -2,6 +2,7 @@
 
 namespace App\Models\Programas;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,31 +18,13 @@ class ProgramaConvocatoria extends Model
     protected $fillable = [
         'programa_id',
         'nombre_convocatoria',
-        'descripcion',
-        'logo',
-        'beneficios',
-        'requisitos',
-        'duracion',
-        'dirigido_a',
-        'objetivo',
-        'determinantes',
-        'procedimiento_imagen',
-        'herramientas_requeridas',
-        'es_virtual',
         'persona_encargada',
         'correo_contacto',
         'telefono',
-        'informacion_adicional',
-        'sitio_web',
         'fecha_apertura_convocatoria',
         'fecha_cierre_convocatoria',
         'con_matricula',
         'sector_id',
-    ];
-
-    protected $casts = [
-        'fecha_apertura_convocatoria' => 'date',
-        'fecha_cierre_convocatoria' => 'date',
     ];
 
     // Definición de constantes para los timestamps personalizados
@@ -55,6 +38,11 @@ class ProgramaConvocatoria extends Model
     public function programa(): BelongsTo
     {
         return $this->belongsTo(Programa::class, 'programa_id', 'programa_id');
+    }
+
+    public function asesores()
+    {
+        return $this->belongsToMany(User::class, 'convocatorias_asesores', 'convocatoria_id', 'user_id');
     }
 
     /*

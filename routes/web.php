@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminViewController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ConvocatoriaController;
 use App\Http\Controllers\CronController;
 use App\Http\Controllers\CronLogController;
 use App\Http\Controllers\DiagnosticosResultadosController;
@@ -29,6 +30,7 @@ Route::as('admin.')
         Route::get('/unidadesProductivas/list', [UnidadProductivaController::class, 'list']);
         Route::get('/inscriptions/list', [InscriptionController::class, 'list']);
         Route::get('/diagnosticosResultados/list', [DiagnosticosResultadosController::class, 'list']);
+        Route::get('/convocatorias/list', [ConvocatoriaController::class, 'list']);
 
         Route::get('/users/list', [UserController::class, 'list']);
         Route::get('/menu/list', [MenuController::class, 'list']);
@@ -43,6 +45,7 @@ Route::as('admin.')
     Route::get('/cronLog/export', [CronLogController::class, 'export']);
     Route::get('/diagnosticosResultados/export', [DiagnosticosResultadosController::class, 'export']);
     Route::get('/unidadesProductivas/export', [UnidadProductivaController::class, 'export']);
+    Route::get('/convocatorias/export', [ConvocatoriaController::class, 'export']);
 
     Route::apiResource('users', UserController::class);
     Route::apiResource('menu', MenuController::class);
@@ -51,7 +54,7 @@ Route::as('admin.')
     Route::apiResource('cronLog', CronLogController::class);
     Route::apiResource('diagnosticosResultados', DiagnosticosResultadosController::class);
     Route::apiResource('unidadesProductivas', UnidadProductivaController::class);
-
+    Route::apiResource('convocatorias', ConvocatoriaController::class);
     
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search']);
 });
