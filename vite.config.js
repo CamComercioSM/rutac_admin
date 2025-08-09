@@ -45,6 +45,7 @@ export default defineConfig({
         'resources/js/app.js',
         'resources/js/admin-base.js',
         'resources/js/admin-menu.js',
+        'resources/js/admin-table.js',
         ...pageJsFiles,
         ...vendorJsFiles,
         ...LibsJsFiles,

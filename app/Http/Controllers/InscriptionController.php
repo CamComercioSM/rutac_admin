@@ -14,13 +14,14 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class InscriptionController extends Controller
 {
-    function list()
+    function list($msj = null)
     { 
         $data = [
             'estados'=> InscripcionEstado::get(),
             'programas'=> Programa::get(),
             'convocatorias'=> ProgramaConvocatoria::get(),
             'unidades'=> [],
+            'mensaje'=> $msj,
         ];
         
         return View("inscriptions.index", $data);
@@ -50,7 +51,19 @@ class InscriptionController extends Controller
             'respuestas'
         ])->findOrFail($id);
 
-        return view('inscriptions.detail', ['detalle' => $result]);
+        $estados = InscripcionEstado::get();
+
+        return view('inscriptions.detail', ['detalle' => $result, 'estados' => $estados]);
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->all();
+        
+        $entity = ConvocatoriaInscripcion::findOrFail($request->inscripcion_id);
+        $entity->update($data);
+
+        return response()->json([ 'message' => 'Stored' ], 201);
     }
 
 
