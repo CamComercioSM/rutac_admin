@@ -6,9 +6,11 @@ use App\Exports\ConvocatoriaExport;
 use App\Http\Controllers\Controller;
 use App\Models\Programas\Programa;
 use App\Models\Programas\ProgramaConvocatoria;
+use App\Models\Role;
 use App\Models\TablasReferencias\Sector;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ConvocatoriaController extends Controller
@@ -18,7 +20,8 @@ class ConvocatoriaController extends Controller
         $data = [ 
             'programas'=> Programa::get(),
             'sectores'=> Sector::get(),
-            'asesores'=> User::where('rol_id', 3)->get() 
+            'asesores'=> User::where('rol_id', Role::ASESOR)->get(),
+            'puedeExportar'=> Auth::user()->rol_id != Role::ASESOR, 
         ];
 
         return View("convocatorias.index", $data);
@@ -128,6 +131,15 @@ class ConvocatoriaController extends Controller
             $query->whereDate('programas_convocatorias.fecha_apertura_convocatoria', '>=', $fecha_inicio);
         } elseif (!empty($fecha_fin)) {
             $query->whereDate('programas_convocatorias.fecha_apertura_convocatoria', '<=', $fecha_fin);
+        }
+
+        if(Auth::user()->rol_id == Role::ASESOR)
+        {
+            $userId = Auth::user()->id;
+
+            $query->whereHas('asesores', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            });
         }
 
         return $query;

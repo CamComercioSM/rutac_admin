@@ -1,4 +1,4 @@
-@extends('layouts.list', ['titulo'=> 'Convocatorias', 'tituloModal'=> 'convocatoria'])
+@extends('layouts.list', ['titulo'=> 'Convocatorias', 'tituloModal'=> 'convocatoria', 'exportar'=> $puedeExportar])
 
 @section('form-filters')
 

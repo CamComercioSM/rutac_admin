@@ -30,16 +30,17 @@
                     </button>
                 @endif
 
-                <a id="btnExport" class="btn btn-info" href="export" target="_blank" >
-                    <i class="ri-download-cloud-2-line me-1"></i> Exportar
-                </a>
+                @if (!isset($exportar) || $exportar === true)
+                    <a id="btnExport" class="btn btn-info" href="export" target="_blank" >
+                        <i class="ri-download-cloud-2-line me-1"></i> Exportar
+                    </a>
+                @endif
 
             </div>
 
             <table id="tabla" class="table"></table>
         </div>
     </div>
-
 
     <div class="py-3 d-none" id="Modal" >
 
