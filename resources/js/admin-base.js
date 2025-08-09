@@ -109,7 +109,7 @@
 
         for (let nb in data) {
             const input = form[nb];
-            if (input && input.type !== 'file' && data[nb]) 
+            if (input && input.type !== 'file' && data[nb] != null) 
             {
                 if ($(input).hasClass('trumbowyg-textarea')) {
                     $('#' + nb).trumbowyg('html', data[nb]);

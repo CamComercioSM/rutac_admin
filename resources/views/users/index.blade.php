@@ -3,13 +3,22 @@
 @section('form-fiels')
     <div class="row">
 
-        <div class="col-12 col-md-6 form-group mb-3">
+        <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="identification">N° documento</label>
             <input type="number" class="form-control" name="identification" id="identification" placeholder="N° documento" required>
         </div>
-        <div class="col-12 col-md-6 form-group mb-3">
+        <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="position">Cargo</label>
             <input type="text" class="form-control" name="position" id="position" placeholder="Cargo" required>
+        </div>
+
+        <div class="col-12 col-md-4 form-group mb-3">
+            <label class="form-label" for="active">Activo</label>
+            <select class="form-select" name="active" id="active" required>
+                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="0">No</option>
+                <option value="1">Si</option>
+            </select>
         </div>
 
         <div class="col-12 col-md-6 form-group mb-3">
