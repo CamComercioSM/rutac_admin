@@ -46,7 +46,9 @@ class UnidadProductivaController extends Controller
     {
         $result = UnidadProductiva::with([
             'etapa',
-            'tipoPersona'
+            'tipoPersona',
+            'diagnosticos',
+            'inscripciones'
         ])->findOrFail($id);
         
         return view('unidadesProductivas.detail', ['detalle' => $result]);
