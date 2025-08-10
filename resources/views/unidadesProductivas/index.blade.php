@@ -59,7 +59,7 @@
         const TABLA = {
             urlApi: '/unidadesProductivas',
             sortName: 'fecha_creacion',
-            acciones: "ver",
+            accion_ver: true,
             columns: [
                 { field: 'fecha_creacion', title: 'Fecha de registro', sortable: true, formatter: 'formatearFecha' },
                 { field: 'tipo_registro_rutac', title: 'Tipo registro', sortable: true },
@@ -72,8 +72,7 @@
                 { field: 'tamano', title: 'Tamaño', sortable: true },
                 { field: 'etapa', title: 'Etapa', sortable: true },
                 { field: 'departamento', title: 'Departamento', sortable: true },
-                { field: 'municipio', title: 'Municipio', sortable: true },
-                { field: 'action', title: 'Acciones', formatter: 'actionFormatter', events: 'actionEvents', class: 'td-acciones' }
+                { field: 'municipio', title: 'Municipio', sortable: true }
             ]
         };
     </script>

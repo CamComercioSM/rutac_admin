@@ -24,11 +24,6 @@
     const preview = document.getElementById('preview');
     const file = document.getElementById('file');
 
-    const btn_editar = `<button class="btn btn-sm btn-outline-primary editar"> <i class="ri-pencil-line"></i> </button>`;
-    const btn_ver = `<button class="btn btn-sm btn-outline-info ver"> <i class="ri-eye-line"></i> </button>`;
-    const btn_eliminar = `<button class="btn btn-sm btn-outline-danger eliminar"> <i class="ri-delete-bin-line"></i> </button>`;
-    const btns_acciones = TABLA.acciones.replace('ver', btn_ver).replace('editar', btn_editar).replace('eliminar', btn_eliminar);
-    
     window.formatearFecha = function(value) {
         if (!value) return '';
         const fecha = new Date(value);
@@ -65,14 +60,6 @@
         });
     }
 
-    window.actionFormatter = function (value, row, index) { return btns_acciones; };
-
-    window.actionEvents = {
-        'click .editar':   function (e, value, row, index) { CrearRegistro(row); },
-        'click .ver': function (e, value, row, index) { window.location.href = TABLA.urlApi +'/'+ row.id; },
-        'click .eliminar': function (e, value, row, index) { eliminar(row); }
-    };
-
     $('#tabla').bootstrapTable({
         toolbar: '#toolbar',
         columns: TABLA.columns,
@@ -84,7 +71,16 @@
         sortOrder: 'asc',
         pageList: [15, 25, 50, 100],
         ajax: ajaxCargarData,
-        queryParamsType: ''
+        queryParamsType: '',
+        onDblClickRow: function (row, $element, field) {
+            if(TABLA.accion_editar)
+            {
+                CrearRegistro(row);
+            }
+            else if(TABLA.accion_ver){
+                window.location.href = TABLA.urlApi +'/'+ row.id;
+            }
+        }
     });
 
     $('#btnCrear').on('click', function () { CrearRegistro(); });
@@ -134,34 +130,6 @@
         $("#accionModal").text( (data.id ? 'Editar' : 'Crear') );
 
         AbrirModal();
-    }
-
-    function eliminar(item) {
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: "Esta acción no se puede deshacer",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-
-                // Mostrar loader
-                Swal.fire({ title: 'Eliminando...', allowOutsideClick: false,  didOpen: () => { Swal.showLoading(); } });
-
-                axios.delete(`${TABLA.urlApi}/${item.id}`)
-                    .then(() => {
-                        $('#tabla').bootstrapTable('refresh');
-                        Swal.fire('Eliminado', 'El registro ha sido eliminado.', 'success');
-                    })
-                    .catch(() => {
-                        Swal.fire('Error', 'No se pudo eliminar el registro.', 'error');
-                    });
-            }
-        });
     }
 
     file?.addEventListener('change', function (e) {
@@ -263,7 +231,5 @@
     function formatDateTimeForInput(dateStr) {
         const date = new Date(dateStr);
         if (isNaN(date)) return "";
-        return date.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+        return date.toISOString().slice(0, 16);
     }
-    
-

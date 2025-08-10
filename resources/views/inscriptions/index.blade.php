@@ -59,15 +59,14 @@
         const TABLA = {
             urlApi: '/inscriptions',
             sortName: 'fecha_creacion',
-            acciones: "ver",
+            accion_ver: true,
             columns: [
                 { field: 'nombre_convocatoria', title: 'Convocatoria', sortable: true },
                 { field: 'nombre_programa', title: 'Programa', sortable: true },
                 { field: 'nit', title: 'NIT', sortable: true },
                 { field: 'business_name', title: 'Unidad productiva', sortable: true },
                 { field: 'fecha_creacion', title: 'Fecha de inscripcion', sortable: true, formatter: 'formatearFecha' },
-                { field: 'estado', title: 'Estado', sortable: true },
-                { field: 'action', title: 'Acciones', formatter: 'actionFormatter', events: 'actionEvents', class: 'td-acciones' }
+                { field: 'estado', title: 'Estado', sortable: true }
             ],
             initSelects: [ 
                 { id:'programa'}, 

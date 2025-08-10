@@ -113,15 +113,14 @@
         const TABLA = {
             urlApi: '/convocatorias',
             sortName: 'convocatoria_id',
-            acciones: "editar",
+            accion_editar: true,
             columns: [
                 { field: 'nombre_programa', title: 'Programa', sortable: true },
                 { field: 'nombre_convocatoria', title: 'Nombre', sortable: true },
                 { field: 'persona_encargada', title: 'Persona a cargo', sortable: true },
                 { field: 'telefono', title: 'Teléfono', sortable: true },
                 { field: 'fecha_apertura_convocatoria', title: 'Fecha inicio', sortable: true, formatter: 'formatearFecha' },
-                { field: 'fecha_cierre_convocatoria', title: 'Fecha finalización', sortable: true, formatter: 'formatearFecha' },
-                { field: 'action', title: 'Acciones', formatter: 'actionFormatter', events: 'actionEvents', class: 'td-acciones' }
+                { field: 'fecha_cierre_convocatoria', title: 'Fecha finalización', sortable: true, formatter: 'formatearFecha' }
             ],
             initSelects: [ { id:'programa'}, { id:'asesores', setting:{ placeholder: 'Selección multiple'}  } ]
         };

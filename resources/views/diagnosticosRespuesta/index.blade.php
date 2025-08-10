@@ -39,14 +39,13 @@
         const TABLA = {
             urlApi: '/diagnosticosResultados',
             sortName: 'fecha_creacion',
-            acciones: "ver",
+            accion_ver: true,
             columns: [
                 { field: 'fecha_creacion', title: 'Fecha de inscripcion', sortable: true, formatter: 'formatearFecha' },
                 { field: 'nit', title: 'NIT', sortable: true },
                 { field: 'business_name', title: 'Unidad productiva', sortable: true },                
                 { field: 'resultado_puntaje', title: 'Puntaje', sortable: true },
-                { field: 'etapa', title: 'Etapa', sortable: true },
-                { field: 'action', title: 'Acciones', formatter: 'actionFormatter', events: 'actionEvents', class: 'td-acciones' }
+                { field: 'etapa', title: 'Etapa', sortable: true }
             ],
             initSelects: [ 
                 { id:'etapa'}, 

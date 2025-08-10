@@ -31,13 +31,12 @@
         const TABLA = {
             urlApi: '/crons',
             sortName: 'nombre',
-            acciones: "editar",
+            accion_editar: true,
             columns: [
                 { field: 'nombre', title: 'Nombre', sortable: true },
                 { field: 'descripcion', title: 'Descripcion', sortable: true },
                 { field: 'periodicidad', title: 'Periodicidad', sortable: true },
-                { field: 'ruta', title: 'Ruta', sortable: true },
-                { field: 'action', title: 'Acciones', formatter: 'actionFormatter', events: 'actionEvents', class: 'td-acciones' }
+                { field: 'ruta', title: 'Ruta', sortable: true }
             ],
         };
     </script>

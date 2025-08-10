@@ -58,13 +58,12 @@
         const TABLA = {
             urlApi: '/users',
             sortName: 'name',
-            acciones: "editar",
+            accion_editar: true,
             columns: [
                 { field: 'identification', title: 'N° documento', sortable: true },
                 { field: 'name', title: 'Nombre (s)', sortable: true },
                 { field: 'lastname', title: 'Apellido (s)', sortable: true },
-                { field: 'position', title: 'Cargo', sortable: true },
-                { field: 'action', title: 'Acciones', formatter: 'actionFormatter', events: 'actionEvents', class: 'td-acciones' }
+                { field: 'position', title: 'Cargo', sortable: true }
             ]
         };
     </script>
