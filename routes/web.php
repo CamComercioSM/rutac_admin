@@ -9,7 +9,7 @@ use App\Http\Controllers\CronLogController;
 use App\Http\Controllers\DiagnosticosController;
 use App\Http\Controllers\DiagnosticosPreguntasController;
 use App\Http\Controllers\DiagnosticosResultadosController;
-use App\Http\Controllers\InscriptionController;
+use App\Http\Controllers\InscripcionesController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\UnidadProductivaController;
 use App\Http\Middleware\ValidateUserMenuAccess;
@@ -30,7 +30,7 @@ Route::as('admin.')
     ->group(function () {
 
         Route::get('/unidadesProductivas/list', [UnidadProductivaController::class, 'list']);
-        Route::get('/inscriptions/list', [InscriptionController::class, 'list']);
+        Route::get('/inscriptions/list', [InscripcionesController::class, 'list']);
         Route::get('/diagnosticosResultados/list', [DiagnosticosResultadosController::class, 'list']);
         Route::get('/convocatorias/list', [ConvocatoriaController::class, 'list']);
 
@@ -45,7 +45,7 @@ Route::as('admin.')
 
     Route::get('/users/export', [UserController::class, 'export']);
     Route::get('/menu/export', [MenuController::class, 'export']);
-    Route::get('/inscriptions/export', [InscriptionController::class, 'export']);
+    Route::get('/inscriptions/export', [InscripcionesController::class, 'export']);
     Route::get('/crons/export', [CronController::class, 'export']);
     Route::get('/cronLog/export', [CronLogController::class, 'export']);
     Route::get('/diagnosticosResultados/export', [DiagnosticosResultadosController::class, 'export']);
@@ -56,7 +56,7 @@ Route::as('admin.')
 
     Route::apiResource('users', UserController::class);
     Route::apiResource('menu', MenuController::class);
-    Route::apiResource('inscriptions', InscriptionController::class);
+    Route::apiResource('inscriptions', InscripcionesController::class);
     Route::apiResource('crons', CronController::class);
     Route::apiResource('cronLog', CronLogController::class);
     Route::apiResource('diagnosticosResultados', DiagnosticosResultadosController::class);

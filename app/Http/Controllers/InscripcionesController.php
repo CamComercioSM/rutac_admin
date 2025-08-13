@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
 
-class InscriptionController extends Controller
+class InscripcionesController extends Controller
 {
     function list($msj = null)
     { 
