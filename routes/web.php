@@ -10,6 +10,7 @@ use App\Http\Controllers\DiagnosticosController;
 use App\Http\Controllers\DiagnosticosPreguntasController;
 use App\Http\Controllers\DiagnosticosResultadosController;
 use App\Http\Controllers\InscripcionesController;
+use App\Http\Controllers\InscripcionesRequisitosController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\UnidadProductivaController;
 use App\Http\Middleware\ValidateUserMenuAccess;
@@ -41,6 +42,7 @@ Route::as('admin.')
 
         Route::get('/diagnosticos/list', [DiagnosticosController::class, 'list']);
         Route::get('/diagnosticosPreguntas/list/{id?}', [DiagnosticosPreguntasController::class, 'list']);
+        Route::get('/convocatoriasRequisitos/list', [InscripcionesRequisitosController::class, 'list']);
     });
 
     Route::get('/users/export', [UserController::class, 'export']);
@@ -53,6 +55,7 @@ Route::as('admin.')
     Route::get('/convocatorias/export', [ConvocatoriaController::class, 'export']);
     Route::get('/diagnosticos/export', [DiagnosticosController::class, 'export']);
     Route::get('/diagnosticosPreguntas/export', [DiagnosticosPreguntasController::class, 'export']);
+    Route::get('/convocatoriasRequisitos/export', [InscripcionesRequisitosController::class, 'export']);
 
     Route::apiResource('users', UserController::class);
     Route::apiResource('menu', MenuController::class);
@@ -64,6 +67,7 @@ Route::as('admin.')
     Route::apiResource('convocatorias', ConvocatoriaController::class);
     Route::apiResource('diagnosticos', DiagnosticosController::class);
     Route::apiResource('diagnosticosPreguntas', DiagnosticosPreguntasController::class);
+    Route::apiResource('convocatoriasRequisitos', InscripcionesRequisitosController::class);
     
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search']);
 });

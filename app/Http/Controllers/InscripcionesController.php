@@ -24,7 +24,7 @@ class InscripcionesController extends Controller
             'mensaje'=> $msj,
         ];
         
-        return View("inscriptions.index", $data);
+        return View("inscripciones.index", $data);
     }
 
     function export(Request $request)
@@ -53,7 +53,7 @@ class InscripcionesController extends Controller
 
         $estados = InscripcionEstado::get();
 
-        return view('inscriptions.detail', ['detalle' => $result, 'estados' => $estados]);
+        return view('inscripciones.detail', ['detalle' => $result, 'estados' => $estados]);
     }
 
     public function store(Request $request)
