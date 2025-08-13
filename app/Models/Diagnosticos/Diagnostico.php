@@ -2,6 +2,7 @@
 
 namespace App\Models\Diagnosticos;
 
+use App\Models\TablasReferencias\Etapa;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -25,6 +26,11 @@ class Diagnostico extends Model
     public function preguntas()
     {
         return $this->hasMany(DiagnosticoPregunta::class, 'diagnostico_id', 'diagnostico_id');
+    }
+
+    public function etapa()
+    {
+        return $this->belongsTo(Etapa::class, 'diagnostico_etapa_id', 'etapa_id');
     }
 
     const CREATED_AT = 'fecha_creacion';

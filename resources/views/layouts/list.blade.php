@@ -3,6 +3,8 @@
 @section('content')
 <div class="container card my-3 shadow-sm">
 
+    @yield('info-header')
+
     <div id="Data" >
         @if (View::hasSection('form-filters'))
             <form class="border p-3 mt-3" id="filters" novalidate >

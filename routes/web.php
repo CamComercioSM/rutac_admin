@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConvocatoriaController;
 use App\Http\Controllers\CronController;
 use App\Http\Controllers\CronLogController;
+use App\Http\Controllers\DiagnosticosController;
+use App\Http\Controllers\DiagnosticosPreguntasController;
 use App\Http\Controllers\DiagnosticosResultadosController;
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\MenuController;
@@ -36,6 +38,9 @@ Route::as('admin.')
         Route::get('/menu/list', [MenuController::class, 'list']);
         Route::get('/crons/list', [CronController::class, 'list']);
         Route::get('/cronLog/list', [CronLogController::class, 'list']);
+
+        Route::get('/diagnosticos/list', [DiagnosticosController::class, 'list']);
+        Route::get('/diagnosticosPreguntas/list/{id?}', [DiagnosticosPreguntasController::class, 'list']);
     });
 
     Route::get('/users/export', [UserController::class, 'export']);
@@ -46,6 +51,8 @@ Route::as('admin.')
     Route::get('/diagnosticosResultados/export', [DiagnosticosResultadosController::class, 'export']);
     Route::get('/unidadesProductivas/export', [UnidadProductivaController::class, 'export']);
     Route::get('/convocatorias/export', [ConvocatoriaController::class, 'export']);
+    Route::get('/diagnosticos/export', [DiagnosticosController::class, 'export']);
+    Route::get('/diagnosticosPreguntas/export', [DiagnosticosPreguntasController::class, 'export']);
 
     Route::apiResource('users', UserController::class);
     Route::apiResource('menu', MenuController::class);
@@ -55,6 +62,8 @@ Route::as('admin.')
     Route::apiResource('diagnosticosResultados', DiagnosticosResultadosController::class);
     Route::apiResource('unidadesProductivas', UnidadProductivaController::class);
     Route::apiResource('convocatorias', ConvocatoriaController::class);
+    Route::apiResource('diagnosticos', DiagnosticosController::class);
+    Route::apiResource('diagnosticosPreguntas', DiagnosticosPreguntasController::class);
     
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search']);
 });

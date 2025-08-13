@@ -35,7 +35,7 @@
 
     window.ajaxCargarData = params => {
 
-        let data = { ...params.data };
+        let data = { ...params.data, ...TABLA.paramsExtra };
 
         if(document.getElementById('filters')){
             const formData = new FormData(document.getElementById('filters'));

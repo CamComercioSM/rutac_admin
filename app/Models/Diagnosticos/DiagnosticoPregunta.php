@@ -21,9 +21,7 @@ class DiagnosticoPregunta extends Model
         'preguntatipo_id',
         'preguntadimension_id',
         'pregunta_titulo',
-        'pregunta_opcionesJSON',
         'pregunta_porcentaje',
-        'pregunta_sobreventas',
     ];
 
     // Relaciones
