@@ -4,7 +4,6 @@ namespace App\Models\Diagnosticos;
 
 use App\Models\TablasReferencias\PreguntaDimension;
 use App\Models\TablasReferencias\PreguntaGrupo;
-use App\Models\TablasReferencias\PreguntaOpcion;
 use App\Models\TablasReferencias\PreguntaTipo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;

@@ -60,6 +60,20 @@
             <input type="number" class="form-control" name="pregunta_porcentaje" id="pregunta_porcentaje" placeholder="porcentaje" required>
         </div>
 
+        <div class="col-12 col-md-12 form-group mb-3 mt-4">
+            <label class="form-label" for="pregunta_porcentaje">
+                Opciones
+                <button type="button" class="btn btn-sm btn-primary py-1" onclick="itemOption()" >Agregar</button>
+            </label>
+            <table class="table table-sm table-border border">
+                <thead>
+                    <th>Nombre</th>
+                    <th>Porcentaje</th>
+                    <th></th>     
+                </thead>
+                <tbody id="table_opciones"></tbody>
+            </table>
+        </div>
     </div>
 @endsection
 
@@ -73,7 +87,48 @@
                 { field: 'pregunta_titulo', title: 'Nombre', sortable: true },
                 { field: 'pregunta_porcentaje', title: 'Porcentaje ', sortable: true }
             ],
-            paramsExtra: { diagnostico: '{{$diagnostico->diagnostico_id ?? ''}}' }
+            paramsExtra: { diagnostico: '{{$diagnostico->diagnostico_id ?? ''}}' },
+            
+            loadOptions: function(opciones) 
+            {
+                $("#table_opciones").html('');
+
+                for(let i = 0; i< opciones.length; i++){
+                    window.itemOption(opciones[i]);
+                }
+            }
         };
+
+        window.itemOption = function(row={}) 
+        {
+            const index = $("#table_opciones tr").length;
+
+            const item = `
+                <tr>
+                    <td>
+                        <input type="text" class="form-control"
+                            name="opciones[${index}][opcion_variable_response]"
+                            value="${row.opcion_variable_response ?? ''}" placeholder="Nombre" />
+                    </td>
+                    <td>
+                        <input type="number" class="form-control"
+                            name="opciones[${index}][opcion_percentage]"
+                            value="${row.opcion_percentage ?? ''}" placeholder="Porcentaje" />
+                    </td>
+                    <td>
+                        <input type="hidden"
+                            name="opciones[${index}][opcion_id]"
+                            value="${row.opcion_id ?? ''}" />
+
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)" >Eliminar</button>
+                    </td>
+                </tr>`;
+            $("#table_opciones").append(item);
+        }
+        
+        window.removeOption = function(btn) {
+            $(btn).closest("tr").remove();
+        };
+
     </script>
 @endsection

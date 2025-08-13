@@ -121,6 +121,9 @@
                     $(input).val(data[nb]).trigger('change');
                 }       
             }
+            else if(nb == 'opciones' && data[nb] != null && typeof TABLA.loadOptions === "function" ){
+                TABLA.loadOptions(data[nb]);
+            }
         }
 
         if ((data.img || data.url) && preview) {

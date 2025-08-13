@@ -40,7 +40,7 @@ class ValidateUserMenuAccess
 
             // Verifica en los submenús
             foreach ($menu->submenus as $submenu) {
-                if ($submenu->url === $currentRoute) { return true; }
+                if (str_contains($currentRoute, $submenu->url)) { return true; }
             }
 
             return false;

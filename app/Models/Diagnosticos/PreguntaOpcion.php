@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\TablasReferencias;
+namespace App\Models\Diagnosticos;
 
 use App\Models\Diagnosticos\DiagnosticoPregunta;
 use Illuminate\Database\Eloquent\Model;

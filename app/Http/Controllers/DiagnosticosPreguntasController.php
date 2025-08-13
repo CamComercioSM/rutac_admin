@@ -6,6 +6,7 @@ use App\Exports\DiagnosticoPreguntasExport;
 use App\Http\Controllers\Controller;
 use App\Models\Diagnosticos\Diagnostico;
 use App\Models\Diagnosticos\DiagnosticoPregunta;
+use App\Models\Diagnosticos\PreguntaOpcion;
 use App\Models\TablasReferencias\PreguntaDimension;
 use App\Models\TablasReferencias\PreguntaGrupo;
 use App\Models\TablasReferencias\PreguntaTipo;
@@ -40,27 +41,68 @@ class DiagnosticosPreguntasController extends Controller
         return response()->json( $data );
     }
 
-    public function store(Request $request)
+   public function store(Request $request)
     {
-        $data = $request->all();
-        
-        if ($request->filled('id')) 
-        {
-            $entity = DiagnosticoPregunta::findOrFail($request->id);
-            $entity->update($data);
-        } 
-        else {
-            $entity = DiagnosticoPregunta::create($data);
+        $data = $request->except('opciones'); // Separa las opciones
+        $opcionesData = $request->input('opciones', []);
+
+        // Crear o actualizar la pregunta
+        if ($request->filled('id')) {
+            $pregunta = DiagnosticoPregunta::findOrFail($request->id);
+            $pregunta->update($data);
+        } else {
+            $pregunta = DiagnosticoPregunta::create($data);
         }
 
-        return response()->json([ 'message' => 'Stored' ], 201);
+        // IDs recibidos en el request
+        $idsRecibidos = collect($opcionesData)->pluck('opcion_id')->filter()->toArray();
+
+        // Eliminar opciones que no llegaron
+        PreguntaOpcion::where('pregunta_id', $pregunta->pregunta_id)
+            ->whereNotIn('opcion_id', $idsRecibidos)
+            ->delete();
+
+        // Crear o actualizar opciones
+        foreach ($opcionesData as $opcion) {
+            $opcionId = $opcion['opcion_id'] ?? null; // usa null si no existe
+
+            if (!empty($opcionId)) {
+                // Actualizar existente
+                $opcionModel = PreguntaOpcion::find($opcionId);
+                if ($opcionModel) {
+                    $opcionModel->update([
+                        'opcion_variable_response' => $opcion['opcion_variable_response'] ?? null,
+                        'opcion_percentage'        => $opcion['opcion_percentage'] ?? null
+                    ]);
+                }
+            } else {
+                // Crear nueva
+                $pregunta->opciones()->create([
+                    'opcion_variable_response' => $opcion['opcion_variable_response'] ?? null,
+                    'opcion_percentage'        => $opcion['opcion_percentage'] ?? null
+                ]);
+            }
+        }
+
+        return response()->json(['message' => 'Stored'], 201);
     }
+
 
     private function getQuery(Request $request)
     {
         $search = $request->get('searchText');
 
-        $query = DiagnosticoPregunta::where('diagnostico_id', $request->diagnostico);
+        $query = DiagnosticoPregunta::with('opciones')
+        ->select(
+        'pregunta_id as id',
+        'pregunta_id',
+        'diagnostico_id',
+        'preguntagrupo_id',
+        'preguntatipo_id',
+        'preguntadimension_id',
+        'pregunta_titulo',
+        'pregunta_porcentaje',)
+        ->where('diagnostico_id', $request->diagnostico);
 
         if(!empty($search))
         {
