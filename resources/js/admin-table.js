@@ -9,23 +9,9 @@
     import 'tableexport.jquery.plugin';
     import 'bootstrap-table/dist/extensions/export/bootstrap-table-export.min.js';
     import 'bootstrap-table/dist/bootstrap-table.min.css';
-    import 'bootstrap-table/dist/bootstrap-table.min.css';
+    import 'bootstrap-table/dist/locale/bootstrap-table-es-ES.min.js'
 
-    // === LOCALIZACIÓN DE BOOTSTRAP TABLE ===
-    $.fn.bootstrapTable.locales['es-ES'] = $.fn.bootstrapTable.locales['es-ES'] || {};
-    $.extend($.fn.bootstrapTable.locales['es-ES'], {
-        formatShowingRows: function (from, to, total) { 
-            return `Visualizando ${from}–${to} de ${total}.`; 
-        },
-        formatRecordsPerPage: function (pageNumber) {
-            return `${pageNumber}`;
-        }
-    });
-
-    // Establecer por defecto el idioma a español
-    $.extend($.fn.bootstrapTable.defaults, {
-        locale: 'es-ES'
-    });
+    $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['es-ES']);    
     
     if(TABLAS)
     {

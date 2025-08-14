@@ -75,9 +75,7 @@
   </div>
 </div>
 
-
 @endsection
-
 
 @section('page-script')
     @vite([ 'resources/js/admin-menu.js' ])

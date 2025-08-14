@@ -14,12 +14,9 @@
     // Si necesitas estilos también:
     import 'select2/dist/css/select2.min.css'
     import 'bootstrap-table/dist/bootstrap-table.min.css'
+    import 'bootstrap-table/dist/locale/bootstrap-table-es-ES.min.js'
 
-    // === LOCALIZACIÓN DE BOOTSTRAP TABLE ===
-    $.extend($.fn.bootstrapTable.locales['es-ES'], {
-    formatShowingRows: function (from, to, total) { return `Visualizando ${from}–${to} de ${total}.`; }, });
-    $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['es-ES']);
-    
+    $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['es-ES']);    
     
     const preview = document.getElementById('preview');
     const file = document.getElementById('file');

@@ -14,9 +14,11 @@
                 allMenus = response.data;
                 const tree = buildTree(allMenus);
                 document.getElementById("menuList").innerHTML = renderMenu(tree);
+                $('.cargando').addClass('d-none');
             })
             .catch(error => {
                 console.error("Error al cargar menús:", error);
+                $('.cargando').addClass('d-none');
             });
     }
 

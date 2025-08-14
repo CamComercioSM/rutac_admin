@@ -31,8 +31,10 @@
 
 @endsection
 
-@section('scripts')
+@section('page-script')
 <script>
-    $('.cargando').addClass('d-none');
+    document.querySelectorAll('.cargando').forEach(function(element) {
+        element.classList.add('d-none');
+    });
 </script>
 @endsection

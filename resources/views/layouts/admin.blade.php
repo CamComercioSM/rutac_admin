@@ -45,6 +45,12 @@ $container = ($container ?? 'container-xxl');
           <div class="{{$container}} flex-grow-1 container-p-y">
             @endif
 
+            <div class="d-flex justify-content-center align-items-center cargando" style="position: fixed; left: 0;">
+              <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+
             @yield('content')
 
           </div>
