@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminViewController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BannerController;
 use App\Http\Controllers\CapsulasController;
 use App\Http\Controllers\ConvocatoriaController;
 use App\Http\Controllers\CronController;
@@ -45,6 +46,7 @@ Route::as('admin.')
         Route::get('/diagnosticosPreguntas/list/{id?}', [DiagnosticosPreguntasController::class, 'list']);
         Route::get('/convocatoriasRequisitos/list', [InscripcionesRequisitosController::class, 'list']);
         Route::get('/capsulas/list', [CapsulasController::class, 'list']);
+        Route::get('/banners/list', [BannerController::class, 'list']);
     });
 
     Route::get('/users/export', [UserController::class, 'export']);
@@ -59,6 +61,7 @@ Route::as('admin.')
     Route::get('/diagnosticosPreguntas/export', [DiagnosticosPreguntasController::class, 'export']);
     Route::get('/convocatoriasRequisitos/export', [InscripcionesRequisitosController::class, 'export']);
     Route::get('/capsulas/export', [CapsulasController::class, 'export']);
+    Route::get('/banners/export', [BannerController::class, 'export']);
 
     Route::apiResource('users', UserController::class);
     Route::apiResource('menu', MenuController::class);
@@ -72,6 +75,7 @@ Route::as('admin.')
     Route::apiResource('diagnosticosPreguntas', DiagnosticosPreguntasController::class);
     Route::apiResource('convocatoriasRequisitos', InscripcionesRequisitosController::class);
     Route::apiResource('capsulas', CapsulasController::class);
+    Route::apiResource('banners', BannerController::class);
     
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search']);
 });
