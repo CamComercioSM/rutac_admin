@@ -114,6 +114,9 @@
 
     document.getElementById("menuForm").addEventListener("submit", function (e) {
         e.preventDefault();
+        
+        $('.cargando').removeClass('d-none');
+        
         const form = e.target;
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
