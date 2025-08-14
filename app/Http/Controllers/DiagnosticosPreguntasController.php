@@ -41,7 +41,7 @@ class DiagnosticosPreguntasController extends Controller
         return response()->json( $data );
     }
 
-   public function store(Request $request)
+    public function store(Request $request)
     {
         $data = $request->except('opciones'); // Separa las opciones
         $opcionesData = $request->input('opciones', []);
@@ -94,14 +94,14 @@ class DiagnosticosPreguntasController extends Controller
 
         $query = DiagnosticoPregunta::with('opciones')
         ->select(
-        'pregunta_id as id',
-        'pregunta_id',
-        'diagnostico_id',
-        'preguntagrupo_id',
-        'preguntatipo_id',
-        'preguntadimension_id',
-        'pregunta_titulo',
-        'pregunta_porcentaje',)
+            'pregunta_id as id',
+            'pregunta_id',
+            'diagnostico_id',
+            'preguntagrupo_id',
+            'preguntatipo_id',
+            'preguntadimension_id',
+            'pregunta_titulo',
+            'pregunta_porcentaje')
         ->where('diagnostico_id', $request->diagnostico);
 
         if(!empty($search))
