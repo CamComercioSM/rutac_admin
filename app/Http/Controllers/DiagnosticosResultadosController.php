@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\DiagnosticoResultadoExport;
 use App\Http\Controllers\Controller;
 use App\Models\Diagnosticos\DiagnosticoResultado;
+use App\Models\Diagnosticos\ResultadosDiagnostico;
 use App\Models\TablasReferencias\Etapa;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -42,8 +43,18 @@ class DiagnosticosResultadosController extends Controller
             'etapa',
             'respuestas'
         ])->findOrFail($id);
+
+        $resultados = ResultadosDiagnostico::where('resultado_id', $id)->get();
+
+        $dimensiones = $resultados->pluck('dimension')->toArray();
+        $resultados = $resultados->pluck('valor')->toArray();
         
-        return view('diagnosticosRespuesta.detail', ['detalle' => $result]);
+        return view('diagnosticosRespuesta.detail',
+         [
+            'detalle' => $result,
+            'dimensions'=> json_encode($dimensiones),
+            'results'=> json_encode($resultados),
+         ]);
     }
 
 

@@ -7,17 +7,22 @@
         
         @include('_partials.unidad', ["unidad"=>$detalle])
 
+        <div class="card pt-2">
+            <div id="chart"></div>
+        </div>
+
     </div>
     <div class="col-12 col-md-7">
 
         <div class="card mb-6 p-3">
+
+            <h5 class="text-center">Diagnósticos</h5>
 
             <div id="toolbarDiagnosticos">
                 <button class="btn btn-info exportar" type="button" data-tabla="diagnosticos" >
                     <i class="bi bi-cloud-download"></i> Exportar
                 </button>
             </div> 
-
             <table id="diagnosticos" class="table table-striped" >
                 <thead>
                     <th>ID</th>
@@ -41,12 +46,13 @@
 
         <div class="card mb-6 p-3">
 
+            <h5 class="text-center">Inscripciones</h5>
+
             <div id="toolbarInscripciones">
                 <button class="btn btn-info exportar" type="button" data-tabla="inscripciones" >
                     <i class="bi bi-cloud-download"></i> Exportar
                 </button>
             </div> 
-
             <table id="inscripciones" class="table table-striped" >
                 <thead>
                     <th>ID</th>
@@ -71,43 +77,61 @@
     </div>
 </div>
 
-
 @endsection
 
 
 @section('page-script')
-    <script>
-        const TABLAS = [
-            {
-                id: 'diagnosticos',
-                setting: {
-                    toolbar: '#toolbarDiagnosticos',
-                    locale: 'es-ES',
-                    pagination: true,
-                    search: true,
-                    pageSize: 5,
-                    pageList: [5, 10, 20, 50, 100],
-                    onDblClickRow: function (row, $element, field) {
-                        window.location.href = '/diagnosticosResultados/'+ row[0];
-                    }
-                }                
-            },
-            {
-                id: 'inscripciones',
-                setting: {
-                    toolbar: '#toolbarInscripciones',
-                    locale: 'es-ES',
-                    pagination: true,
-                    search: true,
-                    pageSize: 5,
-                    pageList: [5, 10, 20, 50, 100],
-                    onDblClickRow: function (row, $element, field) {
-                        window.location.href = '/inscriptions/'+ row[0];
-                    }
-                }                
-            }
-        ];
+<script>
+    const TABLAS = [
+        {
+            id: 'diagnosticos',
+            setting: {
+                toolbar: '#toolbarDiagnosticos',
+                locale: 'es-ES',
+                pagination: true,
+                search: true,
+                pageSize: 5,
+                pageList: [5, 10, 20, 50, 100],
+                onDblClickRow: function (row, $element, field) {
+                    window.location.href = '/diagnosticosResultados/'+ row[0];
+                }
+            }                
+        },
+        {
+            id: 'inscripciones',
+            setting: {
+                toolbar: '#toolbarInscripciones',
+                locale: 'es-ES',
+                pagination: true,
+                search: true,
+                pageSize: 5,
+                pageList: [5, 10, 20, 50, 100],
+                onDblClickRow: function (row, $element, field) {
+                    window.location.href = '/inscriptions/'+ row[0];
+                }
+            }                
+        }
+    ];
 
-    </script>
-    @vite([ 'resources/js/admin-table.js' ])
+    const options = {
+        series: [{ data: {{$results}} }],
+        chart: { height: 350, type: 'radar' },
+        title: { text: 'Último diagnóstico' },
+        yaxis: { stepSize: 20 },
+        xaxis: { categories: {!! $dimensions !!} }
+    };
+
+    const CHARTS = [ { id:'chart', options: options } ];
+
+    document.querySelectorAll('.cargando').forEach(function(element) {
+        element.classList.add('d-none');
+    });
+
+</script>
+@vite([ 
+    'resources/assets/vendor/libs/apex-charts/apexcharts.js',
+    'resources/assets/vendor/libs/apex-charts/apex-charts.scss',
+    'resources/js/admin-table.js', 
+    'resources/js/admin-chart.js' 
+])
 @endsection

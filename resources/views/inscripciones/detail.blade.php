@@ -209,6 +209,10 @@
             });
         });
 
+        document.querySelectorAll('.cargando').forEach(function(element) {
+            element.classList.add('d-none');
+        });
+
     </script>
     @vite([ 'resources/js/admin-table.js' ])
 @endsection

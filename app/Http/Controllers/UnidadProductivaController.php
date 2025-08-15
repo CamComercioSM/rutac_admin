@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\UnidadProductivaExport;
 use App\Http\Controllers\Controller;
+use App\Models\Diagnosticos\ResultadosDiagnostico;
 use App\Models\Empresarios\UnidadProductiva;
 use App\Models\TablasReferencias\Etapa;
 use App\Models\TablasReferencias\Sector;
@@ -44,14 +45,27 @@ class UnidadProductivaController extends Controller
 
     public function show($id)
     {
-        $result = UnidadProductiva::with([
+        $unidadProductiva = UnidadProductiva::with([
             'etapa',
             'tipoPersona',
             'diagnosticos',
-            'inscripciones'
+            'inscripciones',
+            'diagnosticos'
         ])->findOrFail($id);
-        
-        return view('unidadesProductivas.detail', ['detalle' => $result]);
+
+        $diagnostico = $unidadProductiva->diagnosticos->last();
+           
+        $resultados = ResultadosDiagnostico::where('resultado_id', $diagnostico->resultado_id)->get();
+
+        $dimensiones = $resultados->pluck('dimension')->toArray();
+        $resultados = $resultados->pluck('valor')->toArray();
+                
+        return view('unidadesProductivas.detail',
+         [
+            'detalle' => $unidadProductiva,
+            'dimensions'=> json_encode($dimensiones),
+            'results'=> json_encode($resultados),
+         ]);
     }
 
 

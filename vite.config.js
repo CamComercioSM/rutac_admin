@@ -46,6 +46,7 @@ export default defineConfig({
         'resources/js/admin-base.js',
         'resources/js/admin-menu.js',
         'resources/js/admin-table.js',
+        'resources/js/admin-chart.js',
         ...pageJsFiles,
         ...vendorJsFiles,
         ...LibsJsFiles,
