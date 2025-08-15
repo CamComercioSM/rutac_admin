@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\InscripcionesExport;
 use App\Http\Controllers\Controller;
 use App\Models\Inscripciones\ConvocatoriaInscripcion;
+use App\Models\Inscripciones\ConvocatoriaRespuesta;
 use App\Models\Programas\Programa;
 use App\Models\Programas\ProgramaConvocatoria;
 use App\Models\TablasReferencias\InscripcionEstado;
@@ -56,12 +57,21 @@ class InscripcionesController extends Controller
         return view('inscripciones.detail', ['detalle' => $result, 'estados' => $estados]);
     }
 
-    public function store(Request $request)
+    public function update($id, Request $request)
     {
         $data = $request->all();
         
-        $entity = ConvocatoriaInscripcion::findOrFail($request->inscripcion_id);
+        $entity = ConvocatoriaInscripcion::findOrFail($id);
         $entity->update($data);
+
+        return response()->json([ 'message' => 'Stored' ], 201);
+    }
+
+    public function store(Request $request)
+    {
+        $entity = ConvocatoriaRespuesta::findOrFail($request->respuestaId);
+        $entity->value = $request->valorPregunta;
+        $entity->save();
 
         return response()->json([ 'message' => 'Stored' ], 201);
     }

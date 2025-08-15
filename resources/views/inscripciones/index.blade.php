@@ -57,7 +57,7 @@
 @section('script')
     <script> 
         const TABLA = {
-            urlApi: '/inscriptions',
+            urlApi: '/inscripciones',
             sortName: 'fecha_creacion',
             accion_ver: true,
             columns: [

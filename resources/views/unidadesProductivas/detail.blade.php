@@ -107,7 +107,7 @@
                 pageSize: 5,
                 pageList: [5, 10, 20, 50, 100],
                 onDblClickRow: function (row, $element, field) {
-                    window.location.href = '/inscriptions/'+ row[0];
+                    window.location.href = '/inscripciones/'+ row[0];
                 }
             }                
         }

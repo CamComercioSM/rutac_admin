@@ -54,12 +54,18 @@
                 <thead>
                     <th>Pregunta</th>
                     <th>Respuesta</th>
+                    <th>Editar</th>
                 </thead>
                 <tbody>
                     @foreach ($detalle->respuestas as $item)
                         <tr>
                             <td>{{$item->requisito->requisito_titulo ?? ' - '}}</td>
                             <td>{{$item->value ?? ' - '}}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editarRequisito({{$item->convocatoriarespuesta_id}}, {{$item->requisito_id}}, '{{$item->value}}')" >
+                                    <i class="ri-loop-left-line"></i>
+                                </button>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -98,7 +104,7 @@
         <div class="text-center mb-6">
           <h4 class="mb-2">Cambio de estado</h4>
         </div>
-        <form id="cambioEstadoForm" class="row g-5 d-flex align-items-center" action="/inscriptions" method="POST" >
+        <form id="cambioEstadoForm" class="row g-5 d-flex align-items-center" action="/inscripciones/{{$detalle->inscripcion_id}}" method="PATCH" >
           
             <div class="col-sm-12 mb-3">
                 <label class="form-label" for="inscripcionestado_id">Estado</label>
@@ -142,11 +148,43 @@
   </div>
 </div>
 
+<div class="modal fade" id="editarPreguntaModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-6">
+      <div class="modal-body pt-md-0 px-0">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="text-center mb-6">
+          <h4 class="mb-2">Editar pregunta</h4>
+        </div>
+        <form id="editarPreguntaForm" class="row g-5 d-flex align-items-center" action="/inscripciones" method="POST" >
+          
+            <h5 id="textPregunta"></h5>
+            
+            <div class="my-3" id="campoPregunta"></div>
+
+            <input type="hidden" name="respuestaId" id="respuestaId">
+            @csrf
+
+            <div class="col-sm-12 text-center">
+                <hr class="mx-md-n5 mx-n3" />
+
+                <button class="btn btn-success mt-4" type="submit">
+                    Guardar
+                </button>
+            </div>
+
+        </form>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
 <div class="position-fixed top-0 end-0 p-5 w-100 d-flex justify-content-center" style="z-index: 1055;">
     <div id="estadoToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
             <div class="toast-body">
-                ✅ Cambio de estado exitoso
+                ✅ Cambio guardado exitosamente
             </div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
         </div>
@@ -171,26 +209,27 @@
             }
         ];
 
+        const cargando = document.querySelectorAll('.cargando')[0];
+
         document.addEventListener('DOMContentLoaded', function () {
 
-            let estado = false;
-
-            $('#cambioEstadoForm').on('submit', function (e) {
+            $('#cambioEstadoForm, #editarPreguntaForm').on('submit', function (e) {
                 e.preventDefault();
 
-                if (estado) return;
+                cargando.classList.remove('d-none');
 
                 let form = $(this);
+                let method = form.attr('method');
                 let actionUrl = form.attr('action');
 
-                estado = true;
                 $.ajax({
-                    type: "POST",
+                    type: method,
                     url: actionUrl,
                     data: form.serialize(),
                     success: function (response) {
 
-                        $("#cambioEstadoModal").modal('hide');
+                        $(".modal").modal('hide');
+                        cargando.classList.add('d-none');
                         
                         let toastEl = document.getElementById('estadoToast');
                         let toast = new bootstrap.Toast(toastEl, { delay: 2000 }); // 3s
@@ -204,15 +243,70 @@
                     error: function (xhr) {
                         console.error(xhr.responseText);
                         alert('Ocurrió un error al guardar');
-                        estado = false;
+                       cargando.classList.add('d-none');
                     }
                 });
             });
         });
 
-        document.querySelectorAll('.cargando').forEach(function(element) {
-            element.classList.add('d-none');
-        });
+        
+        window.editarRequisito = function(respuesta_id, requisito_id, value){
+            
+            cargando.classList.remove('d-none');
+            $('#respuestaId').val(respuesta_id); 
+
+            $.ajax({
+                url: `/convocatoriasRequisitos/${requisito_id}`,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    
+                    $('#textPregunta').text(response.requisito_titulo); 
+
+                    let htmlCampo = '';
+
+                    if (response.preguntatipo_id === 1) 
+                    {
+                        htmlCampo = '<div>';
+                        response.opciones.forEach(function(op, index) {
+                            
+                            let checked = (String(value).trim() === String(op.opcion_variable_response).trim()) ? 'checked' : '';
+                            htmlCampo += `
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input" type="radio" 
+                                        name="valorPregunta" 
+                                        id="opcion_${index}" 
+                                        value="${op.opcion_variable_response}" 
+                                        ${checked}>
+                                    <label class="form-check-label" for="opcion_${index}">
+                                        ${op.opcion_variable_response}
+                                    </label>
+                                </div>
+                            `;
+                        });
+                        htmlCampo += '</div>';
+                    }
+                    else if (response.preguntatipo_id === 2) 
+                    {
+                        htmlCampo = `<input type="number" class="form-control" 
+                                        name="valorPregunta" id="valorPregunta" 
+                                        value="${value ?? ''}" />`;
+                    }
+
+                    $('#campoPregunta').html(htmlCampo);
+                    $('#editarPreguntaModal').modal('show');
+
+                    cargando.classList.add('d-none');
+                },
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                    alert('Error al obtener la información del requisito.');
+                    cargando.classList.add('d-none');
+                }
+            });
+        }
+
+        cargando.classList.add('d-none');
 
     </script>
     @vite([ 'resources/js/admin-table.js' ])

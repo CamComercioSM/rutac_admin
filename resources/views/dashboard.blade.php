@@ -14,7 +14,7 @@
         </div>
     </a>
 
-    {{-- <a href="/inscriptions/list" class="col-md-3 mb-3 text-decoration-none">
+    {{-- <a href="/inscripciones/list" class="col-md-3 mb-3 text-decoration-none">
         <div class="card h-100 shadow-sm card-hover">
             <div class="card-body text-center">
                 <i class="bi bi-person-lines-fill display-4 text-danger"></i>
