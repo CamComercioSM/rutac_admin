@@ -53,6 +53,7 @@
             accion_editar: true,
             columns: [
                 { field: 'requisito_titulo', title: 'Nombre', sortable: true },
+                { field: 'indicador', title: 'Indicador', sortable: true },
             ],            
             loadOptions: function(opciones) 
             {

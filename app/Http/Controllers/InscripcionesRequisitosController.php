@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\InscripcionesRequisitosExport;
 use App\Http\Controllers\Controller;
 use App\Models\Programas\InscripcionesRequisitos;
-use App\Models\Programas\ProgramaConvocatoria;
 use App\Models\Programas\ProgramaIndicador;
 use App\Models\Programas\RequisitosOpciones;
 use App\Models\TablasReferencias\PreguntaTipo;
@@ -26,7 +26,7 @@ class InscripcionesRequisitosController extends Controller
     function export(Request $request)
     { 
         $query = $this->getQuery($request);
-        //return Excel::download(new InscripcionesRequisitossExport($query), 'inscripcionRequisitos.xlsx');
+        return Excel::download(new InscripcionesRequisitosExport($query), 'inscripcionRequisitos.xlsx');
     }
 
     public function index(Request $request)
@@ -37,7 +37,14 @@ class InscripcionesRequisitosController extends Controller
         return response()->json( $data );
     }
 
-   public function store(Request $request)
+    public function show($id)
+    {
+        $result = InscripcionesRequisitos::with('opciones')->findOrFail($id);
+
+        return response()->json($result);
+    }
+
+    public function store(Request $request)
     {
         $data = $request->except('opciones'); // Separa las opciones
         $opcionesData = $request->input('opciones', []);
@@ -83,7 +90,6 @@ class InscripcionesRequisitosController extends Controller
         return response()->json(['message' => 'Stored'], 201);
     }
 
-
     private function getQuery(Request $request)
     {
         $search = $request->get('searchText');
@@ -91,15 +97,18 @@ class InscripcionesRequisitosController extends Controller
         $query = InscripcionesRequisitos::with('opciones')
         ->select(
             'requisito_id as id',
-            'indicador_id',
+            'i.indicador_id',
             'requisito_id',
             'preguntatipo_id',
             'requisito_titulo',
-            'requisito_porcentaje');
+            'requisito_porcentaje',
+            'indicador_nombre as indicador'
+            )
+            ->leftJoin('programa_indicadores as i', 'inscripciones_requisitos.indicador_id', '=', 'i.indicador_id');
 
         if(!empty($search))
         {
-            $filters = ['requisito_titulo'];
+            $filters = ['requisito_titulo', 'indicador_nombre'];
             $query->where(function ($q) use ($search, $filters) {
                 foreach ($filters as $field) {
                     $q->orWhere($field, 'like', "%{$search}%");
