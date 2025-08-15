@@ -16,12 +16,12 @@
 
         <div class="card mb-6 p-3">
 
-            <h5 class="text-center">Diagnósticos</h5>
-
-            <div id="toolbarDiagnosticos">
-                <button class="btn btn-info exportar" type="button" data-tabla="diagnosticos" >
-                    <i class="bi bi-cloud-download"></i> Exportar
+            <div class="d-flex" id="toolbarDiagnosticos">
+                <button class="btn btn-success exportar px-2" type="button" data-tabla="diagnosticos">
+                    <i class="ri-file-excel-2-line"></i>
                 </button>
+
+                <h5 class="text-center mb-0 ms-2 pt-1">Diagnósticos</h5>
             </div> 
             <table id="diagnosticos" class="table table-striped" >
                 <thead>
@@ -46,12 +46,12 @@
 
         <div class="card mb-6 p-3">
 
-            <h5 class="text-center">Inscripciones</h5>
-
-            <div id="toolbarInscripciones">
-                <button class="btn btn-info exportar" type="button" data-tabla="inscripciones" >
-                    <i class="bi bi-cloud-download"></i> Exportar
+            <div class="d-flex" id="toolbarInscripciones">
+                <button class="btn btn-success exportar px-2" type="button" data-tabla="inscripciones">
+                    <i class="ri-file-excel-2-line"></i>
                 </button>
+
+                <h5 class="text-center mb-0 ms-2 pt-1">Inscripciones</h5>
             </div> 
             <table id="inscripciones" class="table table-striped" >
                 <thead>

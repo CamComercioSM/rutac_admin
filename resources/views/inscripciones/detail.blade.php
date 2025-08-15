@@ -42,13 +42,14 @@
     <div class="col-12 col-md-7">
 
         <div class="card mb-6 p-3">
-
-            <div id="toolbarRespuestas">
-                <button class="btn btn-info exportar" type="button" data-tabla="respuestasIncripcion" >
-                    <i class="bi bi-cloud-download"></i> Exportar
+             
+            <div class="d-flex" id="toolbarRespuestas">
+                <button class="btn btn-success exportar px-2" type="button" data-tabla="respuestasIncripcion">
+                    <i class="ri-file-excel-2-line"></i>
                 </button>
-            </div> 
 
+                <h5 class="text-center mb-0 ms-2 pt-1">Respuestas</h5>
+            </div> 
             <table id="respuestasIncripcion" class="table table-striped" >
                 <thead>
                     <th>Pregunta</th>

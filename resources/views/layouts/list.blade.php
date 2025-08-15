@@ -34,7 +34,7 @@
 
                 @if (!isset($exportar) || $exportar === true)
                     <a id="btnExport" class="btn btn-info" href="export" target="_blank" >
-                        <i class="ri-download-cloud-2-line me-1"></i> Exportar
+                        <i class="ri-file-excel-2-line me-2"></i> Exportar
                     </a>
                 @endif
 
