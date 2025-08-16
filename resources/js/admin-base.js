@@ -118,7 +118,7 @@
                     $(input).val(data[nb]).trigger('change');
                 }       
             }
-            else if(nb == 'opciones' && data[nb] != null && typeof TABLA.loadOptions === "function" ){
+            else if((nb == 'opciones' || nb == 'requisitos') && data[nb] != null && typeof TABLA.loadOptions === "function" ){
                 TABLA.loadOptions(data[nb]);
             }
         }

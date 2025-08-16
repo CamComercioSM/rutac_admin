@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\ConvocatoriaExport;
 use App\Http\Controllers\Controller;
+use App\Models\Programas\InscripcionesRequisitos;
 use App\Models\Programas\Programa;
 use App\Models\Programas\ProgramaConvocatoria;
 use App\Models\Role;
@@ -21,6 +22,7 @@ class ConvocatoriaController extends Controller
             'programas'=> Programa::get(),
             'sectores'=> Sector::get(),
             'asesores'=> User::where('rol_id', Role::ASESOR)->get(),
+            'preguntas'=> InscripcionesRequisitos::select('requisito_id', 'requisito_titulo')->get(),
             'puedeExportar'=> Auth::user()->rol_id != Role::ASESOR, 
         ];
 
@@ -70,6 +72,9 @@ class ConvocatoriaController extends Controller
         $entity->asesores()->detach();
         $entity->asesores()->attach( $request->asesores ?? [] );
 
+        $entity->requisitos()->detach();
+        $entity->requisitos()->attach( $request->requisitos ?? [] );
+
         return response()->json([ 'message' => 'Stored' ], 201);
     }
 
@@ -90,7 +95,7 @@ class ConvocatoriaController extends Controller
         $fecha_inicio = $request->get('fecha_inicio');
         $fecha_fin = $request->get('fecha_fin');
 
-        $query = ProgramaConvocatoria::with(['asesores:id'])->
+        $query = ProgramaConvocatoria::with(['asesores:id', 'requisitos:requisito_id,requisito_titulo'])->
             select([
                 'programas_convocatorias.convocatoria_id AS id',
                 'programas_convocatorias.convocatoria_id',

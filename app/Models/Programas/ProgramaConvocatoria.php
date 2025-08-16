@@ -2,6 +2,7 @@
 
 namespace App\Models\Programas;
 
+use App\Models\TablasReferencias\Sector;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -45,14 +46,10 @@ class ProgramaConvocatoria extends Model
         return $this->belongsToMany(User::class, 'convocatorias_asesores', 'convocatoria_id', 'user_id');
     }
 
-    /*
+    
     public function sector(): BelongsTo
     {
         return $this->belongsTo(Sector::class, 'sector_id', 'sector_id');
-    }
-
-    public function inscripciones(): HasMany {
-        return $this->hasMany(ConvocatoriaInscripcion::class, 'convocatoria_id', 'convocatoria_id');
     }
 
     public function requisitos()
@@ -76,10 +73,4 @@ class ProgramaConvocatoria extends Model
             ->whereNotNull('indicador_id'); 
     }
 
-    public static $es_virtual = [
-        '0' => 'Presencial',
-        '1' => 'Virtual',
-        '2' => 'Presencial y virtual'
-    ];
-    */
 }

@@ -105,7 +105,36 @@
             </select>
         </div>
 
+        <div class="col-12 col-md-12 form-group mb-3 mt-4">
+            <h3 class="mb-0" for="pregunta_porcentaje">
+                Preguntas  <button type="button" class="btn btn-sm btn-primary py-1" onclick="openAdd()" >Agregar</button>
+            </h3>
+            <div class="mb-2">
+                <select class="form-select w-75" name="pregunta" id="pregunta" >
+                    <option value="" disabled selected>Seleccione una opción para agregar</option>
+                    @foreach ($preguntas as $item)
+                        <option value="{{$item->requisito_id}}" >{{$item->requisito_titulo}}</option>
+                    @endforeach
+                </select>
+            </div>
+            <table class="table table-sm table-border border">
+                <thead>                    
+                    <th colspan="2" > Nombre </th>             
+                </thead>
+                <tbody id="table_opciones"></tbody>
+            </table>
+        </div>
+
     </div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="warningToast" class="toast bg-warning text-dark" role="alert">
+    <div class="toast-body">
+      ⚠️ El registro ya existe en la tabla.
+    </div>
+  </div>
+</div>
+
 @endsection
 
 @section('script')
@@ -122,7 +151,65 @@
                 { field: 'fecha_apertura_convocatoria', title: 'Fecha inicio', sortable: true, formatter: 'formatearFecha' },
                 { field: 'fecha_cierre_convocatoria', title: 'Fecha finalización', sortable: true, formatter: 'formatearFecha' }
             ],
-            initSelects: [ { id:'programa'}, { id:'asesores', setting:{ placeholder: 'Selección multiple'}  } ]
+            initSelects: [ 
+                { id:'programa'}, { id:'pregunta'}, 
+                { id:'asesores', setting:{ placeholder: 'Selección multiple'}  },                
+            ],
+
+            loadOptions: function(opciones) 
+            {
+                $("#table_opciones").html('');
+
+                for(let i = 0; i< opciones.length; i++){
+                    window.itemOption(opciones[i]);
+                }
+            }
         };
+
+        window.openAdd = function() 
+        {
+            const id = $("#pregunta").val();
+            const text = $("#pregunta option:selected").text();
+
+            if( !(id && text) ) return;
+
+
+            let existe = $("#table_opciones tr[data-id='" + id + "']").length > 0;
+            if (existe) {
+                let toastEl = document.getElementById('warningToast');
+                let toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+                toast.show();
+                return;
+            }
+
+
+            window.itemOption({ requisito_id: id, requisito_titulo: text });
+
+            $("#pregunta").val(null).trigger('change');
+
+        }
+
+        window.itemOption = function(row={}) 
+        {
+            const index = $("#table_opciones tr").length;
+
+            const item = `
+                <tr data-id="${row.requisito_id}" >
+                    <td> ${row.requisito_titulo} </td>
+                    <td style="width: 80px;" >
+                        <input type="hidden" name="requisitos[${index}]" value="${row.requisito_id}" />
+
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)" >
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            $("#table_opciones").append(item);
+        }
+        
+        window.removeOption = function(btn) {
+            $(btn).closest("tr").remove();
+        };
+
     </script>
 @endsection
