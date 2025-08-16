@@ -146,4 +146,51 @@ class MailService
             return false;
         }
     }
+
+    /**
+     * Enviar email de prueba desde el constructor de plantillas
+     */
+    public function sendTestEmail($to, $subject, $htmlContent, $textContent = null)
+    {
+        try {
+            // Crear una vista temporal para el email
+            $viewData = [
+                'htmlContent' => $htmlContent,
+                'textContent' => $textContent,
+                'subject' => $subject
+            ];
+
+            // Enviar email HTML
+            Mail::send('emails.test-template', $viewData, function ($message) use ($to, $subject) {
+                $message->to($to)
+                        ->subject($subject)
+                        ->from(config('mail.from.address'), config('mail.from.name'));
+            });
+
+            // Si hay contenido de texto plano, enviar también
+            if ($textContent) {
+                Mail::send('emails.test-template-text', $viewData, function ($message) use ($to, $subject) {
+                    $message->to($to)
+                            ->subject($subject . ' (Texto Plano)')
+                            ->from(config('mail.from.address'), config('mail.from.name'));
+                });
+            }
+            
+            Log::info('Email de prueba enviado exitosamente', [
+                'to' => $to,
+                'subject' => $subject,
+                'has_html' => !empty($htmlContent),
+                'has_text' => !empty($textContent)
+            ]);
+            
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Error al enviar email de prueba', [
+                'to' => $to,
+                'subject' => $subject,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
 }
