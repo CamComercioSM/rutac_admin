@@ -68,8 +68,8 @@
             <table class="table table-sm table-border border">
                 <thead>
                     <th>Nombre</th>
-                    <th>Porcentaje</th>
-                    <th></th>     
+                    <th style="width: 200px;" >Porcentaje</th>
+                    <th style="width: 80px;" ></th>     
                 </thead>
                 <tbody id="table_opciones"></tbody>
             </table>
@@ -120,7 +120,9 @@
                             name="opciones[${index}][opcion_id]"
                             value="${row.opcion_id ?? ''}" />
 
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)" >Eliminar</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)" >
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
                     </td>
                 </tr>`;
             $("#table_opciones").append(item);

@@ -36,7 +36,7 @@
             <table class="table table-sm table-border border">
                 <thead>
                     <th>Nombre</th>
-                    <th></th>     
+                    <th style="width: 80px;" ></th>     
                 </thead>
                 <tbody id="table_opciones"></tbody>
             </table>
@@ -81,7 +81,9 @@
                             name="opciones[${index}][opcionrequisito_id]"
                             value="${row.opcionrequisito_id ?? ''}" />
 
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)" >Eliminar</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)" >
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
                     </td>
                 </tr>`;
             $("#table_opciones").append(item);
