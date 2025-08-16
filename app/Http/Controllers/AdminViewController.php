@@ -11,9 +11,9 @@ class AdminViewController extends Controller
         return View("dashboard");
     }
 
-    function users()
+    function consultaExpedienteMercantil()
     { 
-        return View("users");
+        return View("consultaExpedienteMercantil");
     }
 
 }

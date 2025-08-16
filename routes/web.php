@@ -28,6 +28,7 @@ Route::as('admin.')
 ->group(function () {
 
     Route::get('/dashboard', [AdminViewController::class, 'dashboard'])->name("dashboard");
+    Route::get('/consultaExpedienteMercantil', [AdminViewController::class, 'consultaExpedienteMercantil']);
 
     Route::middleware(ValidateUserMenuAccess::class)
     ->group(function () {
