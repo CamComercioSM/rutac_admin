@@ -23,26 +23,58 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        if (!Auth::attempt([
+        \Log::info('Intento de login para email', ['email' => $request->email]);
+        
+        try {
+            // Verificar si el usuario existe primero para debugging
+            $user = User::where('email', $request->email)->first();
+            if ($user) {
+                \Log::info('Usuario encontrado en BD', [
+                    'name' => $user->name,
+                    'id' => $user->id,
+                    'active' => $user->active
+                ]);
+                
+                // Verificar la contraseña manualmente para debugging
+                if (Hash::check($request->password, $user->password)) {
+                    \Log::info('Contraseña verificada correctamente');
+                } else {
+                    \Log::warning('Contraseña incorrecta');
+                }
+            } else {
+                \Log::warning('Usuario no encontrado en BD para email: ' . $request->email);
+            }
+            
+            // Usar Auth::attempt que es más seguro y maneja la sesión correctamente
+            if (Auth::attempt([
                 'email' => $request->email, 
                 'password' => $request->password,
                 'active' => true
             ])) {
+                $user = Auth::user();
+                \Log::info('Login exitoso para usuario', ['name' => $user->name, 'id' => $user->id]);
 
-            return $this->index('Usuario o contraseña no valida.');
+                // ✅ Obtener los menús según el rol del usuario
+                $menus = Menu::whereHas('roles', function ($query) use ($user) {
+                    $query->where('roles.id', $user->rol_id);
+                })->with('children')->get();
+
+                // ✅ Guardar en sesión
+                Session::put('user_menu', $menus);
+
+                return redirect()->route('admin.dashboard');
+            } else {
+                \Log::warning('Falló Auth::attempt para email: ' . $request->email);
+                return $this->index('Usuario o contraseña no válida.');
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error('Error en login: ' . $e->getMessage(), [
+                'email' => $request->email,
+                'trace' => $e->getTraceAsString()
+            ]);
+            return $this->index('Error interno del sistema. Contacta al administrador.');
         }
-
-        $user = Auth::user();
-
-        // ✅ Obtener los menús según el rol del usuario
-        $menus = Menu::whereHas('roles', function ($query) use ($user) {
-            $query->where('roles.id', $user->rol_id);
-        })->with('children')->get();
-
-        // ✅ Guardar en sesión
-        Session::put('user_menu', $menus);
-
-        return redirect()->route('admin.dashboard');
     }
 
     public function logout()
@@ -62,16 +94,16 @@ class AuthController extends Controller
         ]);
 
         try {
-            \Log::info('Intentando enviar correo de recuperación para: ' . $request->email);
+            \Log::info('Intentando enviar correo de recuperación para', ['email' => $request->email]);
             
             $status = Password::sendResetLink(
                 $request->only('email')
             );
 
-            \Log::info('Estado del envío: ' . $status);
+            \Log::info('Estado del envío', ['status' => $status]);
 
             if ($status === Password::RESET_LINK_SENT) {
-                \Log::info('Correo de recuperación enviado exitosamente para: ' . $request->email);
+                \Log::info('Correo de recuperación enviado exitosamente para', ['email' => $request->email]);
                 return response()->json([
                     'success' => true,
                     'message' => '✅ Se ha enviado un enlace de recuperación a tu correo electrónico. Revisa tu bandeja de entrada y la carpeta de spam.'
@@ -144,7 +176,7 @@ class AuthController extends Controller
         );
 
         if ($status === Password::PASSWORD_RESET) {
-            \Log::info('Contraseña restablecida exitosamente para: ' . $request->email);
+            \Log::info('Contraseña restablecida exitosamente para', ['email' => $request->email]);
             return response()->json([
                 'success' => true,
                 'message' => 'Tu contraseña ha sido restablecida correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.'
@@ -228,8 +260,8 @@ class AuthController extends Controller
             }
             
         } catch (\Exception $e) {
-            \Log::error('Error en Google OAuth: ' . $e->getMessage());
-            return redirect()->route('login')->with('error', 'Error al iniciar sesión con Google. Inténtalo de nuevo.');
+            \Log::error('Error en Google OAuth', ['error' => $e->getMessage()]);
+            return redirect()->route('login')->withErrors(['error' => 'Error en autenticación con Google']);
         }
     }
 }
