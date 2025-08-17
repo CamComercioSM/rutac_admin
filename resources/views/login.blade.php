@@ -71,7 +71,7 @@
           <h4 class="mb-1 text-center">¡Bienvenido a Ruta C! 👋🏻</h4>
           <p class="mb-5 text-center">Por favor inicia sesión para comenzar</p>
 
-          <form id="formAuthentication" class="mb-5" action="{{ route('login') }}" method="POST">
+          <form id="formAuthentication" class="mb-5" action="{{ route('auth.login') }}" method="POST">
             @csrf
             <div class="form-floating form-floating-outline mb-5">
               <input type="text" class="form-control" id="email" name="email" placeholder="Correo electrónico o usuario" autofocus>
@@ -109,7 +109,7 @@
             <span>O</span>
           </div>
           <div class="mb-5">
-            <a href="{{ route('auth.google') }}" class="btn btn-google d-grid w-100">
+            <a href="{{ route('google.login') }}" class="btn btn-google d-grid w-100">
               <div class="d-flex align-items-center justify-content-center">
                 <svg width="20" height="20" viewBox="0 0 24 24" class="me-2">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -137,7 +137,7 @@
 <div class="modal fade" id="modalForgotPassword" tabindex="-1" aria-labelledby="modalForgotPasswordLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="forgotPasswordForm" method="POST" action="{{ url('/auth/send-reset-link') }}">
+      <form id="forgotPasswordForm" method="POST" action="{{ route('password.email') }}">
         @csrf
         <div class="modal-header">
           <h5 class="modal-title" id="modalForgotPasswordLabel">Recuperar contraseña</h5>

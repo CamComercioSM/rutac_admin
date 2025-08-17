@@ -15,7 +15,7 @@
                     </h2>
                     <p class="text-muted mb-0">Gestiona y personaliza las plantillas de correo de tu aplicación</p>
                 </div>
-                <a href="{{ route('admin.email-templates.create') }}" class="btn btn-primary btn-lg shadow-sm">
+                <a href="{{ route('admin.emailTemplates.create') }}" class="btn btn-primary btn-lg shadow-sm">
                     <i class="ri-add-line me-2"></i>
                     Nueva Plantilla
                 </a>
@@ -211,13 +211,13 @@
                                         </td>
                                         <td class="px-4 py-3 text-center">
                                             <div class="btn-group" role="group">
-                                                <a href="{{ route('admin.email-templates.show', $template) }}" 
+                                                <a href="{{ route('admin.emailTemplates.show', $template) }}" 
                                                    class="btn btn-sm btn-outline-info border-0" 
                                                    title="Ver detalles"
                                                    data-bs-toggle="tooltip">
                                                     <i class="ri-eye-line"></i>
                                                 </a>
-                                                <a href="{{ route('admin.email-templates.edit', $template) }}" 
+                                                <a href="{{ route('admin.emailTemplates.edit', $template) }}" 
                                                    class="btn btn-sm btn-outline-warning border-0" 
                                                    title="Editar plantilla"
                                                    data-bs-toggle="tooltip">
@@ -230,7 +230,7 @@
                                                         data-bs-toggle="tooltip">
                                                     <i class="ri-eye-2-line"></i>
                                                 </button>
-                                                <form action="{{ route('admin.email-templates.toggle-status', $template) }}" 
+                                                <form action="{{ route('admin.emailTemplates.toggle-status', $template) }}" 
                                                       method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" 
@@ -240,7 +240,7 @@
                                                         <i class="ri-toggle-{{ $template->is_active ? 'on' : 'off' }}-line"></i>
                                                     </button>
                                                 </form>
-                                                <form action="{{ route('admin.email-templates.destroy', $template) }}" 
+                                                <form action="{{ route('admin.emailTemplates.destroy', $template) }}" 
                                                       method="POST" class="d-inline delete-form">
                                                     @csrf
                                                     @method('DELETE')
@@ -262,7 +262,7 @@
                                                 <i class="ri-inbox-line fs-1 mb-3 d-block"></i>
                                                 <h5 class="text-muted">No hay plantillas disponibles</h5>
                                                 <p class="mb-3">Comienza creando tu primera plantilla de correo</p>
-                                                <a href="{{ route('admin.email-templates.create') }}" class="btn btn-primary">
+                                                <a href="{{ route('admin.emailTemplates.create') }}" class="btn btn-primary">
                                                     <i class="ri-add-line me-2"></i>
                                                     Crear Primera Plantilla
                                                 </a>

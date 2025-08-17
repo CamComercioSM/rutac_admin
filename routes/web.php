@@ -78,9 +78,12 @@ Route::as('admin.')
     Route::get('/emailTemplates/list', [EmailTemplateController::class, 'index'])->name("emailTemplates.index");
     Route::get('/emailTemplates/create', [EmailTemplateController::class, 'create'])->name("emailTemplates.create");
     Route::post('/emailTemplates/store', [EmailTemplateController::class, 'store'])->name("emailTemplates.store");
+    Route::get('/emailTemplates/show/{id}', [EmailTemplateController::class, 'show'])->name("emailTemplates.show");
     Route::get('/emailTemplates/edit/{id}', [EmailTemplateController::class, 'edit'])->name("emailTemplates.edit");
     Route::put('/emailTemplates/update/{id}', [EmailTemplateController::class, 'update'])->name("emailTemplates.update");
     Route::delete('/emailTemplates/delete/{id}', [EmailTemplateController::class, 'destroy'])->name("emailTemplates.destroy");
+    Route::post('/emailTemplates/toggle-status/{id}', [EmailTemplateController::class, 'toggleStatus'])->name("emailTemplates.toggle-status");
+    Route::post('/emailTemplates/send-test', [EmailTemplateController::class, 'sendTestEmail'])->name("emailTemplates.send-test");
     
     Route::get('/defaultEmailTemplates/list', [DefaultEmailTemplateController::class, 'index'])->name("defaultEmailTemplates.index");
     Route::get('/defaultEmailTemplates/create', [DefaultEmailTemplateController::class, 'create'])->name("defaultEmailTemplates.create");
@@ -93,3 +96,18 @@ Route::as('admin.')
 Route::get('/auth', [App\Http\Controllers\AuthController::class, 'index'])->name("auth.index");
 Route::post('/auth', [App\Http\Controllers\AuthController::class, 'login'])->name("auth.login");
 Route::get('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name("auth.logout");
+
+// Ruta para limpiar cache de sectores
+Route::get('/clear-sectores-cache', [App\Http\Controllers\AdminViewController::class, 'clearSectoresCache'])->name("clear.sectores.cache");
+
+// Ruta para debug de sectores
+Route::get('/debug-sectores', [App\Http\Controllers\AdminViewController::class, 'debugSectores'])->name("debug.sectores");
+
+// Rutas para Google OAuth
+Route::get('/auth/google', [App\Http\Controllers\GoogleController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('/auth/google/callback', [App\Http\Controllers\GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
+
+// Rutas para recuperación de contraseña
+Route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'sendResetLink'])->name('password.email');
+Route::get('/reset-password/{token}', [App\Http\Controllers\AuthController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [App\Http\Controllers\AuthController::class, 'resetPassword'])->name('password.update');

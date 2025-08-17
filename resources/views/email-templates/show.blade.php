@@ -16,11 +16,11 @@
                     <p class="text-muted mb-0">Detalles de la plantilla "{{ $emailTemplate->name }}"</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('admin.email-templates.edit', $emailTemplate) }}" class="btn btn-warning">
+                    <a href="{{ route('admin.emailTemplates.edit', $emailTemplate) }}" class="btn btn-warning">
                         <i class="ri-edit-line me-2"></i>
                         Editar
                     </a>
-                    <a href="{{ route('admin.email-templates.index') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('admin.emailTemplates.index') }}" class="btn btn-outline-secondary">
                         <i class="ri-arrow-left-line me-2"></i>
                         Volver al Listado
                     </a>

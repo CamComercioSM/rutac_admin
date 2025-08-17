@@ -19,7 +19,7 @@
                     </h2>
                     <p class="text-muted mb-0">Modifica la plantilla de correo "{{ $emailTemplate->name }}"</p>
                 </div>
-                <a href="{{ route('admin.email-templates.index') }}" class="btn btn-outline-secondary">
+                <a href="{{ route('admin.emailTemplates.index') }}" class="btn btn-outline-secondary">
                     <i class="ri-arrow-left-line me-2"></i>
                     Volver al Listado
                 </a>
@@ -38,7 +38,7 @@
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <form action="{{ route('admin.email-templates.update', $emailTemplate) }}" method="POST" id="templateForm">
+                    <form action="{{ route('admin.emailTemplates.update', $emailTemplate) }}" method="POST" id="templateForm">
                         @csrf
                         @method('PUT')
                         
@@ -255,7 +255,7 @@
                         <div class="row mt-4">
                             <div class="col-12">
                                 <div class="d-flex justify-content-end gap-2">
-                                    <a href="{{ route('admin.email-templates.index') }}" class="btn btn-outline-secondary">
+                                    <a href="{{ route('admin.emailTemplates.index') }}" class="btn btn-outline-secondary">
                                         <i class="ri-close-line me-2"></i>
                                         Cancelar
                                     </a>

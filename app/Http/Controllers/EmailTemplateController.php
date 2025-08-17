@@ -49,7 +49,7 @@ class EmailTemplateController extends Controller
 
         EmailTemplate::create($request->all());
 
-        return redirect()->route('admin.email-templates.index')
+        return redirect()->route('admin.emailTemplates.index')
             ->with('success', 'Plantilla creada exitosamente.');
     }
 
@@ -68,6 +68,23 @@ class EmailTemplateController extends Controller
 
     public function edit(EmailTemplate $emailTemplate)
     {
+        // Log para depuración
+        \Log::info('Editando plantilla:', ['id' => $emailTemplate->id, 'name' => $emailTemplate->name]);
+        
+        // Verificar que el modelo se resuelva correctamente
+        if (!$emailTemplate || !$emailTemplate->exists) {
+            \Log::error('Plantilla no encontrada o no existe');
+            abort(404, 'Plantilla no encontrada');
+        }
+        
+        // Log adicional para depuración
+        \Log::info('Plantilla resuelta correctamente:', [
+            'id' => $emailTemplate->id,
+            'name' => $emailTemplate->name,
+            'exists' => $emailTemplate->exists,
+            'attributes' => $emailTemplate->getAttributes()
+        ]);
+        
         // Datos de ejemplo para mostrar en el formulario
         $sampleData = [
             'business_name' => 'Mi Empresa S.A.S.',
@@ -92,7 +109,7 @@ class EmailTemplateController extends Controller
 
         $emailTemplate->update($request->all());
 
-        return redirect()->route('admin.email-templates.index')
+        return redirect()->route('admin.emailTemplates.index')
             ->with('success', 'Plantilla actualizada exitosamente.');
     }
 
@@ -100,7 +117,7 @@ class EmailTemplateController extends Controller
     {
         $emailTemplate->delete();
 
-        return redirect()->route('admin.email-templates.index')
+        return redirect()->route('admin.emailTemplates.index')
             ->with('success', 'Plantilla eliminada exitosamente.');
     }
 

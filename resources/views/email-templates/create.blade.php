@@ -20,7 +20,7 @@
                     </h2>
                     <p class="text-muted mb-0">Define una nueva plantilla de correo para tu aplicación</p>
                 </div>
-                <a href="{{ route('admin.email-templates.index') }}" class="btn btn-outline-secondary">
+                <a href="{{ route('admin.emailTemplates.index') }}" class="btn btn-outline-secondary">
                     <i class="ri-arrow-left-line me-2"></i>
                     Volver al Listado
                 </a>
@@ -39,7 +39,7 @@
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <form action="{{ route('admin.email-templates.store') }}" method="POST" id="templateForm">
+                    <form action="{{ route('admin.emailTemplates.store') }}" method="POST" id="templateForm">
                         @csrf
                         
                         <div class="row">
@@ -264,7 +264,7 @@
                                         <i class="ri-send-plane-line me-2"></i>
                                         Enviar Prueba
                                     </button>
-                                    <a href="{{ route('admin.email-templates.index') }}" class="btn btn-outline-secondary">
+                                    <a href="{{ route('admin.emailTemplates.index') }}" class="btn btn-outline-secondary">
                                         <i class="ri-close-line me-2"></i>
                                         Cancelar
                                     </a>
@@ -965,7 +965,7 @@ function sendTestEmail() {
     formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
     
     // Enviar solicitud
-    fetch('{{ route("admin.email-templates.send-test") }}', {
+    fetch('{{ route("admin.emailTemplates.send-test") }}', {
         method: 'POST',
         body: formData,
         headers: {
