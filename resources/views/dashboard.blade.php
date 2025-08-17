@@ -2369,7 +2369,7 @@ function initGoogleMaps() {
 </script>
 
 <!-- Google Maps API -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAr5OGhnaXqek4geU-i1OQEwM38omQ7fFw&libraries=places&callback=initGoogleMaps" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('dashboard.maps.google_maps_key') }}&libraries=places&callback=initGoogleMaps" async defer></script>
 
 <style>
 /* Estilos para los controles del gráfico */

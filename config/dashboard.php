@@ -91,6 +91,7 @@ return [
             'lat' => env('DASHBOARD_DEFAULT_LAT', 4.5709),
             'lng' => env('DASHBOARD_DEFAULT_LNG', -74.2973),
         ],
+        'google_maps_key' => env('GOOGLE_MAPS_KEY'),
     ],
 
     // Configuración de monitoreo
