@@ -1,567 +1,17 @@
-@extends('layouts.admin', [ 'titulo'=> 'Dashboard - Decídete a Crecer' ])
+/**
+ * Dashboard JavaScript - rutaC
+ * Funcionalidades avanzadas para el dashboard de Unidades Productivas
+ */
 
-@section('content')
-<div class="dashboard-container">
-    <!-- Indicador de Carga -->
-    <div id="loadingIndicator" class="loading-overlay" style="display: none;">
-        <div class="loading-content">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="mt-3 text-muted">Cargando dashboard...</p>
-            <div class="loading-progress mt-2">
-                <div class="progress" style="height: 4px;">
-                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mensaje de Error -->
-    @if(isset($error))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <strong>Error:</strong> {{ $error }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
-    <!-- Header del Dashboard -->
-    <div class="dashboard-header mb-4">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h1 class="dashboard-title">
-                    <i class="fas fa-chart-line text-primary me-3"></i>
-                    Decídete a Crecer
-                </h1>
-                <p class="dashboard-subtitle text-muted">
-                    Dashboard de Unidades Productivas - rutaC
-                </p>
-            </div>
-     
-        </div>
-    </div>
-
-    <!-- Filtros Rápidos -->
-    <div class="quick-filters mb-4">
-        <div class="row">
-            <div class="col-md-3">
-                <select class="form-select" id="periodoSelect" onchange="cambiarPeriodo(this.value)">
-                    <option value="">Selecciona un periodo</option>
-                    <option value="7">Últimos 7 días</option>
-                    <option value="30">Últimos 30 días</option>
-                    <option value="90">Últimos 3 meses</option>
-                    <option value="365">Último año</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select class="form-select" id="departamentoSelect" onchange="filtrarPorDepartamento(this.value)">
-                    <option value="">Todos los departamentos</option>
-                    @if(isset($departamentos) && (is_object($departamentos) ? $departamentos->count() : count($departamentos)) > 0)
-                        @foreach($departamentos as $departamento)
-                            <option value="{{ $departamento->departamento_id }}" {{ $filtros['departamento_id'] == $departamento->departamento_id ? 'selected' : '' }}>
-                                {{ $departamento->departamentoNOMBRE ?? 'Sin nombre' }}
-                            </option>
-                        @endforeach
-                    @endif
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select class="form-select" id="sectorSelect" onchange="filtrarPorSector(this.value)">
-                    <option value="">Todos los sectores</option>
-                    @if(isset($sectores) && (is_object($sectores) ? $sectores->count() : count($sectores)) > 0)
-                        @foreach($sectores as $sector)
-                            <option value="{{ $sector->sector_id }}" {{ $filtros['sector_id'] == $sector->sector_id ? 'selected' : '' }}>
-                                {{ $sector->sectorNOMBRE ?? 'Sin nombre' }}
-                            </option>
-                        @endforeach
-                    @endif
-                </select>
-          
-            </div>
-            <div class="col-md-3">
-                <select class="form-select" id="etapaSelect" onchange="filtrarPorEtapa(this.value)">
-                    <option value="">Todas las etapas</option>
-                    @if(isset($etapas) && (is_object($etapas) ? $etapas->count() : count($etapas)) > 0)
-                        @foreach($etapas as $etapa)
-                            <option value="{{ $etapa->etapa_id }}" {{ $filtros['etapa_id'] == $etapa->etapa_id ? 'selected' : '' }}>
-                                {{ $etapa->name ?? 'Sin nombre' }}
-                            </option>
-                        @endforeach
-                    @endif
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <!-- Métrica Principal -->
-    <div class="main-metric mb-4">
-        <div class="card main-metric-card">
-            <div class="card-body text-center">
-                <div class="metric-icon">
-                    <i class="fas fa-building fa-3x text-primary"></i>
-                </div>
-                <h2 class="metric-number" id="totalUnidadesMetric">{{ number_format($totalUnidades ?? 0) }}</h2>
-                <p class="metric-label">Unidades Productivas</p>
-                <div class="metric-trend" id="metricTrend">
-                    <span class="badge bg-secondary">
-                        <i class="fas fa-spinner fa-spin me-1"></i>Calculando...
-                    </span>
-                    <span class="text-muted ms-2">vs mes anterior</span>
-                </div>
-                <div class="metric-info mt-3">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Datos optimizados para mejor rendimiento
-                    </small>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Gráficos de Resumen con Carga Lazy -->
-    <div class="charts-section mb-4">
-        <div class="row">
-            <!-- Distribución por Tipo de Organización -->
-            <div class="col-md-6 mb-4">
-                <div class="card summary-card" data-chart="tipoOrganizacion">
-                    <div class="card-header">
-                        <h6 class="card-title mb-0">
-                            <i class="fas fa-users me-2 text-primary"></i>
-                            Distribución por Tipo de Organización
-                        </h6>
-                        <div class="chart-loading" style="display: none;">
-                            <div class="spinner-border spinner-border-sm text-primary"></div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container mb-3" style="position: relative; height: 200px;">
-                            <canvas id="tipoOrganizacionChart"></canvas>
-                        </div>
-                        <div id="tipoOrganizacionContent">
-                            @if(isset($porTipoOrganizacion) && (is_object($porTipoOrganizacion) ? $porTipoOrganizacion->count() : count($porTipoOrganizacion)) > 0)
-                                @foreach($porTipoOrganizacion as $tipo)
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="text-muted">{{ $tipo->tipoPersona->tipoPersonaNOMBRE ?? 'No definido' }}</span>
-                                        <span class="fw-bold">{{ $tipo->total }}</span>
-                                    </div>
-                                @endforeach
-                            @else
-                                <div class="text-center text-muted">
-                                    <p>Natural: 2,157</p>
-                                    <p>Jurídica: 750</p>
-                                    <p>Establecimiento: 19</p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Estado del Diagnóstico Inicial -->
-            <div class="col-md-6 mb-4">
-                <div class="card summary-card" data-chart="estadoDiagnostico">
-                    <div class="card-header">
-                        <h6 class="card-title mb-0">
-                            <i class="fas fa-clipboard-check me-2 text-success"></i>
-                            Estado del Diagnóstico Inicial
-                        </h6>
-                        <div class="chart-loading" style="display: none;">
-                            <div class="spinner-border spinner-border-sm text-success"></div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container mb-3" style="position: relative; height: 200px;">
-                            <canvas id="estadoDiagnosticoChart"></canvas>
-                        </div>
-                        <div id="estadoDiagnosticoContent">
-                            <div class="text-center text-muted">
-                                <div class="spinner-border spinner-border-sm me-2" role="status">
-                                    <span class="visually-hidden">Cargando...</span>
-                                </div>
-                                Cargando datos...
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Gráfico de Líneas - Evolución Temporal -->
-    <div class="evolution-chart mb-4">
-        <div class="card summary-card" data-chart="evolucionTemporal">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="fas fa-chart-line me-2 text-warning"></i>
-                    Evolución de Registros (Últimos 12 Meses)
-                </h6>
-                <div class="chart-controls">
-                    <button class="btn btn-sm btn-outline-primary" onclick="cambiarPeriodoGrafico('12')">12 Meses</button>
-                    <button class="btn btn-sm btn-outline-primary" onclick="cambiarPeriodoGrafico('6')">6 Meses</button>
-                    <button class="btn btn-sm btn-outline-primary" onclick="cambiarPeriodoGrafico('3')">3 Meses</button>
-                    <div class="d-inline-block ms-2">
-                        <input type="date" id="fechaDesde" class="form-control form-control-sm d-inline-block" style="width: 140px;" placeholder="Desde">
-                        <input type="date" id="fechaHasta" class="form-control form-control-sm d-inline-block ms-1" style="width: 140px;" placeholder="Hasta">
-                        <button class="btn btn-sm btn-success ms-1" onclick="aplicarRangoFechas()">
-                            <i class="fas fa-filter"></i> Aplicar
-                        </button>
-                    </div>
-                    <button class="btn btn-sm btn-outline-warning ms-2" onclick="clearSectoresCache()" title="Limpiar cache de sectores">
-                        <i class="fas fa-broom"></i> Limpiar Cache
-                    </button>
-                    <button class="btn btn-sm btn-outline-info ms-1" onclick="debugSectores()" title="Debug de sectores">
-                        <i class="fas fa-bug"></i> Debug
-                    </button>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="chart-container" style="position: relative; height: 300px;">
-                    <canvas id="evolucionTemporalChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mapa y Gráficos -->
-    <div class="row mb-4">
-        <!-- Mapa Interactivo -->
-        <div class="col-md-8">
-            <div class="card map-card" data-chart="mapa">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">
-                        <i class="fas fa-map-marked-alt me-2 text-danger"></i>
-                        Distribución Geográfica
-                    </h6>
-               
-                </div>
-                <div class="card-body">
-                    <div id="mapaColombia" style="height: 400px; width: 100%; border-radius: 10px; overflow: hidden;">
-                        <!-- El mapa se cargará aquí -->
-                    </div>
-                    @if(isset($datosMapa) && (is_object($datosMapa) ? $datosMapa->count() : count($datosMapa)) > 0)
-                        <div class="map-legend mt-3">
-                            <h6>Leyenda:</h6>
-                            <div class="legend-items">
-                                @foreach((is_object($datosMapa) ? $datosMapa->take(10) : array_slice($datosMapa, 0, 10)) as $dato)
-                                    <div class="legend-item">
-                                        <span class="legend-dot" style="background-color: {{ '#' . substr(md5($dato->municipio->municipioNOMBREOFICIAL ?? 'default'), 0, 6) }}"></span>
-                                        <span class="legend-text">{{ $dato->municipio->municipioNOMBREOFICIAL ?? 'Sin Municipio' }} ({{ $dato->total }})</span>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <!-- Gráfico de Etapas -->
-        <div class="col-md-4">
-            <div class="card stages-card" data-chart="etapas">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">
-                        <i class="fas fa-chart-line me-2 text-warning"></i>
-                        Distribución por Etapas
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container mb-3" style="position: relative; height: 200px;">
-                        <canvas id="etapasChart"></canvas>
-                    </div>
-                    <div id="etapasContent">
-                        @if(isset($porEtapas) && (is_object($porEtapas) ? $porEtapas->count() : count($porEtapas)) > 0)
-                            @foreach($porEtapas as $etapa)
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="text-muted">{{ $etapa->etapa->name ?? 'No registra' }}</span>
-                                    <span class="fw-bold">{{ $etapa->total }}</span>
-                                </div>
-                            @endforeach
-                        @else
-                            <div class="text-center text-muted">
-                                <p>Despegue: 1,145</p>
-                                <p>Nacimiento: 929</p>
-                                <p>Crecimiento: 322</p>
-                                <p>Descubrimiento: 302</p>
-                                <p>Madurez: 30</p>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tablas Detalladas con Carga Lazy -->
-    <div class="row">
-        <!-- Por Municipios con Gráfico -->
-        <div class="col-md-6 mb-4">
-            <div class="card table-card" data-chart="municipios">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">
-                        <i class="fas fa-map-marker-alt me-2 text-success"></i>
-                        Top 10 Municipios
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container mb-3" style="position: relative; height: 200px;">
-                        <canvas id="municipiosChart"></canvas>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Municipio</th>
-                                    <th>Cantidad</th>
-                                </tr>
-                            </thead>
-                            <tbody id="municipiosTableBody">
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted">
-                                        <div class="spinner-border spinner-border-sm me-2" role="status">
-                                            <span class="visually-hidden">Cargando...</span>
-                                        </div>
-                                        Cargando datos...
-                                    </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Proporciones por Municipios -->
-        <div class="col-md-6 mb-4">
-            <div class="card summary-card" data-chart="proporciones">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">
-                        <i class="fas fa-chart-pie me-2 text-warning"></i>
-                        Proporciones por Municipios
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container mb-3" style="position: relative; height: 200px;">
-                        <canvas id="proporcionesChart"></canvas>
-                    </div>
-                    
-                    <!-- Contenido de proporciones con vista compacta y expandible -->
-                    <div id="proporcionesContent">
-                        <div class="text-center text-muted">
-                            <p>Datos cargados dinámicamente</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Botones de control -->
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <button type="button" class="btn btn-sm btn-outline-primary" id="btnVerMasProporciones" onclick="toggleProporcionesCompletas()" style="display: none;">
-                            <i class="fas fa-expand-alt me-1"></i>
-                            Ver Lista Completa
-                        </button>
-                        
-                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnVerMenosProporciones" onclick="toggleProporcionesCompletas()" style="display: none;">
-                            <i class="fas fa-compress-alt me-1"></i>
-                            Ver Resumen
-                        </button>
-                        
-                   
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        
-    </div>
-
-    <!-- Gráfico de Sectores -->
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card summary-card" data-chart="sectores">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">
-                        <i class="fas fa-industry me-2 text-primary"></i>
-                        Distribución por Sectores
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container mb-3" style="position: relative; height: 200px;">
-                        <canvas id="sectoresChart"></canvas>
-                    </div>
-                    <div id="sectoresContent">
-                        <div class="text-center text-muted">
-                            <p>Datos cargados dinámicamente</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    <!-- Gráfico de Tamaños de Empresa -->
-    <div class="col-lg-6 col-md-12 mb-4">
-        <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0">
-                    <i class="fas fa-chart-bar me-2 text-info"></i>
-                    Distribución por Tamaño
-                </h6>
-            </div>
-            <div class="card-body">
-                <div class="chart-container mb-3" style="position: relative; height: 200px;">
-                    <canvas id="tamanosChart"></canvas>
-                </div>
-                <div id="tamanosContent">
-                    <div class="text-center text-muted">
-                        <p>Datos cargados dinámicamente</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Indicador de Rendimiento -->
-    <div class="performance-info mt-4">
-        <div class="card">
-            <div class="card-body text-center">
-                <small class="text-muted">
-                    <i class="fas fa-tachometer-alt me-1"></i>
-                    Dashboard optimizado para mejor rendimiento | 
-                    <i class="fas fa-clock me-1"></i>
-                    Última actualización: <span id="lastUpdate">{{ now()->format('H:i:s') }}</span> |
-                    <i class="fas fa-database me-1"></i>
-                    Modo: <span id="performanceMode">Normal</span> |
-                    <i class="fas fa-cache me-1"></i>
-                    Cache: <span id="cacheStatus">Activo</span>
-                </small>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Filtros Avanzados -->
-<div class="modal fade" id="filtrosModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-filter me-2"></i>
-                    Filtros Avanzados
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="filtrosForm" method="GET">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Departamento</label>
-                            <select class="form-select" name="departamento_id" id="modalDepartamento">
-                                <option value="">Todos</option>
-                                @if(isset($departamentos) && (is_object($departamentos) ? $departamentos->count() : count($departamentos)) > 0)
-                                    @foreach($departamentos as $departamento)
-                                        <option value="{{ $departamento->departamento_id }}" {{ $filtros['departamento_id'] == $departamento->departamento_id ? 'selected' : '' }}>
-                                            {{ $departamento->departamentoNOMBRE ?? 'Sin nombre' }}
-                                        </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Municipio</label>
-                            <select class="form-select" name="municipio_id" id="modalMunicipio">
-                                <option value="">Todos</option>
-                                @if(isset($municipios) && (is_object($municipios) ? $municipios->count() : count($municipios)) > 0)
-                                    @foreach($municipios as $municipio)
-                                        <option value="{{ $municipio->municipio_id }}" {{ $filtros['municipio_id'] == $municipio->municipio_id ? 'selected' : '' }}>
-                                            {{ $municipio->municipioNOMBREOFICIAL ?? 'Sin nombre' }}
-                                        </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Sector</label>
-                            <select class="form-select" name="sector_id">
-                                <option value="">Todos</option>
-                                @if(isset($sectores) && (is_object($sectores) ? $sectores->count() : count($sectores)) > 0)
-                                    @foreach($sectores as $sector)
-                                        <option value="{{ $sector->sector_id }}" {{ $filtros['sector_id'] == $sector->sector_id ? 'selected' : '' }}>
-                                            {{ $sector->sectorNOMBRE ?? 'Sin nombre' }}
-                                        </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Etapa</label>
-                            <select class="form-select" name="etapa_id">
-                                <option value="">Todas</option>
-                                @if(isset($etapas) && (is_object($etapas) ? $etapas->count() : count($etapas)) > 0)
-                                    @foreach($etapas as $etapa)
-                                        <option value="{{ $etapa->etapa_id }}" {{ $filtros['etapa_id'] == $etapa->etapa_id ? 'selected' : '' }}>
-                                            {{ $etapa->name ?? 'Sin nombre' }}
-                                        </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tamaño</label>
-                            <select class="form-select" name="tamano_id">
-                                <option value="">Todos</option>
-                                @if(isset($tamanos) && (is_object($tamanos) ? $tamanos->count() : count($tamanos)) > 0)
-                                    @foreach($tamanos as $tamano)
-                                        <option value="{{ $tamano->tamano_id }}" {{ $filtros['tamano_id'] == $tamano->tamano_id ? 'selected' : '' }}>
-                                            {{ $tamano->tamanoNOMBRE ?? 'Sin nombre' }}
-                                        </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tipo de Persona</label>
-                            <select class="form-select" name="tipopersona_id">
-                                <option value="">Todos</option>
-                                @if(isset($tiposPersona) && (is_object($tiposPersona) ? $tiposPersona->count() : count($tiposPersona)) > 0)
-                                    @foreach($tiposPersona as $tipo)
-                                        <option value="{{ $tipo->tipopersona_id }}" {{ $filtros['tipopersona_id'] == $tipo->tipopersona_id ? 'selected' : '' }}>
-                                            {{ $tipo->tipoPersonaNOMBRE ?? 'Sin nombre' }}
-                                        </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Fecha desde</label>
-                            <input type="date" class="form-control" name="fecha_desde" value="{{ $filtros['fecha_desde'] ?? '' }}">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Fecha hasta</label>
-                            <input type="date" class="form-control" name="fecha_hasta" value="{{ $filtros['fecha_hasta'] ?? '' }}">
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-search me-1"></i>
-                        Aplicar Filtros
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-@endsection
-
-
-
-@section('scripts')
-<!-- Chart.js con fallback -->
-<script>
 // Variables globales
 let dashboardData = null;
+let map = null;
+let markers = [];
+let currentMapType = 'roadmap';
+let infoWindow = null;
 
-// Datos del dashboard desde el backend
-const backendData = @json($backendData ?? []);
+// ===== CONFIGURACIÓN GLOBAL =====
+const backendData = window.backendData || {};
 
 // Configuración global del dashboard
 window.DashboardConfig = {
@@ -573,8 +23,6 @@ window.DashboardConfig = {
     chartAnimationDuration: 1000,
     maxDataPoints: 20
 };
-
-
 
 // ===== FUNCIONES DE CARGA DE LIBRERÍAS =====
 
@@ -625,10 +73,11 @@ function loadGoogleMaps() {
 // ===== FUNCIONES PRINCIPALES DEL DASHBOARD =====
 
 function initializeDashboard() {
+    console.log('Inicializando dashboard...');
     
     // Pasar datos del dashboard al JavaScript
     dashboardData = {
-        totalUnidades: {{ $totalUnidades ?? 0 }},
+        totalUnidades: window.totalUnidades || 0,
         datosMapa: backendData.datosMapa,
         porMunicipios: backendData.porMunicipios,
         porTipoOrganizacion: backendData.porTipoOrganizacion,
@@ -748,14 +197,7 @@ function initializeCharts() {
             updateMunicipiosTable();
         }
 
-        // Gráfico de Proporciones por Municipios (TODOS los municipios para 100% real)
-        console.log('Verificando datos de proporciones:', {
-            porMunicipiosCompletos: backendData.porMunicipiosCompletos,
-            porMunicipios: backendData.porMunicipios,
-            totalUnidades: backendData.totalUnidades
-        });
-        
-        // Verificar si tenemos datos completos de municipios
+        // Gráfico de Proporciones por Municipios
         if (backendData.porMunicipiosCompletos && Array.isArray(backendData.porMunicipiosCompletos) && backendData.porMunicipiosCompletos.length > 0) {
             const totalUnidades = backendData.totalUnidades || backendData.porMunicipiosCompletos.reduce((sum, item) => sum + item.total, 0);
             
@@ -917,11 +359,6 @@ function initializeCharts() {
 
 // ===== FUNCIONES DEL MAPA CON GOOGLE MAPS =====
 
-let map = null;
-let markers = [];
-let currentMapType = 'roadmap';
-let infoWindow = null;
-
 function initializeMap() {
     console.log('Inicializando Google Maps...');
     
@@ -978,7 +415,6 @@ function initializeMap() {
             // Cargar marcadores reales cuando el mapa esté listo
             loadRealMapMarkers();
         });
-        
         
     } catch (error) {
         console.error('Error al inicializar Google Maps:', error);
@@ -1146,7 +582,7 @@ function loadRealMapMarkers() {
             
             // Continuar con el siguiente lote si hay más
             if (currentIndex < backendData.datosMapa.length) {
-                setTimeout(loadBatch, 30); // Pausa de 30ms entre lotes (más rápido con Google Maps)
+                setTimeout(loadBatch, 30); // Pausa de 30ms entre lotes
             } else {
                 // Completado
                 console.log('Todos los marcadores cargados:', markers.length);
@@ -1182,8 +618,6 @@ function loadRealMapMarkers() {
     }
 }
 
-
-
 function getColorByCount(count) {
     if (count > 1000) return '#e74c3c';
     if (count > 500) return '#f39c12';
@@ -1199,13 +633,11 @@ function cambiarVistaMapa(tipo) {
     
     try {
         if (tipo === 'satelite') {
-            map.removeLayer(map.osmLayer);
-            map.satelliteLayer.addTo(map);
+            map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
             currentMapType = 'satellite';
         } else {
-            map.removeLayer(map.satelliteLayer);
-            map.osmLayer.addTo(map);
-            currentMapType = 'osm';
+            map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+            currentMapType = 'roadmap';
         }
         
         console.log('Vista del mapa cambiada a:', tipo);
@@ -1282,7 +714,6 @@ function createDoughnutChart(canvasId, data) {
                 datasets: [{
                     data: data.data,
                     backgroundColor: data.backgroundColor,
-                    borderWidth: 2,
                     borderColor: '#fff'
                 }]
             },
@@ -1477,9 +908,6 @@ function togglePerformanceMode() {
     }
 }
 
-
-
-
 function cambiarPeriodoGrafico(periodo) {
     console.log('Cambiando periodo del gráfico a:', periodo, 'meses');
     
@@ -1599,6 +1027,102 @@ function aplicarRangoFechas() {
     }
 }
 
+// ===== FUNCIONES DE UTILIDAD =====
+
+// Función para mostrar loading
+function showLoading() {
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'flex';
+    }
+}
+
+// Función para ocultar loading
+function hideLoading() {
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'none';
+    }
+}
+
+// Función para actualizar última actualización
+function updateLastUpdateTime() {
+    const lastUpdateElement = document.getElementById('lastUpdate');
+    if (lastUpdateElement) {
+        const now = new Date();
+        lastUpdateElement.textContent = now.toLocaleTimeString('es-ES');
+    }
+}
+
+// Función para configurar event listeners
+function setupEventListeners() {
+    // Actualizar municipios cuando cambie el departamento
+    const modalDepartamento = document.getElementById('modalDepartamento');
+    if (modalDepartamento) {
+        modalDepartamento.addEventListener('change', function() {
+            const departamentoId = this.value;
+            const municipioSelect = document.getElementById('modalMunicipio');
+            if (municipioSelect) {
+                municipioSelect.value = '';
+            }
+        });
+    }
+
+    // Configurar filtros avanzados
+    const filtrosForm = document.getElementById('filtrosForm');
+    if (filtrosForm) {
+        filtrosForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            showLoading();
+            this.submit();
+        });
+    }
+}
+
+// ===== INICIALIZACIÓN PRINCIPAL =====
+
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('Dashboard inicializando...');
+    
+    try {
+        // Cargar Chart.js y Google Maps en paralelo
+        const [chartJSLoaded, googleMapsLoaded] = await Promise.all([
+            typeof Chart === 'undefined' ? loadChartJS() : Promise.resolve(),
+            loadGoogleMaps()
+        ]);
+        
+        console.log('Chart.js disponible:', typeof Chart !== 'undefined');
+        console.log('Google Maps disponible:', typeof google !== 'undefined' && google.maps);
+        
+        // Inicializar dashboard
+        initializeDashboard();
+        
+        // Inicializar gráficos si Chart.js está disponible
+        if (typeof Chart !== 'undefined') {
+            initializeCharts();
+        }
+        
+        // Inicializar mapa si Google Maps está disponible
+        if (typeof google !== 'undefined' && google.maps) {
+            initializeMap();
+        }
+        
+    } catch (error) {
+        console.error('Error al cargar librerías:', error);
+        alert('Error al cargar librerías: ' + error.message);
+        // Continuar sin gráficos o mapa
+        initializeDashboard();
+    }
+});
+
+// Función callback para Google Maps
+function initGoogleMaps() {
+    console.log('Google Maps API cargada correctamente');
+    // El mapa se inicializará automáticamente cuando se cargue la página
+}
+
+// ===== FUNCIONES ADICIONALES NECESARIAS =====
+
 function updateChartContent() {
     console.log('Actualizando contenido de gráficos con datos reales...');
     
@@ -1680,7 +1204,10 @@ function updateProporcionesContent() {
             mostrarResumenProporciones(backendData.porMunicipiosCompletos, totalUnidades);
             
             // Mostrar botón para ver más
-            document.getElementById('btnVerMasProporciones').style.display = 'inline-block';
+            const btnVerMas = document.getElementById('btnVerMasProporciones');
+            if (btnVerMas) {
+                btnVerMas.style.display = 'inline-block';
+            }
             
             console.log('Contenido de proporciones actualizado exitosamente');
         } else {
@@ -1703,7 +1230,10 @@ function updateProporcionesContentFallback() {
             mostrarResumenProporciones(backendData.porMunicipios, totalUnidades);
             
             // No mostrar botón de ver más para datos limitados
-            document.getElementById('btnVerMasProporciones').style.display = 'none';
+            const btnVerMas = document.getElementById('btnVerMasProporciones');
+            if (btnVerMas) {
+                btnVerMas.style.display = 'none';
+            }
             
             console.log('Contenido de proporciones (fallback) actualizado exitosamente');
         } else {
@@ -1746,96 +1276,9 @@ function mostrarResumenProporciones(municipios, totalUnidades) {
     proporcionesContent.innerHTML = resumenHTML;
 }
 
-// Función para mostrar lista completa de proporciones
-function mostrarListaCompletaProporciones(municipios, totalUnidades) {
-    const proporcionesContent = document.getElementById('proporcionesContent');
-    if (!proporcionesContent) return;
-    
-    let listaCompletaHTML = '';
-    
-    // Mostrar todos los municipios
-    municipios.forEach((item, index) => {
-        const porcentaje = Math.round((item.total / totalUnidades) * 100);
-        const nombre = item.municipio?.municipioNOMBREOFICIAL || `Municipio ${item.municipality_id}`;
-        const rowClass = index % 2 === 0 ? 'bg-light' : '';
-        
-        listaCompletaHTML += `
-            <div class="row ${rowClass} py-1 px-2 rounded mb-1">
-                <div class="col-8">
-                    <strong>${nombre}</strong>
-                </div>
-                <div class="col-2 text-center">
-                    ${porcentaje}%
-                </div>
-                <div class="col-2 text-end">
-                    ${item.total.toLocaleString()}
-                </div>
-            </div>
-        `;
-    });
-    
-    // Agregar encabezado
-    const headerHTML = `
-        <div class="row fw-bold bg-primary text-white py-2 px-2 rounded mb-2">
-            <div class="col-8">Municipio</div>
-            <div class="col-2 text-center">%</div>
-            <div class="col-2 text-end">Unidades</div>
-        </div>
-    `;
-    
-    // Agregar total
-    const totalHTML = `
-        <hr class="my-2">
-        <div class="row fw-bold bg-success text-white py-2 px-2 rounded">
-            <div class="col-8">TOTAL</div>
-            <div class="col-2 text-center">100%</div>
-            <div class="col-2 text-end">${totalUnidades.toLocaleString()}</div>
-        </div>
-    `;
-    
-    proporcionesContent.innerHTML = headerHTML + listaCompletaHTML + totalHTML;
-}
-
-// Función para alternar entre vista resumen y completa
-function toggleProporcionesCompletas() {
-    const btnVerMas = document.getElementById('btnVerMasProporciones');
-    const btnVerMenos = document.getElementById('btnVerMenosProporciones');
-    const proporcionesContent = document.getElementById('proporcionesContent');
-    
-    if (btnVerMas.style.display !== 'none') {
-        // Cambiar a vista completa
-        if (backendData.porMunicipiosCompletos && backendData.porMunicipiosCompletos.length > 0) {
-            const totalUnidades = backendData.totalUnidades || backendData.porMunicipiosCompletos.reduce((sum, item) => sum + item.total, 0);
-            mostrarListaCompletaProporciones(backendData.porMunicipiosCompletos, totalUnidades);
-        } else if (backendData.porMunicipios && backendData.porMunicipios.length > 0) {
-            const totalUnidades = backendData.totalUnidades || backendData.porMunicipios.reduce((sum, item) => sum + item.total, 0);
-            mostrarListaCompletaProporciones(backendData.porMunicipios, totalUnidades);
-        }
-        
-        btnVerMas.style.display = 'none';
-        btnVerMenos.style.display = 'inline-block';
-    } else {
-        // Cambiar a vista resumen
-        if (backendData.porMunicipiosCompletos && backendData.porMunicipiosCompletos.length > 0) {
-            const totalUnidades = backendData.totalUnidades || backendData.porMunicipiosCompletos.reduce((sum, item) => sum + item.total, 0);
-            mostrarResumenProporciones(backendData.porMunicipiosCompletos, totalUnidades);
-        } else if (backendData.porMunicipios && backendData.porMunicipios.length > 0) {
-            const totalUnidades = backendData.totalUnidades || backendData.porMunicipios.reduce((sum, item) => sum + item.total, 0);
-            mostrarResumenProporciones(backendData.porMunicipios, totalUnidades);
-        }
-        
-        btnVerMas.style.display = 'inline-block';
-        btnVerMenos.style.display = 'none';
-    }
-}
-
-
-
 // Función para actualizar la tabla de municipios
 function updateMunicipiosTable() {
     console.log('Actualizando tabla de municipios con datos reales...');
-    console.log('backendData.porMunicipios:', backendData.porMunicipios);
-    console.log('dashboardData.totalUnidades:', dashboardData.totalUnidades);
     
     try {
         const tableBody = document.getElementById('municipiosTableBody');
@@ -2144,90 +1587,195 @@ function updateMetricTrend() {
     }
 }
 
-// ===== FUNCIONES DE UTILIDAD =====
-
-function showLoading() {
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    if (loadingIndicator) {
-        loadingIndicator.style.display = 'flex';
-    }
-}
-
-function hideLoading() {
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    if (loadingIndicator) {
-        loadingIndicator.style.display = 'none';
-    }
-}
-
-function updateLastUpdateTime() {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('es-CO');
-    const lastUpdateElement = document.getElementById('lastUpdate');
-    if (lastUpdateElement) {
-        lastUpdateElement.textContent = timeString;
-    }
-}
-
-function setupEventListeners() {
-    // Actualizar municipios cuando cambie el departamento
-    const modalDepartamento = document.getElementById('modalDepartamento');
-    if (modalDepartamento) {
-        modalDepartamento.addEventListener('change', function() {
-            const departamentoId = this.value;
-            const municipioSelect = document.getElementById('modalMunicipio');
-            if (municipioSelect) {
-                municipioSelect.value = '';
-            }
-        });
-    }
-
-    // Configurar filtros avanzados
-    const filtrosForm = document.getElementById('filtrosForm');
-    if (filtrosForm) {
-        filtrosForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            showLoading();
-            this.submit();
-        });
-    }
-}
-
-// ===== INICIALIZACIÓN PRINCIPAL =====
-
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log('Dashboard inicializando...');
+// Función para agregar marcadores de ejemplo al mapa
+function addSampleMarkers() {
+    console.log('Agregando marcadores de ejemplo al mapa...');
     
     try {
-        // Cargar Chart.js y Google Maps en paralelo
-        const [chartJSLoaded, googleMapsLoaded] = await Promise.all([
-            typeof Chart === 'undefined' ? loadChartJS() : Promise.resolve(),
-            loadGoogleMaps()
-        ]);
+        // Coordenadas de ejemplo para Colombia
+        const sampleData = [
+            { lat: 4.7109, lng: -74.0721, nombre: 'Bogotá', count: 450 },
+            { lat: 6.2442, lng: -75.5812, nombre: 'Medellín', count: 320 },
+            { lat: 3.4516, lng: -76.5320, nombre: 'Cali', count: 280 },
+            { lat: 10.9685, lng: -74.7813, nombre: 'Barranquilla', count: 180 },
+            { lat: 10.3932, lng: -75.4792, nombre: 'Cartagena', count: 150 }
+        ];
         
-        console.log('Chart.js disponible:', typeof Chart !== 'undefined');
-        console.log('Google Maps disponible:', typeof google !== 'undefined' && google.maps);
+        sampleData.forEach(item => {
+            const marker = new google.maps.Marker({
+                position: { lat: item.lat, lng: item.lng },
+                map: map,
+                title: `${item.nombre} - ${item.count.toLocaleString()} unidades`,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: Math.max(8, Math.min(25, Math.sqrt(item.count) * 1.5)),
+                    fillColor: getColorByCount(item.count),
+                    fillOpacity: 0.8,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 2
+                }
+            });
+            
+            markers.push(marker);
+        });
         
-        // Inicializar dashboard
-        initializeDashboard();
-        
-        // Inicializar gráficos si Chart.js está disponible
-        if (typeof Chart !== 'undefined') {
-            initializeCharts();
-        }
-        
-        // Inicializar mapa si Google Maps está disponible
-        if (typeof google !== 'undefined' && google.maps) {
-            initializeMap();
-        }
-        
+        console.log('Marcadores de ejemplo agregados exitosamente');
     } catch (error) {
-        console.error('Error al cargar librerías:', error);
-        alert('Error al cargar librerías: ' + error.message);
-        // Continuar sin gráficos o mapa
-        initializeDashboard();
+        console.error('Error al agregar marcadores de ejemplo:', error);
     }
-});
+}
+
+// ===== FUNCIONES ADICIONALES QUE FALTABAN =====
+
+// Función para limpiar caché de sectores
+function clearSectoresCache() {
+    console.log('Limpiando caché de sectores...');
+    try {
+        // Limpiar cualquier caché local si existe
+        if (window.sectoresCache) {
+            delete window.sectoresCache;
+            console.log('Caché de sectores limpiado localmente');
+        }
+        
+        // Llamar al backend para limpiar el cache
+        fetch('/clear-sectores-cache')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Cache de sectores limpiado en el backend:', data.message);
+                    // Recargar la página para obtener datos frescos
+                    window.location.reload();
+                } else {
+                    console.error('Error al limpiar cache en el backend:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error al comunicarse con el backend:', error);
+                // Intentar recargar la página de todos modos
+                window.location.reload();
+            });
+        
+        return true;
+    } catch (error) {
+        console.error('Error al limpiar caché de sectores:', error);
+        return false;
+    }
+}
+
+// Función para debug de sectores
+function debugSectores() {
+    console.log('=== DEBUG SECTORES ===');
+    console.log('backendData.porSectores:', backendData.porSectores);
+    console.log('sectoresCache:', window.sectoresCache);
+    console.log('Total sectores:', backendData.porSectores ? backendData.porSectores.length : 'No disponible');
+    
+    if (backendData.porSectores && backendData.porSectores.length > 0) {
+        backendData.porSectores.forEach((sector, index) => {
+            console.log(`Sector ${index}:`, sector);
+        });
+    }
+    console.log('=== FIN DEBUG SECTORES ===');
+}
+
+// Función para mostrar lista completa de proporciones
+function mostrarListaCompletaProporciones() {
+    console.log('Mostrando lista completa de proporciones...');
+    
+    try {
+        if (backendData.porMunicipiosCompletos && backendData.porMunicipiosCompletos.length > 0) {
+            const totalUnidades = backendData.totalUnidades || backendData.porMunicipiosCompletos.reduce((sum, item) => sum + item.total, 0);
+            const proporcionesContent = document.getElementById('proporcionesContent');
+            
+            if (proporcionesContent) {
+                let listaCompletaHTML = '';
+                
+                // Mostrar todos los municipios con sus porcentajes
+                backendData.porMunicipiosCompletos.forEach(item => {
+                    const porcentaje = Math.round((item.total / totalUnidades) * 100);
+                    const nombre = item.municipio?.municipioNOMBREOFICIAL || `Municipio ${item.municipality_id}`;
+                    listaCompletaHTML += `<p class="mb-1"><strong>${nombre}:</strong> ${porcentaje}% (${item.total.toLocaleString()} unidades)</p>`;
+                });
+                
+                // Agregar total
+                listaCompletaHTML += `<hr class="my-2">`;
+                listaCompletaHTML += `<p class="text-primary fw-bold mb-0"><strong>Total: 100% (${totalUnidades.toLocaleString()} unidades)</strong></p>`;
+                
+                proporcionesContent.innerHTML = listaCompletaHTML;
+                
+                // Cambiar botón a "Ver menos"
+                const btnVerMas = document.getElementById('btnVerMasProporciones');
+                if (btnVerMas) {
+                    btnVerMas.textContent = 'Ver menos';
+                    btnVerMas.onclick = mostrarResumenProporciones;
+                }
+                
+                console.log('Lista completa de proporciones mostrada');
+            }
+        } else {
+            console.warn('No hay datos completos de municipios para mostrar lista completa');
+        }
+    } catch (error) {
+        console.error('Error al mostrar lista completa de proporciones:', error);
+    }
+}
+
+// Función para alternar entre vista resumida y completa de proporciones
+function toggleProporcionesCompletas() {
+    console.log('Alternando vista de proporciones...');
+    
+    try {
+        const proporcionesContent = document.getElementById('proporcionesContent');
+        const btnVerMas = document.getElementById('btnVerMasProporciones');
+        
+        if (!proporcionesContent || !btnVerMas) {
+            console.error('Elementos de proporciones no encontrados');
+            return;
+        }
+        
+        // Verificar si está mostrando la vista completa
+        const isShowingComplete = btnVerMas.textContent.includes('menos');
+        
+        if (isShowingComplete) {
+            // Cambiar a vista resumida
+            if (backendData.porMunicipiosCompletos && backendData.porMunicipiosCompletos.length > 0) {
+                const totalUnidades = backendData.totalUnidades || backendData.porMunicipiosCompletos.reduce((sum, item) => sum + item.total, 0);
+                mostrarResumenProporciones(backendData.porMunicipiosCompletos, totalUnidades);
+            }
+            btnVerMas.textContent = 'Ver más';
+            btnVerMas.onclick = mostrarListaCompletaProporciones;
+        } else {
+            // Cambiar a vista completa
+            mostrarListaCompletaProporciones();
+        }
+        
+        console.log('Vista de proporciones alternada exitosamente');
+    } catch (error) {
+        console.error('Error al alternar vista de proporciones:', error);
+    }
+}
+
+// Función para debug de proporciones
+function debugProporciones() {
+    console.log('=== DEBUG PROPORCIONES ===');
+    console.log('backendData.porMunicipiosCompletos:', backendData.porMunicipiosCompletos);
+    console.log('backendData.porMunicipios:', backendData.porMunicipios);
+    console.log('Total unidades:', backendData.totalUnidades);
+    
+    if (backendData.porMunicipiosCompletos && backendData.porMunicipiosCompletos.length > 0) {
+        console.log('Municipios completos encontrados:', backendData.porMunicipiosCompletos.length);
+        backendData.porMunicipiosCompletos.forEach((municipio, index) => {
+            console.log(`Municipio ${index}:`, municipio);
+        });
+    }
+    
+    if (backendData.porMunicipios && backendData.porMunicipios.length > 0) {
+        console.log('Municipios limitados encontrados:', backendData.porMunicipios.length);
+        backendData.porMunicipios.forEach((municipio, index) => {
+            console.log(`Municipio limitado ${index}:`, municipio);
+        });
+    }
+    console.log('=== FIN DEBUG PROPORCIONES ===');
+}
 
 // Hacer todas las funciones disponibles globalmente
 window.cambiarVistaMapa = cambiarVistaMapa;
@@ -2239,8 +1787,6 @@ window.cambiarPeriodo = cambiarPeriodo;
 window.resetFilters = resetFilters;
 window.refreshDashboard = refreshDashboard;
 window.togglePerformanceMode = togglePerformanceMode;
-
-
 window.cambiarPeriodoGrafico = cambiarPeriodoGrafico;
 window.aplicarRangoFechas = aplicarRangoFechas;
 window.updateChartContent = updateChartContent;
@@ -2253,17 +1799,15 @@ window.mostrarResumenProporciones = mostrarResumenProporciones;
 window.mostrarListaCompletaProporciones = mostrarListaCompletaProporciones;
 window.toggleProporcionesCompletas = toggleProporcionesCompletas;
 window.debugProporciones = debugProporciones;
-
-// Función callback para Google Maps
-function initGoogleMaps() {
-    console.log('Google Maps API cargada correctamente');
-    // El mapa se inicializará automáticamente cuando se cargue la página
-}
-</script>
-
-<!-- Google Maps API -->
-<script src="https://maps.googleapis.com/maps/api/js?key={{ config('dashboard.maps.google_maps_key') }}&libraries=places&callback=initGoogleMaps" async defer></script>
-
-
-
-@endsection
+window.clearSectoresCache = clearSectoresCache;
+window.debugSectores = debugSectores;
+window.loadChartJS = loadChartJS;
+window.loadGoogleMaps = loadGoogleMaps;
+window.initializeDashboard = initializeDashboard;
+window.initializeCharts = initializeCharts;
+window.initializeMap = initializeMap;
+window.showLoading = showLoading;
+window.hideLoading = hideLoading;
+window.updateLastUpdateTime = updateLastUpdateTime;
+window.setupEventListeners = setupEventListeners;
+window.initGoogleMaps = initGoogleMaps;
