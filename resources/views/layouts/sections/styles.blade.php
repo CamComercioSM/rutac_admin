@@ -19,3 +19,6 @@
 
 <!-- Page Styles -->
 @yield('page-style')
+
+<!-- Custom Styles -->
+@yield('styles')

@@ -69,6 +69,10 @@
   </div>
 </div>
 
+{{-- === Sección para estilos de las vistas hijas === --}}
+@yield('styles')
+{{-- Si prefieres stacks, puedes reemplazar por: @stack('styles') --}}
+
 {{-- === Sección para scripts de las vistas hijas === --}}
 @yield('scripts')
 {{-- Si prefieres stacks, puedes reemplazar por: @stack('scripts') --}}
