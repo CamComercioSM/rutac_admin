@@ -43,40 +43,50 @@
           }
         @endphp
 
-        <li class="menu-item {{$currentRoute === $menu->url ? 'active' : ''}} {{$isParentActive ? 'open' : ''}}">
-                      
-            @if($menu->submenus->isNotEmpty())
-              <a href="javascript:void(0);" class="menu-link menu-toggle" >
-                @isset($menu->icon)
-                  <i class="{{ $menu->icon }} me-1"></i>
-                @endisset
-                <div>{{ $menu->label }}</div>
-              </a>
+        @if ($menu->icon == null && $menu->url == null)
 
-              <ul class="menu-sub">
-                @foreach($menu->submenus as $submenu)    
-                  <li class="menu-item {{$currentRoute === $submenu->url ? 'active' : ''}}" >
+          <li class="menu-header mt-7">
+            <span class="menu-header-text">{{ $menu->label }}</span>
+          </li>
 
-                    <a href="{{ url($submenu->url) }}" class="menu-link" >
-                      @isset($submenu->icon)
-                        <i class="{{ $submenu->icon }} me-1"></i>
-                      @endisset
-                      <div>{{ $submenu->label }}</div>
-                    </a>
+        @else        
 
-                  </li>
-                @endforeach
-              </ul>
-            
-            @else
-              <a href="{{ url($menu->url) }}" class="menu-link" >
-                @isset($menu->icon)
-                  <i class="{{ $menu->icon }} me-1"></i>
-                @endisset
-                <div>{{ $menu->label }} </div>
-              </a>
-            @endif
-        </li>
+          <li class="menu-item {{$currentRoute === $menu->url ? 'active' : ''}} {{$isParentActive ? 'open' : ''}}">
+                        
+              @if($menu->submenus->isNotEmpty())
+                <a href="javascript:void(0);" class="menu-link menu-toggle" >
+                  @isset($menu->icon)
+                    <i class="{{ $menu->icon }} me-1"></i>
+                  @endisset
+                  <div>{{ $menu->label }}</div>
+                </a>
+
+                <ul class="menu-sub">
+                  @foreach($menu->submenus as $submenu)    
+                    <li class="menu-item {{$currentRoute === $submenu->url ? 'active' : ''}}" >
+
+                      <a href="{{ url($submenu->url) }}" class="menu-link" >
+                        @isset($submenu->icon)
+                          <i class="{{ $submenu->icon }} me-1"></i>
+                        @endisset
+                        <div>{{ $submenu->label }}</div>
+                      </a>
+
+                    </li>
+                  @endforeach
+                </ul>
+              
+              @else
+                <a href="{{ url($menu->url) }}" class="menu-link" >
+                  @isset($menu->icon)
+                    <i class="{{ $menu->icon }} me-1"></i>
+                  @endisset
+                  <div>{{ $menu->label }} </div>
+                </a>
+              @endif
+          </li>
+
+        @endif
 
     @endforeach
 

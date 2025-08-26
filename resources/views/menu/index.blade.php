@@ -31,7 +31,7 @@
 
         <div class="mb-3">
             <label for="icon">Icono</label>
-            <input type="text" class="form-control" name="icon" id="icon" placeholder="Icono" required>
+            <input type="text" class="form-control" name="icon" id="icon" placeholder="Icono">
         </div>
 
         <div class="mb-3">
