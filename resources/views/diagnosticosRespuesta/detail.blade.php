@@ -46,12 +46,14 @@
                 <thead>
                     <th>Pregunta</th>
                     <th>Respuesta</th>
+                    <th>Porcentaje</th>
                 </thead>
                 <tbody>
                     @foreach ($detalle->respuestas as $item)
                         <tr>
                             <td>{{$item->pregunta->pregunta_titulo ?? ' - '}}</td>
                             <td>{{$item->diagnosticorespuesta_valor ?? ' - '}}</td>
+                            <td>{{$item->pregunta->pregunta_porcentaje ?? ' - '}}</td>
                         </tr>
                     @endforeach
                 </tbody>

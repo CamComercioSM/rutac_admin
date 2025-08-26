@@ -17,12 +17,18 @@
                 </div>
                 <ul class="list-unstyled g-2 my-6">
                     <li class="mb-2 d-flex align-items-center">
-                        <i class="icon-base ri ri-circle-fill icon-10px text-body me-2"></i>
-                        <span>{{$detalle->convocatoria->programa->nombre ?? ' - '}}</span>
+                        <i class="icon-base ri ri-circle-fill icon-10px text-body me-2"></i>                        
+                        <span> 
+                            <b>Programa: </b>
+                            <a href="/programas/{{$detalle->convocatoria->programa_id}}"> {{$detalle->convocatoria->programa->nombre ?? ' - '}} </a>                            
+                        </span>
                     </li>
                     <li class="mb-2 d-flex align-items-center">
                         <i class="icon-base ri ri-circle-fill icon-10px text-body me-2"></i>
-                        <span>{{$detalle->convocatoria->nombre_convocatoria ?? ' - '}}</span>
+                        <span>
+                            <b>Convocatoria: </b>
+                            <a href="/convocatorias/{{$detalle->convocatoria->convocatoria_id}}"> {{$detalle->convocatoria->nombre_convocatoria ?? ' - '}} </a>
+                        </span>
                     </li>
                     <li class="mb-2 d-flex align-items-center">
                         <i class="icon-base ri ri-circle-fill icon-10px text-body me-2"></i>

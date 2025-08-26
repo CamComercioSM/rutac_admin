@@ -3,6 +3,7 @@
 namespace App\Models\Programas;
 
 use App\Models\Inscripciones\ConvocatoriaInscripcion;
+use App\Models\TablasReferencias\Etapa;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -44,13 +45,14 @@ class Programa extends Model
         return $this->hasMany(ProgramaConvocatoria::class, 'programa_id', 'programa_id');
     }
 
-    /*
-    public function etapas(): BelongsToMany {
+    
+    public function etapas()
+    {
         return $this->belongsToMany(Etapa::class, 'programas_etapas', 'programa_id', 'etapa_id');
     }
-    */
+    
 
-    public static $es_virtual = [
+    public static $es_virtual_text = [
         '0' => 'Presencial',
         '1' => 'Virtual',
         '2' => 'Presencial y virtual'

@@ -30,6 +30,13 @@
                     <span>{{$unidad->contact_phone ?? ' - '}}</span>
                 </li>                        
             </ul>
+
+            <div class="d-flex justify-content-center">
+              <a href="/unidadesProductivas/{{$unidad->unidadproductiva_id}}" class="btn btn-primary me-4 waves-effect waves-light" >
+                Ver más detalles
+              </a>
+            </div>
+
         </div>
     </div>
 </div>

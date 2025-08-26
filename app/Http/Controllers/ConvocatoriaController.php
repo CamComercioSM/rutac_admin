@@ -51,9 +51,9 @@ class ConvocatoriaController extends Controller
 
     public function show($id)
     {
-        $result = ProgramaConvocatoria::findOrFail($id);
+        $result = ProgramaConvocatoria::with(['programa', 'sector', 'asesores', 'requisitos', 'requisitosIndicadores'])->findOrFail($id);
 
-        return response()->json($result);
+        return view('convocatorias.detail', [ 'detalle' => $result ]);
     }
 
     public function store(Request $request)

@@ -14,6 +14,7 @@ use App\Http\Controllers\DiagnosticosResultadosController;
 use App\Http\Controllers\InscripcionesController;
 use App\Http\Controllers\InscripcionesRequisitosController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\ProgramaController;
 use App\Http\Controllers\UnidadProductivaController;
 use App\Http\Middleware\ValidateUserMenuAccess;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,7 @@ Route::as('admin.')
         Route::get('/inscripciones/list', [InscripcionesController::class, 'list']);
         Route::get('/diagnosticosResultados/list', [DiagnosticosResultadosController::class, 'list']);
         Route::get('/convocatorias/list', [ConvocatoriaController::class, 'list']);
+        Route::get('/programas/list', [ProgramaController::class, 'list']);
 
         Route::get('/users/list', [UserController::class, 'list']);
         Route::get('/menu/list', [MenuController::class, 'list']);
@@ -57,6 +59,7 @@ Route::as('admin.')
     Route::get('/cronLog/export', [CronLogController::class, 'export']);
     Route::get('/diagnosticosResultados/export', [DiagnosticosResultadosController::class, 'export']);
     Route::get('/unidadesProductivas/export', [UnidadProductivaController::class, 'export']);
+    Route::get('/programas/export', [ProgramaController::class, 'export']);
     Route::get('/convocatorias/export', [ConvocatoriaController::class, 'export']);
     Route::get('/diagnosticos/export', [DiagnosticosController::class, 'export']);
     Route::get('/diagnosticosPreguntas/export', [DiagnosticosPreguntasController::class, 'export']);
@@ -71,6 +74,7 @@ Route::as('admin.')
     Route::apiResource('cronLog', CronLogController::class);
     Route::apiResource('diagnosticosResultados', DiagnosticosResultadosController::class);
     Route::apiResource('unidadesProductivas', UnidadProductivaController::class);
+    Route::apiResource('programas', ProgramaController::class);
     Route::apiResource('convocatorias', ConvocatoriaController::class);
     Route::apiResource('diagnosticos', DiagnosticosController::class);
     Route::apiResource('diagnosticosPreguntas', DiagnosticosPreguntasController::class);
