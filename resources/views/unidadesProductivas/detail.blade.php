@@ -5,7 +5,7 @@
 <div class="row">
     <div class="col-12 col-md-5">
         
-        @include('_partials.unidad', ["unidad"=>$detalle])
+        @include('_partials.unidad', [ "unidad"=> $detalle, "verMasDetalles"=> false ])
 
         <div class="card pt-2">
             <div id="chart"></div>

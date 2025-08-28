@@ -31,11 +31,13 @@
                 </li>                        
             </ul>
 
-            <div class="d-flex justify-content-center">
-              <a href="/unidadesProductivas/{{$unidad->unidadproductiva_id}}" class="btn btn-primary me-4 waves-effect waves-light" >
-                Ver más detalles
-              </a>
-            </div>
+            @if (!isset($verMasDetalles) || $verMasDetalles == true)
+                <div class="d-flex justify-content-center">
+                    <a href="/unidadesProductivas/{{$unidad->unidadproductiva_id}}" class="btn btn-primary me-4 waves-effect waves-light" >
+                        Ver más detalles
+                    </a>
+                </div>
+            @endif
 
         </div>
     </div>

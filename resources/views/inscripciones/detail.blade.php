@@ -92,6 +92,15 @@
                                 <small class="text-body-secondary">{{$item->fecha_creacion ?? ' - '}}</small>
                             </div>
                             <p class="mb-2">{{$item->comentarios ?? ' - '}}</p>
+                            @if ($item->archivo)                            
+                                <div class="d-flex align-items-center mb-1">
+                                    <a class="badge bg-lightest" href="{{$item->archivo}}">
+                                        <img src="{{ asset('assets/img/icons/misc/pdf.png') }}" alt="img" width="20" class="me-2" />
+                                        <span class="h6 mb-0">Archivo</span>
+                                    </a>
+                                </div>
+                            @endif
+
                         </div>
                     </li>
                     @endforeach
@@ -110,7 +119,10 @@
         <div class="text-center mb-6">
           <h4 class="mb-2">Cambio de estado</h4>
         </div>
-        <form id="cambioEstadoForm" class="row g-5 d-flex align-items-center" action="/inscripciones/{{$detalle->inscripcion_id}}" method="PATCH" >
+        <form id="cambioEstadoForm" class="row g-5 d-flex align-items-center" 
+            action="/inscripciones/{{$detalle->inscripcion_id}}" 
+            enctype="multipart/form-data"
+            method="POST" >
           
             <div class="col-sm-12 mb-3">
                 <label class="form-label" for="inscripcionestado_id">Estado</label>
@@ -136,8 +148,14 @@
                 </select>
             </div>
 
+            <div class="col-sm-12 mb-3">
+                <label class="form-label" for="archivo">Archivo adjunto</label>
+                <input class="form-control" type="file" name="archivo" id="archivo" accept=".pdf,.jpg,.png,.doc,.docx">
+            </div>
+
             <input type="hidden" name="inscripcion_id" id="inscripcion_id" value="{{$detalle->inscripcion_id}}" >
             @csrf
+            @method('PATCH')
 
             <div class="col-sm-12 text-center">
                 <hr class="mx-md-n5 mx-n3" />
@@ -224,14 +242,20 @@
 
                 cargando.classList.remove('d-none');
 
-                let form = $(this);
-                let method = form.attr('method');
+                let form = $(this); 
+                let formEl = this; 
+
+                let method = form.attr('method'); 
                 let actionUrl = form.attr('action');
+
+                let formData = new FormData(formEl);
 
                 $.ajax({
                     type: method,
                     url: actionUrl,
-                    data: form.serialize(),
+                    data: formData,
+                    processData: false,
+                    contentType: false,
                     success: function (response) {
 
                         $(".modal").modal('hide');

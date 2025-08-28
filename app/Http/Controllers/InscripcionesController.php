@@ -59,10 +59,19 @@ class InscripcionesController extends Controller
 
     public function update($id, Request $request)
     {
-        $data = $request->all();
-        
         $entity = ConvocatoriaInscripcion::findOrFail($id);
-        $entity->update($data);
+
+        if($request->hasFile('archivo')) 
+        {
+            $path = $request->file('archivo')->store('aplications', 'public');
+
+           $entity->archivo = $path;
+        }
+
+        $entity->inscripcionestado_id = $request->input('inscripcionestado_id');
+        $entity->comentarios = $request->input('comentarios');
+        $entity->activarPreguntas = $request->input('activarPreguntas') == 1;
+        $entity->save();
 
         return response()->json([ 'message' => 'Stored' ], 201);
     }
