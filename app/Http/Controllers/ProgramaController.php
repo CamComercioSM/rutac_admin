@@ -13,9 +13,7 @@ class ProgramaController extends Controller
 {
     function list()
     { 
-        $data = [ 
-            
-        ];
+        $data = [];
 
         return View("programas.index", $data);
     }

@@ -67,6 +67,9 @@
         </form>
     </div>
 </div>
+
+<div id="MenurowTable" class="dropdown-menu" style="position:absolute; display:none;"> </div>
+
 @endsection
 
 @section('page-script')

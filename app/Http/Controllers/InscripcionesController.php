@@ -15,14 +15,14 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class InscripcionesController extends Controller
 {
-    function list($msj = null)
+    function list(Request $request)
     { 
         $data = [
             'estados'=> InscripcionEstado::get(),
             'programas'=> Programa::get(),
             'convocatorias'=> ProgramaConvocatoria::get(),
             'unidades'=> [],
-            'mensaje'=> $msj,
+            'filtros'=> $request->all()
         ];
         
         return View("inscripciones.index", $data);

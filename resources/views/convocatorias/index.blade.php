@@ -142,7 +142,10 @@
         const TABLA = {
             urlApi: '/convocatorias',
             sortName: 'convocatoria_id',
-            accion_editar: true,
+            
+            menu_row: `<a class="dropdown-item" href="/convocatorias/ROWID" >Ver detalles</a>
+                       <a class="dropdown-item" href="/inscripciones/list?convocatoria=ROWID">Inscripciones</a>`,
+
             columns: [
                 { field: 'nombre_programa', title: 'Programa', sortable: true },
                 { field: 'nombre_convocatoria', title: 'Nombre', sortable: true },
@@ -151,10 +154,13 @@
                 { field: 'fecha_apertura_convocatoria', title: 'Fecha inicio', sortable: true, formatter: 'formatearFecha' },
                 { field: 'fecha_cierre_convocatoria', title: 'Fecha finalización', sortable: true, formatter: 'formatearFecha' }
             ],
+
             initSelects: [ 
                 { id:'programa'}, { id:'pregunta'}, 
                 { id:'asesores', setting:{ placeholder: 'Selección multiple'}  },                
             ],
+
+            initFiltros: @json($filtros),
 
             loadOptions: function(opciones) 
             {

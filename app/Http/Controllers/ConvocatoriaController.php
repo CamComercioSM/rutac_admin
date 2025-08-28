@@ -16,7 +16,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ConvocatoriaController extends Controller
 {
-    function list()
+    function list(Request $request)
     { 
         $data = [ 
             'programas'=> Programa::get(),
@@ -24,6 +24,7 @@ class ConvocatoriaController extends Controller
             'asesores'=> User::where('rol_id', Role::ASESOR)->get(),
             'preguntas'=> InscripcionesRequisitos::select('requisito_id', 'requisito_titulo')->get(),
             'puedeExportar'=> Auth::user()->rol_id != Role::ASESOR, 
+            'filtros'=> $request->all()
         ];
 
         return View("convocatorias.index", $data);

@@ -20,6 +20,7 @@
     
     const preview = document.getElementById('preview');
     const file = document.getElementById('file');
+    const dropdown = $('#MenurowTable');
 
     window.formatearFecha = function(value) {
         if (!value) return '';
@@ -56,29 +57,6 @@
             $('.cargando').addClass('d-none');
         });
     }
-
-    $('#tabla').bootstrapTable({
-        toolbar: '#toolbar',
-        columns: TABLA.columns,
-        locale: 'es-ES',
-        pagination: true,
-        sidePagination: 'server',
-        search: true,
-        sortName: TABLA.sortName,
-        sortOrder: 'asc',
-        pageList: [15, 25, 50, 100],
-        ajax: ajaxCargarData,
-        queryParamsType: '',
-        onDblClickRow: function (row, $element, field) {
-            if(TABLA.accion_editar)
-            {
-                CrearRegistro(row);
-            }
-            else if(TABLA.accion_ver){
-                window.location.href = TABLA.urlApi +'/'+ row.id;
-            }
-        }
-    });
 
     $('#btnCrear').on('click', function () { CrearRegistro(); });
 
@@ -216,7 +194,19 @@
     });
 
 
-    if (TABLA.initSelects) {
+    if(TABLA.initFiltros)
+    {
+        $.each(TABLA.initFiltros, function(key, value) {
+            const input = $('#'+key);
+
+            if(input.length)
+                input.val(value).trigger('change');
+        });
+    }
+
+
+    if (TABLA.initSelects) 
+    {
         TABLA.initSelects.forEach(item => {
             $("#" + item.id).select2(item.setting ?? {});
         });
@@ -233,3 +223,56 @@
         if (isNaN(date)) return "";
         return date.toISOString().slice(0, 16);
     }
+
+    $('#tabla').bootstrapTable({
+        toolbar: '#toolbar',
+        columns: TABLA.columns,
+        locale: 'es-ES',
+        pagination: true,
+        sidePagination: 'server',
+        search: true,
+        sortName: TABLA.sortName,
+        sortOrder: 'asc',
+        pageList: [15, 25, 50, 100],
+        ajax: ajaxCargarData,
+        queryParamsType: '',
+        onClickCell: function (field, value, row, $element) {
+
+            if(TABLA.menu_row)
+            {
+                let menu = TABLA.menu_row.replace(/ROWID/g, row.id);
+                const rect = $element[0].getBoundingClientRect();
+                
+                dropdown.html(menu);
+                dropdown.css({
+                    top: rect.bottom + window.scrollY - 10,
+                    left: rect.left + window.scrollX,
+                    display: 'block',
+                    position: 'absolute',
+                    zIndex: 9999
+                });
+
+                $(document).off('mousedown.menuContext');
+                $(document).on('mousedown.menuContext', function(e) {
+                    // Si el clic NO fue dentro del dropdown
+                    if (!$(e.target).closest('#MenurowTable').length) {
+                        dropdown.hide();
+                        $(document).off('mousedown.menuContext'); // remover handler
+                    }
+                });
+                
+            }
+            else
+            {
+                if(TABLA.accion_editar)
+                {
+                    CrearRegistro(row);
+                }
+                else if(TABLA.accion_ver)
+                {
+                    $('.cargando').removeClass('d-none');
+                    window.location.href = TABLA.urlApi +'/'+ row.id;
+                }
+            }
+        }
+    });

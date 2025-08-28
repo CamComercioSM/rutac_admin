@@ -81,7 +81,8 @@
                         minimumInputLength: 3,
                     }
                 } 
-            ]
+            ],
+            initFiltros: @json($filtros)
         };
 
     </script>

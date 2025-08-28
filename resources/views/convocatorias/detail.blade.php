@@ -6,7 +6,7 @@
 
         <div class="card mb-6 border border-2 border-primary rounded">
             
-            <h3 class="text-center my-3">Detalle convocatoria</h3>
+            <h3 class="text-center my-3">Detalles de la convocatoria</h3>
 
             <div class="card-body">
                 <table class="table">
