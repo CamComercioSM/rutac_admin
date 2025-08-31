@@ -127,7 +127,7 @@
 
     </div>
 
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
+<div class="position-fixed top-0 end-0 p-5 w-100 d-flex justify-content-center" style="z-index: 1111;">
   <div id="warningToast" class="toast bg-warning text-dark" role="alert">
     <div class="toast-body">
       ⚠️ El registro ya existe en la tabla.

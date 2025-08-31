@@ -180,7 +180,7 @@
         <div class="text-center mb-6">
           <h4 class="mb-2">Editar pregunta</h4>
         </div>
-        <form id="editarPreguntaForm" class="row g-5 d-flex align-items-center" action="/inscripciones" method="POST" >
+        <form id="editarPreguntaForm" class="row g-5 d-flex align-items-center" action="/inscripciones/updateRespuesta" method="POST" >
           
             <h5 id="textPregunta"></h5>
             
@@ -204,7 +204,7 @@
   </div>
 </div>
 
-<div class="position-fixed top-0 end-0 p-5 w-100 d-flex justify-content-center" style="z-index: 1055;">
+<div class="position-fixed top-0 end-0 p-5 w-100 d-flex justify-content-center" style="z-index: 1111;">
     <div id="estadoToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
             <div class="toast-body">
@@ -267,6 +267,7 @@
 
                         // Recargar la página después de que el toast se oculte
                         toastEl.addEventListener('hidden.bs.toast', () => {
+                            cargando.classList.remove('d-none');
                             location.reload();
                         });
                     },

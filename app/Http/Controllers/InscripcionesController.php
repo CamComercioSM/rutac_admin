@@ -34,6 +34,32 @@ class InscripcionesController extends Controller
         return Excel::download(new InscripcionesExport($query), 'inscripciones.xlsx');
     }
 
+    public function store(Request $request)
+    {
+        $convocatoria = $request->input('convocatoriaAdd');
+
+        foreach($request->input('unidades') as $u)
+        {
+            $existe = ConvocatoriaInscripcion::
+                where('convocatoria_id', $convocatoria)->
+                where('unidadproductiva_id', $u)->
+                exists();
+
+            if(!$existe)
+            {
+                $entity = new ConvocatoriaInscripcion();
+                $entity->convocatoria_id = $convocatoria;
+                $entity->unidadproductiva_id = $u;
+                $entity->inscripcionestado_id = 1;
+                $entity->comentarios = "Solicitud de registro creada";
+                $entity->activarPreguntas = true;
+                $entity->save();
+            }
+        }
+
+        return response()->json([ 'message' => 'Stored' ], 201);
+    }
+
     public function index(Request $request)
     {
         $query = $this->getQuery($request);
@@ -76,7 +102,7 @@ class InscripcionesController extends Controller
         return response()->json([ 'message' => 'Stored' ], 201);
     }
 
-    public function store(Request $request)
+    public function updateRespuesta(Request $request)
     {
         $entity = ConvocatoriaRespuesta::findOrFail($request->respuestaId);
         $entity->value = $request->valorPregunta;

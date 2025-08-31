@@ -81,6 +81,8 @@ Route::as('admin.')
     Route::apiResource('convocatoriasRequisitos', InscripcionesRequisitosController::class);
     Route::apiResource('capsulas', CapsulasController::class);
     Route::apiResource('banners', BannerController::class);
+
+    Route::post('/inscripciones/updateRespuesta', [InscripcionesController::class, 'updateRespuesta']);
     
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search']);
 });

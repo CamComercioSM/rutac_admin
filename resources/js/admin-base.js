@@ -170,7 +170,12 @@
         });
     }
 
-    function AbrirModal() {
+    function AbrirModal() 
+    {
+        if(typeof window.initAlAbrirModal === "function"){
+            window.initAlAbrirModal();
+        }
+
         $('#Data').slideUp(200, function () {
             $('#Modal').slideDown(200).removeClass('d-none');
         });
