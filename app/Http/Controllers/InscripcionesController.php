@@ -46,7 +46,7 @@ class InscripcionesController extends Controller
     {
         $result = ConvocatoriaInscripcion::with([
             'convocatoria',
-            'unidadProductiva',
+            'unidadProductiva'=> function ($q) { $q->with(['etapa', 'sectorUnidad', 'ventaAnual']); },
             'estado',
             'historial',
             'respuestas'

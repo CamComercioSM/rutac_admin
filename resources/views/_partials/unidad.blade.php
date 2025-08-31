@@ -18,12 +18,20 @@
                     <span>{{$unidad->nit ?? ' - '}}</span>
                 </li>
                 <li class="mb-2">
-                    <span class="h6">Contacto:</span>
-                    <span>{{$unidad->contact_person ?? ' - '}}</span>
+                    <span class="h6">Matrícula:</span>
+                    <span>{{$unidad->registration_number ?? ' - '}}</span>
                 </li>
                 <li class="mb-2">
-                    <span class="h6">Contacto email:</span>
-                    <span>{{$unidad->contact_email ?? ' - '}}</span>
+                    <span class="h6">Sector:</span>
+                    <span>{{$unidad->sectorUnidad->sectorNOMBRE ?? ' - '}}</span>
+                </li>
+                <li class="mb-2">
+                    <span class="h6">Ventas anuales:</span>
+                    <span>{{$unidad->ventaAnual->ventasAnualesNOMBRE ?? ' - '}}</span>
+                </li>
+                <li class="mb-2">
+                    <span class="h6">Contacto:</span>
+                    <span>{{$unidad->contact_person ?? ' - '}}</span>
                 </li>
                 <li class="mb-2">
                     <span class="h6">Contacto teléfono:</span>

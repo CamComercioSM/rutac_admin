@@ -87,14 +87,14 @@ class UnidadProductiva extends Model
         return $this->belongsTo(UnidadProductivaPersona::class, 'tipopersona_id');
     }
 
-    public function sector()
+    public function sectorUnidad()
     {
-        return $this->belongsTo(Sector::class, 'sector_id');
+        return $this->belongsTo(Sector::class, 'sector_id', 'sector_id');
     }
 
     public function ventaAnual()
     {
-        return $this->belongsTo(VentasAnuales::class, 'ventaanual_id');
+        return $this->belongsTo(VentasAnuales::class, 'ventaanual_id', 'ventasAnualesID');
     }
 
     public function ciiuActividad()

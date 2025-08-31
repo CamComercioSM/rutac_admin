@@ -39,7 +39,7 @@ class DiagnosticosResultadosController extends Controller
     public function show($id)
     {
         $result = DiagnosticoResultado::with([
-            'unidadproductiva',
+            'unidadProductiva'=> function ($q) { $q->with(['etapa', 'sectorUnidad', 'ventaAnual']); },
             'etapa',
             'respuestas'
         ])->findOrFail($id);
