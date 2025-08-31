@@ -93,6 +93,8 @@ Route::as('admin.')
     Route::apiResource('convocatoriasRequisitos', InscripcionesRequisitosController::class);
     Route::apiResource('capsulas', CapsulasController::class);
     Route::apiResource('banners', BannerController::class);
+    Route::apiResource('emailTemplates', EmailTemplateController::class);
+    Route::apiResource('defaultEmailTemplates', DefaultEmailTemplateController::class);
 
     Route::post('/inscripciones/updateRespuesta', [InscripcionesController::class, 'updateRespuesta']);
     
@@ -100,61 +102,28 @@ Route::as('admin.')
     Route::get('/dashboard/load-more', [AdminViewController::class, 'loadMoreData'])->name("dashboard.loadMore");
     Route::get('/dashboard/stats', [AdminViewController::class, 'getRealTimeStats'])->name("dashboard.stats");
     
-    Route::get('/users/list', [UserController::class, 'index'])->name("users.index");
-    Route::get('/users/create', [UserController::class, 'create'])->name("users.create");
-    Route::post('/users/store', [UserController::class, 'store'])->name("users.store");
-    Route::get('/users/edit/{id}', [UserController::class, 'edit'])->name("users.edit");
-    Route::put('/users/update/{id}', [UserController::class, 'update'])->name("users.update");
-    Route::delete('/users/delete/{id}', [UserController::class, 'destroy'])->name("users.destroy");
+    // Las rutas de users están manejadas por Route::apiResource('users', UserController::class)
     
-    Route::get('/unidadesProductivas/list', [UnidadProductivaController::class, 'index'])->name("unidadesProductivas.index");
-    Route::get('/unidadesProductivas/create', [UnidadProductivaController::class, 'create'])->name("unidadesProductivas.create");
-    Route::post('/unidadesProductivas/store', [UnidadProductivaController::class, 'store'])->name("unidadesProductivas.store");
-    Route::get('/unidadesProductivas/edit/{id}', [UnidadProductivaController::class, 'edit'])->name("unidadesProductivas.edit");
-    Route::put('/unidadesProductivas/update/{id}', [UnidadProductivaController::class, 'update'])->name("unidadesProductivas.update");
-    Route::delete('/unidadesProductivas/delete/{id}', [UnidadProductivaController::class, 'destroy'])->name("unidadesProductivas.destroy");
-    Route::get('/unidadesProductivas/show/{id}', [UnidadProductivaController::class, 'show'])->name("unidadesProductivas.show");
+    // Las rutas de unidadesProductivas están manejadas por Route::apiResource('unidadesProductivas', UnidadProductivaController::class)
+    // Ruta adicional para búsqueda
     Route::get('/unidadesProductivas/search', [UnidadProductivaController::class, 'search'])->name("unidadesProductivas.search");
     
-    Route::get('/menu/list', [MenuController::class, 'index'])->name("menu.index");
-    Route::get('/menu/create', [MenuController::class, 'create'])->name("menu.create");
-    Route::post('/menu/store', [MenuController::class, 'store'])->name("menu.store");
-    Route::get('/menu/edit/{id}', [MenuController::class, 'edit'])->name("menu.edit");
-    Route::put('/menu/update/{id}', [MenuController::class, 'update'])->name("menu.update");
-    Route::delete('/menu/delete/{id}', [MenuController::class, 'destroy'])->name("menu.destroy");
+    // Las rutas de menu están manejadas por Route::apiResource('menu', MenuController::class)
     
-    Route::get('/crons/list', [CronController::class, 'index'])->name("crons.index");
-    Route::get('/crons/create', [CronController::class, 'create'])->name("crons.create");
-    Route::post('/crons/store', [CronController::class, 'store'])->name("crons.store");
-    Route::get('/crons/edit/{id}', [CronController::class, 'edit'])->name("crons.edit");
-    Route::put('/crons/update/{id}', [CronController::class, 'update'])->name("crons.update");
-    Route::delete('/crons/delete/{id}', [CronController::class, 'destroy'])->name("crons.destroy");
+    // Las rutas de crons están manejadas por Route::apiResource('crons', CronController::class)
     
-    Route::get('/cronLogs/list', [CronLogController::class, 'index'])->name("cronLogs.index");
-    Route::get('/cronLogs/show/{id}', [CronLogController::class, 'show'])->name("cronLogs.show");
+    // Las rutas de cronLog están manejadas por Route::apiResource('cronLog', CronLogController::class)
     
-    Route::get('/diagnosticosResultados/list', [DiagnosticosResultadosController::class, 'index'])->name("diagnosticosResultados.index");
-    Route::get('/diagnosticosResultados/show/{id}', [DiagnosticosResultadosController::class, 'show'])->name("diagnosticosResultados.show");
+    // Las rutas de diagnosticosResultados están manejadas por Route::apiResource('diagnosticosResultados', DiagnosticosResultadosController::class)
     
-    Route::get('/inscriptions/list', [InscriptionController::class, 'index'])->name("inscriptions.index");
-    Route::get('/inscriptions/show/{id}', [InscriptionController::class, 'show'])->name("inscriptions.show");
+    // Las rutas de inscriptions están manejadas por Route::apiResource('inscripciones', InscripcionesController::class)
     
-    Route::get('/emailTemplates/list', [EmailTemplateController::class, 'index'])->name("emailTemplates.index");
-    Route::get('/emailTemplates/create', [EmailTemplateController::class, 'create'])->name("emailTemplates.create");
-    Route::post('/emailTemplates/store', [EmailTemplateController::class, 'store'])->name("emailTemplates.store");
-    Route::get('/emailTemplates/show/{id}', [EmailTemplateController::class, 'show'])->name("emailTemplates.show");
-    Route::get('/emailTemplates/edit/{id}', [EmailTemplateController::class, 'edit'])->name("emailTemplates.edit");
-    Route::put('/emailTemplates/update/{id}', [EmailTemplateController::class, 'update'])->name("emailTemplates.update");
-    Route::delete('/emailTemplates/delete/{id}', [EmailTemplateController::class, 'destroy'])->name("emailTemplates.destroy");
+    // Las rutas básicas de emailTemplates están manejadas por Route::apiResource('emailTemplates', EmailTemplateController::class)
+    // Rutas adicionales específicas
     Route::post('/emailTemplates/toggle-status/{id}', [EmailTemplateController::class, 'toggleStatus'])->name("emailTemplates.toggle-status");
     Route::post('/emailTemplates/send-test', [EmailTemplateController::class, 'sendTestEmail'])->name("emailTemplates.send-test");
     
-    Route::get('/defaultEmailTemplates/list', [DefaultEmailTemplateController::class, 'index'])->name("defaultEmailTemplates.index");
-    Route::get('/defaultEmailTemplates/create', [DefaultEmailTemplateController::class, 'create'])->name("defaultEmailTemplates.create");
-    Route::post('/defaultEmailTemplates/store', [DefaultEmailTemplateController::class, 'store'])->name("defaultEmailTemplates.store");
-    Route::get('/defaultEmailTemplates/edit/{id}', [DefaultEmailTemplateController::class, 'edit'])->name("defaultEmailTemplates.edit");
-    Route::put('/defaultEmailTemplates/update/{id}', [DefaultEmailTemplateController::class, 'update'])->name("defaultEmailTemplates.update");
-    Route::delete('/defaultEmailTemplates/delete/{id}', [DefaultEmailTemplateController::class, 'destroy'])->name("defaultEmailTemplates.destroy");
+    // Las rutas de defaultEmailTemplates están manejadas por Route::apiResource('defaultEmailTemplates', DefaultEmailTemplateController::class)
 });
 
 Route::get('/auth', [App\Http\Controllers\AuthController::class, 'index'])->name("auth.index");

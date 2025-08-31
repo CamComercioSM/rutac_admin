@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="dashboard-container">
-    <!-- Indicador de Carga -->
+    <!-- Indicador de Carga 
     <div id="loadingIndicator" class="loading-overlay" style="display: none;">
         <div class="loading-content">
             <div class="spinner-border text-primary" role="status">
@@ -16,7 +16,7 @@
             </div>
         </div>
     </div>
-
+-->
     <!-- Mensaje de Error -->
     @if(isset($error))
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -90,9 +90,6 @@
                         @endforeach
                     @endif
                 </select>
-            </div>
-        </div>
-    </div>
             </div>
         </div>
     </div>
@@ -563,6 +560,10 @@ let dashboardData = null;
         
         // Hacer backendData disponible globalmente para que las funciones locales puedan acceder
         window.backendData = backendData;
+        
+        console.log('📊 backendData cargado:', backendData);
+        console.log('📊 backendData.porMunicipios:', backendData.porMunicipios);
+        console.log('📊 backendData.porTipoOrganizacion:', backendData.porTipoOrganizacion);
 
 // Configuración global del dashboard
 window.DashboardConfig = {
@@ -623,26 +624,63 @@ function loadGoogleMaps() {
 // ===== FUNCIONES PRINCIPALES DEL DASHBOARD =====
 
 function initializeDashboard() {
+    console.log('🔧 Iniciando initializeDashboard...');
     
-    // Pasar datos del dashboard al JavaScript
-    dashboardData = {
-        totalUnidades: {{ $totalUnidades ?? 0 }},
-        datosMapa: backendData.datosMapa,
-        porMunicipios: backendData.porMunicipios,
-        porTipoOrganizacion: backendData.porTipoOrganizacion,
-        porEstadoDiagnostico: backendData.porEstadoDiagnostico,
-        porEtapas: backendData.porEtapas,
-        evolucionTemporal: backendData.evolucionTemporal,
-        porTamanos: backendData.porTamanos
-    };
-    
-    setupEventListeners();
-    updateLastUpdateTime();
-    
-    // Calcular tendencia de métricas
-    updateMetricTrend();
-    
-    hideLoading();
+    try {
+        // Pasar datos del dashboard al JavaScript
+        console.log('📊 Configurando datos del dashboard...');
+        dashboardData = {
+            totalUnidades: {{ $totalUnidades ?? 0 }},
+            datosMapa: backendData.datosMapa,
+            porMunicipios: backendData.porMunicipios,
+            porTipoOrganizacion: backendData.porTipoOrganizacion,
+            porEstadoDiagnostico: backendData.porEstadoDiagnostico,
+            porEtapas: backendData.porEtapas,
+            evolucionTemporal: backendData.evolucionTemporal,
+            porTamanos: backendData.porTamanos
+        };
+        console.log('✅ Datos del dashboard configurados:', dashboardData);
+        
+        console.log('🎧 Configurando event listeners...');
+        setupEventListeners();
+        console.log('✅ Event listeners configurados');
+        
+        console.log('⏰ Actualizando tiempo de última actualización...');
+        updateLastUpdateTime();
+        console.log('✅ Tiempo actualizado');
+        
+        console.log('📈 Calculando tendencia de métricas...');
+        updateMetricTrend();
+        console.log('✅ Tendencia calculada');
+        
+        console.log('🚫 Ocultando indicador de carga...');
+        hideLoading();
+        console.log('✅ Indicador de carga ocultado');
+        
+        console.log('🎯 initializeDashboard completado exitosamente');
+        hideLoading();
+        // FORZAR ocultar loading después de un breve delay
+        setTimeout(() => {
+            console.log('🔄 Forzando ocultar loading desde initializeDashboard...');
+            hideLoading();
+        }, 1000);
+        
+    } catch (error) {
+        console.error('❌ Error en initializeDashboard:', error);
+        // Intentar ocultar el loading incluso si hay error
+        try {
+            hideLoading();
+            console.log('✅ Indicador de carga ocultado (después del error)');
+        } catch (hideError) {
+            console.error('❌ Error al ocultar loading:', hideError);
+        }
+        
+        // También forzar ocultar loading después de un delay
+        setTimeout(() => {
+            console.log('🔄 Forzando ocultar loading después de error en initializeDashboard...');
+            hideLoading();
+        }, 1000);
+    }
 }
 
 function initializeCharts() {
@@ -787,7 +825,7 @@ function initializeCharts() {
             createPieChart('proporcionesChart', proporcionesData);
             
             // Actualizar el contenido con todos los municipios
-            updateProporcionesContent();
+            // updateProporcionesContent(); // COMENTADO - NO EXISTE LA TABLA HTML
         } else if (backendData.porMunicipios && Array.isArray(backendData.porMunicipios) && backendData.porMunicipios.length > 0) {
             // Fallback: usar datos de municipios limitados si no hay completos
             const totalUnidades = backendData.totalUnidades || backendData.porMunicipios.reduce((sum, item) => sum + item.total, 0);
@@ -804,7 +842,7 @@ function initializeCharts() {
             createPieChart('proporcionesChart', proporcionesData);
             
             // Actualizar contenido con datos limitados
-            updateProporcionesContentFallback();
+            // updateProporcionesContentFallback(); // COMENTADO - NO EXISTE LA TABLA HTML
         } else {
             
             createPieChart('proporcionesChart', {
@@ -1684,7 +1722,8 @@ function updateChartContent() {
     }
 }
 
-// Función para actualizar el contenido del gráfico de proporciones
+// Función para actualizar el contenido del gráfico de proporciones - COMENTADA PORQUE NO EXISTE LA TABLA HTML
+/*
 function updateProporcionesContent() {
     console.log('Actualizando contenido de proporciones con todos los municipios...');
     
@@ -1709,8 +1748,10 @@ function updateProporcionesContent() {
         console.error('❌ Error al actualizar contenido de proporciones:', error);
     }
 }
+*/
 
-// Función de fallback para actualizar contenido de proporciones con datos limitados
+// Función de fallback para actualizar contenido de proporciones con datos limitados - COMENTADA PORQUE NO EXISTE LA TABLA HTML
+/*
 function updateProporcionesContentFallback() {
     console.log('Actualizando contenido de proporciones con datos limitados (fallback)...');
     
@@ -1719,11 +1760,11 @@ function updateProporcionesContentFallback() {
             const totalUnidades = backendData.totalUnidades || backendData.porMunicipios.reduce((sum, item) => sum + item.total, 0);
             
             // Actualizar la tabla de proporciones con datos limitados
-            updateProporcionesTableFallbackLocal();
+            updateProporcionesTableLocal(false);
             
             // Mostrar botón para ver lista completa si hay suficientes datos
             const btnVerMas = document.getElementById('btnVerMasProporciones');
-            if (btnVerMas && backendData.porMunicipios.length > 5) {
+            if (btnVerMas && backendData.porMunicipios.length > 0) {
                 btnVerMas.style.display = 'inline-block';
             } else if (btnVerMas) {
                 btnVerMas.style.display = 'none';
@@ -1737,13 +1778,13 @@ function updateProporcionesContentFallback() {
         console.error('❌ Error al actualizar contenido de proporciones (fallback):', error);
     }
 }
+*/
 
-// Función para mostrar resumen de proporciones (top 5 + otros)
+// Función para mostrar resumen de proporciones (top 5 + otros) - COMENTADA PORQUE NO EXISTE LA TABLA HTML
+/*
 function mostrarResumenProporciones(municipios, totalUnidades) {
     const proporcionesContent = document.getElementById('proporcionesContent');
     if (!proporcionesContent) return;
-    
- 
     
     let resumenHTML = '';
     
@@ -1764,8 +1805,6 @@ function mostrarResumenProporciones(municipios, totalUnidades) {
         
         resumenHTML += `<hr class="my-2">`;
         resumenHTML += `<p class="mb-1 text-muted"><em>Otros ${municipios.length - 5} municipios: ${porcentajeOtros}% (${totalOtros.toLocaleString()} unidades)</em></p>`;
-        
-    
     }
     
     // Agregar línea de total
@@ -1775,6 +1814,7 @@ function mostrarResumenProporciones(municipios, totalUnidades) {
     // Actualizar la tabla de proporciones directamente (vista resumen)
     updateProporcionesTableLocal(false);
 }
+*/
 
 // Función para generar colores consistentes basados en el nombre
 function generateColorFromName(name) {
@@ -1790,7 +1830,8 @@ function generateColorFromName(name) {
     return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
-// Función para mostrar vista compacta de proporciones
+// Función para mostrar vista compacta de proporciones - COMENTADA PORQUE NO EXISTE LA TABLA HTML
+/*
 function mostrarVistaCompactaProporciones() {
     console.log('=== mostrarVistaCompactaProporciones EJECUTADA ===');
     
@@ -1835,8 +1876,10 @@ function mostrarVistaCompactaProporciones() {
         console.error('Error en mostrarVistaCompactaProporciones:', error);
     }
 }
+*/
 
-// Función para mostrar lista completa de proporciones
+// Función para mostrar lista completa de proporciones - COMENTADA PORQUE NO EXISTE LA TABLA HTML
+/*
 function mostrarListaCompletaProporciones() {
     console.log('=== mostrarListaCompletaProporciones EJECUTADA ===');
     
@@ -1866,7 +1909,7 @@ function mostrarListaCompletaProporciones() {
         updateProporcionesTableLocal(true); // true = mostrar lista completa
         
         // También actualizar la tabla de lista completa si existe
-        const tableBodyCompleta = document.getElementById('proporcionesTableBodyCompleta');
+        const tableBodyCompleta = document.getElementById('proporcionesTableBodyCompletas');
         if (tableBodyCompleta) {
             updateProporcionesTableCompletaLocal(true);
         }
@@ -1886,6 +1929,7 @@ function mostrarListaCompletaProporciones() {
         console.error('Error en mostrarListaCompletaProporciones:', error);
     }
 }
+*/
 
 // Función para actualizar la tabla de municipios
 function updateMunicipiosTable() {
@@ -2218,17 +2262,97 @@ function updateMetricTrend() {
 // ===== FUNCIONES DE UTILIDAD =====
 
 function showLoading() {
+    console.log('🚀 showLoading ejecutado');
+    
+    // Mostrar el loading del dashboard (loadingIndicator)
     const loadingIndicator = document.getElementById('loadingIndicator');
     if (loadingIndicator) {
+        console.log('✅ Mostrando indicador de carga del dashboard');
         loadingIndicator.style.display = 'flex';
+        loadingIndicator.style.visibility = 'visible';
+        loadingIndicator.style.opacity = '1';
+        loadingIndicator.style.pointerEvents = 'auto';
+        loadingIndicator.classList.remove('d-none', 'invisible');
+    } else {
+        console.log('⚠️ Indicador de carga del dashboard no encontrado');
+    }
+    
+    // Mostrar el loading del layout (cargando)
+    const layoutLoading = document.querySelector('.cargando');
+    if (layoutLoading) {
+        console.log('✅ Mostrando indicador de carga del layout');
+        layoutLoading.style.display = 'flex';
+        layoutLoading.style.visibility = 'visible';
+        layoutLoading.style.opacity = '1';
+        layoutLoading.style.pointerEvents = 'auto';
+        layoutLoading.classList.remove('d-none', 'invisible');
+    } else {
+        console.log('⚠️ Indicador de carga del layout no encontrado');
     }
 }
 
 function hideLoading() {
+    console.log('🚫 hideLoading ejecutado');
+    
+    // Ocultar el loading del dashboard (loadingIndicator)
     const loadingIndicator = document.getElementById('loadingIndicator');
     if (loadingIndicator) {
+        console.log('✅ Indicador de carga del dashboard encontrado, ocultando...');
+        
+        // Ocultar de múltiples maneras para asegurar que funcione
         loadingIndicator.style.display = 'none';
+        loadingIndicator.style.visibility = 'hidden';
+        loadingIndicator.style.opacity = '0';
+        loadingIndicator.style.pointerEvents = 'none';
+        
+        // También agregar clase CSS para ocultar
+        loadingIndicator.classList.add('d-none');
+        loadingIndicator.classList.add('invisible');
+        
+        // Forzar el ocultamiento con !important
+        loadingIndicator.setAttribute('style', 'display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;');
+        
+        console.log('✅ Indicador de carga del dashboard ocultado');
+    } else {
+        console.log('⚠️ Indicador de carga del dashboard no encontrado');
     }
+    
+    // Ocultar el loading del layout (cargando)
+    const layoutLoading = document.querySelector('.cargando');
+    if (layoutLoading) {
+        console.log('✅ Indicador de carga del layout encontrado, ocultando...');
+        
+        // Ocultar de múltiples maneras para asegurar que funcione
+        layoutLoading.style.display = 'none';
+        layoutLoading.style.visibility = 'hidden';
+        layoutLoading.style.opacity = '0';
+        layoutLoading.style.pointerEvents = 'none';
+        
+        // También agregar clase CSS para ocultar
+        layoutLoading.classList.add('d-none');
+        layoutLoading.classList.add('invisible');
+        
+        // Forzar el ocultamiento con !important
+        layoutLoading.setAttribute('style', 'display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;');
+        
+        console.log('✅ Indicador de carga del layout ocultado');
+    } else {
+        console.log('⚠️ Indicador de carga del layout no encontrado');
+    }
+    
+    // Ocultar cualquier otro elemento con clase loading o spinner
+    const allLoadingElements = document.querySelectorAll('.loading, .spinner, .loading-overlay, .app-overlay');
+    allLoadingElements.forEach((element, index) => {
+        console.log(`✅ Ocultando elemento de carga adicional ${index + 1}`);
+        element.style.display = 'none';
+        element.style.visibility = 'hidden';
+        element.style.opacity = '0';
+        element.style.pointerEvents = 'none';
+        element.classList.add('d-none');
+        element.classList.add('invisible');
+    });
+    
+    console.log('✅ Todos los indicadores de carga han sido ocultados');
 }
 
 function updateLastUpdateTime() {
@@ -3596,43 +3720,75 @@ function toggleEstadoDiagnosticoChart() {
 // ===== INICIALIZACIÓN PRINCIPAL =====
 
 document.addEventListener('DOMContentLoaded', async function() {
-
+    console.log('🚀 DOMContentLoaded iniciado');
     
     try {
+        console.log('📚 Cargando librerías...');
         // Cargar Chart.js y Google Maps en paralelo
         const [chartJSLoaded, googleMapsLoaded] = await Promise.all([
             typeof Chart === 'undefined' ? loadChartJS() : Promise.resolve(),
             loadGoogleMaps()
         ]);
-      
+        console.log('✅ Librerías cargadas:', { chartJSLoaded, googleMapsLoaded });
         
+        console.log('🎯 Inicializando dashboard...');
         // Inicializar dashboard
         initializeDashboard();
+        console.log('✅ Dashboard inicializado');
         
         // Inicializar gráficos si Chart.js está disponible
         if (typeof Chart !== 'undefined') {
+            console.log('📊 Inicializando gráficos...');
             initializeCharts();
+            console.log('✅ Gráficos inicializados');
             
             // FORZAR la vista Top 8 después de un breve delay para asegurar que funcione
             setTimeout(() => {
+                console.log('⏰ Timeout ejecutado, verificando datos de municipios...');
                 if (window.backendData && window.backendData.porMunicipios) {
+                    console.log('🔄 Actualizando tabla de municipios...');
                     updateMunicipiosTable();
                 } else {
-                    console.log('No hay datos de municipios disponibles para inicializar');
+                    console.log('⚠️ No hay datos de municipios disponibles para inicializar');
                 }
+                
+                // FORZAR ocultar loading después de verificar municipios
+                console.log('🔄 Forzando ocultar loading después de verificar municipios...');
+                hideLoading();
             }, 1000);
+        } else {
+            console.log('⚠️ Chart.js no está disponible');
         }
         
         // Inicializar mapa si Google Maps está disponible
         if (typeof google !== 'undefined' && google.maps) {
+            console.log('🗺️ Inicializando mapa...');
             initializeMap();
+            console.log('✅ Mapa inicializado');
+        } else {
+            console.log('⚠️ Google Maps no está disponible');
         }
         
+        console.log('🎉 Inicialización completa del dashboard');
+        
+        // FORZAR ocultar el loading después de un breve delay para asegurar que se ejecute
+        setTimeout(() => {
+            console.log('🔄 Forzando ocultar loading después de timeout...');
+            hideLoading();
+        }, 2000);
+        
     } catch (error) {
-        console.error('Error al cargar librerías:', error);
+        console.error('❌ Error al cargar librerías:', error);
         alert('Error al cargar librerías: ' + error.message);
         // Continuar sin gráficos o mapa
+        console.log('🔄 Continuando sin librerías...');
         initializeDashboard();
+        
+        // También forzar ocultar loading en caso de error
+        setTimeout(() => {
+            console.log('🔄 Forzando ocultar loading después de error...');
+            hideLoading();
+        }, 2000);
     }
 });
 
@@ -3691,7 +3847,8 @@ window.downloadChartAsImage = downloadChartAsImage;
 
 
 
-// Función para actualizar la tabla de proporciones (versión local)
+// Función para actualizar la tabla de proporciones (versión local) - COMENTADA PORQUE NO EXISTE LA TABLA HTML
+/*
 function updateProporcionesTableLocal(mostrarCompleta = false) {
     console.log('=== updateProporcionesTableLocal EJECUTADA ===');
     console.log('Parámetro mostrarCompleta:', mostrarCompleta);
@@ -3703,95 +3860,7 @@ function updateProporcionesTableLocal(mostrarCompleta = false) {
             return;
         }
         
-        // Determinar qué datos usar
-        let municipiosData = null;
-        let tipoDatos = '';
-        
-        if (mostrarCompleta) {
-            // Vista completa: usar porMunicipiosCompletos si está disponible, sino porMunicipios
-            if (window.backendData?.porMunicipiosCompletos && window.backendData.porMunicipiosCompletos.length > 0) {
-                municipiosData = window.backendData.porMunicipiosCompletos;
-                tipoDatos = 'porMunicipiosCompletos';
-            } else if (window.backendData?.porMunicipios && window.backendData.porMunicipios.length > 0) {
-                municipiosData = window.backendData.porMunicipios;
-                tipoDatos = 'porMunicipios (fallback)';
-            }
-        } else {
-            // Vista resumen: usar porMunicipios
-            if (window.backendData?.porMunicipios && window.backendData.porMunicipios.length > 0) {
-                municipiosData = window.backendData.porMunicipios;
-                tipoDatos = 'porMunicipios';
-            }
-        }
-        
-        if (!municipiosData || municipiosData.length === 0) {
-            console.warn('No hay datos de proporciones para mostrar');
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="3" class="text-center text-muted">No hay datos disponibles</td>
-                </tr>
-            `;
-            return;
-        }
-        
-        console.log('Datos encontrados:', municipiosData.length, 'registros');
-        console.log('Tipo de datos:', tipoDatos);
-        
-        // Determinar cuántos municipios mostrar - siempre mostrar todos
-        const municipiosAMostrar = municipiosData; // Siempre mostrar todos los municipios
-        const totalUnidades = window.backendData.totalUnidades || municipiosData.reduce((sum, item) => sum + item.total, 0);
-        
-        console.log('Municipios a mostrar:', municipiosAMostrar.length, 'de', municipiosData.length);
-        console.log('Total unidades:', totalUnidades);
-        
-        let tableHTML = '';
-        
-        // Agregar filas de municipios
-        municipiosAMostrar.forEach((item, index) => {
-            const nombre = item.municipio?.municipioNOMBREOFICIAL || `Municipio ${item.municipality_id}`;
-            const cantidad = item.total;
-            const porcentaje = Math.round((cantidad / totalUnidades) * 100);
-            // Usar el mismo color que en el gráfico para consistencia
-            const color = generateColorFromName(nombre);
-            
-            tableHTML += `
-                <tr>
-                    <td>
-                        <div class="municip-info">
-                            <span class="municip-dot" style="background-color: ${color}"></span>
-                            ${nombre}
-                        </div>
-                    </td>
-                    <td class="text-center"><strong>${porcentaje}%</strong></td>
-                    <td class="text-center"><strong>${cantidad.toLocaleString()}</strong></td>
-                </tr>
-            `;
-        });
-        
-        // Agregar fila de total
-        tableHTML += `
-            <tr class="table-info">
-                <td><strong>Total del Sistema</strong></td>
-                <td><strong>100%</strong></td>
-                <td><strong>${totalUnidades.toLocaleString()}</strong></td>
-            </tr>
-        `;
-        
-        tableBody.innerHTML = tableHTML;
-        
-        // Agregar comentario explicativo
-        const comentarioHTML = `
-            <tr>
-                <td colspan="3" class="text-center text-muted small">
-                    <em>Todos los municipios del sistema con sus porcentajes</em><br>
-                    <em>** Total incluye todas las unidades del sistema</em>
-                </td>
-            </tr>
-        `;
-        tableBody.insertAdjacentHTML('beforeend', comentarioHTML);
-        
-        console.log('Tabla de proporciones actualizada exitosamente');
-        console.log('=== updateProporcionesTableLocal COMPLETADA ===');
+        // ... resto de la función comentada ...
         
     } catch (error) {
         console.error('Error al actualizar tabla de proporciones:', error);
@@ -3806,8 +3875,10 @@ function updateProporcionesTableLocal(mostrarCompleta = false) {
         }
     }
 }
+*/
 
-// Función para actualizar la tabla de proporciones con datos limitados (versión local)
+// Función para actualizar la tabla de proporciones con datos limitados (versión local) - COMENTADA PORQUE NO EXISTE LA TABLA HTML
+/*
 function updateProporcionesTableFallbackLocal() {
     console.log('Actualizando tabla de proporciones con datos limitados (fallback local)...');
     
@@ -3818,77 +3889,8 @@ function updateProporcionesTableFallbackLocal() {
             return;
         }
         
-        if (window.backendData && window.backendData.porMunicipios && window.backendData.porMunicipios.length > 0) {
-            console.log('Datos de proporciones limitados encontrados:', window.backendData.porMunicipios.length, 'registros');
-            
-            // Tomar solo los primeros 8 municipios para la tabla
-            const topMunicipios = window.backendData.porMunicipios.slice(0, 8);
-            const totalUnidades = window.backendData.totalUnidades || window.backendData.porMunicipios.reduce((sum, item) => sum + item.total, 0);
-            
-            console.log('Top municipios proporciones (fallback):', topMunicipios);
-            console.log('Total unidades:', totalUnidades);
-            
-            let tableHTML = '';
-            
-            // Agregar filas de municipios
-            topMunicipios.forEach((item, index) => {
-                console.log(`Procesando municipio proporción ${index} (fallback):`, item);
-                
-                const nombre = item.municipio?.municipioNOMBREOFICIAL || `Municipio ${item.municipality_id}`;
-                const cantidad = item.total;
-                const porcentaje = Math.round((cantidad / totalUnidades) * 100);
-                // Usar el mismo color que en el gráfico para consistencia
-                const color = generateColorFromName(nombre);
-                
-                console.log(`Municipio: ${nombre}, Cantidad: ${cantidad}, Porcentaje: ${porcentaje}%`);
-                
-                tableHTML += `
-                    <tr>
-                        <td>
-                            <div class="municip-info">
-                                <span class="municip-dot" style="background-color: ${color}"></span>
-                                ${nombre}
-                            </div>
-                        </td>
-                        <td class="text-center"><strong>${porcentaje}%</strong></td>
-                        <td class="text-center"><strong>${cantidad.toLocaleString()}</strong></td>
-                    </tr>
-                `;
-            });
-            
-            // Agregar fila de total
-            tableHTML += `
-                <tr class="table-info">
-                    <td><strong>Total del Sistema</strong></td>
-                    <td><strong>100%</strong></td>
-                    <td><strong>${totalUnidades.toLocaleString()}</strong></td>
-                </tr>
-            `;
-            
-            tableBody.innerHTML = tableHTML;
-            
-            // Agregar comentario explicativo debajo de la tabla
-            const comentarioHTML = `
-                <tr>
-                    <td colspan="3" class="text-center text-muted small">
-                        <em>* Top 8 municipios por porcentaje de unidades productivas</em><br>
-                        <em>** Total incluye todas las unidades del sistema</em>
-                    </td>
-                </tr>
-            `;
-            tableBody.insertAdjacentHTML('beforeend', comentarioHTML);
-            
-            console.log('Tabla de proporciones (fallback) actualizada exitosamente (versión local)');
-        } else {
-            console.warn('No hay datos de proporciones para mostrar en la tabla (fallback)');
-            console.log('window.backendData.porMunicipios es:', window.backendData?.porMunicipios);
-            
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="3" class="text-center text-muted">No hay datos disponibles</td>
-                </tr>
-            `;
-        }
+        // ... resto de la función comentada ...
+        
     } catch (error) {
         console.error('Error al actualizar tabla de proporciones (fallback local):', error);
         console.error('Error completo:', error.stack);
@@ -3903,8 +3905,10 @@ function updateProporcionesTableFallbackLocal() {
         }
     }
 }
+*/
 
-// Función para actualizar la tabla de proporciones completa (versión local)
+// Función para actualizar la tabla de proporciones completa (versión local) - COMENTADA PORQUE NO EXISTE LA TABLA HTML
+/*
 function updateProporcionesTableCompletaLocal(mostrarCompleta = false) {
     console.log('=== updateProporcionesTableCompletaLocal EJECUTADA ===');
     console.log('Parámetro mostrarCompleta:', mostrarCompleta);
@@ -3916,95 +3920,7 @@ function updateProporcionesTableCompletaLocal(mostrarCompleta = false) {
             return;
         }
         
-        // Determinar qué datos usar
-        let municipiosData = null;
-        let tipoDatos = '';
-        
-        if (mostrarCompleta) {
-            // Vista completa: usar porMunicipiosCompletos si está disponible, sino porMunicipios
-            if (window.backendData?.porMunicipiosCompletos && window.backendData.porMunicipiosCompletos.length > 0) {
-                municipiosData = window.backendData.porMunicipiosCompletos;
-                tipoDatos = 'porMunicipiosCompletos';
-            } else if (window.backendData?.porMunicipios && window.backendData.porMunicipios.length > 0) {
-                municipiosData = window.backendData.porMunicipios;
-                tipoDatos = 'porMunicipios (fallback)';
-            }
-        } else {
-            // Vista resumen: usar porMunicipios
-            if (window.backendData?.porMunicipios && window.backendData.porMunicipios.length > 0) {
-                municipiosData = window.backendData.porMunicipios;
-                tipoDatos = 'porMunicipios';
-            }
-        }
-        
-        if (!municipiosData || municipiosData.length === 0) {
-            console.warn('No hay datos de proporciones para mostrar en tabla completa');
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="3" class="text-center text-muted">No hay datos disponibles</td>
-                </tr>
-            `;
-            return;
-        }
-        
-        console.log('Datos encontrados para tabla completa:', municipiosData.length, 'registros');
-        console.log('Tipo de datos:', tipoDatos);
-        
-        // Determinar cuántos municipios mostrar
-        const municipiosAMostrar = mostrarCompleta ? municipiosData : municipiosData.slice(0, 8);
-        const totalUnidades = window.backendData.totalUnidades || municipiosData.reduce((sum, item) => sum + item.total, 0);
-        
-        console.log('Municipios a mostrar en tabla completa:', municipiosAMostrar.length, 'de', municipiosData.length);
-        console.log('Total unidades:', totalUnidades);
-        
-        let tableHTML = '';
-        
-        // Agregar filas de municipios
-        municipiosAMostrar.forEach((item, index) => {
-            const nombre = item.municipio?.municipioNOMBREOFICIAL || `Municipio ${item.municipality_id}`;
-            const cantidad = item.total;
-            const porcentaje = Math.round((cantidad / totalUnidades) * 100);
-            // Usar el mismo color que en el gráfico para consistencia
-            const color = generateColorFromName(nombre);
-            
-            tableHTML += `
-                <tr>
-                    <td>
-                        <div class="municip-info">
-                            <span class="municip-dot" style="background-color: ${color}"></span>
-                            ${nombre}
-                        </div>
-                    </td>
-                    <td class="text-center"><strong>${porcentaje}%</strong></td>
-                    <td class="text-center"><strong>${cantidad.toLocaleString()}</strong></td>
-                </tr>
-            `;
-        });
-        
-        // Agregar fila de total
-        tableHTML += `
-            <tr class="table-info">
-                <td><strong>Total del Sistema</strong></td>
-                <td><strong>100%</strong></td>
-                <td><strong>${totalUnidades.toLocaleString()}</strong></td>
-            </tr>
-        `;
-        
-        tableBody.innerHTML = tableHTML;
-        
-        // Agregar comentario explicativo
-        const comentarioHTML = `
-            <tr>
-                <td colspan="3" class="text-center text-muted small">
-                    <em>${mostrarCompleta ? 'Todos los municipios del sistema' : 'Top 8 municipios por porcentaje de unidades productivas'}</em><br>
-                    <em>** Total incluye todas las unidades del sistema</em>
-                </td>
-            </tr>
-        `;
-        tableBody.insertAdjacentHTML('beforeend', comentarioHTML);
-        
-        console.log('Tabla de proporciones completa actualizada exitosamente');
-        console.log('=== updateProporcionesTableCompletaLocal COMPLETADA ===');
+        // ... resto de la función comentada ...
         
     } catch (error) {
         console.error('Error al actualizar tabla de proporciones completa:', error);
@@ -4019,12 +3935,12 @@ function updateProporcionesTableCompletaLocal(mostrarCompleta = false) {
         }
     }
 }
+*/
 
 // Función callback para Google Maps
 function initGoogleMaps() {
     // El mapa se inicializará automáticamente cuando se cargue la página
 }
-
 </script>
 
 <!-- Google Maps API -->

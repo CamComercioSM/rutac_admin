@@ -19,7 +19,7 @@ $navbarDetached = ($navbarDetached ?? '');
       @if(isset($navbarFull))
       <div class="navbar-brand app-brand demo d-none d-xl-flex py-0 me-6">
         <a href="{{url('/')}}" class="app-brand-link gap-2">
-          <span class="app-brand-logo demo">@include('_partials.macros',["height"=>20])</span>
+          <span class="app-brand-logo demo">@include('_partials.macros',["height"=>40])</span>
           <span class="app-brand-text demo menu-text fw-semibold ms-1">{{config('variables.templateName')}}</span>
         </a>
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-xl-none">
@@ -49,10 +49,7 @@ $navbarDetached = ($navbarDetached ?? '');
         <ul class="navbar-nav flex-row align-items-center ms-auto">
 
           <!-- Place this tag where you want the button to render. -->
-          <li class="nav-item lh-1 me-4">
-            <a class="github-button" href="{{config('variables.repository')}}" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star themeselection/materio-html-laravel-admin-template-free on GitHub">Star</a>
-          </li>
-
+     
           <!-- User -->
           <li class="nav-item navbar-dropdown dropdown-user dropdown">
             <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
