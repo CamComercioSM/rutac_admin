@@ -545,9 +545,13 @@
 </style>
 @endsection
 
+
+
 @section('scripts')
+
 <!-- Chart.js con fallback -->
 <script>
+    
 // Variables globales
 let dashboardData = null;
 
