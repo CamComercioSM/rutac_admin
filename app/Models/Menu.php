@@ -27,6 +27,11 @@ class Menu extends Authenticatable
         return $this->hasMany(Menu::class, 'parent_id')->orderBy('order');
     }
 
+    public function submenus()
+    {
+        return $this->children();
+    }
+
     public function parent()
     {
         return $this->belongsTo(Menu::class, 'parent_id');

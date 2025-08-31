@@ -1,20 +1,19 @@
-@extends('layouts/commonMaster' )
+@extends('layouts/commonMaster')
 
 @php
-/* Display elements */
-$contentNavbar = true;
-$containerNav = ($containerNav ?? 'container-xxl');
-$isNavbar = ($isNavbar ?? true);
-$isMenu = ($isMenu ?? true);
-$isFlex = ($isFlex ?? false);
-$isFooter = ($isFooter ?? true);
+  /* Display elements */
+  $contentNavbar = true;
+  $containerNav  = ($containerNav ?? 'container-xxl');
+  $isNavbar      = ($isNavbar ?? true);
+  $isMenu        = ($isMenu ?? true);
+  $isFlex        = ($isFlex ?? false);
+  $isFooter      = ($isFooter ?? true);
 
-/* HTML Classes */
-$navbarDetached = 'navbar-detached';
+  /* HTML Classes */
+  $navbarDetached = 'navbar-detached';
 
-/* Content classes */
-$container = ($container ?? 'container-xxl');
-
+  /* Content classes */
+  $container = ($container ?? 'container-xxl');
 @endphp
 
 @section('layoutContent')
@@ -22,28 +21,26 @@ $container = ($container ?? 'container-xxl');
   <div class="layout-container">
 
     @if ($isMenu)
-    @include('layouts/sections/menu/verticalMenu')
+      @include('layouts/sections/menu/verticalMenu')
     @endif
-
 
     <!-- Layout page -->
     <div class="layout-page">
       <!-- BEGIN: Navbar-->
       @if ($isNavbar)
-      @include('layouts/sections/navbar/navbar')
+        @include('layouts/sections/navbar/navbar')
       @endif
       <!-- END: Navbar-->
-
 
       <!-- Content wrapper -->
       <div class="content-wrapper">
 
         <!-- Content -->
         @if ($isFlex)
-        <div class="{{$container}} d-flex align-items-stretch flex-grow-1 p-0">
-          @else
-          <div class="{{$container}} flex-grow-1 container-p-y">
-            @endif
+          <div class="{{ $container }} d-flex align-items-stretch flex-grow-1 p-0">
+        @else
+          <div class="{{ $container }} flex-grow-1 container-p-y">
+        @endif
 
             <div class="d-flex justify-content-center align-items-center cargando" style="position: fixed; left: 0;">
               <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
@@ -54,26 +51,36 @@ $container = ($container ?? 'container-xxl');
             @yield('content')
 
           </div>
-          <!-- / Content -->
+        <!-- / Content -->
 
-          <!-- Footer -->
-          @if ($isFooter)
+        <!-- Footer -->
+        @if ($isFooter)
           @include('layouts/sections/footer/footer')
-          @endif
-          <!-- / Footer -->
-          <div class="content-backdrop fade"></div>
-        </div>
-        <!--/ Content wrapper -->
+        @endif
+        <!-- / Footer -->
+
+        <div class="content-backdrop fade"></div>
       </div>
-      <!-- / Layout page -->
+      <!--/ Content wrapper -->
     </div>
+    <!-- / Layout page -->
 
     @if ($isMenu)
-    <!-- Overlay -->
-    <div class="layout-overlay layout-menu-toggle"></div>
+      <!-- Overlay -->
+      <div class="layout-overlay layout-menu-toggle"></div>
     @endif
+
     <!-- Drag Target Area To SlideIn Menu On Small Screens -->
     <div class="drag-target"></div>
   </div>
-  <!-- / Layout wrapper -->
-  @endsection
+</div>
+
+{{-- === Sección para estilos de las vistas hijas === --}}
+@yield('styles')
+{{-- Si prefieres stacks, puedes reemplazar por: @stack('styles') --}}
+
+{{-- === Sección para scripts de las vistas hijas === --}}
+@yield('scripts')
+{{-- Si prefieres stacks, puedes reemplazar por: @stack('scripts') --}}
+
+@endsection

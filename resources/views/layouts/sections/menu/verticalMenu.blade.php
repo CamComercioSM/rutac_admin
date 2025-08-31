@@ -33,7 +33,7 @@
         @php
           $isParentActive = false;
 
-          if ($menu->submenus->isNotEmpty()) {
+          if ($menu->submenus && $menu->submenus->isNotEmpty()) {
               foreach ($menu->submenus as $submenu) {
                   if ($currentRoute === $submenu->url) {
                       $isParentActive = true;
