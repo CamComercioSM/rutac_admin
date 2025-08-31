@@ -62,13 +62,12 @@
         <div class="app-brand justify-content-center mt-5">
           <a href="{{url('/')}}" class="app-brand-link gap-3">
             <span class="app-brand-logo demo">@include('_partials.macros',["height"=>20,"withbg"=>'fill: #fff;'])</span>
-            <span class="app-brand-text demo text-heading fw-semibold">Ruta C</span>
           </a>
         </div>
         <!-- /Logo -->
 
         <div class="card-body mt-1">
-          <h4 class="mb-1 text-center">¡Bienvenido a Ruta C! 👋🏻</h4>
+          <h4 class="mb-1 text-center">¡Bienvenido!👋🏻</h4>
           <p class="mb-5 text-center">Por favor inicia sesión para comenzar</p>
 
           <form id="formAuthentication" class="mb-5" action="{{ route('auth.login') }}" method="POST">
