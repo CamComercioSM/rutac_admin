@@ -106,7 +106,7 @@ Route::as('admin.')
     
     // Las rutas de unidadesProductivas están manejadas por Route::apiResource('unidadesProductivas', UnidadProductivaController::class)
     // Ruta adicional para búsqueda
-    Route::get('/unidadesProductivas/search', [UnidadProductivaController::class, 'search'])->name("unidadesProductivas.search");
+    Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search']);
     
     // Las rutas de menu están manejadas por Route::apiResource('menu', MenuController::class)
     
@@ -130,11 +130,6 @@ Route::get('/auth', [App\Http\Controllers\AuthController::class, 'index'])->name
 Route::post('/auth', [App\Http\Controllers\AuthController::class, 'login'])->name("auth.login");
 Route::get('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name("auth.logout");
 
-// Ruta para limpiar cache de sectores
-Route::get('/clear-sectores-cache', [App\Http\Controllers\AdminViewController::class, 'clearSectoresCache'])->name("clear.sectores.cache");
-
-// Ruta para debug de sectores
-Route::get('/debug-sectores', [App\Http\Controllers\AdminViewController::class, 'debugSectores'])->name("debug.sectores");
 
 // Rutas para Google OAuth
 Route::get('/auth/google', [App\Http\Controllers\GoogleController::class, 'redirectToGoogle'])->name('google.login');
