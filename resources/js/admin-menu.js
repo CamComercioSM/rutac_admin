@@ -89,7 +89,7 @@
     window.deleteMenu = function (id) {
         if (!confirm("¿Eliminar este menú?")) return;
 
-        axios.delete(`/admin/menu/${id}`)
+        axios.delete(`/menu/${id}`)
             .then(() => loadMenus())
             .catch(err => {
                 console.error("Error al eliminar:", err);
