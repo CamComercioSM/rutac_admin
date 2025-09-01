@@ -61,7 +61,7 @@
 
         <div class="col-12 col-md-12 form-group mb-3 mt-4">
             <label class="form-label" for="convocatoriaAdd">Convocatoria</label>
-            <select class="form-select" name="convocatoriaAdd" id="convocatoriaAdd">
+            <select class="form-select" name="convocatoriaAdd" id="convocatoriaAdd" required >
                 <option value="" disabled selected>Seleccione una opción</option>
                 @foreach ($convocatorias as $item)
                     <option value="{{$item->convocatoria_id}}" >{{$item->nombre_convocatoria}}</option>
@@ -149,7 +149,6 @@
 
             if( !(id && text) ) return;
 
-
             let existe = $("#table_opciones tr[data-id='" + id + "']").length > 0;
             if (existe) {
                 let toastEl = document.getElementById('warningToast');
@@ -187,9 +186,14 @@
             $(btn).closest("tr").remove();
         };
 
-        function initAlAbrirModal()
+        window.initAlAbrirModal = function()
         {
             $("#convocatoriaAdd").val($("#convocatoria").val()).trigger('change');
+        }
+
+        window.validarExtraForm = function()
+        {
+            return $("#table_opciones tr").length > 0;
         }
 
     </script>

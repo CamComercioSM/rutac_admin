@@ -152,6 +152,10 @@
 
         form.classList.add('was-validated');
 
+        if(typeof window.validarExtraForm === "function"){
+            if(!window.validarExtraForm()) return;
+        }
+
         const formData = new FormData(form);
 
         try {
