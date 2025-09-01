@@ -51,16 +51,8 @@ class AuthController extends Controller
                 'password' => $request->password,
                 'active' => true
             ])) {
-                $user = Auth::user();
-                \Log::info('Login exitoso para usuario', ['name' => $user->name, 'id' => $user->id]);
-
-                // ✅ Obtener los menús según el rol del usuario
-                $menus = Menu::whereHas('roles', function ($query) use ($user) {
-                    $query->where('roles.id', $user->rol_id);
-                })->with('children')->get();
-
-                // ✅ Guardar en sesión
-                Session::put('user_menu', $menus);
+                
+                $this->setMenu();
 
                 return redirect()->route('admin.dashboard');
             } else {
@@ -235,7 +227,8 @@ class AuthController extends Controller
                 Session::put('user_menu', $menus);
                 
                 return redirect()->route('admin.dashboard');
-            } else {
+            } 
+            else {
                 // Usuario no existe, crear nuevo usuario
                 $user = User::create([
                     'name' => $googleUser->getName(),
@@ -248,13 +241,7 @@ class AuthController extends Controller
 
                 Auth::login($user);
                 
-                // Obtener los menús según el rol del usuario
-                $menus = Menu::whereHas('roles', function ($query) use ($user) {
-                    $query->where('roles.id', $user->rol_id);
-                })->select('id', 'label', 'url', 'icon')->get();
-
-                // Guardar en sesión
-                Session::put('user_menu', $menus);
+                $this->setMenu();
                 
                 return redirect()->route('admin.dashboard');
             }
@@ -263,5 +250,31 @@ class AuthController extends Controller
             \Log::error('Error en Google OAuth', ['error' => $e->getMessage()]);
             return redirect()->route('login')->withErrors(['error' => 'Error en autenticación con Google']);
         }
+    }
+
+
+    private function setMenu()
+    {
+        $user = Auth::user();
+
+        // ✅ Obtener los menús según el rol del usuario
+        // Obtener menús según el rol
+        $menus = Menu::with('children') // si tienes relación children
+            ->whereHas('roles', function ($query) use ($user) {
+                $query->where('roles.id', $user->rol_id);
+            })
+            ->orderBy('order')
+            ->get();
+
+        // Agrupar por niveles
+        $groupedMenus = $menus
+            ->whereNull('parent_id') // Menús principales
+            ->map(function ($menu) use ($menus) {
+                $menu->submenus = $menus->where('parent_id', $menu->id)->sortBy('order');
+                return $menu;
+            });
+
+        // ✅ Guardar en sesión
+        Session::put('user_menu', $groupedMenus);
     }
 }
