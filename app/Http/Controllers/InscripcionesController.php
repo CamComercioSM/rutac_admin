@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\InscripcionesExport;
 use App\Http\Controllers\Controller;
+use App\Mail\CambioEstadoInscripcionMail;
 use App\Models\Inscripciones\ConvocatoriaInscripcion;
 use App\Models\Inscripciones\ConvocatoriaRespuesta;
 use App\Models\Programas\Programa;
@@ -12,6 +13,8 @@ use App\Models\Role;
 use App\Models\TablasReferencias\InscripcionEstado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 
 
@@ -102,13 +105,15 @@ class InscripcionesController extends Controller
 
     public function update($id, Request $request)
     {
-        $entity = ConvocatoriaInscripcion::findOrFail($id);
+        $entity = ConvocatoriaInscripcion::with(['unidadProductiva', 'estado', 'convocatoria.programa'])->findOrFail($id);
+        
+        // Guardar el estado anterior para comparar
+        $estadoAnterior = $entity->inscripcionestado_id;
 
         if($request->hasFile('archivo')) 
         {
             $path = $request->file('archivo')->store('aplications', 'public');
-
-           $entity->archivo = $path;
+            $entity->archivo = $path;
         }
 
         $entity->inscripcionestado_id = $request->input('inscripcionestado_id');
@@ -116,7 +121,49 @@ class InscripcionesController extends Controller
         $entity->activarPreguntas = $request->input('activarPreguntas') == 1;
         $entity->save();
 
+        // Enviar correo solo si el estado cambió
+        if ($estadoAnterior != $entity->inscripcionestado_id) {
+            $this->enviarCorreoCambioEstado($entity);
+        }
+
         return response()->json([ 'message' => 'Stored' ], 201);
+    }
+
+    /**
+     * Enviar correo de notificación de cambio de estado
+     */
+    private function enviarCorreoCambioEstado(ConvocatoriaInscripcion $inscripcion)
+    {
+        try {
+            // Obtener el email de la unidad productiva
+            $email = $inscripcion->unidadProductiva->contact_email ?? 
+                     $inscripcion->unidadProductiva->registration_email;
+
+            if (!$email) {
+                Log::warning('No se encontró email para la unidad productiva', [
+                    'inscripcion_id' => $inscripcion->inscripcion_id,
+                    'unidad_productiva_id' => $inscripcion->unidadproductiva_id
+                ]);
+                return;
+            }
+
+            // Enviar el correo con copia a cpc591@gmail.com para verificación
+            Mail::to($email)->cc('cpc591@gmail.com')->send(new CambioEstadoInscripcionMail($inscripcion));
+
+            Log::info('Correo de cambio de estado enviado exitosamente', [
+                'inscripcion_id' => $inscripcion->inscripcion_id,
+                'email' => $email,
+                'cc' => 'cpc591@gmail.com',
+                'estado' => $inscripcion->estado->inscripcionEstadoNOMBRE ?? 'No especificado'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error al enviar correo de cambio de estado', [
+                'inscripcion_id' => $inscripcion->inscripcion_id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
     }
 
     public function updateRespuesta(Request $request)
