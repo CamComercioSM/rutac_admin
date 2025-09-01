@@ -21,6 +21,7 @@
     const preview = document.getElementById('preview');
     const file = document.getElementById('file');
     const dropdown = $('#MenurowTable');
+    let itemSelect = null;
 
     window.formatearFecha = function(value) {
         if (!value) return '';
@@ -58,9 +59,16 @@
         });
     }
 
-    $('#btnCrear').on('click', function () { CrearRegistro(); });
+    $('#btnCrear').on('click', function () { 
+        itemSelect = null;
+        CrearRegistro(); 
+    });
 
-    function CrearRegistro(data = null) 
+    window.openEditar = function() {
+        CrearRegistro(itemSelect);
+    };
+
+    window.CrearRegistro = function (data = null) 
     {
         const form = document.getElementById('form');
         form.reset();
@@ -241,43 +249,48 @@
         pageList: [15, 25, 50, 100],
         ajax: ajaxCargarData,
         queryParamsType: '',
-        onClickCell: function (field, value, row, $element) {
+        onClickCell: function (field, value, row, $element) { menuTabla(row, $element) },
+        onDblClickCell: function (field, value, row, $element) { menuTabla(row, $element) },
+    });
 
-            if(TABLA.menu_row)
+
+    window.menuTabla = function(row, $element)
+    {
+        if(TABLA.menu_row)
+        {
+            itemSelect = row;
+            let menu = TABLA.menu_row.replace(/ROWID/g, row.id);
+            const rect = $element[0].getBoundingClientRect();
+            
+            dropdown.html(menu);
+            dropdown.css({
+                top: rect.bottom + window.scrollY - 10,
+                left: rect.left + window.scrollX,
+                display: 'block',
+                position: 'absolute',
+                zIndex: 9999
+            });
+
+            $(document).off('mousedown.menuContext');
+            $(document).on('mousedown.menuContext', function(e) {
+                // Si el clic NO fue dentro del dropdown
+                if (!$(e.target).closest('#MenurowTable').length) {
+                    dropdown.hide();
+                    $(document).off('mousedown.menuContext'); // remover handler
+                }
+            });
+            
+        }
+        else
+        {
+            if(TABLA.accion_editar)
             {
-                let menu = TABLA.menu_row.replace(/ROWID/g, row.id);
-                const rect = $element[0].getBoundingClientRect();
-                
-                dropdown.html(menu);
-                dropdown.css({
-                    top: rect.bottom + window.scrollY - 10,
-                    left: rect.left + window.scrollX,
-                    display: 'block',
-                    position: 'absolute',
-                    zIndex: 9999
-                });
-
-                $(document).off('mousedown.menuContext');
-                $(document).on('mousedown.menuContext', function(e) {
-                    // Si el clic NO fue dentro del dropdown
-                    if (!$(e.target).closest('#MenurowTable').length) {
-                        dropdown.hide();
-                        $(document).off('mousedown.menuContext'); // remover handler
-                    }
-                });
-                
+                CrearRegistro(row);
             }
-            else
+            else if(TABLA.accion_ver)
             {
-                if(TABLA.accion_editar)
-                {
-                    CrearRegistro(row);
-                }
-                else if(TABLA.accion_ver)
-                {
-                    $('.cargando').removeClass('d-none');
-                    window.location.href = TABLA.urlApi +'/'+ row.id;
-                }
+                $('.cargando').removeClass('d-none');
+                window.location.href = TABLA.urlApi +'/'+ row.id;
             }
         }
-    });
+    }

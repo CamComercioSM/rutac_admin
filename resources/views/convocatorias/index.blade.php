@@ -143,8 +143,9 @@
             urlApi: '/convocatorias',
             sortName: 'convocatoria_id',
             
-            menu_row: `<a class="dropdown-item" href="/convocatorias/ROWID" >Ver detalles</a>
-                       <a class="dropdown-item" href="/inscripciones/list?convocatoria=ROWID">Inscripciones</a>`,
+            menu_row: ` <a class="dropdown-item" onClick="openEditar()" >Editar</a>
+                        <a class="dropdown-item" href="/convocatorias/ROWID" >Ver detalles</a>
+                        <a class="dropdown-item" href="/inscripciones/list?convocatoria=ROWID">Inscripciones</a>`,
 
             columns: [
                 { field: 'nombre_programa', title: 'Programa', sortable: true },

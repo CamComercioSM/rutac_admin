@@ -8,8 +8,10 @@ use App\Models\Inscripciones\ConvocatoriaInscripcion;
 use App\Models\Inscripciones\ConvocatoriaRespuesta;
 use App\Models\Programas\Programa;
 use App\Models\Programas\ProgramaConvocatoria;
+use App\Models\Role;
 use App\Models\TablasReferencias\InscripcionEstado;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 
@@ -17,10 +19,25 @@ class InscripcionesController extends Controller
 {
     function list(Request $request)
     { 
+        $programas = [];
+        $convocatorias = [];
+
+        if(Auth::user()->rol_id == Role::ASESOR)
+        {
+            $userId = Auth::id();
+            $convocatorias = ProgramaConvocatoria::whereHas('asesores', fn($q) => $q->where('user_id', $userId))->get();
+            $pgms = $convocatorias->pluck('programa_id');
+            $programas = Programa::whereIn('programa_id', $pgms)->get();
+        }
+        else{
+            $convocatorias = ProgramaConvocatoria::all();
+            $programas = Programa::all();
+        }
+        
         $data = [
             'estados'=> InscripcionEstado::get(),
-            'programas'=> Programa::get(),
-            'convocatorias'=> ProgramaConvocatoria::get(),
+            'programas'=> $programas,
+            'convocatorias'=> $convocatorias,
             'unidades'=> [],
             'filtros'=> $request->all()
         ];
@@ -111,7 +128,6 @@ class InscripcionesController extends Controller
         return response()->json([ 'message' => 'Stored' ], 201);
     }
 
-
     private function getQuery(Request $request)
     {
         $search = $request->get('searchText');
@@ -130,6 +146,7 @@ class InscripcionesController extends Controller
                 'up.nit',
                 'up.business_name',
                 'ie.inscripcionEstadoNOMBRE as estado',
+                'pc.convocatoria_id'
             ])
             ->join('programas_convocatorias as pc', 'convocatorias_inscripciones.convocatoria_id', '=', 'pc.convocatoria_id')
             ->join('programas as p', 'pc.programa_id', '=', 'p.programa_id')
@@ -168,6 +185,16 @@ class InscripcionesController extends Controller
             $query->whereDate('convocatorias_inscripciones.fecha_creacion', '>=', $fecha_inicio);
         } elseif (!empty($fecha_fin)) {
             $query->whereDate('convocatorias_inscripciones.fecha_creacion', '<=', $fecha_fin);
+        }
+
+        if (Auth::user()->rol_id === Role::ASESOR) {
+            $userId = Auth::id();
+
+            $convocatoriaIds = ProgramaConvocatoria::whereHas('asesores', fn($q) => 
+                $q->where('user_id', $userId)
+            )->pluck('convocatoria_id');
+
+            $query->whereIn('pc.convocatoria_id', $convocatoriaIds);
         }
 
         return $query;
