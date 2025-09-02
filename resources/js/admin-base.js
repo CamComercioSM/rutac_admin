@@ -65,6 +65,7 @@
     });
 
     window.openEditar = function() {
+        dropdown.hide();
         CrearRegistro(itemSelect);
     };
 

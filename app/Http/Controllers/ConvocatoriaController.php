@@ -24,7 +24,8 @@ class ConvocatoriaController extends Controller
             'asesores'=> User::where('rol_id', Role::ASESOR)->get(),
             'preguntas'=> InscripcionesRequisitos::select('requisito_id', 'requisito_titulo')->get(),
             'puedeExportar'=> Auth::user()->rol_id != Role::ASESOR, 
-            'filtros'=> $request->all()
+            'filtros'=> $request->all(),
+            'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0
         ];
 
         return View("convocatorias.index", $data);

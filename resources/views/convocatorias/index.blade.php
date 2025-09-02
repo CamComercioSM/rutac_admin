@@ -139,11 +139,12 @@
 
 @section('script')
     <script> 
+        const btn_edit =  '{!! $esAsesor == 1 ? '' : '<button class="dropdown-item" onClick="openEditar()" >Editar</button>' !!}';
         const TABLA = {
             urlApi: '/convocatorias',
             sortName: 'convocatoria_id',
             
-            menu_row: ` <a class="dropdown-item" onClick="openEditar()" >Editar</a>
+            menu_row: ` ${btn_edit}
                         <a class="dropdown-item" href="/convocatorias/ROWID" >Ver detalles</a>
                         <a class="dropdown-item" href="/inscripciones/list?convocatoria=ROWID">Inscripciones</a>`,
 

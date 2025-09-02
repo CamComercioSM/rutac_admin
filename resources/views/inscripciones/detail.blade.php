@@ -20,14 +20,14 @@
                         <i class="icon-base ri ri-circle-fill icon-10px text-body me-2"></i>                        
                         <span> 
                             <b>Programa: </b>
-                            <a href="/programas/{{$detalle->convocatoria->programa_id}}"> {{$detalle->convocatoria->programa->nombre ?? ' - '}} </a>                            
+                            <a href="/programas/{{$detalle->convocatoria->programa_id ?? '#'}}"> {{$detalle->convocatoria->programa->nombre ?? ' - '}} </a>                            
                         </span>
                     </li>
                     <li class="mb-2 d-flex align-items-center">
                         <i class="icon-base ri ri-circle-fill icon-10px text-body me-2"></i>
                         <span>
                             <b>Convocatoria: </b>
-                            <a href="/convocatorias/{{$detalle->convocatoria->convocatoria_id}}"> {{$detalle->convocatoria->nombre_convocatoria ?? ' - '}} </a>
+                            <a href="/convocatorias/{{$detalle->convocatoria->convocatoria_id ?? '#'}}"> {{$detalle->convocatoria->nombre_convocatoria ?? ' - '}} </a>
                         </span>
                     </li>
                     <li class="mb-2 d-flex align-items-center">
