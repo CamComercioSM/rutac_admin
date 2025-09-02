@@ -109,10 +109,14 @@
             sortName: 'fecha_creacion',
             accion_ver: true,
             columns: [
-                { field: 'nombre_convocatoria', title: 'Convocatoria', sortable: true },
-                { field: 'nombre_programa', title: 'Programa', sortable: true },
+                @if ($esAsesor != 1)
+                    { field: 'nombre_convocatoria', title: 'Convocatoria', sortable: true },
+                    { field: 'nombre_programa', title: 'Programa', sortable: true },
+                 @endif  
                 { field: 'nit', title: 'NIT', sortable: true },
                 { field: 'business_name', title: 'Unidad productiva', sortable: true },
+                { field: 'sector', title: 'Sector', sortable: true },
+                { field: 'ventas', title: 'Ventas', sortable: true },
                 { field: 'fecha_creacion', title: 'Fecha de inscripcion', sortable: true, formatter: 'formatearFecha' },
                 { field: 'estado', title: 'Estado', sortable: true }
             ],

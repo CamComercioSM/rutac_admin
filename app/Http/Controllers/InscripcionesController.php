@@ -11,6 +11,7 @@ use App\Models\Programas\Programa;
 use App\Models\Programas\ProgramaConvocatoria;
 use App\Models\Role;
 use App\Models\TablasReferencias\InscripcionEstado;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -31,6 +32,30 @@ class InscripcionesController extends Controller
             $convocatorias = ProgramaConvocatoria::whereHas('asesores', fn($q) => $q->where('user_id', $userId))->get();
             $pgms = $convocatorias->pluck('programa_id');
             $programas = Programa::whereIn('programa_id', $pgms)->get();
+
+            if (!$request->convocatoria) {
+                $convocatoria = ProgramaConvocatoria::whereHas('asesores', fn($q) =>
+                        $q->where('user_id', $userId)
+                    )
+                    ->whereDate('fecha_cierre_convocatoria', '>=', Carbon::today())
+                    ->orderBy('fecha_cierre_convocatoria', 'asc')
+                    ->first();
+
+                if (!$convocatoria) {
+                    $convocatoria = ProgramaConvocatoria::whereHas('asesores', fn($q) =>
+                            $q->where('user_id', $userId)
+                        )
+                        ->orderBy('fecha_cierre_convocatoria', 'desc') 
+                        ->first();
+                }
+
+                if ($convocatoria) {
+                    $request->merge([
+                        'convocatoria' => $convocatoria->convocatoria_id
+                    ]);
+                }
+            }
+
         }
         else{
             $convocatorias = ProgramaConvocatoria::all();
@@ -42,7 +67,8 @@ class InscripcionesController extends Controller
             'programas'=> $programas,
             'convocatorias'=> $convocatorias,
             'unidades'=> [],
-            'filtros'=> $request->all()
+            'filtros'=> $request->all(),
+            'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0
         ];
         
         return View("inscripciones.index", $data);
@@ -148,7 +174,7 @@ class InscripcionesController extends Controller
             }
 
             // Enviar el correo con copia a cpc591@gmail.com para verificación
-            Mail::to($email)->cc('cpc591@gmail.com')->send(new CambioEstadoInscripcionMail($inscripcion));
+            Mail::to($email)->send(new CambioEstadoInscripcionMail($inscripcion));
 
             Log::info('Correo de cambio de estado enviado exitosamente', [
                 'inscripcion_id' => $inscripcion->inscripcion_id,
@@ -192,12 +218,16 @@ class InscripcionesController extends Controller
                 'p.nombre as nombre_programa',
                 'up.nit',
                 'up.business_name',
+                'st.sectorNOMBRE as sector',
+                'vt.ventasAnualesNOMBRE as ventas',
                 'ie.inscripcionEstadoNOMBRE as estado',
                 'pc.convocatoria_id'
             ])
             ->join('programas_convocatorias as pc', 'convocatorias_inscripciones.convocatoria_id', '=', 'pc.convocatoria_id')
             ->join('programas as p', 'pc.programa_id', '=', 'p.programa_id')
             ->join('unidadesproductivas as up', 'convocatorias_inscripciones.unidadproductiva_id', '=', 'up.unidadproductiva_id')
+            ->leftJoin('ciiu_macrosectores as st', 'up.sector_id', '=', 'st.sector_id')
+            ->leftJoin('ventasanuales as vt', 'up.ventaanual_id', '=', 'vt.ventasAnualesID')
             ->join('inscripciones_estados as ie', 'convocatorias_inscripciones.inscripcionestado_id', '=', 'ie.inscripcionestado_id');
 
         if(!empty($search))

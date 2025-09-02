@@ -37,6 +37,8 @@ class InscripcionesExport implements FromQuery, WithMapping, WithHeadings, WithC
             'Programa',
             'NIT',
             'Unidad Productiva',
+            'Sector',
+            'Ventas',
             'Estado',
         ];
     }
@@ -50,6 +52,8 @@ class InscripcionesExport implements FromQuery, WithMapping, WithHeadings, WithC
             $row->nombre_programa,
             $row->nit,
             $row->business_name,
+            $row->sector,
+            $row->ventas,
             $row->estado,
         ];
     }
