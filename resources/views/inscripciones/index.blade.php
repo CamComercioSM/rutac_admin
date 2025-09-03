@@ -59,20 +59,30 @@
 
     <div class="row">
 
-        <div class="col-12 col-md-12 form-group mb-3 mt-4">
-            <label class="form-label" for="convocatoriaAdd">Convocatoria</label>
-            <select class="form-select" name="convocatoriaAdd" id="convocatoriaAdd" required >
+        <div class="col-12 col-md-12 form-group mb-4">
+            <label class="form-label" for="programaAdd">Programa</label>
+            <select class="form-select" name="programaAdd" id="programaAdd">
                 <option value="" disabled selected>Seleccione una opción</option>
-                @foreach ($convocatorias as $item)
-                    <option value="{{$item->convocatoria_id}}" >{{$item->nombre_convocatoria}}</option>
+                @foreach ($programas as $item)
+                    <option value="{{$item->programa_id}}" >{{$item->nombre}}</option>
                 @endforeach
             </select>
         </div>
 
-        <div class="col-12 col-md-12 form-group mb-3">
-            <h3 class="mb-0">
+        <div class="col-12 col-md-12 form-group mb-5">
+            <label class="form-label" for="convocatoriaAdd">Convocatoria</label>
+            <select class="form-select" name="convocatoriaAdd" id="convocatoriaAdd" required >
+                <option value="" disabled selected>Seleccione una opción</option>
+                @foreach ($convocatorias as $item)
+                    <option value="{{$item->convocatoria_id}}" data-programa="{{$item->programa_id}}" >{{$item->nombre_convocatoria}}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-12 col-md-12 form-group mb-4">
+            <h4 class="mb-0">
                 Unidades productivas  <button type="button" class="btn btn-sm btn-primary py-1" onclick="openAdd()" >Agregar</button>
-            </h3>
+            </h4>
             <div class="mb-2">
                 <select class="form-select w-75" name="unidadAdd" id="unidadAdd" >
                     <option value="" disabled selected>Seleccione una unidad para agregar</option>
@@ -141,7 +151,20 @@
                         },
                         minimumInputLength: 3,
                     }
-                } 
+                },
+                { id:'programaAdd', 
+                    change: function(e)
+                    {
+                        let id = $("#programaAdd").val();
+
+                        $("#convocatoriaAdd option").prop("disabled", true);
+                        $("#convocatoriaAdd option[data-programa='" + id + "']").prop("disabled", false);
+
+                        $("#convocatoriaAdd").val(null).trigger('change');
+                        $("#convocatoriaAdd").select2();
+                    } 
+                }, 
+                { id:'convocatoriaAdd'}, 
             ],
             initFiltros: @json($filtros)
         };
@@ -192,6 +215,7 @@
 
         window.initAlAbrirModal = function()
         {
+            $("#programaAdd").val($("#programa").val()).trigger('change');
             $("#convocatoriaAdd").val($("#convocatoria").val()).trigger('change');
         }
 
@@ -201,4 +225,11 @@
         }
 
     </script>
+
+    <style>
+        .select2-container--default .select2-results__option--disabled
+        {
+            display: none !important;
+        }
+    </style>
 @endsection

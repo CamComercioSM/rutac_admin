@@ -227,6 +227,9 @@
     {
         TABLA.initSelects.forEach(item => {
             $("#" + item.id).select2(item.setting ?? {});
+            if(typeof item.change === "function"){
+                $("#" + item.id).on("change", function (e) { item.change(e); });
+            }
         });
     }
 

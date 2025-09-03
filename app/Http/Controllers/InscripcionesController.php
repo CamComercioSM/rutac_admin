@@ -33,7 +33,8 @@ class InscripcionesController extends Controller
             $pgms = $convocatorias->pluck('programa_id');
             $programas = Programa::whereIn('programa_id', $pgms)->get();
 
-            if (!$request->convocatoria) {
+            if (!$request->convocatoria) 
+            {
                 $convocatoria = ProgramaConvocatoria::whereHas('asesores', fn($q) =>
                         $q->where('user_id', $userId)
                     )
@@ -51,15 +52,21 @@ class InscripcionesController extends Controller
 
                 if ($convocatoria) {
                     $request->merge([
-                        'convocatoria' => $convocatoria->convocatoria_id
+                        'convocatoria' => $convocatoria->convocatoria_id,
+                        'programa' => $convocatoria->programa_id,
                     ]);
                 }
             }
-
         }
         else{
             $convocatorias = ProgramaConvocatoria::all();
             $programas = Programa::all();
+        }
+
+        if(!$request->programa && $request->convocatoria)
+        {
+            $convocatoria = ProgramaConvocatoria::select('programa_id')->find($request->convocatoria);
+            $request->merge(['programa' => $convocatoria->programa_id]);
         }
         
         $data = [
