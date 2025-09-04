@@ -3,13 +3,14 @@
 namespace App\Models\Inscripciones;
 
 use App\Models\TablasReferencias\InscripcionEstado;
+use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ConvocatoriaInscripcionHistorial extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, UserTrait;
 
     protected $table = 'convocatorias_inscripciones_historial';
     protected $primaryKey = 'historial_id';

@@ -9,12 +9,12 @@ trait UserTrait
     public static function bootUserTrait()
     {
         static::creating(function ($model) {
-            $model->created_by = $model->created_by ?? optional(Auth::user())->name;
-            $model->updated_by = $model->updated_by ?? optional(Auth::user())->name;
+            $model->usuario_creo = $model->usuario_creo ?? optional(Auth::user())->id;
+            $model->usuario_actualizo = $model->usuario_actualizo ?? optional(Auth::user())->id;
         });
 
         static::updating(function ($model) {
-            $model->updated_by = $model->updated_by ?? optional(Auth::user())->name;
+            $model->usuario_actualizo = $model->usuario_actualizo ?? optional(Auth::user())->id;
         });
     }
 }
