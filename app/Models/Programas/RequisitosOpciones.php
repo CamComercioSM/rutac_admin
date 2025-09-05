@@ -2,14 +2,15 @@
 
 namespace App\Models\Programas;
 
+use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RequisitosOpciones extends Model
 {
-    use SoftDeletes;
-    protected $table = 'requisitos_opciones';
+    use SoftDeletes, UserTrait;
 
+    protected $table = 'requisitos_opciones';
     protected $primaryKey = 'opcionrequisito_id';
 
     protected $fillable = [

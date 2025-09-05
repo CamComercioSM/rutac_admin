@@ -3,6 +3,7 @@
 namespace App\Models\Programas;
 
 use App\Models\TablasReferencias\Sector;
+use App\Models\Traits\UserTrait;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProgramaConvocatoria extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, UserTrait;
 
     protected $table = 'programas_convocatorias';
     protected $primaryKey = 'convocatoria_id';

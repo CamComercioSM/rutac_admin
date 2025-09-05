@@ -4,13 +4,14 @@ namespace App\Models\Programas;
 
 use App\Models\Inscripciones\ConvocatoriaInscripcion;
 use App\Models\TablasReferencias\Etapa;
+use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Programa extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, UserTrait;
 
     protected $table = 'programas';
     protected $primaryKey = 'programa_id';

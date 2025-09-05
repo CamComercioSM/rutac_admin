@@ -3,12 +3,13 @@
 namespace App\Models\Diagnosticos;
 
 use App\Models\TablasReferencias\Etapa;
+use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Diagnostico extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, UserTrait;
 
     // Nombre de la tabla
     protected $table = 'diagnosticos';

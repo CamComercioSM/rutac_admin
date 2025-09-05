@@ -5,12 +5,14 @@ namespace App\Models\Programas;
 use App\Models\TablasReferencias\PreguntaDimension;
 use App\Models\TablasReferencias\PreguntaGrupo;
 use App\Models\TablasReferencias\PreguntaTipo;
+use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class InscripcionesRequisitos extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, UserTrait;
+    
     protected $table = 'inscripciones_requisitos';
     protected $primaryKey = 'requisito_id';
 

@@ -3,18 +3,16 @@
 namespace App\Models\Inscripciones;
 
 use App\Models\Programas\InscripcionesRequisitos;
+use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ConvocatoriaRespuesta extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, UserTrait;
 
-    // Nombre de la tabla
     protected $table = 'convocatorias_respuestas';
-
-    // Clave primaria personalizada
     protected $primaryKey = 'convocatoriarespuesta_id';
 
     // Campos que se pueden asignar masivamente

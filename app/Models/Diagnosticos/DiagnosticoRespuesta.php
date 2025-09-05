@@ -2,14 +2,15 @@
 
 namespace App\Models\Diagnosticos;
 
+use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 class DiagnosticoRespuesta extends Model
 {
-    use SoftDeletes;
-    protected $table = 'diagnosticos_respuestas';
+    use SoftDeletes, UserTrait;
 
+    protected $table = 'diagnosticos_respuestas';
     protected $primaryKey = 'diagnosticorespuesta_id';
 
     protected $fillable = [

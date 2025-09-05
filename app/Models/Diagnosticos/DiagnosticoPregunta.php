@@ -5,12 +5,14 @@ namespace App\Models\Diagnosticos;
 use App\Models\TablasReferencias\PreguntaDimension;
 use App\Models\TablasReferencias\PreguntaGrupo;
 use App\Models\TablasReferencias\PreguntaTipo;
+use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 class DiagnosticoPregunta extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, UserTrait;
+
     protected $table = 'diagnosticos_preguntas';
     protected $primaryKey = 'pregunta_id';
 

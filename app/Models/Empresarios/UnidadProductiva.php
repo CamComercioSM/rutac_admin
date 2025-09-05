@@ -13,15 +13,15 @@ use App\Models\TablasReferencias\UnidadProductivaPersona;
 use App\Models\TablasReferencias\UnidadProductivaTamano;
 use App\Models\TablasReferencias\UnidadProductivaTipo;
 use App\Models\TablasReferencias\VentasAnuales;
+use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 class UnidadProductiva extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, UserTrait;
 
     protected $table = 'unidadesproductivas';
-
     protected $primaryKey = 'unidadproductiva_id';
 
     protected $fillable = [

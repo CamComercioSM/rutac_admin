@@ -3,14 +3,15 @@
 namespace App\Models\Diagnosticos;
 
 use App\Models\Diagnosticos\DiagnosticoPregunta;
+use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PreguntaOpcion extends Model
 {
-    use SoftDeletes;
-    protected $table = 'preguntas_opciones';
+    use SoftDeletes, UserTrait;
 
+    protected $table = 'preguntas_opciones';
     protected $primaryKey = 'opcion_id';
 
     protected $fillable = [

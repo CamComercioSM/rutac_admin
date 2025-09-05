@@ -4,14 +4,15 @@ namespace App\Models\Diagnosticos;
 
 use App\Models\Empresarios\UnidadProductiva;
 use App\Models\TablasReferencias\Etapa;
+use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 class DiagnosticoResultado extends Model
 {
-    use SoftDeletes;
-    protected $table = 'diagnosticos_resultados';
+    use SoftDeletes, UserTrait;
 
+    protected $table = 'diagnosticos_resultados';
     protected $primaryKey = 'resultado_id';
 
     protected $fillable = [

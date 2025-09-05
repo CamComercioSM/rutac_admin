@@ -2,12 +2,13 @@
 
 namespace App\Models\Programas;
 
+use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProgramaIndicador extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, UserTrait;
 
     protected $table = 'programa_indicadores';
     protected $primaryKey = 'indicador_id';
