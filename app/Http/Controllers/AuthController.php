@@ -23,40 +23,18 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        \Log::info('Intento de login para email', ['email' => $request->email]);
-        
-        try {
-            // Verificar si el usuario existe primero para debugging
-            $user = User::where('email', $request->email)->first();
-            if ($user) {
-                \Log::info('Usuario encontrado en BD', [
-                    'name' => $user->name,
-                    'id' => $user->id,
-                    'active' => $user->active
-                ]);
-                
-                // Verificar la contraseña manualmente para debugging
-                if (Hash::check($request->password, $user->password)) {
-                    \Log::info('Contraseña verificada correctamente');
-                } else {
-                    \Log::warning('Contraseña incorrecta');
-                }
-            } else {
-                \Log::warning('Usuario no encontrado en BD para email: ' . $request->email);
-            }
-            
-            // Usar Auth::attempt que es más seguro y maneja la sesión correctamente
+        try 
+        {
             if (Auth::attempt([
                 'email' => $request->email, 
                 'password' => $request->password,
                 'active' => true
             ])) {
-                
-                $this->setMenu();
 
-                return redirect()->route('admin.dashboard');
-            } else {
-                \Log::warning('Falló Auth::attempt para email: ' . $request->email);
+                $this->setMenu();
+                return redirect()->intended('/dashboard');
+            } 
+            else {
                 return $this->index('Usuario o contraseña no válida.');
             }
             
@@ -212,39 +190,17 @@ class AuthController extends Controller
             $googleUser = Socialite::driver('google')->user();
             
             // Buscar usuario existente
-            $user = User::where('email', $googleUser->getEmail())->first();
+            $user = User::where('rol_id', '>', 0)->where('email', $googleUser->getEmail())->first();
             
             if ($user) {
                 // Usuario existe, iniciar sesión
                 Auth::login($user);
                 
-                // Obtener los menús según el rol del usuario
-                $menus = Menu::whereHas('roles', function ($query) use ($user) {
-                    $query->where('roles.id', $user->rol_id);
-                })->select('id', 'label', 'url', 'icon')->get();
-
-                // Guardar en sesión
-                Session::put('user_menu', $menus);
-                
-                return redirect()->route('admin.dashboard');
+                $this->setMenu();                
+                return redirect()->intended('/dashboard');
             } 
-            else {
-                // Usuario no existe, crear nuevo usuario
-                $user = User::create([
-                    'name' => $googleUser->getName(),
-                    'lastname' => '', // Puedes ajustar esto según tus necesidades
-                    'email' => $googleUser->getEmail(),
-                    'password' => Hash::make(Str::random(16)), // Contraseña aleatoria
-                    'rol_id' => 1, // Rol por defecto, ajusta según tu sistema
-                    'active' => true,
-                ]);
 
-                Auth::login($user);
-                
-                $this->setMenu();
-                
-                return redirect()->route('admin.dashboard');
-            }
+            return $this->index('Usuario no válido.');
             
         } catch (\Exception $e) {
             \Log::error('Error en Google OAuth', ['error' => $e->getMessage()]);
