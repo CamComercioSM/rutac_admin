@@ -75,7 +75,7 @@ class UserController extends Controller
     {
         $search = $request->get('searchText');
 
-        $query = User::query();
+        $query = User::where('rol_id', '>', 0);
 
         if(!empty($search))
         {
