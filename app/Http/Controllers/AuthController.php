@@ -56,7 +56,7 @@ class AuthController extends Controller
     public function sendResetLink(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users_admin,email',
+            'email' => 'required|email|exists:users,email',
         ], [
             'email.required' => 'El correo electrónico es requerido.',
             'email.email' => 'El formato del correo electrónico no es válido.',
@@ -120,7 +120,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'token' => 'required',
-            'email' => 'required|email|exists:users_admin,email',
+            'email' => 'required|email|exists:users,email',
             'password' => 'required|min:8|confirmed',
         ], [
             'token.required' => 'El token es requerido.',
