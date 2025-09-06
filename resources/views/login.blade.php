@@ -48,6 +48,28 @@
 .modal-backdrop {
   transition: opacity 0.3s ease;
 }
+
+/* Estilos personalizados para SweetAlert2 */
+.swal2-popup-custom {
+  border-radius: 15px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+.swal2-title-custom {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+}
+
+.swal2-html-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.swal2-confirm {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  padding: 12px 24px !important;
+}
 </style>
 @endsection
 
@@ -161,8 +183,8 @@
 @endsection
 
 @section('page-script')
-<!-- SweetAlert2 -->
-<script src="{{ asset('libs/sweetalert2@11.js') }}"></script>
+<!-- SweetAlert2 desde CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Test SweetAlert
@@ -214,18 +236,50 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (data.success) {
                         Swal.fire({
                             icon: 'success',
-                            title: '¡Correo Enviado!',
-                            text: data.message,
-                            confirmButtonText: 'Entendido',
+                            title: '¡Correo de Recuperación Enviado! 📧',
+                            html: `
+                                <div style="text-align: center;">
+                                    <p style="font-size: 16px; margin-bottom: 15px;">
+                                        <strong>Se ha enviado un enlace de recuperación a tu correo electrónico.</strong>
+                                    </p>
+                                    <p style="font-size: 14px; color: #666; margin-bottom: 10px;">
+                                        📬 Revisa tu bandeja de entrada
+                                    </p>
+                                    <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                                        📁 También revisa la carpeta de spam o correo no deseado
+                                    </p>
+                                    <p style="font-size: 12px; color: #999;">
+                                        El enlace expirará en 60 minutos
+                                    </p>
+                                </div>
+                            `,
+                            confirmButtonText: '¡Entendido!',
+                            confirmButtonColor: '#28a745',
                             allowOutsideClick: false,
-                            allowEscapeKey: false
+                            allowEscapeKey: false,
+                            showCloseButton: true,
+                            customClass: {
+                                popup: 'swal2-popup-custom',
+                                title: 'swal2-title-custom'
+                            }
                         });
                     } else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: data.message || 'Error desconocido',
-                            confirmButtonText: 'Intentar de nuevo'
+                            title: 'Error al Enviar Correo ❌',
+                            html: `
+                                <div style="text-align: center;">
+                                    <p style="font-size: 16px; margin-bottom: 15px;">
+                                        <strong>No se pudo enviar el correo de recuperación</strong>
+                                    </p>
+                                    <p style="font-size: 14px; color: #666;">
+                                        ${data.message || 'Error desconocido'}
+                                    </p>
+                                </div>
+                            `,
+                            confirmButtonText: 'Intentar de Nuevo',
+                            confirmButtonColor: '#dc3545',
+                            showCloseButton: true
                         });
                     }
                 }, 300); // Pequeño delay para que el modal se cierre completamente
@@ -246,10 +300,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error de Conexión',
-                        text: 'No se pudo conectar al servidor. Verifica tu conexión e inténtalo de nuevo.',
-                        footer: 'Error: ' + error.message,
-                        confirmButtonText: 'Intentar de nuevo'
+                        title: 'Error de Conexión 🌐',
+                        html: `
+                            <div style="text-align: center;">
+                                <p style="font-size: 16px; margin-bottom: 15px;">
+                                    <strong>No se pudo conectar al servidor</strong>
+                                </p>
+                                <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                                    Verifica tu conexión a internet e inténtalo de nuevo
+                                </p>
+                                <p style="font-size: 12px; color: #999;">
+                                    Error: ${error.message}
+                                </p>
+                            </div>
+                        `,
+                        confirmButtonText: 'Intentar de Nuevo',
+                        confirmButtonColor: '#dc3545',
+                        showCloseButton: true
                     });
                 }, 300);
             })
