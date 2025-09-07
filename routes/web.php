@@ -119,5 +119,6 @@ Route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'se
 Route::get('/auth/reset-password/{token}', [App\Http\Controllers\AuthController::class, 'showResetForm'])->name('password.reset');
 Route::post('/auth/reset-password', [App\Http\Controllers\AuthController::class, 'resetPassword'])->name('password.update');
 
+
 Route::get('/auth/google', [App\Http\Controllers\GoogleController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('/auth/google/callback', [App\Http\Controllers\GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
