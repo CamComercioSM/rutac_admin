@@ -98,44 +98,26 @@ Route::as('admin.')
 
     Route::post('/inscripciones/updateRespuesta', [InscripcionesController::class, 'updateRespuesta']);
     
-    // Rutas para carga lazy de datos
+
     Route::get('/dashboard/load-more', [AdminViewController::class, 'loadMoreData'])->name("dashboard.loadMore");
     Route::get('/dashboard/stats', [AdminViewController::class, 'getRealTimeStats'])->name("dashboard.stats");
-    
-    // Las rutas de users están manejadas por Route::apiResource('users', UserController::class)
-    
-    // Las rutas de unidadesProductivas están manejadas por Route::apiResource('unidadesProductivas', UnidadProductivaController::class)
-    // Ruta adicional para búsqueda
+
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search']);
     
-    // Las rutas de menu están manejadas por Route::apiResource('menu', MenuController::class)
-    
-    // Las rutas de crons están manejadas por Route::apiResource('crons', CronController::class)
-    
-    // Las rutas de cronLog están manejadas por Route::apiResource('cronLog', CronLogController::class)
-    
-    // Las rutas de diagnosticosResultados están manejadas por Route::apiResource('diagnosticosResultados', DiagnosticosResultadosController::class)
-    
-    // Las rutas de inscriptions están manejadas por Route::apiResource('inscripciones', InscripcionesController::class)
-    
-    // Las rutas básicas de emailTemplates están manejadas por Route::apiResource('emailTemplates', EmailTemplateController::class)
-    // Rutas adicionales específicas
+
     Route::post('/emailTemplates/toggle-status/{id}', [EmailTemplateController::class, 'toggleStatus'])->name("emailTemplates.toggle-status");
     Route::post('/emailTemplates/send-test', [EmailTemplateController::class, 'sendTestEmail'])->name("emailTemplates.send-test");
     
-    // Las rutas de defaultEmailTemplates están manejadas por Route::apiResource('defaultEmailTemplates', DefaultEmailTemplateController::class)
 });
+
 
 Route::get('/auth', [App\Http\Controllers\AuthController::class, 'index'])->name("auth.index");
 Route::post('/auth', [App\Http\Controllers\AuthController::class, 'login'])->name("auth.login");
 Route::get('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name("auth.logout");
 
+Route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'sendResetLink'])->name('password.email');
+Route::get('/auth/reset-password/{token}', [App\Http\Controllers\AuthController::class, 'showResetForm'])->name('password.reset');
+Route::post('/auth/reset-password', [App\Http\Controllers\AuthController::class, 'resetPassword'])->name('password.update');
 
-// Rutas para Google OAuth
 Route::get('/auth/google', [App\Http\Controllers\GoogleController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('/auth/google/callback', [App\Http\Controllers\GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
-
-// Rutas para recuperación de contraseña
-Route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'sendResetLink'])->name('password.email');
-Route::get('/reset-password/{token}', [App\Http\Controllers\AuthController::class, 'showResetForm'])->name('password.reset');
-Route::post('/reset-password', [App\Http\Controllers\AuthController::class, 'resetPassword'])->name('password.update');

@@ -87,8 +87,8 @@
 @endsection
 
 @section('page-script')
-<!-- SweetAlert2 -->
-<script src="{{ asset('libs/sweetalert2@11.js') }}"></script>
+<!-- SweetAlert2 desde CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('resetPasswordForm');
