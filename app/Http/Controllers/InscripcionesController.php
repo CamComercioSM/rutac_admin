@@ -142,6 +142,16 @@ class InscripcionesController extends Controller
         
         // Guardar el estado anterior para comparar
         $estadoAnterior = $entity->inscripcionestado_id;
+        $nuevoEstado = $request->input('inscripcionestado_id');
+
+        // DEBUG: Log del cambio de estado
+        Log::info('DEBUG - Cambio de estado de inscripción', [
+            'inscripcion_id' => $id,
+            'estado_anterior_id' => $estadoAnterior,
+            'nuevo_estado_id' => $nuevoEstado,
+            'estado_anterior_nombre' => $entity->estado->inscripcionEstadoNOMBRE ?? 'NO ENCONTRADO',
+            'cambia_estado' => $estadoAnterior != $nuevoEstado
+        ]);
 
         if($request->hasFile('archivo')) 
         {
@@ -149,14 +159,24 @@ class InscripcionesController extends Controller
             $entity->archivo = $path;
         }
 
-        $entity->inscripcionestado_id = $request->input('inscripcionestado_id');
+        $entity->inscripcionestado_id = $nuevoEstado;
         $entity->comentarios = $request->input('comentarios');
         $entity->activarPreguntas = $request->input('activarPreguntas') == 1;
         $entity->save();
 
         // Enviar correo solo si el estado cambió
         if ($estadoAnterior != $entity->inscripcionestado_id) {
+            Log::info('DEBUG - Estado cambió, enviando correo', [
+                'inscripcion_id' => $id,
+                'estado_anterior' => $estadoAnterior,
+                'nuevo_estado' => $entity->inscripcionestado_id
+            ]);
             $this->enviarCorreoCambioEstado($entity);
+        } else {
+            Log::info('DEBUG - Estado no cambió, no se envía correo', [
+                'inscripcion_id' => $id,
+                'estado' => $estadoAnterior
+            ]);
         }
 
         return response()->json([ 'message' => 'Stored' ], 201);
@@ -168,6 +188,9 @@ class InscripcionesController extends Controller
     private function enviarCorreoCambioEstado(ConvocatoriaInscripcion $inscripcion)
     {
         try {
+            // Recargar la inscripción con todas las relaciones necesarias
+            $inscripcion->load(['estado', 'unidadProductiva', 'convocatoria.programa']);
+            
             // Obtener el email de la unidad productiva
             $email = $inscripcion->unidadProductiva->contact_email ?? 
                      $inscripcion->unidadProductiva->registration_email;
@@ -179,6 +202,18 @@ class InscripcionesController extends Controller
                 ]);
                 return;
             }
+
+            // DEBUG: Log detallado de la información que se va a enviar
+            Log::info('DEBUG - Información del correo a enviar', [
+                'inscripcion_id' => $inscripcion->inscripcion_id,
+                'estado_id' => $inscripcion->inscripcionestado_id,
+                'estado_nombre' => $inscripcion->estado->inscripcionEstadoNOMBRE ?? 'NO ENCONTRADO',
+                'unidad_productiva' => $inscripcion->unidadProductiva->business_name ?? 'NO ENCONTRADO',
+                'email_destino' => $email,
+                'convocatoria' => $inscripcion->convocatoria->nombre_convocatoria ?? 'NO ENCONTRADO',
+                'programa' => $inscripcion->convocatoria->programa->nombre ?? 'NO ENCONTRADO',
+                'comentarios' => $inscripcion->comentarios ?? 'Sin comentarios'
+            ]);
 
             // Enviar el correo con copia a cpc591@gmail.com para verificación
             Mail::to($email)->send(new CambioEstadoInscripcionMail($inscripcion));
