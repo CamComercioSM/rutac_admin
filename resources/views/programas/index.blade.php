@@ -1,18 +1,135 @@
 @extends('layouts.list', ['titulo'=> 'Programas', 'tituloModal'=> 'programa'])
 
+@section('form-fields')
+    <div class="row">
+
+        <div class="col-12 col-md-12 form-group mb-3">
+            <label class="form-label" for="nombre">Nombre </label>
+            <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Nombre " required>
+        </div>
+
+        <div class="col-12 col-md-12 form-group mb-3">
+            <label class="form-label">Descripción</label>
+            <div id="descripcion"></div>
+        </div>
+
+        <div class="col-12 col-md-12 form-group mb-3">
+            <label class="form-label">Beneficios</label>
+            <div id="beneficios"></div>
+        </div>
+
+        <div class="col-12 col-md-12 form-group mb-3">
+            <label class="form-label">Requisitos</label>
+            <div id="requisitos"></div>
+        </div>
+
+        <div class="col-12 col-md-12 form-group mb-3">
+            <label class="form-label" >Dirigido A </label>
+            <div id="dirigido_a"></div>
+        </div>
+
+        <div class="col-12 col-md-12 form-group mb-3">
+            <label class="form-label">Objetivo </label>
+            <div id="objetivo"></div>
+        </div>
+
+        <div class="col-12 col-md-12 form-group mb-3">
+            <label class="form-label">Determinantes </label>
+            <div id="determinantes"></div>
+        </div>
+
+        <div class="col-12 col-md-12 form-group mb-3">
+            <label class="form-label">Herramientas Requeridas </label>
+            <div id="herramientas_requeridas"></div>
+        </div>
+
+        <div class="col-12 col-md-12 form-group mb-3">
+            <label class="form-label">Aporte </label>
+            <div id="informacion_adicional"></div>
+        </div>
+
+        <div class="col-12 col-md-12 form-group mb-3">
+            <label class="form-label" for="sitio_web">Sitio Web  </label>
+            <input type="text" class="form-control" name="sitio_web" id="sitio_web" placeholder="Sitio Web  " >
+        </div>
+
+        <div class="col-sm-12 mb-3">
+            <label class="form-label" for="logo_archivo">Logo</label>
+            <input class="form-control" type="file" name="logo_archivo" id="logo_archivo" accept=".jpg,.png">
+        </div>
+
+        <div class="col-sm-12 mb-3">
+            <label class="form-label" for="procedimiento_imagen_archivo">Imagen del Procedimiento </label>
+            <input class="form-control" type="file" name="procedimiento_imagen_archivo" id="procedimiento_imagen_archivo" accept=".jpg,.png">
+        </div>
+
+        <div class="col-12 col-md-6 form-group mb-3">
+            <label class="form-label" for="duracion">Duración </label>
+            <input type="text" class="form-control" name="duracion" id="duracion" placeholder="Duración " >
+        </div>
+
+        <div class="col-12 col-md-6 form-group mb-3">
+            <label class="form-label" for="es_virtual">Modalidad</label>
+            <select class="form-select" name="es_virtual" id="es_virtual" required >
+                @foreach ($modalidades as $index => $item)
+                    <option value="" disabled selected>Seleccione una opción</option>
+                    <option value="{{$index}}" >{{$item}}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-12 col-md-12 form-group mb-3">
+            <label class="form-label" for="etapas">Etapas</label>
+            <select class="form-select" name="etapas[]" id="etapas" multiple >
+                @foreach ($etapas as $item)
+                    <option value="{{$item->etapa_id}}" >{{$item->name}}</option>
+                @endforeach
+            </select>
+        </div>
+
+
+    </div>
+@endsection
 
 @section('script')
+
+    @vite([
+        'resources/assets/vendor/libs/quill/typography.scss', 
+        'resources/assets/vendor/libs/quill/editor.scss',
+    ])
+
+    @vite([
+        'resources/assets/vendor/libs/quill/katex.js', 
+        'resources/assets/vendor/libs/quill/quill.js'
+    ])
+
     <script> 
-        const TABLA = {
+        window.TABLA = {
             urlApi: '/programas',
             sortName: 'programa_id',
 
-            menu_row: `<a class="dropdown-item" href="/programas/ROWID" >Ver detalles</a>
-                       <a class="dropdown-item" href="/convocatorias/list?programa=ROWID">Convocatorias</a>`,
+            menu_row: ` <button class="dropdown-item" onClick="openEditar()" >Editar</button>
+                        <a class="dropdown-item" href="/programas/ROWID" >Ver detalles</a>
+                        <a class="dropdown-item" href="/convocatorias/list?programa=ROWID">Convocatorias</a>`,
 
             columns: [
-                { field: 'nombre', title: 'Nombre', sortable: true },
-                { field: 'duracion', title: 'Duración', sortable: true }
+                { data: 'nombre', title: 'Nombre', orderable: true },
+                { data: 'duracion', title: 'Duración', orderable: true }
+            ],
+
+            initSelects: [ 
+                { id:'etapas', setting:{ placeholder: 'Selección multiple'}  },                
+            ],
+
+            initEditors: [ 
+                { id:'descripcion' },
+                { id:'beneficios' },
+                { id:'requisitos' },
+                { id:'dirigido_a' },
+                { id:'objetivo' },
+                { id:'determinantes' },
+                { id:'herramientas_requeridas' },
+                { id:'informacion_adicional' },               
             ],
         };
     </script>

@@ -34,7 +34,7 @@
 
 @endsection
 
-@section('form-fiels')
+@section('form-fields')
     <div class="row">
 
         <div class="col-12 col-md-12 form-group mb-3">
@@ -140,7 +140,7 @@
 @section('script')
     <script> 
         const btn_edit =  '{!! $esAsesor == 1 ? '' : '<button class="dropdown-item" onClick="openEditar()" >Editar</button>' !!}';
-        const TABLA = {
+        window.TABLA = {
             urlApi: '/convocatorias',
             sortName: 'convocatoria_id',
             
@@ -149,12 +149,12 @@
                         <a class="dropdown-item" href="/inscripciones/list?convocatoria=ROWID">Inscripciones</a>`,
 
             columns: [
-                { field: 'nombre_programa', title: 'Programa', sortable: true },
-                { field: 'nombre_convocatoria', title: 'Nombre', sortable: true },
-                { field: 'persona_encargada', title: 'Persona a cargo', sortable: true },
-                { field: 'telefono', title: 'Teléfono', sortable: true },
-                { field: 'fecha_apertura_convocatoria', title: 'Fecha inicio', sortable: true, formatter: 'formatearFecha' },
-                { field: 'fecha_cierre_convocatoria', title: 'Fecha finalización', sortable: true, formatter: 'formatearFecha' }
+                { data: 'nombre_programa', title: 'Programa', orderable: true },
+                { data: 'nombre_convocatoria', title: 'Nombre', orderable: true },
+                { data: 'persona_encargada', title: 'Persona a cargo', orderable: true },
+                { data: 'telefono', title: 'Teléfono', orderable: true },
+                { data: 'fecha_apertura_convocatoria', title: 'Fecha inicio', orderable: true, render: v => window.formatearFecha(v) },
+                { data: 'fecha_cierre_convocatoria', title: 'Fecha finalización', orderable: true, render: v => window.formatearFecha(v) }
             ],
 
             initSelects: [ 

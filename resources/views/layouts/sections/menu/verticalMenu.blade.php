@@ -1,4 +1,6 @@
-<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+
+
+<aside id="layout-menu" class="layout-menu menu-vertical menu" >
 
   <!-- ! Hide app brand if navbar-full -->
   <div class="app-brand demo">
@@ -20,11 +22,12 @@
     $currentRoute = request()->getPathInfo();
   @endphp
 
-  <ul class="menu-inner py-1">
+  <ul class="menu-inner py-1 mb-5">
 
-    <li class="menu-item">
+    <li class="menu-item mt-7">
         <a class="menu-link" href="/dashboard">
-          <i class="ri-dashboard-fill me-1"></i> Dashboard
+          <i class="menu-icon icon-base ri ri-dashboard-fill me-1"></i> 
+          <div>Dashboard</div>
         </a>
     </li>
 
@@ -45,7 +48,7 @@
 
         @if ($menu->icon == null && $menu->url == null)
 
-          <li class="menu-header mt-7">
+          <li class="menu-header mt-5">
             <span class="menu-header-text">{{ $menu->label }}</span>
           </li>
 
@@ -56,7 +59,7 @@
               @if($menu->submenus->isNotEmpty())
                 <a href="javascript:void(0);" class="menu-link menu-toggle" >
                   @isset($menu->icon)
-                    <i class="{{ $menu->icon }} me-1"></i>
+                    <i class="menu-icon icon-base ri {{ $menu->icon }} me-1"></i>
                   @endisset
                   <div>{{ $menu->label }}</div>
                 </a>
@@ -67,7 +70,7 @@
 
                       <a href="{{ url($submenu->url) }}" class="menu-link" >
                         @isset($submenu->icon)
-                          <i class="{{ $submenu->icon }} me-1"></i>
+                          <i class="menu-icon icon-base ri {{ $submenu->icon }} me-1"></i>
                         @endisset
                         <div>{{ $submenu->label }}</div>
                       </a>
@@ -79,9 +82,9 @@
               @else
                 <a href="{{ url($menu->url) }}" class="menu-link" >
                   @isset($menu->icon)
-                    <i class="{{ $menu->icon }} me-1"></i>
+                    <i class="menu-icon icon-base ri {{ $menu->icon }} me-1"></i>
                   @endisset
-                  <div>{{ $menu->label }} </div>
+                  <div>{{ $menu->label }}</div>
                 </a>
               @endif
           </li>
@@ -93,3 +96,4 @@
   </ul>
 
 </aside>
+

@@ -1,6 +1,6 @@
 @extends('layouts.list', ['titulo'=> 'Requisitos convocatoria', 'tituloModal'=> 'requisito'])
 
-@section('form-fiels')
+@section('form-fields')
     <div class="row">
 
         <div class="col-12 col-md-12 form-group mb-3">
@@ -47,13 +47,13 @@
 
 @section('script')
     <script> 
-        const TABLA = {
+        window.TABLA = {
             urlApi: '/convocatoriasRequisitos',
             sortName: 'requisito_titulo',
             accion_editar: true,
             columns: [
-                { field: 'requisito_titulo', title: 'Nombre', sortable: true },
-                { field: 'indicador', title: 'Indicador', sortable: true },
+                { data: 'requisito_titulo', title: 'Nombre', orderable: true },
+                { data: 'indicador', title: 'Indicador', orderable: true },
             ],            
             loadOptions: function(opciones) 
             {

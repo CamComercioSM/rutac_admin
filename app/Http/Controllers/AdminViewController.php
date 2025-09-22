@@ -120,11 +120,6 @@ class AdminViewController extends Controller
         return $query;
     }
 
-    function consultaExpedienteMercantil()
-    { 
-        return View("consultaExpedienteMercantil");
-    }
-
     private function loadDashboardDataAsync($query, $filtros)
     {
     $totalUnidades = $query->count();
@@ -167,12 +162,6 @@ class AdminViewController extends Controller
         'datosMapa'            => $datosMapa,
         'totalUnidades'        => $totalUnidades,
     ];
-
-    \Log::info('Dashboard data debug', [
-        'totalUnidades' => $totalUnidades,
-        'porMunicipios_count' => is_object($porMunicipios) ? $porMunicipios->count() : (is_array($porMunicipios) ? count($porMunicipios) : 0),
-        'porMunicipiosCompletos_count' => is_object($porMunicipiosCompletos) ? $porMunicipiosCompletos->count() : (is_array($porMunicipiosCompletos) ? count($porMunicipiosCompletos) : 0),
-    ]);
 
     return compact(
         'totalUnidades',
@@ -340,18 +329,6 @@ class AdminViewController extends Controller
                 ->groupBy('municipality_id')
                 ->orderByDesc('total')
                 ->get();
-    
-            // Log detallado para debugging
-            \Log::info('Debug getMunicipiosStatsCompletos', [
-                'totalUnidadesQuery' => $query->count(),
-                'totalConMunicipioNotNull' => $totalAntesFiltro,
-                'totalConMunicipioNull' => $totalConMunicipioNull,
-                'totalConMunicipioInvalido' => $totalConMunicipioInvalido,
-                'totalConMunicipioValido' => $rows->sum('total'),
-                'municipiosValidosCount' => count($municipiosValidos),
-                'municipiosEncontradosCount' => $rows->count(),
-                'diferencia' => $totalAntesFiltro - $rows->sum('total')
-            ]);
     
             // Adjuntar nombre sin disparar consultas por ítem
             return $rows->map(function ($item) use ($mapMunicipios) {
@@ -569,35 +546,13 @@ class AdminViewController extends Controller
 
     private function getSectores()
     {
-        try {
-            \Log::info('=== INICIANDO CARGA DE SECTORES ===');
-    
-            // Traer sectores directamente desde la tabla
-            $sectores = DB::table('ciiu_macrosectores')
-                ->select('sector_id', 'sectorNOMBRE')
-                ->whereNotNull('sectorNOMBRE')
-                ->orderBy('sectorNOMBRE')
-                ->get();
-    
-            if ($sectores->isEmpty()) {
-                \Log::warning('No se encontraron sectores en la tabla ciiu_macrosectores');
-            } else {
-                \Log::info('Sectores cargados desde BD', [
-                    'count' => $sectores->count()
-                ]);
-            }
-    
-            \Log::info('=== FINALIZANDO CARGA DE SECTORES ===');
-            return $sectores;
-    
-        } catch (\Exception $e) {
-            \Log::error('Error en getSectores', [
-                'error' => $e->getMessage(),
-                'file'  => $e->getFile(),
-                'line'  => $e->getLine()
-            ]);
-            return collect(); // Retornar colección vacía en caso de error
-        }
+        $sectores = DB::table('ciiu_macrosectores')
+            ->select('sector_id', 'sectorNOMBRE')
+            ->whereNotNull('sectorNOMBRE')
+            ->orderBy('sectorNOMBRE')
+            ->get();
+
+        return $sectores;
     }
     
 

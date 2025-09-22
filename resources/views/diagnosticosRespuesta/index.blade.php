@@ -36,20 +36,21 @@
 
 @section('script')
     <script> 
-        const TABLA = {
+        window.TABLA = {
             urlApi: '/diagnosticosResultados',
             sortName: 'fecha_creacion',
             accion_ver: true,
             columns: [
-                { field: 'fecha_creacion', title: 'Fecha de inscripcion', sortable: true, formatter: 'formatearFecha' },
-                { field: 'nit', title: 'NIT', sortable: true },
-                { field: 'business_name', title: 'Unidad productiva', sortable: true },                
-                { field: 'resultado_puntaje', title: 'Puntaje', sortable: true },
-                { field: 'etapa', title: 'Etapa', sortable: true }
+                { data: 'fecha_creacion', title: 'Fecha de inscripcion', orderable: true, render: v => window.formatearFecha(v) },
+                { data: 'nit', title: 'NIT', orderable: true },
+                { data: 'business_name', title: 'Unidad productiva', orderable: true },                
+                { data: 'resultado_puntaje', title: 'Puntaje', orderable: true },
+                { data: 'etapa', title: 'Etapa', orderable: true }
             ],
             initSelects: [ 
                 { id:'etapa'}, 
-                { id:'unidad', setting: {
+                { 
+                    id:'unidad', setting: {
                         ajax: {
                             url: '/unidadProductiva/search',
                             dataType: 'json',

@@ -1,4 +1,4 @@
-@extends('layouts.admin', [ 'titulo'=> 'Dashboard - Decídete a Crecer' ])
+@extends('layouts.layoutMaster')
 
 @section('content')
 <div class="dashboard-container">
@@ -3947,7 +3947,10 @@ function initGoogleMaps() {
 <script src="https://maps.googleapis.com/maps/api/js?key={{ config('dashboard.maps.google_maps_key') }}&libraries=places&callback=initGoogleMaps" async defer></script>
 
 
-
+<script>
+    const cargando = document.querySelectorAll('.cargando')[0];
+    cargando.classList.add('d-none');
+</script>
 
 
 @endsection

@@ -1,17 +1,67 @@
 /**
- * Dashboard Analytics
+ * Dashboards Analytics
  */
 
 'use strict';
 
 (function () {
-  let cardColor, labelColor, borderColor, chartBgColor, bodyColor;
+  let cardColor,
+    headingColor,
+    labelColor,
+    fontFamily,
+    borderColor,
+    legendColor,
+    heatMap1,
+    heatMap2,
+    heatMap3,
+    heatMap4,
+    bodyColor,
+    currentTheme,
+    chartBgColor;
 
+  if (isDarkStyle) {
+    heatMap1 = '#333457';
+    heatMap2 = '#3c3e75';
+    heatMap3 = '#484b9b';
+    heatMap4 = '#696cff';
+    chartBgColor = '#474360';
+    currentTheme = 'dark';
+  } else {
+    heatMap1 = '#ededff';
+    heatMap2 = '#d5d6ff';
+    heatMap3 = '#b7b9ff';
+    heatMap4 = '#696cff';
+    chartBgColor = '#F0F2F8';
+    currentTheme = 'light';
+  }
   cardColor = config.colors.cardColor;
+  headingColor = config.colors.headingColor;
   labelColor = config.colors.textMuted;
   borderColor = config.colors.borderColor;
-  chartBgColor = config.colors.chartBgColor;
   bodyColor = config.colors.bodyColor;
+  fontFamily = config.fontFamily;
+
+  // Chart Colors
+  const chartColors = {
+    donut: {
+      series1: config.colors.primary,
+      series2: '#9055fdb3',
+      series3: '#9055fd80'
+    },
+    donut2: {
+      series1: '#49AC00',
+      series2: '#4DB600',
+      series3: config.colors.success,
+      series4: '#78D533',
+      series5: '#9ADF66',
+      series6: '#BBEA99'
+    },
+    line: {
+      series1: config.colors.warning,
+      series2: config.colors.primary,
+      series3: '#7367f029'
+    }
+  };
 
   // Weekly Overview Line Chart
   // --------------------------------------------------------------------
@@ -96,7 +146,7 @@
           },
           style: {
             fontSize: '13px',
-            fontFamily: 'Inter',
+            fontFamily: fontFamily,
             colors: labelColor
           }
         }
@@ -112,71 +162,7 @@
             type: 'none'
           }
         }
-      },
-      responsive: [
-        {
-          breakpoint: 1500,
-          options: {
-            plotOptions: {
-              bar: {
-                columnWidth: '40%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 1200,
-          options: {
-            plotOptions: {
-              bar: {
-                columnWidth: '30%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 815,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 5
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 768,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 10,
-                columnWidth: '20%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 568,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 8,
-                columnWidth: '30%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 410,
-          options: {
-            plotOptions: {
-              bar: {
-                columnWidth: '50%'
-              }
-            }
-          }
-        }
-      ]
+      }
     };
   if (typeof weeklyOverviewChartEl !== undefined && weeklyOverviewChartEl !== null) {
     const weeklyOverviewChart = new ApexCharts(weeklyOverviewChartEl, weeklyOverviewChartConfig);
@@ -188,7 +174,7 @@
   const totalProfitLineChartEl = document.querySelector('#totalProfitLineChart'),
     totalProfitLineChartConfig = {
       chart: {
-        height: 90,
+        height: 79.5,
         type: 'line',
         parentHeightOffset: 0,
         toolbar: {
@@ -307,7 +293,7 @@
   const sessionsColumnChartEl = document.querySelector('#sessionsColumnChart'),
     sessionsColumnChartConfig = {
       chart: {
-        height: 90,
+        height: 80,
         parentHeightOffset: 0,
         type: 'bar',
         toolbar: {
@@ -320,7 +306,7 @@
       plotOptions: {
         bar: {
           barHeight: '100%',
-          columnWidth: '20px',
+          columnWidth: '20%',
           startingShape: 'rounded',
           endingShape: 'rounded',
           borderRadius: 4,
@@ -442,5 +428,90 @@
   if (typeof sessionsColumnChartEl !== undefined && sessionsColumnChartEl !== null) {
     const sessionsColumnChart = new ApexCharts(sessionsColumnChartEl, sessionsColumnChartConfig);
     sessionsColumnChart.render();
+  }
+
+  // Performance Radar Chart
+  // --------------------------------------------------------------------
+  const performanceChartEl = document.querySelector('#performanceChart'),
+    performanceChartConfig = {
+      chart: {
+        height: 299,
+        type: 'radar',
+        offsetY: 10,
+        toolbar: {
+          show: false
+        }
+      },
+      legend: {
+        show: true,
+        position: 'bottom',
+        markers: {
+          strokeWidth: 0,
+          size: 5,
+          width: 10,
+          height: 10
+        },
+        itemMargin: { horizontal: 10 },
+        fontFamily: fontFamily,
+        fontSize: '15px',
+        labels: {
+          colors: bodyColor,
+          useSeriesColors: false
+        }
+      },
+      plotOptions: {
+        radar: {
+          polygons: {
+            strokeColors: borderColor,
+            connectorColors: borderColor
+          }
+        }
+      },
+      yaxis: {
+        show: false
+      },
+      series: [
+        {
+          name: 'Income',
+          data: [70, 90, 80, 95, 75, 90]
+        },
+        {
+          name: 'Net Worth',
+          data: [110, 78, 95, 85, 95, 78]
+        }
+      ],
+      colors: [config.colors.primary, config.colors.info],
+      xaxis: {
+        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: {
+          show: true,
+          style: {
+            colors: [labelColor, labelColor, labelColor, labelColor, labelColor, labelColor],
+            fontSize: '13px',
+            fontFamily: fontFamily,
+            fontWeight: 400
+          }
+        }
+      },
+      fill: {
+        opacity: [1, 0.9]
+      },
+      stroke: {
+        show: false,
+        width: 0
+      },
+      markers: {
+        size: 0
+      },
+      grid: {
+        show: false,
+        padding: {
+          top: -30
+        }
+      }
+    };
+  if (typeof performanceChartEl !== undefined && performanceChartEl !== null) {
+    const performanceChart = new ApexCharts(performanceChartEl, performanceChartConfig);
+    performanceChart.render();
   }
 })();

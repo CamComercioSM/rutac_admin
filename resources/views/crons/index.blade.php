@@ -1,6 +1,6 @@
 @extends('layouts.list', ['titulo'=> 'Administración de crons', 'tituloModal'=> 'cron'])
 
-@section('form-fiels')
+@section('form-fields')
     <div class="row">
 
         <div class="col-12 col-md-12 form-group mb-3">
@@ -28,15 +28,15 @@
 
 @section('script')
     <script> 
-        const TABLA = {
+        window.TABLA = {
             urlApi: '/crons',
             sortName: 'nombre',
             accion_editar: true,
             columns: [
-                { field: 'nombre', title: 'Nombre', sortable: true },
-                { field: 'descripcion', title: 'Descripcion', sortable: true },
-                { field: 'periodicidad', title: 'Periodicidad', sortable: true },
-                { field: 'ruta', title: 'Ruta', sortable: true }
+                { data: 'nombre', title: 'Nombre', orderable: true },
+                { data: 'descripcion', title: 'Descripcion', orderable: true },
+                { data: 'periodicidad', title: 'Periodicidad', orderable: true },
+                { data: 'ruta', title: 'Ruta', orderable: true }
             ],
         };
     </script>

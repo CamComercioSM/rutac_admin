@@ -5,6 +5,16 @@
 'use strict';
 
 (function () {
+  // Animation Dropdown
+  const animationDropdown = document.querySelector('#animation-dropdown'),
+    animationModal = document.querySelector('#animationModal');
+  if (animationDropdown) {
+    animationDropdown.onchange = function () {
+      animationModal.classList = '';
+      animationModal.classList.add('modal', 'animate__animated', this.value);
+    };
+  }
+
   // On hiding modal, remove iframe video/audio to stop playing
   const youTubeModal = document.querySelector('#youTubeModal'),
     youTubeModalVideo = youTubeModal.querySelector('iframe');
@@ -30,4 +40,34 @@
 
   // Calling function on load
   autoPlayYouTubeModal();
+
+  // Onboarding modal carousel height animation
+  document.querySelectorAll('.carousel').forEach(carousel => {
+    carousel.addEventListener('slide.bs.carousel', event => {
+      // Ensure next slide exists
+      if (!event.relatedTarget) {
+        console.error('Next slide not found');
+        return;
+      }
+      // Use requestAnimationFrame to wait for render
+      requestAnimationFrame(() => {
+        // Force reflow
+        void event.relatedTarget.offsetHeight;
+        const nextHeight = Math.max(
+          event.relatedTarget.offsetHeight,
+          event.relatedTarget.scrollHeight,
+          event.relatedTarget.getBoundingClientRect().height
+        );
+        const carouselParent = carousel.querySelector('.active.carousel-item').parentElement;
+        // Animate only if we have valid heights
+        if (nextHeight > 0 && carouselParent) {
+          carouselParent.animate([{ height: carouselParent.offsetHeight + 'px' }, { height: nextHeight + 'px' }], {
+            duration: 500,
+            easing: 'ease',
+            fill: 'forwards'
+          });
+        }
+      });
+    });
+  });
 })();

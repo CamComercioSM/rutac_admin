@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Exports\DiagnosticoResultadoExport;
+use App\Exports\DiagnosticoRespuestasResultadoExport;
 use App\Http\Controllers\Controller;
 use App\Models\Diagnosticos\DiagnosticoResultado;
 use App\Models\Diagnosticos\ResultadosDiagnostico;
+use App\Models\Diagnosticos\DiagnosticoRespuesta;
 use App\Models\TablasReferencias\Etapa;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -60,7 +62,7 @@ class DiagnosticosResultadosController extends Controller
 
     private function getQuery(Request $request)
     {
-        $search = $request->get('searchText');
+        $search = $request->get('search');
         $etapa = $request->get('etapa');
         $unidad = $request->get('unidad');
         $fecha_inicio = $request->get('fecha_inicio');
@@ -104,6 +106,23 @@ class DiagnosticosResultadosController extends Controller
         }
 
         return $query;
+    }
+
+    function exportRespuestas(Request $request)
+    { 
+        $query = DiagnosticoRespuesta::select([
+                'diagnosticos_respuestas.resultado_id',
+                'diagnosticos_respuestas.diagnosticorespuesta_id',
+                'diagnosticos_respuestas.fecha_creacion',
+                'p.pregunta_titulo',
+                'diagnosticos_respuestas.diagnosticorespuesta_valor',
+                'p.pregunta_porcentaje',
+            ])
+        ->join('diagnosticos_preguntas as p', 'diagnosticos_respuestas.pregunta_id', '=', 'p.pregunta_id');
+
+        $query = $query->where('resultado_id', $request->id);
+
+        return Excel::download(new DiagnosticoRespuestasResultadoExport($query), 'respuestasDiagnostico.xlsx');
     }
 
 }

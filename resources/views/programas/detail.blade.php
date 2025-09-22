@@ -1,12 +1,14 @@
-@extends('layouts.admin', ['titulo'=> 'Programa'])
+@extends('layouts.layoutMaster')
 
 @section('content')
 <div class="row">
     <div class="col-12 col-md-12">
 
-        <div class="card mb-6 border border-2 border-primary rounded">
+        <div class="card mb-6">
             
-            <h3 class="text-center my-3">Detalles del programa</h3>
+            <h3 class="text-center text-primary my-3">
+                <b>Detalles del programa</b>
+            </h3>
 
             <div class="card-body">
                 <table class="table">
@@ -104,7 +106,7 @@
                             <th class="w-25" >Etapas</th>
                             <td>
                                 @foreach ($detalle->etapas as $item)
-                                    <span class="badge bg-secondary me-2">{{$item->name}}</span>
+                                    <span class="badge text-bg-info me-2">{{$item->name}}</span>
                                 @endforeach
                             </td>
                         </tr>
@@ -114,7 +116,6 @@
         </div>
         
     </div>
-
 
 </div>
 

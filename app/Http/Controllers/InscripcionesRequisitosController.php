@@ -92,7 +92,7 @@ class InscripcionesRequisitosController extends Controller
 
     private function getQuery(Request $request)
     {
-        $search = $request->get('searchText');
+        $search = $request->get('search');
 
         $query = InscripcionesRequisitos::with('opciones')
         ->select(
@@ -114,6 +114,22 @@ class InscripcionesRequisitosController extends Controller
                     $q->orWhere($field, 'like', "%{$search}%");
                 }
             });
+        }
+
+       if (!empty($request->convocatoria)) {
+            $query->whereIn('requisito_id', function ($q) use ($request) {
+                $q->select('requisito_id')
+                ->from('convocatorias_requisitos')
+                ->where('convocatoria_id', $request->convocatoria);
+            });
+
+            if($request->tipo == 1){
+                $query->whereNotNull('i.indicador_id'); 
+            }
+            else{
+                $query->whereNull('i.indicador_id'); 
+            }
+
         }
 
         return $query;

@@ -35,7 +35,7 @@ class CapsulasController extends Controller
 
         if ($request->hasFile('formFile')) 
         {
-            $path = $request->file('formFile')->store('capsules', 'public');
+            $path = $request->file('formFile')->store('storage/capsules', 'public');
             $data['imagen'] = $path;
         }
 
@@ -52,7 +52,7 @@ class CapsulasController extends Controller
 
     private function getQuery(Request $request)
     {
-        $search = $request->get('searchText');
+        $search = $request->get('search');
 
         $query = Capsula::select(
             'capsula_id as id',

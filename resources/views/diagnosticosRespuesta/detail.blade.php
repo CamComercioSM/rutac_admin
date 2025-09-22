@@ -1,7 +1,20 @@
-@extends('layouts.admin', ['titulo'=> 'Diagnóstico'])
+@extends('layouts.layoutMaster')
+
+<!-- Vendor Styles -->
+@section('vendor-style')
+@vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
+'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
+'resources/assets/vendor/libs/apex-charts/apex-charts.scss'
+])
+@endsection
+
+<!-- Vendor Scripts -->
+@section('vendor-script')
+@vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
+'resources/assets/vendor/libs/apex-charts/apexcharts.js'])
+@endsection
 
 @section('content')
-
 
 <div class="row">
     <div class="col-12 col-md-5 mb-3">
@@ -36,13 +49,13 @@
         <div class="card mb-6 p-3">
 
             <div class="d-flex" id="toolbarRespuestas">
-                <button class="btn btn-success exportar px-2" type="button" data-tabla="respuestasIncripcion">
-                    <i class="ri-file-excel-2-line"></i>
-                </button>
+                <a class="btn btn-success px-2" href="exportRespuestas?id={{ $detalle->resultado_id }}" target="_blanck" >
+                    <i class="icon-base ri ri-file-excel-2-line"></i>
+                </a>
 
-                <h5 class="text-center mb-0 ms-2 pt-1">Respuestas</h5>
+                <h5 class="text-center mb-0 ms-2 pt-1">Listado de respuestas</h5>
             </div> 
-            <table id="respuestasIncripcion" class="table table-striped" >
+            <table id="respuestasIncripcion" class="table" >
                 <thead>
                     <th>Pregunta</th>
                     <th>Respuesta</th>
@@ -61,26 +74,21 @@
 
         </div>
 
-
     </div>
 </div>
-
-
 
 @endsection
 
 @section('page-script')
 <script>
-    const TABLAS = [
+    window.TABLAS = [
         {
             id: 'respuestasIncripcion',
             setting: {
-                toolbar: '#toolbarRespuestas',
-                locale: 'es-ES',
                 pagination: true,
                 search: true,
-                pageSize: 5,
-                pageList: [5, 10, 20, 50, 100]
+                pageLength: 5,
+                lengthMenu: [5, 10, 20, 50, 100]
             }                
         }
     ];
@@ -100,10 +108,7 @@
     });
 
 </script>
-@vite([ 
-    'resources/assets/vendor/libs/apex-charts/apexcharts.js',
-    'resources/assets/vendor/libs/apex-charts/apex-charts.scss',
-    'resources/js/admin-table.js', 
-    'resources/js/admin-chart.js' 
-])
+
+@vite(['resources/assets/js/admin-table.js', 'resources/assets/js/admin-chart.js'])
+
 @endsection

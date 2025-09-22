@@ -62,7 +62,7 @@ class CronController extends Controller
 
     private function getQuery(Request $request)
     {
-        $search = $request->get('searchText');
+        $search = $request->get('search');
 
         $query = Cron::query();
 

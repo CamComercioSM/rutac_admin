@@ -10,6 +10,9 @@ use App\Models\TablasReferencias\Etapa;
 use App\Models\TablasReferencias\Sector;
 use App\Models\TablasReferencias\UnidadProductivaPersona;
 use App\Models\TablasReferencias\UnidadProductivaTamano;
+use App\Models\TablasReferencias\UnidadProductivaTipo;
+use App\Models\TablasReferencias\Departamento;
+use App\Models\TablasReferencias\Municipio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -27,6 +30,21 @@ class UnidadProductivaController extends Controller
         ];
         
         return View("unidadesProductivas.index", $data);
+    }
+
+    function edit($id)
+    { 
+        $data = [
+            'sectores'=> Sector::get(),
+            'tamanos'=> UnidadProductivaTamano::get(),
+            'tipoPersona'=> UnidadProductivaPersona::get(),
+            'tipoUnidad'=> UnidadProductivaTipo::get(),
+            'departamentos'=> Departamento::get(),
+            'municipios'=> Municipio::get(),
+            "elemento"=> UnidadProductiva::find($id)
+        ];
+        
+        return View("unidadesProductivas.edit", $data);
     }
 
     function export(Request $request)
@@ -68,10 +86,17 @@ class UnidadProductivaController extends Controller
          ]);
     }
 
+    public function store(Request $request)
+    {
+        $entity = UnidadProductiva::findOrFail($request->unidadproductiva_id);
+        $entity->update( $request->all() );
+
+        return response()->json([ 'message' => 'Stored' ], 201);
+    }
 
     private function getQuery(Request $request)
     {
-        $search = $request->get('searchText');
+        $search = $request->get('search');
         $tipopersona = $request->get('tipopersona');
         $sector = $request->get('sector');
         $tamano = $request->get('tamano');
@@ -103,7 +128,7 @@ class UnidadProductivaController extends Controller
 
         if(!empty($search))
         {
-            $filterts = ['pc.nombre_convocatoria','p.nombre','up.nit','up.business_name'];
+            $filterts = ['unidadesproductivas.nit', 'unidadesproductivas.business_name', 'unidadesproductivas.name_legal_representative'];
             $query->where(function ($q) use ($search, $filterts) {
                 foreach ($filterts as $field) {
                     $q->orWhere($field, 'like', "%{$search}%");
@@ -150,7 +175,6 @@ class UnidadProductivaController extends Controller
                 DB::raw("CONCAT(nit, ' - ', business_name) as text")
             ]);
 
-        
         return response()->json(['results' => $items]);
     }
 

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.layoutMaster')
 
 @section('content')
 
@@ -78,5 +78,5 @@
 @endsection
 
 @section('page-script')
-    @vite([ 'resources/js/admin-menu.js' ])
+    @vite(['resources/assets/js/admin-menu.js'])
 @endsection
