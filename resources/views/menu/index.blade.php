@@ -2,10 +2,10 @@
 
 @section('content')
 
-<div class="mt-4">
+<div class="card mt-4">
     
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Menú</h4>
+    <div class="d-flex justify-content-between align-items-center p-3">
+        <h4>Gestionar menú</h4>
         <button class="btn btn-primary" onclick="openCreateMenu()">+ Crear Menú</button>
     </div>
     

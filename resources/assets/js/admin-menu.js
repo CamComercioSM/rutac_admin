@@ -38,8 +38,8 @@ $(document).ready(function () {
                         <strong>${menu.label}</strong>
                         <small class="text-muted">${menu.url || ''}</small>
                         <div class="float-end">
-                            <button class="btn btn-sm btn-primary me-1" onclick="openEditMenu(${menu.id})">Editar</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteMenu(${menu.id})">Eliminar</button>
+                            <button class="btn btn-sm py-1 btn-primary me-1" onclick="openEditMenu(${menu.id})">Editar</button>
+                            <button class="btn btn-sm py-1 btn-danger" onclick="deleteMenu(${menu.id})">Eliminar</button>
                         </div>
                     </div>
                 </li>

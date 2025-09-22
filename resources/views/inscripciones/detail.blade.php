@@ -229,6 +229,10 @@
 
 @endsection
 
+@section('vendor-script')
+@vite([])
+@endsection
+
 @section('page-script')
     <script>
         window.TABLAS = [
