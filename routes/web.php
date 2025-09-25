@@ -445,11 +445,8 @@ Route::as('admin.')
 
     Route::post('/inscripciones/updateRespuesta', [InscripcionesController::class, 'updateRespuesta']);
     
-    // Rutas para carga lazy de datos
-    Route::get('/dashboard/load-more', [AdminViewController::class, 'loadMoreData'])->name("dashboard.loadMore");
-    Route::get('/dashboard/stats', [AdminViewController::class, 'getRealTimeStats'])->name("dashboard.stats");
-    
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search']);
+    Route::get('/unidadesProductivas/{id}/{transformar}', [UnidadProductivaController::class, 'edit']);
     
     Route::post('/emailTemplates/toggle-status/{id}', [EmailTemplateController::class, 'toggleStatus'])->name("emailTemplates.toggle-status");
     Route::post('/emailTemplates/send-test', [EmailTemplateController::class, 'sendTestEmail'])->name("emailTemplates.send-test");

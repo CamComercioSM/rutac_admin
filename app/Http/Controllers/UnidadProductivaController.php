@@ -32,7 +32,7 @@ class UnidadProductivaController extends Controller
         return View("unidadesProductivas.index", $data);
     }
 
-    function edit($id)
+    function edit($id, $transformar = null)
     { 
         $data = [
             'sectores'=> Sector::get(),
@@ -41,7 +41,9 @@ class UnidadProductivaController extends Controller
             'tipoUnidad'=> UnidadProductivaTipo::get(),
             'departamentos'=> Departamento::get(),
             'municipios'=> Municipio::get(),
-            "elemento"=> UnidadProductiva::find($id)
+            "elemento"=> UnidadProductiva::find($id),
+            "api"=> "/unidadesProductivas" . ($transformar != null ? "/$id" : ''),
+            "accion"=> $transformar != null ? "Transformar" : 'Editar'
         ];
         
         return View("unidadesProductivas.edit", $data);
@@ -90,6 +92,22 @@ class UnidadProductivaController extends Controller
     {
         $entity = UnidadProductiva::findOrFail($request->unidadproductiva_id);
         $entity->update( $request->all() );
+
+        return response()->json([ 'message' => 'Stored' ], 201);
+    }
+
+    public function update($id, Request $request)
+    {
+        $current = UnidadProductiva::findOrFail($id);
+
+        $data = $request->except('unidadproductiva_id');
+        $data['transformada_desde'] = $current->unidadproductiva_id;
+        $entity = UnidadProductiva::create($data);
+
+        $current->etapa_intervencion = 'TRANSFORMADA';
+        $current->transformada_fecha = date();
+        $current->transformada_en = $entity->unidadproductiva_id;
+        $current->save();
 
         return response()->json([ 'message' => 'Stored' ], 201);
     }

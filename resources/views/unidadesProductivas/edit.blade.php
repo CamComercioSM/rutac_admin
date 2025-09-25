@@ -4,8 +4,8 @@
 @section('content')
 <div class="container card my-3 shadow-sm">
 
-    <h2 class="text-center text-primary mb-4">
-        <b> Editar unidad productivas </b>
+    <h2 class="text-center text-primary my-4">
+        <b> {{ $accion }} unidad productiva </b>
     </h2>
 
     <form id="form" novalidate>
@@ -199,7 +199,7 @@
 
 @section('page-script')
 <script>
-    window.URL_API = "/unidadesProductivas";
+    window.URL_API = "{{ $api }}";
     window.DATA = @json($elemento);
 </script>
 @vite(['resources/assets/js/admin-edit.js'])

@@ -19,7 +19,7 @@
 <div class="row">
     <div class="col-12 col-md-5 mb-6">
         
-        @include('_partials.unidad', [ "unidad"=> $detalle, "verMasDetalles"=> false ])
+        @include('_partials.unidad', [ "unidad"=> $detalle, "verMasDetalles"=> false, "editar"=> true, "transformar"=> true ])
 
         <div class="card pt-2">
             <div id="chart"></div>

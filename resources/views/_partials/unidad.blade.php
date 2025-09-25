@@ -51,14 +51,25 @@
                 </li>                               
             </ul>
 
-            @if (!isset($verMasDetalles) || $verMasDetalles == true)
-                <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-center">
+                @if (!isset($verMasDetalles) || $verMasDetalles == true)
                     <a href="/unidadesProductivas/{{$unidad->unidadproductiva_id}}" class="btn btn-primary me-4 waves-effect waves-light" >
                         Ver más detalles
                     </a>
-                </div>
-            @endif
+                @endif
 
+                @if (isset($editar) && $editar == true)
+                    <a href="/unidadesProductivas/{{$unidad->unidadproductiva_id}}/edit" class="btn btn-primary me-4 waves-effect waves-light" >
+                        EDITAR
+                    </a>
+                @endif
+
+                @if (isset($transformar) && $transformar == true)
+                    <a href="/unidadesProductivas/{{$unidad->unidadproductiva_id}}/transformar" class="btn btn-outline-primary me-4 waves-effect waves-light" >
+                        TRANSFORMAR
+                    </a>
+                @endif
+            </div>
         </div>
     </div>
 </div>
