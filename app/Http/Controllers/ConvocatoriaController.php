@@ -74,8 +74,13 @@ class ConvocatoriaController extends Controller
         $entity->asesores()->detach();
         $entity->asesores()->attach( $request->asesores ?? [] );
 
-        $entity->requisitos()->detach();
-        $entity->requisitos()->attach( $request->requisitos ?? [] );
+        $entity->requisitosTodos()->detach();
+        $requisitos = $request->requisitos ?? [];
+        $data = [];
+        foreach ($requisitos as $index => $id) {
+            $data[$id] = ['orden' => $index];
+        }
+        $entity->requisitosTodos()->attach($data);
 
         return response()->json([ 'message' => 'Stored' ], 201);
     }
@@ -97,7 +102,7 @@ class ConvocatoriaController extends Controller
         $fecha_inicio = $request->get('fecha_inicio');
         $fecha_fin = $request->get('fecha_fin');
 
-        $query = ProgramaConvocatoria::with(['asesores:id', 'requisitos:requisito_id,requisito_titulo'])->
+        $query = ProgramaConvocatoria::with(['asesores:id', 'requisitosTodos:requisito_id,requisito_titulo'])->
             select([
                 'programas_convocatorias.convocatoria_id AS id',
                 'programas_convocatorias.convocatoria_id',
