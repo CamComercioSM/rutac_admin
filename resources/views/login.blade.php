@@ -61,7 +61,7 @@
         <!-- Logo -->
         <div class="app-brand justify-content-center mt-5">
           <a href="{{url('/')}}" class="app-brand-link gap-3">
-            <span class="app-brand-logo demo">@include('_partials.macros',["height"=>20,"withbg"=>'fill: #fff;'])</span>
+            <span class="app-brand-logo demo">@include('_partials.macros',[ "height"=>40, "withbg"=>'fill: #fff;'])</span>
           </a>
         </div>
         <!-- /Logo -->
@@ -95,8 +95,8 @@
                 </label>
               </div>
           <a href="#" class="float-end mb-1" data-bs-toggle="modal" data-bs-target="#modalForgotPassword">
-  <span>¿Olvidaste tu contraseña?</span>
-</a>
+            <span>¿Olvidaste tu contraseña?</span>
+          </a>
 
             </div>
             <div class="mb-3">
@@ -162,7 +162,7 @@
 
 @section('page-script')
 <!-- SweetAlert2 -->
-<script src="{{ asset('libs/sweetalert2@11.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Test SweetAlert
@@ -259,6 +259,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    const loading = document.querySelectorAll('.cargando')[0];
+    loading.classList.add('d-none');
 });
 </script>
 @endsection
