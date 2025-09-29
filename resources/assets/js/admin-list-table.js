@@ -213,6 +213,7 @@ $(document).ready(function () {
         form.querySelectorAll('input, textarea, select')
         .forEach(input => { $(input).val(null).trigger('change'); });
 
+        if(typeof TABLA.loadOptions === "function" ){  TABLA.loadOptions([]); }
 
         if(data == null) data = {};
 

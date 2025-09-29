@@ -102,6 +102,7 @@ class UnidadProductivaController extends Controller
 
         $data = $request->except('unidadproductiva_id');
         $data['transformada_desde'] = $current->unidadproductiva_id;
+        $data['complete_diagnostic'] = 0;
         $entity = UnidadProductiva::create($data);
 
         $current->etapa_intervencion = 'TRANSFORMADA';

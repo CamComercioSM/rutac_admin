@@ -40,10 +40,10 @@
                 { data: 'diagnostico_nombre', title: 'Nombre', orderable: true },
                 { data: 'etapa', title: 'Etapa', orderable: true },
                 { 
-                    data: '', 
+                    data: 'id', 
                     title: 'Preguntas', 
-                    formatter: (value, row) => {
-                        return `<a href="/diagnosticosPreguntas/list/${row.id}"><i class="ri-eye-line"></i></a>`
+                    render: (v) => {
+                        return `<a href="/diagnosticosPreguntas/list/${v}"><i class="icon-base ri ri-eye-line"></i></a>`
                     }
                 }
             ]

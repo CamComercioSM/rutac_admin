@@ -14,7 +14,7 @@
     @endif
 @endsection
 
-@section('form-fiels')
+@section('form-fields')
     <div class="row">
 
         <div class="col-12 col-md-12 form-group mb-3">
@@ -79,13 +79,13 @@
 
 @section('script')
     <script> 
-        const TABLA = {
+        window.TABLA = {
             urlApi: '/diagnosticosPreguntas',
             sortName: 'pregunta_titulo',
             accion_editar: true,
             columns: [
-                { field: 'pregunta_titulo', title: 'Nombre', sortable: true },
-                { field: 'pregunta_porcentaje', title: 'Porcentaje ', sortable: true }
+                { data: 'pregunta_titulo', title: 'Nombre', sortable: true },
+                { data: 'pregunta_porcentaje', title: 'Porcentaje ', sortable: true }
             ],
             paramsExtra: { diagnostico: '{{$diagnostico->diagnostico_id ?? ''}}' },
             
@@ -121,7 +121,7 @@
                             value="${row.opcion_id ?? ''}" />
 
                         <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)" >
-                            <i class="ri-delete-bin-line"></i>
+                            <i class="icon-base ri ri-delete-bin-line"></i>
                         </button>
                     </td>
                 </tr>`;
