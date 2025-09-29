@@ -57,17 +57,6 @@ class InscripcionesRequisitos extends Model
         return $this->belongsToMany(ProgramaConvocatoria::class, 'convocatoria_requisito', 'requisito_id', 'convocatoria_id');
     }
 
-    public function requisitosConvocatoria($convocatoria_id)
-    {
-        return $this->belongsToMany(
-            ProgramaConvocatoria::class, 
-            'convocatorias_requisitos',
-            'requisito_id',
-            'convocatoria_id', 
-        )->withPivot('referencia') 
-        ->wherePivot('convocatoria_id', $convocatoria_id);
-    }
-
     const CREATED_AT = 'fecha_creacion';
     const UPDATED_AT = 'fecha_actualizacion';
     const DELETED_AT = 'fecha_eliminacion';

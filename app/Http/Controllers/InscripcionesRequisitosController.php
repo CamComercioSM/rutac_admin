@@ -116,7 +116,22 @@ class InscripcionesRequisitosController extends Controller
             });
         }
 
-       if (!empty($request->convocatoria)) {
+       if (!empty($request->programa)) {
+            $query->whereIn('requisito_id', function ($q) use ($request) {
+                $q->select('requisito_id')
+                ->from('programas_requisitos')
+                ->where('programa_id', $request->programa);
+            });
+
+            if($request->tipo == 1){
+                $query->whereNotNull('i.indicador_id'); 
+            }
+            else{
+                $query->whereNull('i.indicador_id'); 
+            }
+        }
+
+        if (!empty($request->convocatoria)) {
             $query->whereIn('requisito_id', function ($q) use ($request) {
                 $q->select('requisito_id')
                 ->from('convocatorias_requisitos')
@@ -129,7 +144,6 @@ class InscripcionesRequisitosController extends Controller
             else{
                 $query->whereNull('i.indicador_id'); 
             }
-
         }
 
         return $query;

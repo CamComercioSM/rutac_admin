@@ -94,7 +94,7 @@
                     <th>Indicador</th>
                 </thead>
                 <tbody>
-                    @foreach ($detalle->requisitosIndicadores as $item)
+                    @foreach ($detalle->requisitosTodos->whereNotNull('indicador') as $item)
                         <tr>
                             <td>{{$item->requisito_titulo ?? ' - '}}</td>
                             <td>{{$item->indicador->indicador_nombre ?? ' - '}}</td>
@@ -121,7 +121,7 @@
                     <th>Nombre</th>
                 </thead>
                 <tbody>
-                    @foreach ($detalle->requisitos as $item)
+                    @foreach ($detalle->requisitosTodos->whereNull('indicador') as $item)
                         <tr>
                             <td>{{$item->requisito_titulo ?? ' - '}}</td>
                         </tr>

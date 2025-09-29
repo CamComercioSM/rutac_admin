@@ -1,5 +1,17 @@
 @extends('layouts.layoutMaster')
 
+<!-- Vendor Styles -->
+@section('vendor-style')
+@vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
+'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss'
+])
+@endsection
+
+<!-- Vendor Scripts -->
+@section('vendor-script')
+@vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js'])
+@endsection
+
 @section('content')
 <div class="row">
     <div class="col-12 col-md-12">
@@ -117,13 +129,90 @@
         
     </div>
 
+    <div class="col-12 col-md-12">
+         <div class="card mb-6 p-3">
+             
+            <div class="d-flex">
+                <a class="btn btn-success px-2" href="/convocatoriasRequisitos/export?tipo=1&programa={{ $detalle->programa_id }}" target="_blanck" >
+                    <i class="icon-base ri ri-file-excel-2-line me-2"></i> Exportar
+                </a>
+
+                <h5 class="text-center mb-0 ms-2 pt-1">Requisitos - indicadores</h5>
+            </div> 
+            <table id="RequisitosIndicadores" class="table" >
+                <thead>
+                    <th>Nombre</th>
+                    <th>Indicador</th>
+                </thead>
+                <tbody>
+                    @foreach ($detalle->requisitosTodos->whereNotNull('indicador') as $item)
+                        <tr>
+                            <td>{{$item->requisito_titulo ?? ' - '}}</td>
+                            <td>{{$item->indicador->indicador_nombre ?? ' - '}}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <div class="col-12 col-md-12">
+         <div class="card mb-6 p-3">
+             
+            <div class="d-flex">
+                <a class="btn btn-success px-2" href="/convocatoriasRequisitos/export?tipo=2&programa={{ $detalle->programa_id }}" target="_blanck" >
+                    <i class="icon-base ri ri-file-excel-2-line me-2"></i> Exportar
+                </a>
+
+                <h5 class="text-center mb-0 ms-2 pt-1">Requisitos</h5>
+            </div> 
+            <table id="Requisitos" class="table" >
+                <thead>
+                    <th>Nombre</th>
+                </thead>
+                <tbody>
+                    @foreach ($detalle->requisitosTodos->whereNull('indicador') as $item)
+                        <tr>
+                            <td>{{$item->requisito_titulo ?? ' - '}}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
 </div>
 
 @endsection
 
 @section('page-script')
     <script>
+        window.TABLAS = [
+            {
+                id: 'RequisitosIndicadores',
+                setting: {
+                    pagination: true,
+                    search: true,
+                    pageLength: 5,
+                    lengthMenu: [5, 10, 20, 50, 100]
+                }                
+            },
+            {
+                id: 'Requisitos',
+                setting: {
+                    pagination: true,
+                    search: true,
+                    pageLength: 5,
+                    lengthMenu: [5, 10, 20, 50, 100]
+                }                
+            }
+        ];
+
         const cargando = document.querySelectorAll('.cargando')[0];
         cargando.classList.add('d-none');
+
     </script>
+    @vite([ 'resources/assets/js/admin-table.js' ])
 @endsection

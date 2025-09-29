@@ -53,7 +53,7 @@ class ConvocatoriaController extends Controller
 
     public function show($id)
     {
-        $result = ProgramaConvocatoria::with(['programa', 'sector', 'asesores', 'requisitos', 'requisitosIndicadores'])->findOrFail($id);
+        $result = ProgramaConvocatoria::with(['programa', 'sector', 'asesores', 'requisitosTodos'])->findOrFail($id);
 
         return view('convocatorias.detail', [ 'detalle' => $result ]);
     }
@@ -75,9 +75,9 @@ class ConvocatoriaController extends Controller
         $entity->asesores()->attach( $request->asesores ?? [] );
 
         $entity->requisitosTodos()->detach();
-        $requisitos = $request->requisitos ?? [];
+        $requisitosTodos = $request->requisitosTodos ?? [];
         $data = [];
-        foreach ($requisitos as $index => $id) {
+        foreach ($requisitosTodos as $index => $id) {
             $data[$id] = ['orden' => $index];
         }
         $entity->requisitosTodos()->attach($data);

@@ -6,6 +6,7 @@ use App\Exports\ConvocatoriaExport;
 use App\Http\Controllers\Controller;
 use App\Models\Programas\Programa;
 use App\Models\Programas\ProgramaConvocatoria;
+use App\Models\Programas\InscripcionesRequisitos;
 use App\Models\TablasReferencias\Etapa;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -17,6 +18,7 @@ class ProgramaController extends Controller
         $data = [
             'etapas'=> Etapa::get(),
             'modalidades'=> Programa::$es_virtual_text,
+            'preguntas'=> InscripcionesRequisitos::select('requisito_id', 'requisito_titulo')->get(),
         ];
 
         return View("programas.index", $data);
@@ -44,7 +46,7 @@ class ProgramaController extends Controller
 
     public function show($id)
     {
-        $result = Programa::with('etapas')->findOrFail($id);
+        $result = Programa::with(['etapas', 'requisitosTodos'])->findOrFail($id);
 
         return view('programas.detail', [ 'detalle' => $result ]);
     }
@@ -75,6 +77,14 @@ class ProgramaController extends Controller
         $entity->etapas()->detach();
         $entity->etapas()->attach( $request->etapas ?? [] );
 
+        $entity->requisitosTodos()->detach();
+        $requisitosTodos = $request->requisitosTodos ?? [];
+        $data = [];
+        foreach ($requisitosTodos as $index => $id) {
+            $data[$id] = ['orden' => $index];
+        }
+        $entity->requisitosTodos()->attach($data);
+
         return response()->json([ 'message' => 'Stored' ], 201);
     }
 
@@ -82,7 +92,7 @@ class ProgramaController extends Controller
     {
         $search = $request->get('search');
 
-        $query = Programa::with('etapas:etapa_id')->
+        $query = Programa::with(['etapas:etapa_id', 'requisitosTodos:requisito_id,requisito_titulo'])->
             select([
                 'programa_id AS id',
                 'programa_id',

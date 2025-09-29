@@ -204,7 +204,7 @@
                 <tr data-id="${row.requisito_id}" draggable="true">
                     <td>${row.requisito_titulo}</td>
                     <td style="width: 80px;">
-                        <input type="hidden" name="requisitos[${index}]" value="${row.requisito_id}" />
+                        <input type="hidden" name="requisitosTodos[${index}]" value="${row.requisito_id}" />
                         <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)">
                             <i class="icon-base ri ri-delete-bin-line"></i>
                         </button>
@@ -261,13 +261,12 @@
         window.reindexInputs = function() {
             document.querySelectorAll("#table_opciones tr").forEach((row, i) => {
                 let hidden = row.querySelector("input[type=hidden]");
-                if (hidden) hidden.name = `requisitos[${i}]`;
+                if (hidden) hidden.name = `requisitosTodos${i}]`;
             });
         };
 
         // Inicializa una sola vez al cargar
         window.enableDrag();
-
 
     </script>
 

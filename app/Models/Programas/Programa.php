@@ -52,6 +52,16 @@ class Programa extends Model
         return $this->belongsToMany(Etapa::class, 'programas_etapas', 'programa_id', 'etapa_id');
     }
     
+    public function requisitosTodos()
+    {
+        return $this->belongsToMany(
+            InscripcionesRequisitos::class, 
+            'programas_requisitos', 
+            'programa_id', 
+            'requisito_id')
+            ->withPivot('orden')
+            ->orderBy('programas_requisitos.orden');
+    }
 
     public static $es_virtual_text = [
         '0' => 'Presencial',

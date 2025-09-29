@@ -87,6 +87,25 @@
             </select>
         </div>
 
+        <div class="col-12 col-md-12 form-group mb-3 mt-4">
+            <h3 class="mb-0" for="pregunta_porcentaje">
+                Preguntas  <button type="button" class="btn btn-sm btn-primary py-1" onclick="openAdd()" >Agregar</button>
+            </h3>
+            <div class="mb-2">
+                <select class="form-select w-75" name="pregunta" id="pregunta" >
+                    <option value="" disabled selected>Seleccione una opción para agregar</option>
+                    @foreach ($preguntas as $item)
+                        <option value="{{$item->requisito_id}}" >{{$item->requisito_titulo}}</option>
+                    @endforeach
+                </select>
+            </div>
+            <table class="table table-sm table-border border">
+                <thead>                    
+                    <th colspan="2" > Nombre </th>             
+                </thead>
+                <tbody id="table_opciones"></tbody>
+            </table>
+        </div>
 
     </div>
 @endsection
@@ -118,6 +137,7 @@
             ],
 
             initSelects: [ 
+                { id:'pregunta'}, 
                 { id:'etapas', setting:{ placeholder: 'Selección multiple'}  },                
             ],
 
@@ -131,6 +151,110 @@
                 { id:'herramientas_requeridas' },
                 { id:'informacion_adicional' },               
             ],
+
+            loadOptions: function(opciones) 
+            {
+                $("#table_opciones").html('');
+
+                for(let i = 0; i< opciones.length; i++){
+                    window.itemOption(opciones[i]);
+                }
+            }
         };
+
+        window.openAdd = function() 
+        {
+            const id = $("#pregunta").val();
+            const text = $("#pregunta option:selected").text();
+
+            if( !(id && text) ) return;
+
+
+            let existe = $("#table_opciones tr[data-id='" + id + "']").length > 0;
+            if (existe) {
+                let toastEl = document.getElementById('warningToast');
+                let toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+                toast.show();
+                return;
+            }
+
+
+            window.itemOption({ requisito_id: id, requisito_titulo: text });
+
+            $("#pregunta").val(null).trigger('change');
+
+        }
+
+        window.itemOption = function(row = {}) {
+            const index = document.querySelectorAll("#table_opciones tr").length;
+
+            const item = `
+                <tr data-id="${row.requisito_id}" draggable="true">
+                    <td>${row.requisito_titulo}</td>
+                    <td style="width: 80px;">
+                        <input type="hidden" name="requisitosTodos[${index}]" value="${row.requisito_id}" />
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)">
+                            <i class="icon-base ri ri-delete-bin-line"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            
+            document.querySelector("#table_opciones").insertAdjacentHTML("beforeend", item);
+
+            window.reindexInputs();
+        };
+
+        window.removeOption = function(btn) {
+            btn.closest("tr").remove();
+            window.reindexInputs();
+        };
+
+        window.enableDrag = function() {
+            const tbody = document.getElementById("table_opciones");
+
+            let draggingRow = null;
+
+            // Solo se ejecuta UNA VEZ
+            tbody.addEventListener("dragstart", (e) => {
+                if (e.target.tagName === "TR") {
+                    draggingRow = e.target;
+                    draggingRow.classList.add("dragging");
+                }
+            });
+
+            tbody.addEventListener("dragend", (e) => {
+                if (draggingRow) {
+                    draggingRow.classList.remove("dragging");
+                    draggingRow = null;
+                    reindexInputs();
+                }
+            });
+
+            tbody.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                const rows = Array.from(tbody.querySelectorAll("tr:not(.dragging)"));
+
+                let nextRow = rows.find(r => e.clientY <= r.getBoundingClientRect().top + r.offsetHeight / 2);
+
+                if (draggingRow) {
+                    if (nextRow) {
+                        tbody.insertBefore(draggingRow, nextRow);
+                    } else {
+                        tbody.appendChild(draggingRow);
+                    }
+                }
+            });
+        };
+
+        window.reindexInputs = function() {
+            document.querySelectorAll("#table_opciones tr").forEach((row, i) => {
+                let hidden = row.querySelector("input[type=hidden]");
+                if (hidden) hidden.name = `requisitosTodos[${i}]`;
+            });
+        };
+
+        // Inicializa una sola vez al cargar
+        window.enableDrag();
+
     </script>
 @endsection
