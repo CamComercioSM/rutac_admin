@@ -50,7 +50,7 @@ class DiagnosticosController extends Controller
 
     private function getQuery(Request $request)
     {
-        $search = $request->get('searchText');
+        $search = $request->get('search');
 
         $query = Diagnostico::select([
                 'diagnosticos.diagnostico_id AS id',

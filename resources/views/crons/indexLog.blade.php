@@ -2,16 +2,16 @@
 
 @section('script')
     <script> 
-        const TABLA = {
+        window.TABLA = {
             urlApi: '/cronLog',
             sortName: 'id',
             acciones: "",
             columns: [
-                { field: 'nombre_tarea', title: 'Tarea', sortable: true },
-                { field: 'inicio_ejecucion', title: 'Fecha inicio', sortable: true },
-                { field: 'fin_ejecucion', title: 'Fecha fin', sortable: true },
-                { field: 'estado', title: 'Estado', sortable: true },
-                { field: 'mensaje', title: 'Mensaje', sortable: true }
+                { data: 'nombre_tarea', title: 'Tarea', orderable: true },
+                { data: 'inicio_ejecucion', title: 'Fecha inicio', orderable: true },
+                { data: 'fin_ejecucion', title: 'Fecha fin', orderable: true },
+                { data: 'estado', title: 'Estado', orderable: true },
+                { data: 'mensaje', title: 'Mensaje', orderable: true }
             ],
         };
     </script>

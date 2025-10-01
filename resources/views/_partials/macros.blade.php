@@ -1,6 +1,8 @@
 @php
-$height = $height ?? 45;
+  $width = $width ?? 'auto';
+  $height = $height ?? '24';
 @endphp
-<img src="https://archivos.rutadecrecimiento.com/storage/logos/mgu159a5tV8ZJ6j2sWdALstAGY37dWWKZMn53PJT.png" 
-     alt="Ruta C Logo" 
-     style="height: {{ $height }}px; width: auto; object-fit: contain;">
+
+<span class="text-primary">
+  <img src="/img/logo.png" style="max-width: 100%" width="{{ $width }}" height="{{ $height }}" >
+</span>

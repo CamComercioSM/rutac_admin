@@ -73,7 +73,7 @@ class UserController extends Controller
 
     private function getQuery(Request $request)
     {
-        $search = $request->get('searchText');
+        $search = $request->get('search');
 
         $query = User::where('rol_id', '>', 0);
 

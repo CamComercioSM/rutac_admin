@@ -36,7 +36,7 @@ class BannerController extends Controller
 
         if ($request->hasFile('formFile')) 
         {
-            $path = $request->file('formFile')->store('banners', 'public');
+            $path = $request->file('formFile')->store('storage/banners', 'public');
             $data['image'] = $path;
         }
 
@@ -53,7 +53,7 @@ class BannerController extends Controller
 
     private function getQuery(Request $request)
     {
-        $search = $request->get('searchText');
+        $search = $request->get('search');
 
         $query = Banner::query();
 

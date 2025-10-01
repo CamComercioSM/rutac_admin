@@ -1,12 +1,26 @@
-@extends('layouts.admin', ['titulo'=> 'Convocatoria'])
+@extends('layouts.layoutMaster')
+
+<!-- Vendor Styles -->
+@section('vendor-style')
+@vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
+'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss'
+])
+@endsection
+
+<!-- Vendor Scripts -->
+@section('vendor-script')
+@vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js'])
+@endsection
 
 @section('content')
 <div class="row">
     <div class="col-12 col-md-12">
 
-        <div class="card mb-6 border border-2 border-primary rounded">
+        <div class="card mb-6">
             
-            <h3 class="text-center my-3">Detalles de la convocatoria</h3>
+            <h3 class="text-center text-primary my-3">
+                <b>Detalles de la convocatoria</b>
+            </h3>
 
             <div class="card-body">
                 <table class="table">
@@ -53,7 +67,7 @@
                             <th>Asesores</th>
                             <td>
                                 @foreach ($detalle->asesores as $item)
-                                    <span class="badge bg-secondary me-2">{{$item->name}} {{$item->lastname}}</span>
+                                    <span class="badge text-bg-info me-2">{{$item->name}} {{$item->lastname}}</span>
                                 @endforeach
                             </td>
                         </tr>
@@ -67,20 +81,20 @@
     <div class="col-12 col-md-12">
          <div class="card mb-6 p-3">
              
-            <div class="d-flex" id="toolbarRequisitosIndicadores">
-                <button class="btn btn-success exportar px-2" type="button" data-tabla="RequisitosIndicadores">
-                    <i class="ri-file-excel-2-line"></i>
-                </button>
+            <div class="d-flex">
+                <a class="btn btn-success px-2" href="/convocatoriasRequisitos/export?tipo=1&convocatoria={{ $detalle->convocatoria_id }}" target="_blanck" >
+                    <i class="icon-base ri ri-file-excel-2-line me-2"></i> Exportar
+                </a>
 
                 <h5 class="text-center mb-0 ms-2 pt-1">Requisitos - indicadores</h5>
             </div> 
-            <table id="RequisitosIndicadores" class="table table-striped" >
+            <table id="RequisitosIndicadores" class="table" >
                 <thead>
                     <th>Nombre</th>
                     <th>Indicador</th>
                 </thead>
                 <tbody>
-                    @foreach ($detalle->requisitosIndicadores as $item)
+                    @foreach ($detalle->requisitosTodos->whereNotNull('indicador') as $item)
                         <tr>
                             <td>{{$item->requisito_titulo ?? ' - '}}</td>
                             <td>{{$item->indicador->indicador_nombre ?? ' - '}}</td>
@@ -95,19 +109,19 @@
     <div class="col-12 col-md-12">
          <div class="card mb-6 p-3">
              
-            <div class="d-flex" id="toolbarRequisitos">
-                <button class="btn btn-success exportar px-2" type="button" data-tabla="Requisitos">
-                    <i class="ri-file-excel-2-line"></i>
-                </button>
+            <div class="d-flex">
+                <a class="btn btn-success px-2" href="/convocatoriasRequisitos/export?tipo=2&convocatoria={{ $detalle->convocatoria_id }}" target="_blanck" >
+                    <i class="icon-base ri ri-file-excel-2-line me-2"></i> Exportar
+                </a>
 
                 <h5 class="text-center mb-0 ms-2 pt-1">Requisitos</h5>
             </div> 
-            <table id="Requisitos" class="table table-striped" >
+            <table id="Requisitos" class="table" >
                 <thead>
                     <th>Nombre</th>
                 </thead>
                 <tbody>
-                    @foreach ($detalle->requisitos as $item)
+                    @foreach ($detalle->requisitosTodos->whereNull('indicador') as $item)
                         <tr>
                             <td>{{$item->requisito_titulo ?? ' - '}}</td>
                         </tr>
@@ -124,27 +138,23 @@
 
 @section('page-script')
     <script>
-        const TABLAS = [
+        window.TABLAS = [
             {
                 id: 'RequisitosIndicadores',
                 setting: {
-                    toolbar: '#toolbarRequisitosIndicadores',
-                    locale: 'es-ES',
                     pagination: true,
                     search: true,
-                    pageSize: 5,
-                    pageList: [5, 10, 20, 50, 100]
+                    pageLength: 5,
+                    lengthMenu: [5, 10, 20, 50, 100]
                 }                
             },
             {
                 id: 'Requisitos',
                 setting: {
-                    toolbar: '#toolbarRequisitos',
-                    locale: 'es-ES',
                     pagination: true,
                     search: true,
-                    pageSize: 5,
-                    pageList: [5, 10, 20, 50, 100]
+                    pageLength: 5,
+                    lengthMenu: [5, 10, 20, 50, 100]
                 }                
             }
         ];
@@ -153,5 +163,5 @@
         cargando.classList.add('d-none');
 
     </script>
-    @vite([ 'resources/js/admin-table.js' ])
+    @vite([ 'resources/assets/js/admin-table.js' ])
 @endsection

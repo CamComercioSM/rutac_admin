@@ -1,9 +1,8 @@
 @extends('layouts.list', ['titulo'=> 'Capsulas', 'tituloModal'=> 'capsula'])
 
-@section('form-fiels')
+@section('form-fielsd')
     <div class="row">
 
-    
         <div class="col-12 col-md-12 form-group mb-3">
             <label class="form-label" for="nombre">Nombre</label>
             <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Nombre" required>
@@ -28,12 +27,12 @@
 
 @section('script')
     <script> 
-        const TABLA = {
+        window.TABLA = {
             urlApi: '/capsulas',
             sortName: 'nombre',
             accion_editar: true,
             columns: [
-                { field: 'nombre', title: 'Nombre', sortable: true },
+                { data: 'nombre', title: 'Nombre', orderable: true },
             ]
         };
     </script>

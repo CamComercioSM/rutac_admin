@@ -1,6 +1,6 @@
 @extends('layouts.list', ['titulo'=> 'Diagnósticos', 'tituloModal'=> 'diagnóstico'])
 
-@section('form-fiels')
+@section('form-fields')
     <div class="row">
 
         <div class="col-12 col-md-12 form-group mb-3">
@@ -32,18 +32,18 @@
 
 @section('script')
     <script> 
-        const TABLA = {
+        window.TABLA = {
             urlApi: '/diagnosticos',
             sortName: 'diagnostico_nombre',
             accion_editar: true,
             columns: [
-                { field: 'diagnostico_nombre', title: 'Nombre', sortable: true },
-                { field: 'etapa', title: 'Etapa', sortable: true },
+                { data: 'diagnostico_nombre', title: 'Nombre', orderable: true },
+                { data: 'etapa', title: 'Etapa', orderable: true },
                 { 
-                    field: '', 
+                    data: 'id', 
                     title: 'Preguntas', 
-                    formatter: (value, row) => {
-                        return `<a href="/diagnosticosPreguntas/list/${row.id}"><i class="ri-eye-line"></i></a>`
+                    render: (v) => {
+                        return `<a href="/diagnosticosPreguntas/list/${v}"><i class="icon-base ri ri-eye-line"></i></a>`
                     }
                 }
             ]

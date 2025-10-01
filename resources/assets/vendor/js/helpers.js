@@ -1,8 +1,13 @@
 // Constants
 const TRANS_EVENTS = ['transitionend', 'webkitTransitionEnd', 'oTransitionEnd']
 const TRANS_PROPERTIES = ['transition', 'MozTransition', 'webkitTransition', 'WebkitTransition', 'OTransition']
+
+// Inline styles used for full navbar layout & sticky layout
 const INLINE_STYLES = `
 .layout-menu-fixed .layout-navbar-full .layout-menu,
+.layout-menu-fixed-offcanvas .layout-navbar-full .layout-menu {
+  top: {navbarHeight}px !important;
+}
 .layout-page {
   padding-top: {navbarHeight}px !important;
 }
@@ -18,6 +23,8 @@ function requiredParam(name) {
 const Helpers = {
   // Root Element
   ROOT_EL: typeof window !== 'undefined' ? document.documentElement : null,
+
+  prefix: getComputedStyle(document.documentElement).getPropertyValue('--prefix').trim(),
 
   // Large screens breakpoint
   LAYOUT_BREAKPOINT: 1200,
@@ -39,10 +46,42 @@ const Helpers = {
   _listeners: [],
   _initialized: false,
   _autoUpdate: false,
-  _lastWindowHeight: 0,
+  // _lastWindowHeight: 0,
 
   // *******************************************************************************
   // * Utilities
+
+  // ---
+  // Set cookie with expiration
+  _setCookie(name, value, daysToExpire = 365, path = '/', domain = '') {
+    const cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`
+
+    let expires = ''
+    if (daysToExpire) {
+      const expirationDate = new Date()
+      expirationDate.setTime(expirationDate.getTime() + daysToExpire * 24 * 60 * 60 * 1000)
+      expires = `; expires=${expirationDate.toUTCString()}`
+    }
+
+    const pathString = `; path=${path}`
+    const domainString = domain ? `; domain=${domain}` : ''
+
+    document.cookie = `${cookie}${expires}${pathString}${domainString}`
+  },
+
+  // Get cookie by name
+  _getCookie(name) {
+    const cookies = document.cookie.split('; ')
+
+    for (let i = 0; i < cookies.length; i++) {
+      const [cookieName, cookieValue] = cookies[i].split('=')
+      if (decodeURIComponent(cookieName) === name) {
+        return decodeURIComponent(cookieValue)
+      }
+    }
+
+    return null
+  },
 
   // ---
   // Scroll To Active Menu Item
@@ -97,6 +136,41 @@ const Helpers = {
       } else {
         element.scrollTop = change
       }
+    }
+  },
+
+  // ---
+  // Swipe In Gesture
+  _swipeIn(targetEl, callback) {
+    const { Hammer } = window
+    if (typeof Hammer !== 'undefined' && typeof targetEl === 'string') {
+      // Swipe menu gesture
+      const swipeInElement = document.querySelector(targetEl)
+
+      if (swipeInElement) {
+        const hammerInstance = new Hammer(swipeInElement)
+
+        hammerInstance.on('panright', callback)
+      }
+    }
+  },
+
+  // ---
+  // Swipe Out Gesture
+  _swipeOut(targetEl, callback) {
+    const { Hammer } = window
+    if (typeof Hammer !== 'undefined' && typeof targetEl === 'string') {
+      setTimeout(() => {
+        // Swipe menu gesture
+        const swipeOutElement = document.querySelector(targetEl)
+
+        if (swipeOutElement) {
+          const hammerInstance = new Hammer(swipeOutElement)
+
+          hammerInstance.get('pan').set({ direction: Hammer.DIRECTION_ALL, threshold: 250 })
+          hammerInstance.on('panleft', callback)
+        }
+      }, 500)
     }
   },
 
@@ -323,11 +397,13 @@ const Helpers = {
           this._redrawLayoutMenu() ? 5 : 0
         )
       }
+    } else {
+      this[collapsed ? '_addClass' : '_removeClass']('layout-menu-collapsed')
     }
   },
 
   // ---
-  // Add layout sivenav toggle animationEnd event
+  // Add layout sidenav toggle animationEnd event
   _bindLayoutAnimationEndEvent(modifier, cb) {
     const menu = this.getMenu()
     const duration = menu ? this._getAnimationDuration(menu) + 50 : 0
@@ -356,7 +432,7 @@ const Helpers = {
   },
 
   // ---
-  // Remove layout sivenav toggle animationEnd event
+  // Remove layout sidenav toggle animationEnd event
   _unbindLayoutAnimationEndEvent() {
     const menu = this.getMenu()
 
@@ -419,11 +495,16 @@ const Helpers = {
 
     if (!this._menuMouseEnter) {
       this._menuMouseEnter = () => {
-        if (this.isSmallScreen() || this._hasClass('layout-transitioning')) {
+        if (
+          this.isSmallScreen() ||
+          !this._hasClass('layout-menu-collapsed') ||
+          this.isOffcanvas() ||
+          this._hasClass('layout-transitioning')
+        ) {
           return this._setMenuHoverState(false)
         }
 
-        return this._setMenuHoverState(false)
+        return this._setMenuHoverState(true)
       }
       layoutMenu.addEventListener('mouseenter', this._menuMouseEnter, false)
       layoutMenu.addEventListener('touchstart', this._menuMouseEnter, false)
@@ -483,6 +564,14 @@ const Helpers = {
     this._scrollToActive(animate)
   },
 
+  swipeIn(el, callback) {
+    this._swipeIn(el, callback)
+  },
+
+  swipeOut(el, callback) {
+    this._swipeOut(el, callback)
+  },
+
   // ---
   // Collapse / expand layout
   setCollapsed(collapsed = requiredParam('collapsed'), animate = true) {
@@ -499,7 +588,7 @@ const Helpers = {
       this._bindLayoutAnimationEndEvent(
         () => {
           // Collapse / Expand
-          if (this.isSmallScreen) this._setCollapsed(collapsed)
+          this._setCollapsed(collapsed)
         },
         () => {
           this._removeClass('layout-transitioning')
@@ -548,6 +637,38 @@ const Helpers = {
     this.update()
   },
 
+  // Update light/dark image based on current style
+  switchImage(style) {
+    // Handle 'system' style by checking user's preferred color scheme
+    if (style === 'system') {
+      style = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+
+    // Get all images that need to be switched
+    const switchImagesList = Array.from(document.querySelectorAll(`[data-app-${style}-img]`))
+
+    // Loop through the images and update their `src` attribute
+    switchImagesList.forEach(imageEl => {
+      const setImage = imageEl.getAttribute(`data-app-${style}-img`)
+      if (setImage) {
+        const imagePath = `${assetsPath}img/${setImage}` // Using window.assetsPath for relative path
+
+        // Preload the image to prevent flickering
+        const img = new Image()
+        img.src = imagePath
+
+        // Once preloaded, set the image and make it visible
+        img.onload = () => {
+          imageEl.src = img.src
+          imageEl.style.visibility = 'visible' // Make the image visible
+        }
+
+        // Hide the image during the switch to prevent flickering
+        imageEl.style.visibility = 'hidden'
+      }
+    })
+  },
+
   // *******************************************************************************
   // * Getters
 
@@ -569,6 +690,194 @@ const Helpers = {
 
   getLayoutFooter() {
     return document.querySelector('.content-footer')
+  },
+
+  getLayoutContainer() {
+    return document.querySelector('.layout-page')
+  },
+
+  // *******************************************************************************
+  // * Setters
+
+  setNavbarFixed(fixed = requiredParam('fixed')) {
+    this[fixed ? '_addClass' : '_removeClass']('layout-navbar-fixed')
+    this.update()
+  },
+
+  setNavbar(type) {
+    if (type === 'sticky') {
+      this._addClass('layout-navbar-fixed')
+      this._removeClass('layout-navbar-hidden')
+    } else if (type === 'hidden') {
+      this._addClass('layout-navbar-hidden')
+      this._removeClass('layout-navbar-fixed')
+    } else {
+      this._removeClass('layout-navbar-hidden')
+      this._removeClass('layout-navbar-fixed')
+    }
+    this.update()
+  },
+
+  setFooterFixed(fixed = requiredParam('fixed')) {
+    this[fixed ? '_addClass' : '_removeClass']('layout-footer-fixed')
+    this.update()
+  },
+
+  // Add to Helpers object in helpers.js
+
+  setColor(color, defaultColor) {
+    if (!color) return
+
+    // Get current primary color from styles
+    const currentStyle = getComputedStyle(document.documentElement).getPropertyValue('--bs-primary').trim()
+
+    // Only proceed if the color is different from current or default color is true
+    if (color === currentStyle && !defaultColor) return
+
+    const r = parseInt(color.slice(1, 3), 16)
+    const g = parseInt(color.slice(3, 5), 16)
+    const b = parseInt(color.slice(5, 7), 16)
+
+    let styleSheet = document.getElementById('custom-css')
+
+    if (!styleSheet) {
+      styleSheet = document.createElement('style')
+      styleSheet.id = 'custom-css'
+      document.head.appendChild(styleSheet)
+    }
+
+    function calculateRatio(percentage) {
+      const numericValue = parseFloat(percentage)
+      const result = (100 - numericValue) / 100
+      return result
+    }
+
+    const yiq = (r * 299 + g * 587 + b * 114) / 1000
+    const ratio = getComputedStyle(document.documentElement).getPropertyValue('--bs-min-contrast-ratio').trim() * 100
+    const subtleRatio = getComputedStyle(document.documentElement)
+      .getPropertyValue('--bs-bg-label-tint-amount')
+      .trim('%')
+    const borderSubtleRatio = getComputedStyle(document.documentElement)
+      .getPropertyValue('--bs-border-subtle-amount')
+      .trim()
+
+    // Calculate contrast color based on YIQ and ratio
+    const contrastColor = yiq >= ratio ? '#000' : '#fff' // window.config.colors.black : window.config.colors.white
+
+    // Set CSS custom properties
+    styleSheet.innerHTML = `:root, [data-bs-theme=light], [data-bs-theme=dark] {
+    --bs-primary: ${color};
+    --bs-primary-rgb: ${r}, ${g}, ${b};
+    --bs-primary-bg-subtle: color-mix(in sRGB, ${window.config.colors.cardColor} ${subtleRatio}, ${color});
+    --bs-primary-border-subtle: rgba(${r}, ${g}, ${b}, ${calculateRatio(borderSubtleRatio)});
+    --bs-primary-contrast: ${contrastColor}
+  }`
+
+    // Store in cookie for persistence (handled by template-customizer now)
+    const layoutTemplate = document.documentElement.getAttribute('data-template') || ''
+    const isAdmin = !layoutTemplate.includes('front')
+    const cookieName = isAdmin ? 'admin-primaryColor' : 'front-primaryColor'
+
+    // Only set cookie here if not called from template-customizer
+    if (typeof this._setCookie === 'function' && defaultColor) {
+      this._setCookie(cookieName, color, 365)
+    }
+  },
+
+  applySkin(skin) {
+    if (!skin) return
+
+    let skinName = skin
+
+    // If template customizer is available, process skin name/id
+    if (window.TemplateCustomizer && window.TemplateCustomizer.SKINS) {
+      const availableSkins = window.TemplateCustomizer.SKINS
+
+      // If skin is numeric, find the corresponding skin object
+      if (!isNaN(parseInt(skin))) {
+        const skinId = parseInt(skin)
+        const skinObj = availableSkins.find(s => s.id === skinId)
+        if (skinObj) {
+          skinName = skinObj.name
+        }
+      }
+      // If not numeric, check if it's a valid skin name
+      else if (typeof skin === 'string') {
+        const skinObj = availableSkins.find(s => s.name === skin)
+        if (!skinObj) {
+          // If not a valid skin name, try to use default
+          skinName = 'default'
+        }
+      }
+    }
+
+    // Set data attribute for easier targeting in CSS - this is all we need now
+    document.documentElement.setAttribute('data-skin', skinName || 'default')
+
+    // Only set cookie for admin layouts
+    const layoutName = document.documentElement.getAttribute('data-template') || ''
+    const isAdmin = !layoutName.includes('front')
+
+    if (isAdmin) {
+      // Set cookie for 1 year
+      if (typeof this._setCookie === 'function') {
+        this._setCookie('customize_skin', skinName, 365)
+      } else {
+        // Fallback cookie setting
+        const expirationDate = new Date()
+        expirationDate.setTime(expirationDate.getTime() + 365 * 24 * 60 * 60 * 1000)
+        document.cookie = `customize_skin=${skinName}; expires=${expirationDate.toUTCString()}; path=/`
+      }
+    }
+  },
+
+  setContentLayout(contentLayout = requiredParam('contentLayout')) {
+    setTimeout(() => {
+      const contentArea = document.querySelector('.content-wrapper > div') // For content area
+      let navbarArea
+      if (document.querySelector('.layout-wrapper.layout-navbar-full')) {
+        navbarArea = document.querySelector('.layout-navbar-full .layout-navbar > div') // For horizontal navbar area
+      } else {
+        navbarArea = document.querySelector('.layout-content-navbar .layout-navbar') // For vertical navbar area
+      }
+      const footerArea = document.querySelector('.content-footer > div') // For footer area
+      const containerFluid = [].slice.call(document.querySelectorAll('.container-fluid')) // To get container-fluid
+      const containerXxl = [].slice.call(document.querySelectorAll('.container-xxl')) // To get container-xxl
+      const verticalMenu = document.querySelector('.menu-vertical')
+      let horizontalMenu = false // For horizontal menu
+      let horizontalMenuArea // For horizontal menu area
+      // Condition to check if layout is horizontal menu
+      if (document.querySelector('.content-wrapper > .menu-horizontal > div')) {
+        horizontalMenu = true
+        horizontalMenuArea = document.querySelector('.content-wrapper > .menu-horizontal > div')
+      }
+      //  If compact mode layout
+      if (contentLayout === 'compact') {
+        // Remove container fluid class from content area, navbar area and footer area
+        if (containerFluid.some(el => [contentArea, footerArea].includes(el))) {
+          this._removeClass('container-fluid', [contentArea, footerArea])
+          this._addClass('container-xxl', [contentArea, footerArea])
+        }
+        // For horizontal menu only
+        if (horizontalMenu) {
+          this._removeClass('container-fluid', horizontalMenuArea)
+          this._addClass('container-xxl', horizontalMenuArea)
+        }
+      } else {
+        //  If wide mode layout
+
+        // Remove container xxl class from content area, navbar area and footer area
+        if (containerXxl.some(el => [contentArea, footerArea].includes(el))) {
+          this._removeClass('container-xxl', [contentArea, footerArea])
+          this._addClass('container-fluid', [contentArea, footerArea])
+        }
+        // For horizontal menu only
+        if (horizontalMenu) {
+          this._removeClass('container-xxl', horizontalMenuArea)
+          this._addClass('container-fluid', horizontalMenuArea)
+        }
+      }
+    }, 100)
   },
 
   // *******************************************************************************
@@ -593,6 +902,22 @@ const Helpers = {
     } else if (!enable && this._autoUpdate) {
       this.off('resize.Helpers:autoUpdate')
       this._autoUpdate = false
+    }
+  },
+
+  // Update custom option based on element
+  updateCustomOptionCheck(el) {
+    if (el.checked) {
+      // If custom option element is radio, remove checked from the siblings (closest `.row`)
+      if (el.type === 'radio') {
+        const customRadioOptionList = [].slice.call(el.closest('.row').querySelectorAll('.custom-option'))
+        customRadioOptionList.map(function (customRadioOptionEL) {
+          customRadioOptionEL.closest('.custom-option').classList.remove('checked')
+        })
+      }
+      el.closest('.custom-option').classList.add('checked')
+    } else {
+      el.closest('.custom-option').classList.remove('checked')
     }
   },
 
@@ -631,6 +956,10 @@ const Helpers = {
     return this._hasClass('layout-menu-fixed layout-menu-fixed-offcanvas')
   },
 
+  isOffcanvas() {
+    return this._hasClass('layout-menu-offcanvas layout-menu-fixed-offcanvas')
+  },
+
   isNavbarFixed() {
     return (
       this._hasClass('layout-navbar-fixed') || (!this.isSmallScreen() && this.isFixed() && this.isLayoutNavbarFull())
@@ -642,7 +971,11 @@ const Helpers = {
   },
 
   isLightStyle() {
-    return document.documentElement.classList.contains('light-style')
+    return document.documentElement.getAttribute('data-bs-theme') === 'light'
+  },
+
+  isDarkStyle() {
+    return document.documentElement.getAttribute('data-bs-theme') === 'dark'
   },
 
   // *******************************************************************************
@@ -651,7 +984,6 @@ const Helpers = {
   on(event = requiredParam('event'), callback = requiredParam('callback')) {
     const [_event] = event.split('.')
     let [, ...namespace] = event.split('.')
-    // let [_event, ...namespace] = event.split('.')
     namespace = namespace.join('.') || null
 
     this._listeners.push({ event: _event, namespace, callback })
@@ -665,6 +997,127 @@ const Helpers = {
     this._listeners
       .filter(listener => listener.event === _event && listener.namespace === namespace)
       .forEach(listener => this._listeners.splice(this._listeners.indexOf(listener), 1))
+  },
+
+  // *******************************************************************************
+  // * Dark / Light / Auto Mode
+
+  getStoredTheme: themeName => {
+    if (window.templateCustomizer) {
+      themeName = window.templateCustomizer._getSetting('Theme')
+    } else {
+      themeName = document.getElementsByTagName('HTML')[0].getAttribute('data-bs-theme')
+    }
+    return (
+      themeName ||
+      (window.templateCustomizer.settings.defaultTheme ? window.templateCustomizer.settings.defaultTheme : 'light')
+    )
+  },
+
+  setStoredTheme: (templateName, theme) => {
+    localStorage.setItem(`templateCustomizer-${templateName}--Theme`, theme)
+  },
+
+  getPreferredTheme: themeName => {
+    const storedTheme = Helpers.getStoredTheme(themeName)
+    if (storedTheme) {
+      return storedTheme
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  },
+
+  setTheme: theme => {
+    if (theme === 'system') {
+      document.documentElement.setAttribute(
+        'data-bs-theme',
+        window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      )
+    } else {
+      document.documentElement.setAttribute('data-bs-theme', theme)
+    }
+
+    // Set cookies for server-side theme detection
+    const isAdmin = !window.location.pathname.includes('/front-pages/')
+    const modeCookieName = isAdmin ? 'admin-mode' : 'front-mode'
+    const colorPrefCookieName = isAdmin ? 'admin-colorPref' : 'front-colorPref'
+
+    // Set cookie function
+    const setCookie = (name, value, days = 365) => {
+      const d = new Date()
+      d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000)
+      const expires = 'expires=' + d.toUTCString()
+      document.cookie = name + '=' + value + ';' + expires + ';path=/'
+    }
+
+    // Set the theme cookie
+    setCookie(modeCookieName, theme)
+
+    // If theme is system, also set the preferred color based on system preference
+    if (theme === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      const colorPref = prefersDark ? 'dark' : 'light'
+      setCookie(colorPrefCookieName, colorPref)
+    }
+
+    // if (window.templateCustomizer && theme !== 'light') {
+    //   window.templateCustomizer._showResetBtnNotification(true)
+    // }
+  },
+
+  showActiveTheme: (theme, focus = false) => {
+    const themeSwitcher = document.querySelector('#nav-theme')
+
+    if (!themeSwitcher) {
+      return
+    }
+
+    const themeSwitcherText = document.querySelector('#nav-theme-text')
+    const activeThemeIcon = document.querySelector('.theme-icon-active')
+    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+    const svgOfActiveBtn = btnToActive.querySelector('i').getAttribute('data-icon')
+    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+      element.classList.remove('active')
+      element.setAttribute('aria-pressed', 'false')
+    })
+    btnToActive.classList.add('active')
+    btnToActive.setAttribute('aria-pressed', 'true')
+
+    const classList = Array.from(activeThemeIcon.classList)
+    const filteredClassList = classList.filter(className => !className.startsWith('ri-'))
+    activeThemeIcon.setAttribute('class', `ri-${svgOfActiveBtn} ${filteredClassList.join(' ')}`)
+    const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`
+    themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
+
+    if (focus) {
+      themeSwitcher.focus()
+    }
+  },
+
+  syncThemeToggles: e => {
+    document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+      if (toggle.getAttribute('data-bs-theme-value') === e) {
+        toggle.click()
+      }
+    })
+  },
+
+  syncCustomOptions: e => {
+    const currEl = document.querySelector(`.template-customizer-themes-options input[value="${e}"]`)
+    if (currEl) {
+      currEl.checked = true
+      window.Helpers.updateCustomOptionCheck(currEl)
+    }
+  },
+
+  // *******************************************************************************
+  // * LTR / RTL
+
+  syncCustomOptionsRtl: e => {
+    const currRtlEl = document.querySelector(`.template-customizer-directions-options input[value="${e}"]`)
+    if (currRtlEl) {
+      currRtlEl.checked = true
+      window.Helpers.updateCustomOptionCheck(currRtlEl)
+    }
   },
 
   // *******************************************************************************
@@ -696,7 +1149,6 @@ const Helpers = {
           if (this.isFixed()) return
           const { scrollTop } = document.documentElement
           document.body.style.display = 'none'
-          // document.body.offsetHeight
           document.body.style.display = 'block'
           document.documentElement.scrollTop = scrollTop
         })
@@ -747,6 +1199,23 @@ const Helpers = {
         })
       })
     }
+  },
+
+  //--
+  // Init custom option check
+  initCustomOptionCheck() {
+    const _this = this
+
+    const custopOptionList = [].slice.call(document.querySelectorAll('.custom-option .form-check-input'))
+    custopOptionList.map(function (customOptionEL) {
+      // Update custom options check on page load
+      _this.updateCustomOptionCheck(customOptionEL)
+
+      // Update custom options check on click
+      customOptionEL.addEventListener('click', e => {
+        _this.updateCustomOptionCheck(customOptionEL)
+      })
+    })
   },
 
   // ---
@@ -828,6 +1297,25 @@ const Helpers = {
     }, 50)
   },
 
+  // ---
+  // Init Navbar Dropdown (i.e notification) PerfectScrollbar
+  initNavbarDropdownScrollbar() {
+    const scrollbarContainer = document.querySelectorAll('.navbar-dropdown .scrollable-container')
+    const { PerfectScrollbar } = window
+
+    if (PerfectScrollbar !== undefined) {
+      if (typeof scrollbarContainer !== 'undefined' && scrollbarContainer !== null) {
+        scrollbarContainer.forEach(el => {
+          // eslint-disable-next-line no-new
+          new PerfectScrollbar(el, {
+            wheelPropagation: false,
+            suppressScrollX: true
+          })
+        })
+      }
+    }
+  },
+
   // Ajax Call Promise
   ajaxCall(url) {
     return new Promise((resolve, reject) => {
@@ -872,6 +1360,31 @@ const Helpers = {
         })
       })
     })
+  },
+
+  // get css variables for theme colors
+  getCssVar(color, isChartJs = false) {
+    if (isChartJs === true) {
+      return getComputedStyle(document.documentElement).getPropertyValue(`--${window.Helpers.prefix}${color}`).trim()
+    }
+    return `var(--${window.Helpers.prefix}${color})`
+  },
+
+  // get maxlength count and display it for input and textarea
+  maxLengthCount(inputElement, infoElement, maxLength) {
+    const currentLength = inputElement.value.length
+    const remaining = maxLength - currentLength
+
+    infoElement.className = 'maxLength label-success'
+
+    if (remaining >= 0) {
+      infoElement.textContent = `You typed ${currentLength} out of ${maxLength} characters.`
+    }
+    if (remaining <= 0) {
+      infoElement.textContent = `You typed ${currentLength} out of ${maxLength} characters.`
+      infoElement.classList.remove('label-success')
+      infoElement.classList.add('label-danger')
+    }
   }
 }
 

@@ -76,7 +76,7 @@ class MenuController extends Controller
 
     private function getQuery(Request $request)
     {
-        $search = $request->get('searchText');
+        $search = $request->get('search');
 
         $query = Menu::with('roles:id')->orderBy('order');
 

@@ -34,7 +34,7 @@
 
 @endsection
 
-@section('form-fiels')
+@section('form-fields')
     <div class="row">
 
         <div class="col-12 col-md-12 form-group mb-3">
@@ -140,7 +140,7 @@
 @section('script')
     <script> 
         const btn_edit =  '{!! $esAsesor == 1 ? '' : '<button class="dropdown-item" onClick="openEditar()" >Editar</button>' !!}';
-        const TABLA = {
+        window.TABLA = {
             urlApi: '/convocatorias',
             sortName: 'convocatoria_id',
             
@@ -149,12 +149,12 @@
                         <a class="dropdown-item" href="/inscripciones/list?convocatoria=ROWID">Inscripciones</a>`,
 
             columns: [
-                { field: 'nombre_programa', title: 'Programa', sortable: true },
-                { field: 'nombre_convocatoria', title: 'Nombre', sortable: true },
-                { field: 'persona_encargada', title: 'Persona a cargo', sortable: true },
-                { field: 'telefono', title: 'Teléfono', sortable: true },
-                { field: 'fecha_apertura_convocatoria', title: 'Fecha inicio', sortable: true, formatter: 'formatearFecha' },
-                { field: 'fecha_cierre_convocatoria', title: 'Fecha finalización', sortable: true, formatter: 'formatearFecha' }
+                { data: 'nombre_programa', title: 'Programa', orderable: true },
+                { data: 'nombre_convocatoria', title: 'Nombre', orderable: true },
+                { data: 'persona_encargada', title: 'Persona a cargo', orderable: true },
+                { data: 'telefono', title: 'Teléfono', orderable: true },
+                { data: 'fecha_apertura_convocatoria', title: 'Fecha inicio', orderable: true, render: v => window.formatearFecha(v) },
+                { data: 'fecha_cierre_convocatoria', title: 'Fecha finalización', orderable: true, render: v => window.formatearFecha(v) }
             ],
 
             initSelects: [ 
@@ -197,27 +197,89 @@
 
         }
 
-        window.itemOption = function(row={}) 
-        {
-            const index = $("#table_opciones tr").length;
+        window.itemOption = function(row = {}) {
+            const index = document.querySelectorAll("#table_opciones tr").length;
 
             const item = `
-                <tr data-id="${row.requisito_id}" >
-                    <td> ${row.requisito_titulo} </td>
-                    <td style="width: 80px;" >
-                        <input type="hidden" name="requisitos[${index}]" value="${row.requisito_id}" />
-
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)" >
-                            <i class="ri-delete-bin-line"></i>
+                <tr data-id="${row.requisito_id}" draggable="true">
+                    <td>${row.requisito_titulo}</td>
+                    <td style="width: 80px;">
+                        <input type="hidden" name="requisitosTodos[${index}]" value="${row.requisito_id}" />
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)">
+                            <i class="icon-base ri ri-delete-bin-line"></i>
                         </button>
                     </td>
                 </tr>`;
-            $("#table_opciones").append(item);
-        }
-        
-        window.removeOption = function(btn) {
-            $(btn).closest("tr").remove();
+            
+            document.querySelector("#table_opciones").insertAdjacentHTML("beforeend", item);
+
+            window.reindexInputs();
         };
 
+        window.removeOption = function(btn) {
+            btn.closest("tr").remove();
+            window.reindexInputs();
+        };
+
+        window.enableDrag = function() {
+            const tbody = document.getElementById("table_opciones");
+
+            let draggingRow = null;
+
+            // Solo se ejecuta UNA VEZ
+            tbody.addEventListener("dragstart", (e) => {
+                if (e.target.tagName === "TR") {
+                    draggingRow = e.target;
+                    draggingRow.classList.add("dragging");
+                }
+            });
+
+            tbody.addEventListener("dragend", (e) => {
+                if (draggingRow) {
+                    draggingRow.classList.remove("dragging");
+                    draggingRow = null;
+                    reindexInputs();
+                }
+            });
+
+            tbody.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                const rows = Array.from(tbody.querySelectorAll("tr:not(.dragging)"));
+
+                let nextRow = rows.find(r => e.clientY <= r.getBoundingClientRect().top + r.offsetHeight / 2);
+
+                if (draggingRow) {
+                    if (nextRow) {
+                        tbody.insertBefore(draggingRow, nextRow);
+                    } else {
+                        tbody.appendChild(draggingRow);
+                    }
+                }
+            });
+        };
+
+        window.reindexInputs = function() {
+            document.querySelectorAll("#table_opciones tr").forEach((row, i) => {
+                let hidden = row.querySelector("input[type=hidden]");
+                if (hidden) hidden.name = `requisitosTodos${i}]`;
+            });
+        };
+
+        // Inicializa una sola vez al cargar
+        window.enableDrag();
+
     </script>
+
+    <style>
+        #table_opciones tr {
+            cursor: grab;
+            background: white;
+        }
+
+        #table_opciones tr.dragging {
+            opacity: 0.5;
+            background: #f8f9fa;
+            cursor: grabbing;
+        }
+    </style>
 @endsection

@@ -4,7 +4,7 @@
             <div class=" d-flex align-items-center flex-column">
                 <img class="img-fluid rounded mb-4" src="{{$unidad->logo}}" height="120" width="120" alt="User avatar">
                 <div class="user-info text-center">
-                    <h5>{{$unidad->business_name ?? ' - '}}</h5>
+                    <h5> <b>{{$unidad->business_name ?? ' - '}}</b> </h5>
                     <span class="badge bg-label-danger rounded-pill">{{$unidad->etapa->name ?? '-'}}</span>
                 </div>
             </div>
@@ -19,34 +19,57 @@
                 </li>
                 <li class="mb-2">
                     <span class="h6">Matrícula:</span>
-                    <span>{{$unidad->registration_number ?? ' - '}}</span>
+                    <span>{{$unidad->registration_number ?? ' - '}} </span>
+                </li>
+                <li class="mb-2">
+                    <span class="h6">Fecha de matrícula:</span>
+                    <span>{{$unidad->registration_date->format('Y-m-d') ?? ' - '}} </span>
+                </li>
+                <li class="mb-2">
+                    <span class="h6">Tipo de persona:</span>
+                    <span>{{$unidad->tipoPersona->tipoPersonaNOMBRE ?? ' - '}} </span>
+                </li>
+                <li class="mb-2">
+                    <span class="h6">Tipo de Registro:</span>
+                    <span>{{$unidad->tipo_registro_rutac ?? ' - '}}</span>
                 </li>
                 <li class="mb-2">
                     <span class="h6">Sector:</span>
                     <span>{{$unidad->sectorUnidad->sectorNOMBRE ?? ' - '}}</span>
                 </li>
                 <li class="mb-2">
+                    <span class="h6">Tamaño:</span>
+                    <span>{{$unidad->tamano->tamanoNOMBRE ?? ' - '}}</span>
+                </li>
+                <li class="mb-2">
                     <span class="h6">Ventas anuales:</span>
                     <span>{{$unidad->ventaAnual->ventasAnualesNOMBRE ?? ' - '}}</span>
-                </li>
+                </li> 
                 <li class="mb-2">
-                    <span class="h6">Contacto:</span>
-                    <span>{{$unidad->contact_person ?? ' - '}}</span>
-                </li>
-                <li class="mb-2">
-                    <span class="h6">Contacto teléfono:</span>
-                    <span>{{$unidad->contact_phone ?? ' - '}}</span>
-                </li>                        
+                    <span class="h6">Afiliado:</span>
+                    <span>{{ $detalle->affiliated == 1 ? ' SI ' : ' NO ' }}</span>
+                </li>                               
             </ul>
 
-            @if (!isset($verMasDetalles) || $verMasDetalles == true)
-                <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-center">
+                @if (!isset($verMasDetalles) || $verMasDetalles == true)
                     <a href="/unidadesProductivas/{{$unidad->unidadproductiva_id}}" class="btn btn-primary me-4 waves-effect waves-light" >
                         Ver más detalles
                     </a>
-                </div>
-            @endif
+                @endif
 
+                @if (isset($editar) && $editar == true)
+                    <a href="/unidadesProductivas/{{$unidad->unidadproductiva_id}}/edit" class="btn btn-primary me-4 waves-effect waves-light" >
+                        EDITAR
+                    </a>
+                @endif
+
+                @if (isset($transformar) && $transformar == true)
+                    <a href="/unidadesProductivas/{{$unidad->unidadproductiva_id}}/transformar" class="btn btn-outline-primary me-4 waves-effect waves-light" >
+                        TRANSFORMAR
+                    </a>
+                @endif
+            </div>
         </div>
     </div>
 </div>

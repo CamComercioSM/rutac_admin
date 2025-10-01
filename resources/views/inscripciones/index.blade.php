@@ -55,7 +55,7 @@
 @endsection
 
 
-@section('form-fiels')
+@section('form-fields')
 
     <div class="row">
 
@@ -114,21 +114,21 @@
 
 @section('script')
     <script> 
-        const TABLA = {
+        window.TABLA = {
             urlApi: '/inscripciones',
             sortName: 'fecha_creacion',
             accion_ver: true,
             columns: [
                 @if ($esAsesor != 1)
-                    { field: 'nombre_convocatoria', title: 'Convocatoria', sortable: true },
-                    { field: 'nombre_programa', title: 'Programa', sortable: true },
+                    { data: 'nombre_convocatoria', title: 'Convocatoria', orderable: true },
+                    { data: 'nombre_programa', title: 'Programa', orderable: true },
                  @endif  
-                { field: 'nit', title: 'NIT', sortable: true },
-                { field: 'business_name', title: 'Unidad productiva', sortable: true },
-                { field: 'sector', title: 'Sector', sortable: true },
-                { field: 'ventas', title: 'Ventas', sortable: true },
-                { field: 'fecha_creacion', title: 'Fecha de inscripcion', sortable: true, formatter: 'formatearFecha' },
-                { field: 'estado', title: 'Estado', sortable: true }
+                { data: 'nit', title: 'NIT', orderable: true },
+                { data: 'business_name', title: 'Unidad productiva', orderable: true },
+                { data: 'sector', title: 'Sector', orderable: true },
+                { data: 'ventas', title: 'Ventas', orderable: true },
+                { data: 'fecha_creacion', title: 'Fecha de inscripcion', orderable: true, render: v => window.formatearFecha(v) },
+                { data: 'estado', title: 'Estado', orderable: true }
             ],
             initSelects: [ 
                 { id:'programa'}, 
@@ -143,7 +143,8 @@
                         minimumInputLength: 3,
                     }
                 },
-                { id:'unidadAdd', setting: {
+                { 
+                    id:'unidadAdd', setting: {
                         ajax: {
                             url: '/unidadProductiva/search',
                             dataType: 'json',
@@ -152,7 +153,8 @@
                         minimumInputLength: 3,
                     }
                 },
-                { id:'programaAdd', 
+                { 
+                    id:'programaAdd', 
                     change: function(e)
                     {
                         let id = $("#programaAdd").val();
@@ -164,7 +166,7 @@
                         $("#convocatoriaAdd").select2();
                     } 
                 }, 
-                { id:'convocatoriaAdd'}, 
+                { id:'convocatoriaAdd' }, 
             ],
             initFiltros: @json($filtros)
         };

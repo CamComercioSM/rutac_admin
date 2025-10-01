@@ -1,4 +1,16 @@
-@extends('layouts.admin', ['titulo'=> 'Inscripción'])
+@extends('layouts.layoutMaster')
+
+<!-- Vendor Styles -->
+@section('vendor-style')
+@vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
+'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
+])
+@endsection
+
+<!-- Vendor Scripts -->
+@section('vendor-script')
+@vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js'])
+@endsection
 
 @section('content')
 
@@ -49,14 +61,14 @@
 
         <div class="card mb-6 p-3">
              
-            <div class="d-flex" id="toolbarRespuestas">
-                <button class="btn btn-success exportar px-2" type="button" data-tabla="respuestasIncripcion">
-                    <i class="ri-file-excel-2-line"></i>
-                </button>
+            <div class="d-flex">
+                <a class="btn btn-success px-2" href="exportRespuestas?id={{ $detalle->inscripcion_id }}" target="_blanck" >
+                    <i class="icon-base ri ri-file-excel-2-line me-2"></i> Exportar
+                </a>
 
-                <h5 class="text-center mb-0 ms-2 pt-1">Respuestas</h5>
+                <h5 class="text-center mb-0 ms-2 pt-1">Listado de respuestas</h5>
             </div> 
-            <table id="respuestasIncripcion" class="table table-striped" >
+            <table id="respuestasIncripcion" class="table" >
                 <thead>
                     <th>Pregunta</th>
                     <th>Respuesta</th>
@@ -69,7 +81,7 @@
                             <td>{{$item->value ?? ' - '}}</td>
                             <td>
                                 <button class="btn btn-sm btn-primary" onclick="editarRequisito({{$item->convocatoriarespuesta_id}}, {{$item->requisito_id}}, '{{$item->value}}')" >
-                                    <i class="ri-loop-left-line"></i>
+                                    <i class="icon-base ri ri-loop-left-line"></i>
                                 </button>
                             </td>
                         </tr>
@@ -217,18 +229,20 @@
 
 @endsection
 
+@section('vendor-script')
+@vite([])
+@endsection
+
 @section('page-script')
     <script>
-        const TABLAS = [
+        window.TABLAS = [
             {
                 id: 'respuestasIncripcion',
                 setting: {
-                    toolbar: '#toolbarRespuestas',
-                    locale: 'es-ES',
                     pagination: true,
                     search: true,
-                    pageSize: 5,
-                    pageList: [5, 10, 20, 50, 100]
+                    pageLength: 5,
+                    lengthMenu: [5, 10, 20, 50, 100]
                 }                
             }
         ];
@@ -280,7 +294,6 @@
             });
         });
 
-        
         window.editarRequisito = function(respuesta_id, requisito_id, value){
             
             cargando.classList.remove('d-none');
@@ -340,5 +353,5 @@
         cargando.classList.add('d-none');
 
     </script>
-    @vite([ 'resources/js/admin-table.js' ])
+    @vite(['resources/assets/js/admin-table.js'])
 @endsection

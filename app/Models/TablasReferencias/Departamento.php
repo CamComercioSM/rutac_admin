@@ -10,7 +10,7 @@ class Departamento extends Model
     protected $primaryKey = 'departamento_id';
     
     protected $fillable = [
-        'departamentonombre',
+        'departamentoNOMBRE',
         'departamentocodigo'
     ];
     

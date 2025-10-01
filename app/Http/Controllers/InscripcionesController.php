@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\InscripcionesExport;
+use App\Exports\InscripcionesRespuestasExport;
 use App\Http\Controllers\Controller;
 use App\Mail\CambioEstadoInscripcionMail;
 use App\Models\Inscripciones\ConvocatoriaInscripcion;
@@ -155,7 +156,7 @@ class InscripcionesController extends Controller
 
         if($request->hasFile('archivo')) 
         {
-            $path = $request->file('archivo')->store('aplications', 'public');
+            $path = $request->file('archivo')->store('storage/aplications', 'public');
             $entity->archivo = $path;
         }
 
@@ -245,7 +246,7 @@ class InscripcionesController extends Controller
 
     private function getQuery(Request $request)
     {
-        $search = $request->get('searchText');
+        $search = $request->get('search');
         $programa = $request->get('programa');
         $convocatoria = $request->get('convocatoria');
         $estado = $request->get('estado');
@@ -319,4 +320,19 @@ class InscripcionesController extends Controller
         return $query;
     }
 
+    function exportRespuestas(Request $request)
+    { 
+        $query = ConvocatoriaRespuesta::select([
+                'convocatorias_respuestas.inscripcion_id',
+                'convocatorias_respuestas.convocatoriarespuesta_id',
+                'convocatorias_respuestas.fecha_creacion',
+                'p.requisito_titulo',
+                'convocatorias_respuestas.value',
+            ])
+        ->join('inscripciones_requisitos as p', 'convocatorias_respuestas.requisito_id', '=', 'p.requisito_id');
+
+        $query = $query->where('inscripcion_id', $request->id);
+
+        return Excel::download(new InscripcionesRespuestasExport($query), 'respuestasInscripcion.xlsx');
+    }
 }

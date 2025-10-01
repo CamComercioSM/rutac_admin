@@ -1,6 +1,6 @@
 @extends('layouts.list', ['titulo'=> 'Capsulas', 'tituloModal'=> 'capsula'])
 
-@section('form-fiels')
+@section('form-fields')
     <div class="row">
 
         <div class="col-12 col-md-12 form-group mb-3">
@@ -36,13 +36,13 @@
 
 @section('script')
     <script> 
-        const TABLA = {
+        window.TABLA = {
             urlApi: '/banners',
             sortName: 'name',
             accion_editar: true,
             columns: [
-                { field: 'name', title: 'Nombre', sortable: true },
-                { field: 'title', title: 'Titulo', sortable: true },
+                { data: 'name', title: 'Nombre', orderable: true },
+                { data: 'title', title: 'Titulo', orderable: true },
             ]
         };
     </script>

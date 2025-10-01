@@ -53,25 +53,15 @@ class ProgramaConvocatoria extends Model
         return $this->belongsTo(Sector::class, 'sector_id', 'sector_id');
     }
 
-    public function requisitos()
+    public function requisitosTodos()
     {
         return $this->belongsToMany(
             InscripcionesRequisitos::class, 
             'convocatorias_requisitos', 
             'convocatoria_id', 
             'requisito_id')
-            ->whereNull('indicador_id');
-    }
-
-    public function requisitosIndicadores()
-    {
-        return $this->belongsToMany(
-            InscripcionesRequisitos::class, 
-            'convocatorias_requisitos', 
-            'convocatoria_id', 
-            'requisito_id')
-            ->withPivot('referencia')     
-            ->whereNotNull('indicador_id'); 
+            ->withPivot('orden')
+            ->orderBy('convocatorias_requisitos.orden');
     }
 
 }
