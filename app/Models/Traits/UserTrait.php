@@ -9,7 +9,7 @@ trait UserTrait
     public static function bootUserTrait()
     {
         static::creating(function ($model) {
-            $model->usuario_creo = $model->usuario_creo ?? optional(Auth::user())->id;
+            $model->usuario_creo = optional(Auth::user())->id;
             $model->usuario_actualizo = optional(Auth::user())->id;
         });
 
