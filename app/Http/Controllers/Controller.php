@@ -9,7 +9,7 @@ abstract class Controller
 {
     protected function paginate($query, Request $request)
     {
-        $page = $request->input('pageNumber', 1);
+        $page = $request->input('page', 0);
         $perPage = $request->input('pageSize', 10);
         $sort = $request->get('sortName');
         $order = $request->get('sortOrder', 'asc');
@@ -20,8 +20,14 @@ abstract class Controller
             $query->orderBy($sort, $order);
         }
 
+        $recordsTotal = $query->count();
         $rows = $query->paginate($perPage);
+        $recordsFiltered = $rows->total();
 
-        return [ 'total' => $rows->total(), 'rows' => $rows->items() ];
+        return [
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data' => $rows->items(),
+        ];
     }
 }

@@ -42,7 +42,7 @@ class ConvocatoriaController extends Controller
         $query = $this->getQuery($request);
         $data = $this->paginate($query, $request);
 
-        $data['rows'] = collect($data['rows'])->map(function ($item) {
+        $data['data'] = collect($data['data'])->map(function ($item) {
             $itemArray = $item->toArray();
             $itemArray['asesores'] = $item->asesores->pluck('id')->toArray();
             return $itemArray;
