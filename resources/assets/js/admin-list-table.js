@@ -53,11 +53,7 @@ $(document).ready(function () {
         // Llamada con axios
         axios.get(window.TABLA.urlApi, { params })
             .then(res => {
-                callback({
-                    data: res.data.rows,
-                    recordsTotal: res.data.total,
-                    recordsFiltered: res.data.rows.length
-                });
+                callback(res.data);
             })
             .catch(error => {
                 console.error("Error al cargar integrantes:", error);

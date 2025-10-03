@@ -35,7 +35,7 @@ class ProgramaController extends Controller
         $query = $this->getQuery($request);
         $data = $this->paginate($query, $request);
 
-        $data['rows'] = collect($data['rows'])->map(function ($item) {
+        $data['data'] = collect($data['data'])->map(function ($item) {
             $itemArray = $item->toArray();
             $itemArray['etapas'] = $item->etapas->pluck('etapa_id')->toArray();
             return $itemArray;

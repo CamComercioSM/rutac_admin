@@ -178,13 +178,14 @@ use App\Http\Controllers\ProgramaController;
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\DefaultEmailTemplateController;
+use App\Http\Controllers\EmpresariosController;
 use App\Http\Middleware\ValidateUserMenuAccess;
 
 
-
-Route::get('/', function () {
-    return view('login');
-});
+Route::get('/', [AuthController::class, 'index']);
+Route::get('/login', [AuthController::class, 'index']);
+Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
 Route::as('admin.')
 ->middleware('auth')
@@ -194,6 +195,7 @@ Route::as('admin.')
     Route::middleware(ValidateUserMenuAccess::class)
     ->group(function () {
 
+        Route::get('/empresarios/list', [EmpresariosController::class, 'list']);
         Route::get('/unidadesProductivas/list', [UnidadProductivaController::class, 'list']);
         Route::get('/inscripciones/list', [InscripcionesController::class, 'list']);
         Route::get('/diagnosticosResultados/list', [DiagnosticosResultadosController::class, 'list']);
@@ -228,7 +230,9 @@ Route::as('admin.')
     Route::get('/convocatoriasRequisitos/export', [InscripcionesRequisitosController::class, 'export']);
     Route::get('/capsulas/export', [CapsulasController::class, 'export']);
     Route::get('/banners/export', [BannerController::class, 'export']);
+    Route::get('/empresarios/export', [EmpresariosController::class, 'export']);
 
+    Route::resource('empresarios', EmpresariosController::class);
     Route::resource('users', UserController::class);
     Route::resource('menu', MenuController::class);
     Route::resource('inscripciones', InscripcionesController::class);
@@ -254,11 +258,6 @@ Route::as('admin.')
     Route::post('/emailTemplates/toggle-status/{id}', [EmailTemplateController::class, 'toggleStatus'])->name("emailTemplates.toggle-status");
     Route::post('/emailTemplates/send-test', [EmailTemplateController::class, 'sendTestEmail'])->name("emailTemplates.send-test");
 });
-
-
-Route::get('/auth', [App\Http\Controllers\AuthController::class, 'index'])->name("auth.index");
-Route::post('/auth', [App\Http\Controllers\AuthController::class, 'login'])->name("auth.login");
-Route::get('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name("auth.logout");
 
 // Rutas para Google OAuth
 Route::get('/auth/google', [App\Http\Controllers\GoogleController::class, 'redirectToGoogle'])->name('google.login');

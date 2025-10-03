@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\Passwords\CanResetPassword;
+use App\Models\Empresarios\UnidadProductiva;
 
 class User extends Authenticatable
 {
@@ -57,10 +58,16 @@ class User extends Authenticatable
     }
 
 
-     public function role()
+    public function role()
     {
         return $this->belongsTo(Role::class, 'rol_id');
     }
+
+    public function unidades()
+    {
+        return $this->hasMany(UnidadProductiva::class, 'user_id');
+    }
+
 
     /**
      * Get the e-mail address where password reset links are sent.
