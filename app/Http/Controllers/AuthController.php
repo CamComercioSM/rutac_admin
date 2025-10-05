@@ -51,7 +51,7 @@ class AuthController extends Controller
     public function logout()
     {
         Auth::logout();        
-        return redirect()->route('login')->with('mensaje', 'Sesión cerrada correctamente.');
+        return redirect()->to('/')->with('mensaje', 'Sesión cerrada correctamente.');
     }
 
     public function sendResetLink(Request $request)
@@ -190,22 +190,38 @@ class AuthController extends Controller
         try {
             $googleUser = Socialite::driver('google')->user();
             
-            // Buscar usuario existente
-            $user = User::where('rol_id', '>', 0)->where('email', $googleUser->getEmail())->first();
+            Log::info('Intento de login con Google', ['email' => $googleUser->getEmail()]);
+            
+            // Buscar usuario existente con todas las condiciones requeridas
+            $user = User::where('email', $googleUser->getEmail())
+                ->where('active', 1)
+                ->where('rol_id', '>', 0)
+                ->first();
             
             if ($user) {
-                // Usuario existe, iniciar sesión
+                // Usuario existe y cumple las condiciones, iniciar sesión
                 Auth::login($user);
+                
+                Log::info('Login exitoso con Google', ['user_id' => $user->id, 'email' => $user->email]);
                 
                 $this->setMenu();                
                 return redirect()->intended('/dashboard');
             } 
 
-            return $this->index('Usuario no válido.');
+            // Usuario no existe o no cumple las condiciones
+            Log::warning('Intento de login con Google fallido', [
+                'email' => $googleUser->getEmail(),
+                'reason' => 'Usuario no encontrado o no cumple condiciones'
+            ]);
+            
+            return $this->index('Este correo de Gmail no se encuentra en nuestro sistema. Por favor comuníquese con el administrador.');
             
         } catch (\Exception $e) {
-            Log::error('Error en Google OAuth', ['error' => $e->getMessage()]);
-            return redirect()->route('login')->withErrors(['error' => 'Error en autenticación con Google']);
+            Log::error('Error en Google OAuth', [
+                'error' => $e->getMessage(),
+                'email' => $googleUser->getEmail() ?? 'No disponible'
+            ]);
+            return $this->index('Error en autenticación con Google. Inténtalo de nuevo.');
         }
     }
 

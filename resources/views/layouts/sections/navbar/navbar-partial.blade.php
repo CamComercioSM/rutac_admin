@@ -535,14 +535,14 @@ use Illuminate\Support\Facades\Route;
         @if (Auth::check())
         <li>
           <div class="d-grid px-4 pt-2 pb-1">
-            <a class="btn btn-danger d-flex" href="{{ route('logout') }}"
+            <a class="btn btn-danger d-flex" href="{{ route('auth.logout') }}"
               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
               <i class="icon-base ri ri-logout-box-r-line ms-2 icon-16px"></i>
               <small class="align-middle">Logout</small>
             </a>
           </div>
         </li>
-        <form method="POST" id="logout-form" action="{{ route('logout') }}">
+        <form method="POST" id="logout-form" action="{{ route('auth.logout') }}">
           @csrf
         </form>
         @else

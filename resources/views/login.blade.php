@@ -70,6 +70,22 @@
           <h4 class="mb-1 text-center">¡Bienvenido!👋🏻</h4>
           <p class="mb-5 text-center">Por favor inicia sesión para comenzar</p>
 
+          @if(isset($mensaje) && $mensaje)
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <i class="ri-error-warning-line me-2"></i>
+              {{ $mensaje }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          @endif
+
+          @if(session('mensaje'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <i class="ri-error-warning-line me-2"></i>
+              {{ session('mensaje') }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          @endif
+
           <form id="formAuthentication" class="mb-5" action="{{ route('auth.login') }}" method="POST">
             @csrf
             <div class="form-floating form-floating-outline mb-5">
