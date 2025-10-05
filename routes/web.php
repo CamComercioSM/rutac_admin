@@ -185,7 +185,7 @@ use App\Http\Middleware\ValidateUserMenuAccess;
 Route::get('/', [AuthController::class, 'index']);
 Route::get('/login', [AuthController::class, 'index']);
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
-Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
 Route::as('admin.')
 ->middleware('auth')
