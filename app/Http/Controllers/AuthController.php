@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Auth\Events\PasswordReset;
 use Laravel\Socialite\Facades\Socialite;
@@ -39,7 +40,7 @@ class AuthController extends Controller
             }
             
         } catch (\Exception $e) {
-            \Log::error('Error en login: ' . $e->getMessage(), [
+            Log::error('Error en login: ' . $e->getMessage(), [
                 'email' => $request->email,
                 'trace' => $e->getTraceAsString()
             ]);
@@ -64,16 +65,16 @@ class AuthController extends Controller
         ]);
 
         try {
-            \Log::info('Intentando enviar correo de recuperación para', ['email' => $request->email]);
+            Log::info('Intentando enviar correo de recuperación para', ['email' => $request->email]);
             
             $status = Password::sendResetLink(
                 $request->only('email')
             );
 
-            \Log::info('Estado del envío', ['status' => $status]);
+            Log::info('Estado del envío', ['status' => $status]);
 
             if ($status === Password::RESET_LINK_SENT) {
-                \Log::info('Correo de recuperación enviado exitosamente para', ['email' => $request->email]);
+                Log::info('Correo de recuperación enviado exitosamente para', ['email' => $request->email]);
                 return response()->json([
                     'success' => true,
                     'message' => '✅ Se ha enviado un enlace de recuperación a tu correo electrónico. Revisa tu bandeja de entrada y la carpeta de spam.'
@@ -91,7 +92,7 @@ class AuthController extends Controller
                         $errorMessage = 'No se pudo enviar el enlace de recuperación. Inténtalo de nuevo.';
                 }
                 
-                \Log::warning('Error al enviar correo de recuperación: ' . $status . ' para: ' . $request->email);
+                Log::warning('Error al enviar correo de recuperación: ' . $status . ' para: ' . $request->email);
                 
                 return response()->json([
                     'success' => false,
@@ -99,7 +100,7 @@ class AuthController extends Controller
                 ], 400);
             }
         } catch (\Exception $e) {
-            \Log::error('Error en sendResetLink: ' . $e->getMessage(), [
+            Log::error('Error en sendResetLink: ' . $e->getMessage(), [
                 'email' => $request->email,
                 'trace' => $e->getTraceAsString()
             ]);
@@ -146,7 +147,7 @@ class AuthController extends Controller
         );
 
         if ($status === Password::PASSWORD_RESET) {
-            \Log::info('Contraseña restablecida exitosamente para', ['email' => $request->email]);
+            Log::info('Contraseña restablecida exitosamente para', ['email' => $request->email]);
             return response()->json([
                 'success' => true,
                 'message' => 'Tu contraseña ha sido restablecida correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.'
@@ -164,7 +165,7 @@ class AuthController extends Controller
                     $errorMessage = 'No se pudo restablecer la contraseña. El enlace puede haber expirado.';
             }
             
-            \Log::warning('Error al restablecer contraseña: ' . $status . ' para: ' . $request->email);
+            Log::warning('Error al restablecer contraseña: ' . $status . ' para: ' . $request->email);
             
             return response()->json([
                 'success' => false,
@@ -203,7 +204,7 @@ class AuthController extends Controller
             return $this->index('Usuario no válido.');
             
         } catch (\Exception $e) {
-            \Log::error('Error en Google OAuth', ['error' => $e->getMessage()]);
+            Log::error('Error en Google OAuth', ['error' => $e->getMessage()]);
             return redirect()->route('login')->withErrors(['error' => 'Error en autenticación con Google']);
         }
     }

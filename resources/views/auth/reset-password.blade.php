@@ -67,7 +67,7 @@
             </div>
             
             <div class="text-center">
-              <a href="{{ route('login') }}" class="btn btn-link">
+              <a href="{{ url('/') }}" class="btn btn-link">
                 <i class="ri-arrow-left-line me-1"></i>
                 Volver al login
               </a>
@@ -88,7 +88,7 @@
 
 @section('page-script')
 <!-- SweetAlert2 -->
-<script src="{{ asset('libs/sweetalert2@11.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('resetPasswordForm');
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     timerProgressBar: true
                 }).then((result) => {
                     // Redirigir al login
-                    window.location.href = '{{ route("login") }}';
+                    window.location.href = '{{ url("/") }}';
                 });
             } else {
                 Swal.fire({

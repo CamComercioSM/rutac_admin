@@ -265,5 +265,5 @@ Route::get('/auth/google/callback', [App\Http\Controllers\GoogleController::clas
 
 // Rutas para recuperación de contraseña
 Route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'sendResetLink'])->name('password.email');
-Route::get('/reset-password/{token}', [App\Http\Controllers\AuthController::class, 'showResetForm'])->name('password.reset');
-Route::post('/reset-password', [App\Http\Controllers\AuthController::class, 'resetPassword'])->name('password.update');
+Route::get('/auth/reset-password/{token}', [App\Http\Controllers\AuthController::class, 'showResetForm'])->name('password.reset');
+Route::post('/auth/reset-password', [App\Http\Controllers\AuthController::class, 'resetPassword'])->name('password.update');
