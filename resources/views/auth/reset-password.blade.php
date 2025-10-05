@@ -67,7 +67,7 @@
             </div>
             
             <div class="text-center">
-              <a href="{{ route('login') }}" class="btn btn-link">
+              <a href="{{ url('/') }}" class="btn btn-link">
                 <i class="ri-arrow-left-line me-1"></i>
                 Volver al login
               </a>
@@ -87,7 +87,7 @@
 @endsection
 
 @section('page-script')
-<!-- SweetAlert2 desde CDN -->
+<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     timerProgressBar: true
                 }).then((result) => {
                     // Redirigir al login
-                    window.location.href = '{{ route("login") }}';
+                    window.location.href = '{{ url("/") }}';
                 });
             } else {
                 Swal.fire({

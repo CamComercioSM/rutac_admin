@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Vite;
+use Laravel\Fortify\Fortify;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,5 +29,8 @@ class AppServiceProvider extends ServiceProvider
             }
             return [];
         });
+
+        // Deshabilitar las rutas de password reset de Fortify para usar las nuestras
+        Fortify::ignoreRoutes();
     }
 }
