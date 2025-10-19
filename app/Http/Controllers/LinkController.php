@@ -36,7 +36,7 @@ class LinkController extends Controller
         if ($request->hasFile('formFile')) 
         {
             $path = $request->file('formFile')->store('storage/history', 'public');
-            $data['image'] = $path;
+            $data['value'] = $path;
         }
 
         if ($request->filled('id')) {
