@@ -24,6 +24,7 @@ use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\DefaultEmailTemplateController;
 use App\Http\Controllers\EmpresariosController;
+use App\Http\Controllers\SeccionesController;
 use App\Http\Middleware\ValidateUserMenuAccess;
 
 
@@ -59,6 +60,7 @@ Route::as('admin.')
         Route::get('/banners/list', [BannerController::class, 'list']);
         Route::get('/historias/list', [HistoriaController::class, 'list']);
         Route::get('/links/list', [LinkController::class, 'list']);
+        Route::get('/secciones', [SeccionesController::class, 'index']);
     });
 
     Route::get('/users/export', [UserController::class, 'export']);
@@ -98,6 +100,7 @@ Route::as('admin.')
     Route::resource('banners', BannerController::class);
     Route::resource('historias', HistoriaController::class);
     Route::resource('links', LinkController::class);
+    Route::resource('secciones', SeccionesController::class);
     Route::resource('emailTemplates', EmailTemplateController::class);
     Route::resource('defaultEmailTemplates', DefaultEmailTemplateController::class);
 
