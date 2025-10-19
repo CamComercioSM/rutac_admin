@@ -27,9 +27,8 @@ $(document).ready(function () {
 
         // Orden
         if (data.order && data.order.length > 0) {
-            const colIndex = data.order[0].column;
             const dir = data.order[0].dir;
-            params.sortName = data.columns[colIndex].data;
+            params.sortName = window.TABLA.sortName ?? 'id';
             params.sortOrder = dir;
         }
 
