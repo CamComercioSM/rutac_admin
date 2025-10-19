@@ -86,12 +86,12 @@ $(document).ready(function () {
     }
 
     // Eventos click y dblclick
-    $('#tabla').on('click', 'td', function () {
+    $('#tabla').on('click', 'td:not(.check)', function () {
         const row = $('#tabla').DataTable().row(this.closest('tr')).data();
         menuTabla(row, $(this));
     });
 
-    $('#tabla').on('dblclick', 'td', function () {
+    $('#tabla').on('dblclick', 'td:not(.check)', function () {
         const row = $('#tabla').DataTable().row(this.closest('tr')).data();
         menuTabla(row, $(this));
     });

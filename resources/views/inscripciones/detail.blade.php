@@ -165,7 +165,8 @@
                 <input class="form-control" type="file" name="archivo" id="archivo" accept=".pdf,.jpg,.png,.doc,.docx">
             </div>
 
-            <input type="hidden" name="inscripcion_id" id="inscripcion_id" value="{{$detalle->inscripcion_id}}" >
+            <input type="hidden" name="inscripciones[]" id="inscripciones" value="{{$detalle->inscripcion_id}}" >
+            
             @csrf
             @method('PATCH')
 

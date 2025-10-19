@@ -139,25 +139,29 @@ class InscripcionesController extends Controller
 
     public function update($id, Request $request)
     {
-        $entity = ConvocatoriaInscripcion::with(['unidadProductiva', 'estado', 'convocatoria.programa'])->findOrFail($id);
-        
-        // Guardar el estado anterior para comparar
-        $estadoAnterior = $entity->inscripcionestado_id;
-
-        if($request->hasFile('archivo')) 
+        foreach($request->inscripciones as $ins_id)
         {
-            $path = $request->file('archivo')->store('storage/aplications', 'public');
-            $entity->archivo = $path;
-        }
+            $entity = ConvocatoriaInscripcion::with(['unidadProductiva', 'estado', 'convocatoria.programa'])
+                ->findOrFail($ins_id);
+            
+            // Guardar el estado anterior para comparar
+            $estadoAnterior = $entity->inscripcionestado_id;
 
-        $entity->inscripcionestado_id = $request->input('inscripcionestado_id');
-        $entity->comentarios = $request->input('comentarios');
-        $entity->activarPreguntas = $request->input('activarPreguntas') == 1;
-        $entity->save();
+            if($request->hasFile('archivo')) 
+            {
+                $path = $request->file('archivo')->store('storage/aplications', 'public');
+                $entity->archivo = $path;
+            }
 
-        // Enviar correo solo si el estado cambió
-        if ($estadoAnterior != $entity->inscripcionestado_id) {
-            $this->enviarCorreoCambioEstado($entity);
+            $entity->inscripcionestado_id = $request->input('inscripcionestado_id');
+            $entity->comentarios = $request->input('comentarios');
+            $entity->activarPreguntas = $request->input('activarPreguntas') == 1;
+            $entity->save();
+
+            // Enviar correo solo si el estado cambió
+            if ($estadoAnterior != $entity->inscripcionestado_id) {
+                $this->enviarCorreoCambioEstado($entity);
+            }
         }
 
         return response()->json([ 'message' => 'Stored' ], 201);
