@@ -217,8 +217,8 @@
   </div>
 </div>
 
-<div class="position-fixed top-0 end-0 p-5 w-100 d-flex justify-content-center" style="z-index: 1111;">
-    <div id="estadoToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+<div class="position-fixed top-0 end-0 w-100 d-flex justify-content-center" style="z-index: 1111;">
+    <div id="estadoToast" class="toast align-items-center text-bg-success border-0 m-5" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
             <div class="toast-body">
                 ✅ Cambio guardado exitosamente

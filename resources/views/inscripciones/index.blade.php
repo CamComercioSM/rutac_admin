@@ -175,12 +175,12 @@
         </div>
     </div>
 
-    <div class="position-fixed top-0 end-0 p-5 w-100 d-flex justify-content-center" style="z-index: 1111;">
-        <div id="warningToast" class="toast bg-warning text-dark" role="alert">
+    <div class="position-fixed top-0 end-0 w-100 d-flex justify-content-center" style="z-index: 1111;">
+        <div id="warningToast" class="toast bg-warning text-dark m-5" role="alert">
             <div class="toast-body"> ⚠️ El registro ya existe en la tabla. </div>
         </div>
         
-        <div id="estadoToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="estadoToast" class="toast align-items-center text-bg-success border-0 m-5" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body"> ✅ Cambio guardado exitosamente </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
