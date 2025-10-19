@@ -15,6 +15,7 @@ class Banner extends Model {
         'name',
         'title',
         'image',
+        'image_movil',
         'description',
         'text_button',
         'url'
