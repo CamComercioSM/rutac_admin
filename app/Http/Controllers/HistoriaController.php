@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Exports\HistoriaExport;
-use App\Exports\CapsulaExport;
 use App\Http\Controllers\Controller;
 use App\Models\Historia;
 use Illuminate\Http\Request;
