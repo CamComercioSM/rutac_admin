@@ -164,6 +164,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\HistoriaController;
+use App\Http\Controllers\LinkController;
 use App\Http\Controllers\CapsulasController;
 use App\Http\Controllers\ConvocatoriaController;
 use App\Http\Controllers\UnidadProductivaController;
@@ -214,6 +215,7 @@ Route::as('admin.')
         Route::get('/capsulas/list', [CapsulasController::class, 'list']);
         Route::get('/banners/list', [BannerController::class, 'list']);
         Route::get('/historias/list', [HistoriaController::class, 'list']);
+        Route::get('/links/list', [LinkController::class, 'list']);
     });
 
     Route::get('/users/export', [UserController::class, 'export']);
@@ -234,6 +236,7 @@ Route::as('admin.')
     Route::get('/banners/export', [BannerController::class, 'export']);
     Route::get('/empresarios/export', [EmpresariosController::class, 'export']);
     Route::get('/historias/export', [HistoriaController::class, 'export']);
+    Route::get('/links/export', [LinkController::class, 'export']);
 
     Route::resource('empresarios', EmpresariosController::class);
     Route::resource('users', UserController::class);
@@ -251,6 +254,7 @@ Route::as('admin.')
     Route::resource('capsulas', CapsulasController::class);
     Route::resource('banners', BannerController::class);
     Route::resource('historias', HistoriaController::class);
+    Route::resource('links', LinkController::class);
     Route::resource('emailTemplates', EmailTemplateController::class);
     Route::resource('defaultEmailTemplates', DefaultEmailTemplateController::class);
 
