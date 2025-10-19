@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\CapsulaExport;
 use App\Http\Controllers\Controller;
 use App\Models\Capsula;
+use App\Models\TablasReferencias\Etapa;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -12,7 +13,11 @@ class CapsulasController extends Controller
 {
     function list()
     { 
-        return View("capsulas.index");
+        $data = [
+            'etapas'=> Etapa::get()
+        ];
+
+        return View("capsulas.index", $data);
     }
 
     function export(Request $request)
@@ -25,6 +30,12 @@ class CapsulasController extends Controller
     {
         $query = $this->getQuery($request);
         $data = $this->paginate($query, $request);
+
+        $data['data'] = collect($data['data'])->map(function ($item) {
+            $itemArray = $item->toArray();
+            $itemArray['etapas'] = $item->etapas->pluck('etapa_id')->toArray();
+            return $itemArray;
+        })->toArray();
 
         return response()->json( $data );
     }
@@ -46,6 +57,9 @@ class CapsulasController extends Controller
             $entity = Capsula::create($data);
         }
 
+        $entity->etapas()->detach();
+        $entity->etapas()->attach( $request->etapas ?? [] );
+
         return response()->json(['message' => 'Stored'], 201);
     }
 
@@ -54,8 +68,10 @@ class CapsulasController extends Controller
     {
         $search = $request->get('search');
 
-        $query = Capsula::select(
+        $query = Capsula::with('etapas:etapa_id')
+        ->select(
             'capsula_id as id',
+            'capsula_id',
             'nombre',
             'descripcion',
             'url_video',
