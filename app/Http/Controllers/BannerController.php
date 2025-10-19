@@ -34,10 +34,16 @@ class BannerController extends Controller
     {
         $data = $request->all();
 
-        if ($request->hasFile('formFile')) 
+        if ($request->hasFile('imgPc')) 
         {
-            $path = $request->file('formFile')->store('storage/banners', 'public');
+            $path = $request->file('imgPc')->store('storage/banners', 'public');
             $data['image'] = $path;
+        }
+
+        if ($request->hasFile('imgMovil')) 
+        {
+            $path = $request->file('imgMovil')->store('storage/banners', 'public');
+            $data['image_movil'] = $path;
         }
 
         if ($request->filled('id')) {
