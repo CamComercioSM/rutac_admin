@@ -109,12 +109,13 @@ class ProgramaController extends Controller
                 'herramientas_requeridas',
                 'es_virtual',
                 'informacion_adicional',
-                'sitio_web'
+                'sitio_web',
+                'codigo_pac'
             ]);
 
         if(!empty($search))
         {
-            $filterts = ['nombre'];
+            $filterts = ['nombre', 'codigo_pac'];
             $query->where(function ($q) use ($search, $filterts) {
                 foreach ($filterts as $field) {
                     $q->orWhere($field, 'like', "%{$search}%");

@@ -3,9 +3,14 @@
 @section('form-fields')
     <div class="row">
 
-        <div class="col-12 col-md-12 form-group mb-3">
+        <div class="col-12 col-md-9 form-group mb-3">
             <label class="form-label" for="nombre">Nombre </label>
             <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Nombre " required>
+        </div>
+
+        <div class="col-12 col-md-3 form-group mb-3">
+            <label class="form-label" for="codigo_pac">Código PAC </label>
+            <input type="text" class="form-control" name="codigo_pac" id="codigo_pac" placeholder="Código PAC " required>
         </div>
 
         <div class="col-12 col-md-12 form-group mb-3">
@@ -132,6 +137,7 @@
                         <a class="dropdown-item" href="/convocatorias/list?programa=ROWID">Convocatorias</a>`,
 
             columns: [
+                { data: 'codigo_pac', title: 'Código PAC', orderable: true },
                 { data: 'nombre', title: 'Nombre', orderable: true },
                 { data: 'duracion', title: 'Duración', orderable: true }
             ],

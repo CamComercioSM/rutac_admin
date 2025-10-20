@@ -34,7 +34,8 @@ class Programa extends Model
         'correo_contacto',
         'telefono',
         'informacion_adicional',
-        'sitio_web'
+        'sitio_web',
+        'codigo_pac'
     ];
     
     public function inscripciones(): HasMany {

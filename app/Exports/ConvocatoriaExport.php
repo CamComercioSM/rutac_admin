@@ -32,6 +32,7 @@ class ConvocatoriaExport implements FromQuery, WithMapping, WithHeadings, WithCh
     {
         return [
             'ID',
+            'C+odigo PAC',
             'Programa',
             'Nombre',
             'Encragado',
@@ -46,6 +47,7 @@ class ConvocatoriaExport implements FromQuery, WithMapping, WithHeadings, WithCh
     {
         return [
             $row->id,
+            $row->codigo_pac,
             $row->nombre_programa,
             $row->nombre_convocatoria,
             $row->persona_encargada,
