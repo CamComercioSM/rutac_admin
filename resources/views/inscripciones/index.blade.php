@@ -283,7 +283,7 @@
                         <input type="hidden" name="unidades[${index}]" value="${row.id}" />
 
                         <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)" >
-                            <i class="ri-delete-bin-line"></i>
+                            <i class="icon-base ri ri-delete-bin-line"></i>
                         </button>
                     </td>
                 </tr>`;

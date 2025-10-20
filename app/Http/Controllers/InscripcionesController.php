@@ -144,6 +144,13 @@ class InscripcionesController extends Controller
 
     public function update($id, Request $request)
     {
+        $path = null;
+
+        if($request->hasFile('archivo')) 
+        {
+            $path = $request->file('archivo')->store('storage/aplications', 'public');
+        }
+
         foreach($request->inscripciones as $ins_id)
         {
             $entity = ConvocatoriaInscripcion::with(['unidadProductiva', 'estado', 'convocatoria.programa'])
@@ -151,12 +158,7 @@ class InscripcionesController extends Controller
             
             // Guardar el estado anterior para comparar
             $estadoAnterior = $entity->inscripcionestado_id;
-
-            if($request->hasFile('archivo')) 
-            {
-                $path = $request->file('archivo')->store('storage/aplications', 'public');
-                $entity->archivo = $path;
-            }
+            $entity->archivo = $path;            
 
             $entity->inscripcionestado_id = $request->input('inscripcionestado_id');
             $entity->comentarios = $request->input('comentarios');

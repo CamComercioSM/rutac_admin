@@ -249,7 +249,7 @@
                                                             title="Eliminar plantilla"
                                                             data-bs-toggle="tooltip"
                                                             onclick="return confirm('¿Estás seguro de que quieres eliminar esta plantilla? Esta acción no se puede deshacer.')">
-                                                        <i class="ri-delete-bin-line"></i>
+                                                        <i class="icon-base ri ri-delete-bin-line"></i>
                                                     </button>
                                                 </form>
                                             </div>

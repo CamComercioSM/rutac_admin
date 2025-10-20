@@ -57,10 +57,9 @@ class IntervencionesController extends Controller
             $data['soporte'] = $path;
         }
 
-        if ($request->filled('id')) {
-            $entity = UnidadProductivaIntervenciones::findOrFail($request->id);
-            $entity->update($data);
-        } else {
+        foreach($request->unidades as $id)
+        {
+            $data['unidadproductiva_id'] = $id;
             $entity = UnidadProductivaIntervenciones::create($data);
         }
 
