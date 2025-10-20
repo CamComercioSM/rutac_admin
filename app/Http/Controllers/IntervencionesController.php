@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\InterversionesExport;
+use App\Exports\IntervencionesExport;
 use App\Http\Controllers\Controller;
-use App\Models\Empresarios\UnidadProductivaInterversiones;
+use App\Models\Empresarios\UnidadProductivaIntervenciones;
 use App\Models\Empresarios\UnidadProductiva;
 use App\Models\User;
 use App\Models\Role;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 
-class InterversionesController extends Controller
+class IntervencionesController extends Controller
 {
     function list(Request $request)
     { 
@@ -21,19 +21,20 @@ class InterversionesController extends Controller
             'asesores'=> User::where('rol_id', Role::ASESOR)->get(),
             'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0,
             'filtros'=> $request->all(),
+            'unidades'=> []
         ];
 
         if ($unidad = $request->get('unidad')) {
             $data['unidades'] = UnidadProductiva::where('unidadproductiva_id', $unidad)->get();
         }
 
-        return View("interversiones.index", $data);
+        return View("Intervenciones.index", $data);
     }
 
     function export(Request $request)
     { 
         $query = $this->getQuery($request);
-        return Excel::download(new InterversionesExport($query), 'interversiones.xlsx');
+        return Excel::download(new IntervencionesExport($query), 'Intervenciones.xlsx');
     }
 
     public function index(Request $request)
@@ -52,15 +53,15 @@ class InterversionesController extends Controller
 
         if ($request->hasFile('formFile')) 
         {
-            $path = $request->file('formFile')->store('storage/interversiones', 'public');
+            $path = $request->file('formFile')->store('storage/Intervenciones', 'public');
             $data['soporte'] = $path;
         }
 
         if ($request->filled('id')) {
-            $entity = UnidadProductivaInterversiones::findOrFail($request->id);
+            $entity = UnidadProductivaIntervenciones::findOrFail($request->id);
             $entity->update($data);
         } else {
-            $entity = UnidadProductivaInterversiones::create($data);
+            $entity = UnidadProductivaIntervenciones::create($data);
         }
 
         return response()->json(['message' => 'Stored'], 201);
@@ -70,23 +71,23 @@ class InterversionesController extends Controller
     {
         $search = $request->get('search');
 
-        $query = UnidadProductivaInterversiones::query()
+        $query = UnidadProductivaIntervenciones::query()
             ->select([
-                'unidadesproductivas_interversiones.*',
+                'unidadesproductivas_Intervenciones.*',
                 DB::raw("CONCAT(users.name, ' ', users.lastname) as asesor"),
                 'unidadesproductivas.business_name as unidad',
             ])
-            ->join('users', 'users.id', '=', 'unidadesproductivas_interversiones.asesor_id')
-            ->join('unidadesproductivas', 'unidadesproductivas.unidadproductiva_id', '=', 'unidadesproductivas_interversiones.unidadproductiva_id');
+            ->join('users', 'users.id', '=', 'unidadesproductivas_Intervenciones.asesor_id')
+            ->join('unidadesproductivas', 'unidadesproductivas.unidadproductiva_id', '=', 'unidadesproductivas_Intervenciones.unidadproductiva_id');
 
 
         $asesor = (Auth::user()->rol_id === Role::ASESOR) ? Auth::id() : $request->get('asesor');
         if ($asesor) {
-            $query->where('unidadesproductivas_interversiones.asesor_id', $asesor);
+            $query->where('unidadesproductivas_Intervenciones.asesor_id', $asesor);
         }
 
         if ($unidad = $request->get('unidad')) {
-            $query->where('unidadesproductivas_interversiones.unidadproductiva_id', $unidad);
+            $query->where('unidadesproductivas_Intervenciones.unidadproductiva_id', $unidad);
         }
 
         if ($fechaInicio = $request->get('fecha_inicio')) {

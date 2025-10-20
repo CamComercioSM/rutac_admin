@@ -7,11 +7,11 @@ use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
-class UnidadProductivaInterversiones extends Model
+class UnidadProductivaIntervenciones extends Model
 {
     use SoftDeletes, UserTrait;
 
-    protected $table = 'unidadesproductivas_interversiones';
+    protected $table = 'unidadesproductivas_intervenciones';
     protected $primaryKey = 'id';
 
     protected $fillable = [

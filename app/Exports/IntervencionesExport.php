@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Concerns\{
     Exportable
 };
 
-class InterversionesExport implements FromQuery, WithMapping, WithHeadings, WithChunkReading, ShouldQueue
+class IntervencionesExport implements FromQuery, WithMapping, WithHeadings, WithChunkReading, ShouldQueue
 {
     use Exportable;
 

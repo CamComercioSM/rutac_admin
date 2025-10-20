@@ -1,4 +1,4 @@
-@extends('layouts.list', ['titulo'=> 'Interversiones', 'tituloModal'=> 'interversión'])
+@extends('layouts.list', ['titulo'=> 'Intervenciones', 'tituloModal'=> 'interversión'])
 
 @section('form-filters')
 
@@ -71,7 +71,7 @@
 @section('script')
     <script> 
         window.TABLA = {
-            urlApi: '/interversiones',
+            urlApi: '/Intervenciones',
             sortName: 'id',
             accion_editar: true,
             columns: [
