@@ -12,6 +12,7 @@ use App\Models\Programas\Programa;
 use App\Models\Programas\ProgramaConvocatoria;
 use App\Models\Role;
 use App\Models\TablasReferencias\InscripcionEstado;
+use App\Models\Empresarios\UnidadProductiva;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -78,6 +79,10 @@ class InscripcionesController extends Controller
             'filtros'=> $request->all(),
             'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0
         ];
+
+        if ($unidad = $request->get('unidad')) {
+            $data['unidades'] = UnidadProductiva::where('unidadproductiva_id', $unidad)->get();
+        }
         
         return View("inscripciones.index", $data);
     }

@@ -62,7 +62,10 @@
             
             menu_row: ` <a class="dropdown-item" href="/unidadesProductivas/ROWID" >Ver detalles</a>
                         <a class="dropdown-item" href="/unidadesProductivas/ROWID/edit">Editar</a>
-                        <a class="dropdown-item" href="/interversiones/list?unidad=ROWID">Interversiones</a>`,
+                        <a class="dropdown-item" href="/diagnosticosResultados/list?unidad=ROWID">Diagnósticos</a>
+                        <a class="dropdown-item" href="/inscripciones/list?unidad=ROWID">Inscripciones</a>
+                        <a class="dropdown-item" href="/interversiones/list?unidad=ROWID">Intervenciones</a>
+                    `,
             
             columns: [
                 { data: 'fecha_creacion', title: 'Fecha de registro', orderable: true, render: v => window.formatearFecha(v) },

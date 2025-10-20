@@ -7,7 +7,7 @@
         <select class="form-control" name="unidad" id="unidad">
             <option value="" disabled selected>Seleccione una opción</option>
             @foreach ($unidades as $item)
-                <option value="{{$item->id}}" >{{$item->nombre}}</option>
+                <option value="{{$item->unidadproductiva_id}}" >{{$item->business_name}}</option>
             @endforeach
         </select>
     </div>
@@ -59,7 +59,8 @@
                         minimumInputLength: 3,
                     }
                 } 
-            ]
+            ],
+            initFiltros: @json($filtros)
         };
     </script>
 @endsection
