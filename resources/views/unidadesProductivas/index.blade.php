@@ -61,7 +61,8 @@
             sortName: 'fecha_creacion',
             
             menu_row: ` <a class="dropdown-item" href="/unidadesProductivas/ROWID" >Ver detalles</a>
-                        <a class="dropdown-item" href="/unidadesProductivas/ROWID/edit">Editar</a>`,
+                        <a class="dropdown-item" href="/unidadesProductivas/ROWID/edit">Editar</a>
+                        <a class="dropdown-item" href="/interversiones/list?unidad=ROWID">Interversiones</a>`,
             
             columns: [
                 { data: 'fecha_creacion', title: 'Fecha de registro', orderable: true, render: v => window.formatearFecha(v) },

@@ -26,6 +26,7 @@ use App\Http\Controllers\DefaultEmailTemplateController;
 use App\Http\Controllers\EmpresariosController;
 use App\Http\Controllers\SeccionesController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\InterversionesController;
 use App\Http\Middleware\ValidateUserMenuAccess;
 
 
@@ -62,6 +63,7 @@ Route::as('admin.')
         Route::get('/historias/list', [HistoriaController::class, 'list']);
         Route::get('/links/list', [LinkController::class, 'list']);
         Route::get('/settings/list', [SettingController::class, 'list']);
+        Route::get('/interversiones/list', [InterversionesController::class, 'list']);
         Route::get('/secciones', [SeccionesController::class, 'index']);
     });
 
@@ -85,6 +87,7 @@ Route::as('admin.')
     Route::get('/historias/export', [HistoriaController::class, 'export']);
     Route::get('/links/export', [LinkController::class, 'export']);
     Route::get('/settings/export', [SettingController::class, 'export']);
+    Route::get('/interversiones/export', [InterversionesController::class, 'export']);
 
     Route::resource('empresarios', EmpresariosController::class);
     Route::resource('users', UserController::class);
@@ -105,6 +108,7 @@ Route::as('admin.')
     Route::resource('links', LinkController::class);
     Route::resource('secciones', SeccionesController::class);
     Route::resource('settings', SettingController::class);
+    Route::resource('interversiones', InterversionesController::class);
     Route::resource('emailTemplates', EmailTemplateController::class);
     Route::resource('defaultEmailTemplates', DefaultEmailTemplateController::class);
 
