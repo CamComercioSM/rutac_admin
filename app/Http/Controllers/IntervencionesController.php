@@ -73,21 +73,21 @@ class IntervencionesController extends Controller
 
         $query = UnidadProductivaIntervenciones::query()
             ->select([
-                'unidadesproductivas_Intervenciones.*',
+                'unidadesproductivas_intervenciones.*',
                 DB::raw("CONCAT(users.name, ' ', users.lastname) as asesor"),
                 'unidadesproductivas.business_name as unidad',
             ])
-            ->join('users', 'users.id', '=', 'unidadesproductivas_Intervenciones.asesor_id')
-            ->join('unidadesproductivas', 'unidadesproductivas.unidadproductiva_id', '=', 'unidadesproductivas_Intervenciones.unidadproductiva_id');
+            ->join('users', 'users.id', '=', 'unidadesproductivas_intervenciones.asesor_id')
+            ->join('unidadesproductivas', 'unidadesproductivas.unidadproductiva_id', '=', 'unidadesproductivas_intervenciones.unidadproductiva_id');
 
 
         $asesor = (Auth::user()->rol_id === Role::ASESOR) ? Auth::id() : $request->get('asesor');
         if ($asesor) {
-            $query->where('unidadesproductivas_Intervenciones.asesor_id', $asesor);
+            $query->where('unidadesproductivas_intervenciones.asesor_id', $asesor);
         }
 
         if ($unidad = $request->get('unidad')) {
-            $query->where('unidadesproductivas_Intervenciones.unidadproductiva_id', $unidad);
+            $query->where('unidadesproductivas_intervenciones.unidadproductiva_id', $unidad);
         }
 
         if ($fechaInicio = $request->get('fecha_inicio')) {

@@ -71,7 +71,7 @@
 @section('script')
     <script> 
         window.TABLA = {
-            urlApi: '/Intervenciones',
+            urlApi: '/intervenciones',
             sortName: 'id',
             accion_editar: true,
             columns: [
