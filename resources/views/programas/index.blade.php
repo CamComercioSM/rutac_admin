@@ -17,7 +17,6 @@
         <select class="form-select" name="modalidad" id="modalidad" >
             <option value="" disabled selected>Seleccione una opción</option>
             @foreach ($modalidades as $index => $item)
-                <option value="" disabled selected>Seleccione una opción</option>
                 <option value="{{$index}}" >{{$item}}</option>
             @endforeach
         </select>
