@@ -124,7 +124,7 @@
                     method="POST" >
 
                     <div class="col-sm-12 mb-3">
-                        <label class="form-label">Unidades productivas seleccionadas</label>
+                        <label class="form-label">Unidades productivas seleccionadas (<span id="cantidad"></span>) </label>
                         <ul id="listaUnidades" class="list-group mb-3"></ul>
                     </div>
                 
@@ -158,7 +158,10 @@
                     </div>
 
                     @csrf
+                    
                     @method('PATCH')
+
+                    <input type="hidden" name="todo" id="todos" value="0" >
 
                     <div class="col-sm-12 text-center">
                         <hr class="mx-md-n5 mx-n3" />
@@ -196,9 +199,8 @@
             urlApi: '/inscripciones',
             sortName: 'fecha_creacion',
             menu_row: `<a class="dropdown-item" href="/inscripciones/ROWID" >Ver detalles</a>`,
-            seleccionMultiple: true,
+            checkboxes: true,
             columns: [
-                { data: 'id', title: '', orderable: false, render: v => `<input type="checkbox" class="fila-check" data-id="${v}">`, class: 'check' },
                 @if ($esAsesor != 1)
                     { data: 'nombre_convocatoria', title: 'Convocatoria', orderable: true },
                     { data: 'nombre_programa', title: 'Programa', orderable: true },
@@ -323,6 +325,11 @@
 
                 let formData = new FormData(formEl);
 
+                for(let nb in window.TABLA.filtrosCampos)
+                {
+                    formData.append('filtros['+nb+']', window.TABLA.filtrosCampos[nb])
+                }
+
                 $.ajax({
                     type: method,
                     url: actionUrl,
@@ -352,38 +359,37 @@
                 });
             });
 
-            let seleccionados = new Map();
-
-            $('#tabla').on('change', '.fila-check', function () {
-                const rowData = $('#tabla').DataTable().row($(this).closest('tr')).data();
-                const id = $(this).data('id');
-                
-                if (this.checked) {
-                    seleccionados.set(id, rowData.business_name);
-                } else {
-                    seleccionados.delete(id);
-                }
-            });
-
             $('#btnCambioEstado').on('click', function () {
-                if (seleccionados.size === 0) {
-                    alert('Debe seleccionar al menos un registro.');
-                    return;
+
+                if (window.TABLA.seleccionados.size === 0) {
+                    return alert('Debe seleccionar al menos un registro.');
                 }
 
                 $('#listaUnidades').empty();
-
-                seleccionados.forEach((nombre, id) => {
-                    $('#listaUnidades').append(`
-                        <li class="list-group-item">
-                            <input type="hidden" name="inscripciones[]" value="${id}"> ${nombre}
-                        </li>`);
-                });
+               
+                if($('#todos').val() == 1)
+                {
+                    $('#listaUnidades').html(`
+                            <li class="list-group-item bg-warning">
+                                Se cambiara el estado a ${window.TABLA.totalRegistros} registros.
+                            </li>`);
+                    $('#cantidad').text(window.TABLA.totalRegistros);
+                }
+                else
+                {
+                    $('#cantidad').text(window.TABLA.seleccionados.size);
+                    window.TABLA.seleccionados
+                    .forEach((nombre, id) => {
+                        $('#listaUnidades').append(`
+                            <li class="list-group-item bg-warning">
+                                <input type="hidden" name="inscripciones[]" value="${id}"> ${nombre}
+                            </li>`);
+                    });
+                }
 
                 const modal = new bootstrap.Modal(document.getElementById('cambioEstadoModal'));
                 modal.show();
             });
-
         });
 
     </script>

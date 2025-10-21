@@ -151,6 +151,13 @@ class InscripcionesController extends Controller
             $path = $request->file('archivo')->store('storage/aplications', 'public');
         }
 
+        if($request->todo == 1)
+        {
+            $query = $this->getQuery(new Request($request->filtros)); 
+            $request->inscripciones = $query->select('inscripcion_id')->get()->pluck('inscripcion_id')->toArray();
+            dd($request->inscripciones);
+        }
+
         foreach($request->inscripciones as $ins_id)
         {
             $entity = ConvocatoriaInscripcion::with(['unidadProductiva', 'estado', 'convocatoria.programa'])
@@ -163,11 +170,11 @@ class InscripcionesController extends Controller
             $entity->inscripcionestado_id = $request->input('inscripcionestado_id');
             $entity->comentarios = $request->input('comentarios');
             $entity->activarPreguntas = $request->input('activarPreguntas') == 1;
-            $entity->save();
+            //$entity->save();
 
             // Enviar correo solo si el estado cambió
             if ($estadoAnterior != $entity->inscripcionestado_id) {
-                $this->enviarCorreoCambioEstado($entity);
+            //    $this->enviarCorreoCambioEstado($entity);
             }
         }
 

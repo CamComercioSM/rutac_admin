@@ -49,9 +49,12 @@ $(document).ready(function () {
         const queryString = 'export?' + new URLSearchParams(params).toString();
         $('#btnExport').attr('href', queryString);
 
+        window.TABLA.filtrosCampos = params;
+
         // Llamada con axios
         axios.get(window.TABLA.urlApi, { params })
             .then(res => {
+                window.TABLA.totalRegistros = res.data.recordsTotal;
                 callback(res.data);
             })
             .catch(error => {
@@ -86,11 +89,38 @@ $(document).ready(function () {
 
     if(window.TABLA && window.TABLA.columns)
     {
+        window.TABLA.seleccionados = new Map();
+        window.TABLA.seleccionarTodo = false;
+        let columnDefs = [];
+        let select = null;
+
+        if(window.TABLA.checkboxes)
+        {
+            window.TABLA.columns.unshift({ data: 'id', orderable: false, className: 'check', render: DataTable.render.select() });
+            columnDefs = [
+                {
+                    targets: 0,
+                    searchable: false,
+                    orderable: false,
+                    className: 'check',
+                    render: function () {
+                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
+                    },
+                    checkboxes: {
+                        selectRow: true,
+                        selectAllRender: '<input type="checkbox" class="form-check-input">'
+                    }
+                }
+            ];
+            select = { style: 'multi' };
+        }
+
         tabla = $('#tabla').DataTable({
             serverSide: true,
             processing: true,
             ajax: ajaxCargarData,
             columns: window.TABLA.columns,
+            columnDefs: columnDefs,
             pageLength: 10,
             lengthMenu: [10, 15, 25, 50, 100],
             language: {
@@ -100,8 +130,49 @@ $(document).ready(function () {
                     first: '<i class="icon-base ri ri-skip-back-mini-line scaleX-n1-rtl icon-22px"></i>',
                     last: '<i class="icon-base ri ri-skip-forward-mini-line scaleX-n1-rtl icon-22px"></i>'
                 }
-            }
+            },
+            layout: {
+                topStart: {
+                    rowClass: 'row mx-2 justify-content-between',
+                    features: [
+                        { pageLength: { menu: [10, 25, 50, 100], text: 'Show_MENU_entries' } }
+                    ]
+                },
+                topEnd: { search: { placeholder: 'Busqueda...' } },
+                bottomStart: {
+                    rowClass: 'row mx-2 justify-content-between',
+                    features: ['info']
+                },
+                bottomEnd: 'paging'
+            },
+            select: select
         });
+
+        if(window.TABLA.checkboxes)
+        {
+            tabla.on('select', function(e, dt, type, indexes) {
+                const data = tabla.rows(indexes).data().toArray();
+                data.forEach(row => {
+                    window.TABLA.seleccionados.set(row.id, row.business_name);
+                });
+            });
+
+            tabla.on('deselect', function(e, dt, type, indexes) {
+                const data = tabla.rows(indexes).data().toArray();
+                data.forEach(row => {
+                    window.TABLA.seleccionados.delete(row.id);
+                });
+            });
+
+            tabla.on('draw', function() {
+                tabla.rows().every(function () {
+                    const data = this.data();
+                    if (window.TABLA.seleccionados.has(data.id)) {
+                        this.select();
+                    }
+                });
+            });
+        }
     }
 
     // Eventos click y dblclick
