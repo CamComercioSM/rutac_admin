@@ -133,7 +133,7 @@ class ProgramaController extends Controller
             });
         }
 
-        if($modalidad >= 0){
+        if($modalidad != null){
             $query->where('es_virtual', $modalidad);
         }
 
