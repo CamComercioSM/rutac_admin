@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\ConvocatoriaExport;
+use App\Exports\ProgramaExport;
 use App\Http\Controllers\Controller;
 use App\Models\Programas\Programa;
 use App\Models\Programas\ProgramaConvocatoria;
@@ -27,7 +27,7 @@ class ProgramaController extends Controller
     function export(Request $request)
     { 
         $query = $this->getQuery($request);
-        return Excel::download(new ConvocatoriaExport($query), 'convocatorias.xlsx');
+        return Excel::download(new ProgramaExport($query), 'programas.xlsx');
     }
 
     public function index(Request $request)
@@ -37,7 +37,9 @@ class ProgramaController extends Controller
 
         $data['data'] = collect($data['data'])->map(function ($item) {
             $itemArray = $item->toArray();
+            $itemArray['modalidad'] = Programa::$es_virtual_text[$itemArray['es_virtual']] ?? '';
             $itemArray['etapas'] = $item->etapas->pluck('etapa_id')->toArray();
+            $itemArray['etapas_str'] = implode(', ', $item->etapas->pluck('name')->toArray());
             return $itemArray;
         })->toArray();
 
@@ -91,8 +93,10 @@ class ProgramaController extends Controller
     private function getQuery(Request $request)
     {
         $search = $request->get('search');
+        $etapa = $request->get('etapa');
+        $modalidad = $request->get('modalidad');
 
-        $query = Programa::with(['etapas:etapa_id', 'requisitosTodos:requisito_id,requisito_titulo'])->
+        $query = Programa::with(['etapas', 'requisitosTodos:requisito_id,requisito_titulo'])->
             select([
                 'programa_id AS id',
                 'programa_id',
@@ -115,7 +119,7 @@ class ProgramaController extends Controller
 
         if(!empty($search))
         {
-            $filterts = ['nombre', 'codigo_pac'];
+            $filterts = ['nombre', 'duracion', 'codigo_pac'];
             $query->where(function ($q) use ($search, $filterts) {
                 foreach ($filterts as $field) {
                     $q->orWhere($field, 'like', "%{$search}%");
@@ -123,7 +127,15 @@ class ProgramaController extends Controller
             });
         }
 
-       
+        if(!empty($etapa)){
+            $query->whereHas('etapas', function ($query) use ($etapa) {
+                $query->where('etapas.etapa_id', $etapa);
+            });
+        }
+
+        if(!empty($modalidad)){
+            $query->where('es_virtual', $modalidad);
+        }
 
         return $query;
     }

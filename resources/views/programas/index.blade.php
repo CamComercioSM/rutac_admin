@@ -1,5 +1,30 @@
 @extends('layouts.list', ['titulo'=> 'Programas', 'tituloModal'=> 'programa'])
 
+@section('form-filters')
+
+    <div class="col-12 col-md-5 form-group mb-3">
+        <label class="form-label" for="etapa">Etapa</label>
+        <select class="form-select" name="etapa" id="etapa" >
+            <option value="" disabled selected>Seleccione una opción</option>
+            @foreach ($etapas as $item)
+                <option value="{{$item->etapa_id}}" >{{$item->name}}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-12 col-md-5 form-group mb-3">
+        <label class="form-label" for="modalidad">Modalidad</label>
+        <select class="form-select" name="modalidad" id="modalidad" >
+            <option value="" disabled selected>Seleccione una opción</option>
+            @foreach ($modalidades as $index => $item)
+                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="{{$index}}" >{{$item}}</option>
+            @endforeach
+        </select>
+    </div>
+
+@endsection
+
 @section('form-fields')
     <div class="row">
 
@@ -139,7 +164,9 @@
             columns: [
                 { data: 'codigo_pac', title: 'Código PAC', orderable: true },
                 { data: 'nombre', title: 'Nombre', orderable: true },
-                { data: 'duracion', title: 'Duración', orderable: true }
+                { data: 'duracion', title: 'Duración', orderable: true },
+                { data: 'modalidad', title: 'Modalidad', orderable: true },
+                { data: 'etapas_str', title: 'Etapas', orderable: true }
             ],
 
             initSelects: [ 
@@ -183,7 +210,6 @@
                 toast.show();
                 return;
             }
-
 
             window.itemOption({ requisito_id: id, requisito_titulo: text });
 

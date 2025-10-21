@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\Programas\Programa;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\{
@@ -12,7 +13,7 @@ use Maatwebsite\Excel\Concerns\{
     Exportable
 };
 
-class ConvocatoriaExport implements FromQuery, WithMapping, WithHeadings, WithChunkReading, ShouldQueue
+class ProgramaExport implements FromQuery, WithMapping, WithHeadings, WithChunkReading, ShouldQueue
 {
     use Exportable;
 
@@ -33,13 +34,10 @@ class ConvocatoriaExport implements FromQuery, WithMapping, WithHeadings, WithCh
         return [
             'ID',
             'Código PAC',
-            'Programa',
             'Nombre',
-            'Encargado',
-            'Email',
-            'Teléfono',
-            'Fecha inicio',
-            'Fecha finalizacion'         
+            'Duración',
+            'Modalidad',
+            'Etapas',     
         ];
     }
 
@@ -48,13 +46,10 @@ class ConvocatoriaExport implements FromQuery, WithMapping, WithHeadings, WithCh
         return [
             $row->id,
             $row->codigo_pac,
-            $row->nombre_programa,
-            $row->nombre_convocatoria,
-            $row->persona_encargada,
-            $row->correo_contacto,
-            $row->telefono,
-            $row->fecha_apertura_convocatoria,
-            $row->fecha_cierre_convocatoria,
+            $row->nombre,
+            $row->duracion,
+            (Programa::$es_virtual_text[$row->es_virtual] ?? ""),
+            implode(', ', $row->etapas->pluck('name')->toArray())
         ];
     }
 
