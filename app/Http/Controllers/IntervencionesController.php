@@ -28,7 +28,7 @@ class IntervencionesController extends Controller
             $data['unidades'] = UnidadProductiva::where('unidadproductiva_id', $unidad)->get();
         }
 
-        return View("Intervenciones.index", $data);
+        return View("intervenciones.index", $data);
     }
 
     function export(Request $request)
