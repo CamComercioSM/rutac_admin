@@ -6,19 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\UserTrait;
 
-class Banner extends Model {
+class Historia extends Model {
     use HasFactory, UserTrait;
 
-    protected $table = 'banners';
+    protected $table = 'histories';
     protected $primaryKey = 'id';
     
     protected $fillable = [
+        'section_id',
         'name',
-        'title',
+        'video_url',
         'image',
-        'image_movil',
-        'description',
-        'text_button',
-        'url'
     ];
 }

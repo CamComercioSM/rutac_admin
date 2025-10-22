@@ -54,10 +54,12 @@
                 @endif
 
                 @if (!isset($exportar) || $exportar === true)
-                    <a id="btnExport" class="btn btn-success" href="export" target="_blank">
+                    <a id="btnExport" class="btn btn-success me-3" href="export" target="_blank">
                         <i class="icon-base ri ri-file-excel-2-line  me-2"></i> Exportar
                     </a>
                 @endif
+
+                @yield('btns-actions')
             </div>
 
             <table id="tabla" class="table"></table>
@@ -87,5 +89,8 @@
     </div>
 </div>
 
+@yield('modals')
+
 <div id="MenurowTable" class="dropdown-menu shadow" style="position:absolute; display:none;"></div>
+
 @endsection

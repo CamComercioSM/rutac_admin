@@ -6,19 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\UserTrait;
 
-class Banner extends Model {
+class Link extends Model {
     use HasFactory, UserTrait;
 
-    protected $table = 'banners';
+    protected $table = 'links';
     protected $primaryKey = 'id';
     
     protected $fillable = [
+        'section_id',
         'name',
-        'title',
-        'image',
-        'image_movil',
-        'description',
-        'text_button',
-        'url'
+        'type',
+        'value',
     ];
 }

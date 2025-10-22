@@ -1,5 +1,11 @@
 @extends('layouts.list', ['titulo'=> 'Inscripciones', 'tituloModal'=> 'Inscripción'])
 
+@section('btns-actions')
+    <button class="btn btn-primary" id="btnCambioEstado">
+        Cambio de estado
+    </button>
+@endsection
+
 @section('form-filters')
 
     <div class="col-12 col-md-4 form-group mb-3">
@@ -37,7 +43,7 @@
         <select class="form-select" name="unidad" id="unidad">
             <option value="" disabled selected>Seleccione una opción</option>
             @foreach ($unidades as $item)
-                <option value="{{$item->id}}" >{{$item->nombre}}</option>
+                <option value="{{$item->unidadproductiva_id}}" >{{$item->business_name}}</option>
             @endforeach
         </select>
     </div>
@@ -53,7 +59,6 @@
     </div>
 
 @endsection
-
 
 @section('form-fields')
 
@@ -102,10 +107,86 @@
 
     </div>
 
-    <div class="position-fixed top-0 end-0 p-5 w-100 d-flex justify-content-center" style="z-index: 1111;">
-        <div id="warningToast" class="toast bg-warning text-dark" role="alert">
-            <div class="toast-body">
-            ⚠️ El registro ya existe en la tabla.
+@endsection
+
+@section('modals')
+    <div class="modal fade" id="cambioEstadoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-6">
+            <div class="modal-body pt-md-0 px-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="text-center mb-6">
+                    <h4 class="mb-2">Cambio de estado</h4>
+                </div>
+                <form id="cambioEstadoForm" class="row g-5 d-flex align-items-center" 
+                    action="/inscripciones/0" 
+                    enctype="multipart/form-data"
+                    method="POST" >
+
+                    <div class="col-sm-12 mb-3">
+                        <label class="form-label">Unidades productivas seleccionadas (<span id="cantidad"></span>) </label>
+                        <ul id="listaUnidades" class="list-group mb-3"></ul>
+                    </div>
+                
+                    <div class="col-sm-12 mb-3">
+                        <label class="form-label" for="inscripcionestado_id">Estado</label>
+                        <select id="inscripcionestado_id" name="inscripcionestado_id" class="form-select form-select-sm">
+                            <option value="" disabled selected>Seleccione una opción</option>
+                            @foreach ($estados as $item)
+                                <option value="{{$item->inscripcionestado_id}}" >{{$item->inscripcionEstadoNOMBRE}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                
+                    <div class="col-sm-12 mb-3">
+                        <label class="form-label" for="comentarios">Comentarios </label>
+                        <textarea class="form-control" name="comentarios" id="comentarios" rows="4" placeholder="Ingrese los comentarios"></textarea>
+                    </div>
+
+                    <div class="col-sm-12 mb-3">
+                        <label class="form-label" for="activarPreguntas">¿Activar preguntas nuevamente?</label>
+                        <select class="form-select form-select-sm" name="activarPreguntas" id="activarPreguntas">
+                            <option value="" disabled selected>Seleccione una opción</option>
+                            <option value="0">No</option>
+                            <option value="1">Si</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-12 mb-3">
+                        <label class="form-label" for="archivo">Archivo adjunto</label>
+                        <input class="form-control" type="file" name="archivo" id="archivo" accept=".pdf,.jpg,.png,.doc,.docx">
+                    </div>
+
+                    @csrf
+                    
+                    @method('PATCH')
+
+                    <input type="hidden" name="todo" id="todos" value="0" >
+
+                    <div class="col-sm-12 text-center">
+                        <hr class="mx-md-n5 mx-n3" />
+
+                        <button class="btn btn-success mt-4" type="submit">
+                            Guardar
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+            
+            </div>
+        </div>
+    </div>
+
+    <div class="position-fixed top-0 end-0 w-100 d-flex justify-content-center" style="z-index: 1111;">
+        <div id="warningToast" class="toast bg-warning text-dark m-5" role="alert">
+            <div class="toast-body"> ⚠️ El registro ya existe en la tabla. </div>
+        </div>
+        
+        <div id="estadoToast" class="toast align-items-center text-bg-success border-0 m-5" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body"> ✅ Cambio guardado exitosamente </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         </div>
     </div>
@@ -117,12 +198,13 @@
         window.TABLA = {
             urlApi: '/inscripciones',
             sortName: 'fecha_creacion',
-            accion_ver: true,
+            menu_row: `<a class="dropdown-item" href="/inscripciones/ROWID" >Ver detalles</a>`,
+            checkboxes: true,
             columns: [
                 @if ($esAsesor != 1)
                     { data: 'nombre_convocatoria', title: 'Convocatoria', orderable: true },
                     { data: 'nombre_programa', title: 'Programa', orderable: true },
-                 @endif  
+                @endif  
                 { data: 'nit', title: 'NIT', orderable: true },
                 { data: 'business_name', title: 'Unidad productiva', orderable: true },
                 { data: 'sector', title: 'Sector', orderable: true },
@@ -203,7 +285,7 @@
                         <input type="hidden" name="unidades[${index}]" value="${row.id}" />
 
                         <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)" >
-                            <i class="ri-delete-bin-line"></i>
+                            <i class="icon-base ri ri-delete-bin-line"></i>
                         </button>
                     </td>
                 </tr>`;
@@ -225,6 +307,90 @@
         {
             return $("#table_opciones tr").length > 0;
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const cargando = document.querySelectorAll('.cargando')[0];
+
+            $('#cambioEstadoForm').on('submit', function (e) {
+                e.preventDefault();
+
+                cargando.classList.remove('d-none');
+
+                let form = $(this); 
+                let formEl = this; 
+
+                let method = form.attr('method'); 
+                let actionUrl = form.attr('action');
+
+                let formData = new FormData(formEl);
+
+                for(let nb in window.TABLA.filtrosCampos)
+                {
+                    formData.append('filtros['+nb+']', window.TABLA.filtrosCampos[nb])
+                }
+
+                $.ajax({
+                    type: method,
+                    url: actionUrl,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+
+                        $(".modal").modal('hide');
+                        cargando.classList.add('d-none');
+                        
+                        let toastEl = document.getElementById('estadoToast');
+                        let toast = new bootstrap.Toast(toastEl, { delay: 2000 }); // 3s
+                        toast.show();
+
+                        // Recargar la página después de que el toast se oculte
+                        toastEl.addEventListener('hidden.bs.toast', () => {
+                            cargando.classList.remove('d-none');
+                            location.reload();
+                        });
+                    },
+                    error: function (xhr) {
+                        console.error(xhr.responseText);
+                        alert('Ocurrió un error al guardar');
+                       cargando.classList.add('d-none');
+                    }
+                });
+            });
+
+            $('#btnCambioEstado').on('click', function () {
+
+                if (window.TABLA.seleccionados.size === 0) {
+                    return alert('Debe seleccionar al menos un registro.');
+                }
+
+                $('#listaUnidades').empty();
+               
+                if($('#todos').val() == 1)
+                {
+                    $('#listaUnidades').html(`
+                            <li class="list-group-item bg-warning">
+                                Se cambiara el estado a ${window.TABLA.totalRegistros} registros.
+                            </li>`);
+                    $('#cantidad').text(window.TABLA.totalRegistros);
+                }
+                else
+                {
+                    $('#cantidad').text(window.TABLA.seleccionados.size);
+                    window.TABLA.seleccionados
+                    .forEach((nombre, id) => {
+                        $('#listaUnidades').append(`
+                            <li class="list-group-item bg-warning">
+                                <input type="hidden" name="inscripciones[]" value="${id}"> ${nombre}
+                            </li>`);
+                    });
+                }
+
+                const modal = new bootstrap.Modal(document.getElementById('cambioEstadoModal'));
+                modal.show();
+            });
+        });
 
     </script>
 

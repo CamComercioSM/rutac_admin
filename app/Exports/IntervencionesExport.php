@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Concerns\{
     Exportable
 };
 
-class ConvocatoriaExport implements FromQuery, WithMapping, WithHeadings, WithChunkReading, ShouldQueue
+class IntervencionesExport implements FromQuery, WithMapping, WithHeadings, WithChunkReading, ShouldQueue
 {
     use Exportable;
 
@@ -32,14 +32,12 @@ class ConvocatoriaExport implements FromQuery, WithMapping, WithHeadings, WithCh
     {
         return [
             'ID',
-            'Código PAC',
-            'Programa',
-            'Nombre',
-            'Encargado',
-            'Email',
-            'Teléfono',
             'Fecha inicio',
-            'Fecha finalizacion'         
+            'Fecha fin',
+            'Unidad productiva',
+            'Asesor',
+            'Soporte',
+            'Descripción'
         ];
     }
 
@@ -47,14 +45,12 @@ class ConvocatoriaExport implements FromQuery, WithMapping, WithHeadings, WithCh
     {
         return [
             $row->id,
-            $row->codigo_pac,
-            $row->nombre_programa,
-            $row->nombre_convocatoria,
-            $row->persona_encargada,
-            $row->correo_contacto,
-            $row->telefono,
-            $row->fecha_apertura_convocatoria,
-            $row->fecha_cierre_convocatoria,
+            $row->fecha_inicio,
+            $row->fecha_fin,
+            $row->unidad,
+            $row->asesor,
+            $row->soporte,
+            $row->descripcion
         ];
     }
 
@@ -63,3 +59,4 @@ class ConvocatoriaExport implements FromQuery, WithMapping, WithHeadings, WithCh
         return 500;
     }
 }
+

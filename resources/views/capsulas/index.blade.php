@@ -1,6 +1,6 @@
 @extends('layouts.list', ['titulo'=> 'Capsulas', 'tituloModal'=> 'capsula'])
 
-@section('form-fielsd')
+@section('form-fields')
     <div class="row">
 
         <div class="col-12 col-md-12 form-group mb-3">
@@ -22,6 +22,15 @@
             <input class="form-control" type="file" id="formFile" name="formFile">
         </div>
 
+        <div class="col-12 col-md-12 form-group mb-3">
+            <label class="form-label" for="etapas">Etapas</label>
+            <select class="form-select" name="etapas[]" id="etapas" multiple >
+                @foreach ($etapas as $item)
+                    <option value="{{$item->etapa_id}}" >{{$item->name}}</option>
+                @endforeach
+            </select>
+        </div>
+
     </div>
 @endsection
 
@@ -33,7 +42,10 @@
             accion_editar: true,
             columns: [
                 { data: 'nombre', title: 'Nombre', orderable: true },
-            ]
+            ],
+            initSelects: [ 
+                { id:'etapas', setting:{ placeholder: 'Selección multiple'}  },                
+            ],
         };
     </script>
 @endsection

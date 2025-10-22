@@ -1,11 +1,40 @@
 @extends('layouts.list', ['titulo'=> 'Programas', 'tituloModal'=> 'programa'])
 
+@section('form-filters')
+
+    <div class="col-12 col-md-5 form-group mb-3">
+        <label class="form-label" for="etapa">Etapa</label>
+        <select class="form-select" name="etapa" id="etapa" >
+            <option value="" disabled selected>Seleccione una opción</option>
+            @foreach ($etapas as $item)
+                <option value="{{$item->etapa_id}}" >{{$item->name}}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-12 col-md-5 form-group mb-3">
+        <label class="form-label" for="modalidad">Modalidad</label>
+        <select class="form-select" name="modalidad" id="modalidad" >
+            <option value="" disabled selected>Seleccione una opción</option>
+            @foreach ($modalidades as $index => $item)
+                <option value="{{$index}}" >{{$item}}</option>
+            @endforeach
+        </select>
+    </div>
+
+@endsection
+
 @section('form-fields')
     <div class="row">
 
-        <div class="col-12 col-md-12 form-group mb-3">
+        <div class="col-12 col-md-9 form-group mb-3">
             <label class="form-label" for="nombre">Nombre </label>
             <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Nombre " required>
+        </div>
+
+        <div class="col-12 col-md-3 form-group mb-3">
+            <label class="form-label" for="codigo_pac">Código PAC </label>
+            <input type="text" class="form-control" name="codigo_pac" id="codigo_pac" placeholder="Código PAC " required>
         </div>
 
         <div class="col-12 col-md-12 form-group mb-3">
@@ -132,8 +161,11 @@
                         <a class="dropdown-item" href="/convocatorias/list?programa=ROWID">Convocatorias</a>`,
 
             columns: [
+                { data: 'codigo_pac', title: 'Código PAC', orderable: true },
                 { data: 'nombre', title: 'Nombre', orderable: true },
-                { data: 'duracion', title: 'Duración', orderable: true }
+                { data: 'duracion', title: 'Duración', orderable: true },
+                { data: 'modalidad', title: 'Modalidad', orderable: true },
+                { data: 'etapas_str', title: 'Etapas', orderable: true }
             ],
 
             initSelects: [ 
@@ -177,7 +209,6 @@
                 toast.show();
                 return;
             }
-
 
             window.itemOption({ requisito_id: id, requisito_titulo: text });
 

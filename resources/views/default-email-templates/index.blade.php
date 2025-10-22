@@ -133,7 +133,7 @@
                                                             data-id="{{ $defaultTemplate->id }}"
                                                             data-name="{{ $defaultTemplate->name }}"
                                                             title="Eliminar">
-                                                        <i class="ri-delete-bin-line"></i>
+                                                        <i class="icon-base ri ri-delete-bin-line"></i>
                                                     </button>
                                                 </div>
                                             </td>

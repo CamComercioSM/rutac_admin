@@ -108,7 +108,7 @@
             </div>
           @endif
 
-          <form id="formAuthentication" class="mb-5" action="{{ route('auth.login') }}" method="POST">
+          <form id="formAuthentication" class="mb-5" action="{{ route('login') }}" method="POST">
             @csrf
             <div class="form-floating form-floating-outline mb-5">
               <input type="text" class="form-control" id="email" name="email" placeholder="Correo electrónico o usuario" autofocus>

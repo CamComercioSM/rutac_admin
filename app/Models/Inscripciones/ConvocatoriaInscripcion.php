@@ -69,7 +69,8 @@ class ConvocatoriaInscripcion extends Model
 
     public function historial()
     {
-        return $this->HasMany(ConvocatoriaInscripcionHistorial::class, 'inscripcion_id', 'inscripcion_id');
+        return $this->HasMany(ConvocatoriaInscripcionHistorial::class, 'inscripcion_id', 'inscripcion_id')
+        ->orderBy('fecha_creacion', 'desc');
     }
 
 }

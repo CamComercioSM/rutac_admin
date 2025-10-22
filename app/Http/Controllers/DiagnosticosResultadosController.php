@@ -8,19 +8,25 @@ use App\Http\Controllers\Controller;
 use App\Models\Diagnosticos\DiagnosticoResultado;
 use App\Models\Diagnosticos\ResultadosDiagnostico;
 use App\Models\Diagnosticos\DiagnosticoRespuesta;
+use App\Models\Empresarios\UnidadProductiva;
 use App\Models\TablasReferencias\Etapa;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
 class DiagnosticosResultadosController extends Controller
 {
-    function list()
+    function list(Request $request)
     { 
         $data = [
             'etapas'=> Etapa::get(),
             'unidades'=> [],
+            'filtros'=> $request->all(),
         ];
         
+        if ($unidad = $request->get('unidad')) {
+            $data['unidades'] = UnidadProductiva::where('unidadproductiva_id', $unidad)->get();
+        }
+
         return View("diagnosticosRespuesta.index", $data);
     }
 

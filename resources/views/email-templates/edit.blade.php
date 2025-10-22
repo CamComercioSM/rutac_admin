@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <i class="ri-settings-3-line"></i>
                         </button>
                         <button type="button" class="btn btn-outline-danger btn-sm remove-component" data-id="${componentId}">
-                            <i class="ri-delete-bin-line"></i>
+                            <i class="icon-base ri ri-delete-bin-line"></i>
                         </button>
                     </div>
                 </div>
@@ -641,7 +641,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <i class="ri-settings-3-line"></i>
                             </button>
                             <button type="button" class="btn btn-outline-danger btn-sm remove-component" data-id="${componentId}">
-                                <i class="ri-delete-bin-line"></i>
+                                <i class="icon-base ri ri-delete-bin-line"></i>
                             </button>
                         </div>
                     </div>

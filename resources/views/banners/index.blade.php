@@ -1,4 +1,4 @@
-@extends('layouts.list', ['titulo'=> 'Capsulas', 'tituloModal'=> 'capsula'])
+@extends('layouts.list', ['titulo'=> 'Banners', 'tituloModal'=> 'Banner'])
 
 @section('form-fields')
     <div class="row">
@@ -27,8 +27,13 @@
         </div>
 
         <div class="col-12 col-md-12 form-group mb-3">
-            <label for="formFile" class="form-label">Imagen</label>
-            <input class="form-control" type="file" id="formFile" name="formFile">
+            <label for="imgPc" class="form-label">Imagen (Desktop)</label>
+            <input class="form-control" type="file" id="imgPc" name="imgPc">
+        </div>
+
+        <div class="col-12 col-md-12 form-group mb-3">
+            <label for="imgMovil" class="form-label">Imagen (Móvil)</label>
+            <input class="form-control" type="file" id="imgMovil" name="imgMovil">
         </div>
 
     </div>

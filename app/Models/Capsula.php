@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\TablasReferencias\Etapa;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,4 +27,9 @@ class Capsula extends Model
         'updated_at',
         'deleted_at',
     ];
+
+    public function etapas()
+    {
+        return $this->belongsToMany(Etapa::class, 'capsulas_etapas', 'capsula_id', 'etapa_id');
+    }
 }
