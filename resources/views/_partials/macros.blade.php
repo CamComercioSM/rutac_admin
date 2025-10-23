@@ -4,5 +4,5 @@
 @endphp
 
 <span class="text-primary">
-  <img src="/img/logo.png" style="max-width: 100%" width="{{ $width }}" height="{{ $height }}" >
+  <img src="https://cdnsicam.net/img/rutac/rutac-logo-con-ccsm.png" style="max-width: 100%" width="{{ $width }}" height="{{ $height }}" >
 </span>
