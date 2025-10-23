@@ -1,4 +1,14 @@
 <!-- Bottom Offcanvas -->
+<!-- Botón que abre una nueva página -->
+<a href="https://chatgpt.com/g/g-683a175ce0008191a30e84e26385f8cd-asesor-ruta-c"
+   target="_blank"
+   rel="noopener noreferrer"
+   class="btn btn-primary toggle-btn" data-bs-toggle="offcanvas" >
+    <i class="icon-base ri ri-user-search-fill"></i>
+    <span class="btn-text">marIA C</span>
+</a>
+
+
 <button class="btn btn-primary toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom">
     <i class="icon-base ri ri-user-search-fill"></i>
     <span class="btn-text">Expedientes Mercantiles</span>
