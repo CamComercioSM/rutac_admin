@@ -83,7 +83,7 @@
         <!-- Logo -->
         <div class="app-brand justify-content-center mt-5">
           <a href="{{url('/')}}" class="app-brand-link gap-3">
-            <span class="app-brand-logo demo">@include('_partials.macros',[ "height"=>40, "withbg"=>'fill: #fff;'])</span>
+            <span class="app-brand-logo demo">@include('_partials.macros',[ "height"=>80, "withbg"=>'fill: #fff;'])</span>
           </a>
         </div>
         <!-- /Logo -->
