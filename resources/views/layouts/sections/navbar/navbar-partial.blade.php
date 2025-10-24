@@ -441,21 +441,24 @@
     </li> --}}
         <!--/ Notification -->
         <!-- User -->
-
-        @php            
-            $confoto = Auth::user()->profile_photo_url ?? null;
-        @endphp
-
         <li class="nav-item navbar-dropdown dropdown-user dropdown">
             <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                 <div class="avatar avatar-online">
-
+                   @php
+                     if( session('tiene_foto') )
+                   @endphp
                     <img src="{{ Auth::user() ? Auth::user()->profile_photo_url : asset('assets/img/avatars/1.png') }}"
                         alt="alt" class="rounded-circle" />
+                    @php
+                      else
+                    @endphp
                     <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
                         style="width: 40px; height: 40px; background-color: #7367F0;">
                         {{ session('iniciales') }}
                     </div>
+                    @php
+                      endif;
+                    @endphp
                 </div>
             </a>
             <ul class="dropdown-menu dropdown-menu-end mt-3 py-2">
@@ -473,7 +476,7 @@
 
                                     <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
                                         style="width: 40px; height: 40px; background-color: #7367F0;">
-                                        {{ $inicial }}
+                                       {{ session('iniciales') }}
                                     </div>
 
 

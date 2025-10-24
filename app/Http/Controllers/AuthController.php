@@ -24,21 +24,18 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        try 
-        {
+        try {
             if (Auth::attempt([
-                'email' => $request->email, 
+                'email' => $request->email,
                 'password' => $request->password,
                 'active' => true
             ])) {
 
                 $this->setMenu();
                 return redirect()->intended('/dashboard');
-            } 
-            else {
+            } else {
                 return $this->index('Usuario o contraseña no válida.');
             }
-            
         } catch (\Exception $e) {
             Log::error('Error en login: ' . $e->getMessage(), [
                 'email' => $request->email,
@@ -50,7 +47,7 @@ class AuthController extends Controller
 
     public function logout()
     {
-        Auth::logout();        
+        Auth::logout();
         return redirect()->to('/')->with('mensaje', 'Sesión cerrada correctamente.');
     }
 
@@ -66,7 +63,7 @@ class AuthController extends Controller
 
         try {
             Log::info('Intentando enviar correo de recuperación para', ['email' => $request->email]);
-            
+
             $status = Password::sendResetLink(
                 $request->only('email')
             );
@@ -91,9 +88,9 @@ class AuthController extends Controller
                     default:
                         $errorMessage = 'No se pudo enviar el enlace de recuperación. Inténtalo de nuevo.';
                 }
-                
+
                 Log::warning('Error al enviar correo de recuperación: ' . $status . ' para: ' . $request->email);
-                
+
                 return response()->json([
                     'success' => false,
                     'message' => '❌ ' . $errorMessage
@@ -104,7 +101,7 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => '❌ Error al enviar el correo: ' . $e->getMessage()
@@ -164,9 +161,9 @@ class AuthController extends Controller
                 default:
                     $errorMessage = 'No se pudo restablecer la contraseña. El enlace puede haber expirado.';
             }
-            
+
             Log::warning('Error al restablecer contraseña: ' . $status . ' para: ' . $request->email);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => $errorMessage
@@ -189,33 +186,32 @@ class AuthController extends Controller
     {
         try {
             $googleUser = Socialite::driver('google')->user();
-            
+
             Log::info('Intento de login con Google', ['email' => $googleUser->getEmail()]);
-            
+
             // Buscar usuario existente con todas las condiciones requeridas
             $user = User::where('email', $googleUser->getEmail())
                 ->where('active', 1)
                 ->where('rol_id', '>', 0)
                 ->first();
-            
+
             if ($user) {
                 // Usuario existe y cumple las condiciones, iniciar sesión
                 Auth::login($user);
-                
+
                 Log::info('Login exitoso con Google', ['user_id' => $user->id, 'email' => $user->email]);
-                
-                $this->setMenu();                
+
+                $this->setMenu();
                 return redirect()->intended('/dashboard');
-            } 
+            }
 
             // Usuario no existe o no cumple las condiciones
             Log::warning('Intento de login con Google fallido', [
                 'email' => $googleUser->getEmail(),
                 'reason' => 'Usuario no encontrado o no cumple condiciones'
             ]);
-            
+
             return $this->index('Este correo de Gmail no se encuentra en nuestro sistema. Por favor comuníquese con el administrador.');
-            
         } catch (\Exception $e) {
             Log::error('Error en Google OAuth', [
                 'error' => $e->getMessage(),
@@ -248,7 +244,8 @@ class AuthController extends Controller
             });
 
         // ✅ Guardar en sesión
-        Session::put('iniciales', strtoupper(mb_substr($user->name, 0, 1)) );
+        Session::put('iniciales', strtoupper(mb_substr($user->name, 0, 1)));
+        Session::put('tiene_foto', $user->profile_photo_url ?? null);
         Session::put('user_menu', $groupedMenus);
     }
 }
