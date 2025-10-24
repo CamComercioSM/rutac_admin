@@ -457,11 +457,11 @@ use Illuminate\Support\Facades\Route;
                 <h6 class="mb-0 small">
                   @if (Auth::check())
                   {{ Auth::user()->name }}
+                  <small class="text-body-secondary">{{ Auth::user()->role?->name}}</small>
                   @else
                   John Perez
                   @endif
                 </h6>
-                <small class="text-body-secondary">{{ Auth::user()->roles->first()->name}}</small>
               </div>
             </div>
           </a>
