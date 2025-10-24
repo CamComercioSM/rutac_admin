@@ -91,27 +91,13 @@
 
 <body>
 
-  @auth()
-    
-  
-    <div class="d-flex h-100 w-100 justify-content-center align-items-center cargando" style="position: fixed; z-index: 10000; background: #dbdbdb70;">
+  <div class="d-flex h-100 w-100 justify-content-center align-items-center cargando" style="position: fixed; z-index: 10000; background: #dbdbdb70;">
       <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
         <span class="visually-hidden">Cargando...</span>
       </div>
-    </div>
-
-    <a href="https://chatgpt.com/g/g-683a175ce0008191a30e84e26385f8cd-asesor-ruta-c"
-   target="_blank"
-   rel="noopener noreferrer"
-   class="btn btn-primary toggle-btn" data-bs-toggle="offcanvas" >
-    <i class="icon-base ri ri-user-search-fill"></i>
-    <span class="btn-text">marIA C</span>
-</a>
-
-    @include('_partials.consultaExpedienteMercantil')
+  </div>
+  @include('_partials.consultaExpedienteMercantil')
   
-  @endauth
-
   <!-- Layout Content -->
   @yield('layoutContent')
   <!--/ Layout Content -->

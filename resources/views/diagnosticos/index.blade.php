@@ -35,17 +35,11 @@
         window.TABLA = {
             urlApi: '/diagnosticos',
             sortName: 'diagnostico_nombre',
-            accion_editar: true,
+            menu_row: ` <button class="dropdown-item" onClick="openEditar()" >Editar</button>
+                        <a class="dropdown-item" href="/diagnosticosPreguntas/list/ROWID">Preguntas</a>`,
             columns: [
                 { data: 'diagnostico_nombre', title: 'Nombre', orderable: true },
                 { data: 'etapa', title: 'Etapa', orderable: true },
-                { 
-                    data: 'id', 
-                    title: 'Preguntas', 
-                    render: (v) => {
-                        return `<a href="/diagnosticosPreguntas/list/${v}"><i class="icon-base ri ri-eye-line"></i></a>`
-                    }
-                }
             ]
         };
     </script>

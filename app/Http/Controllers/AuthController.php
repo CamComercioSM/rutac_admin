@@ -19,6 +19,10 @@ class AuthController extends Controller
 
     public function index($mensaje = null)
     {
+        if(Auth::check()){
+            return redirect('/dashboard');
+        }
+
         return View('login', compact('mensaje'));
     }
 

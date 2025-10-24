@@ -1,6 +1,6 @@
 @extends('layouts.layoutMaster')
 
-@section('title', 'DataTables - Advanced Tables')
+@section('title', "$titulo")
 
 <!-- Vendor Styles -->
 @section('vendor-style')
@@ -22,6 +22,7 @@
 @endsection
 
 @section('content')
+
 <div class="container card my-3 shadow-sm">
 
     @yield('info-header')

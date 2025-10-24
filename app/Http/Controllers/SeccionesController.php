@@ -12,15 +12,33 @@ class SeccionesController extends Controller
     function index()
     { 
         $data = Section::find(1); 
+        
         return View("secciones.index", ['data'=>$data]);
     }
 
     public function store(Request $request)
     {
         $section = Section::findOrFail(1);
-
-        $layouts = []; 
+        $data = $section->data;
         
+        // === HISTORIES ===
+        $historiesAttributes = [
+            'discover_bg_image' => $section->historia['discover_bg_image'] ?? '',
+        ];
+
+        if ($request->hasFile('discover_bg_image')) {
+            $path = $request->file('discover_bg_image')->store('backgrounds', 'public');
+            $historiesAttributes['discover_bg_image'] = 'storage/' . $path;
+        }
+
+        $historiesAttributes['histories_title'] = $request->input('histories_title');
+        $historiesAttributes['histories_description'] = $request->input('histories_description');
+        $historiesAttributes['discover_title'] = $request->input('discover_title');
+        $historiesAttributes['discover_button_1_label'] = $request->input('discover_button_1_label');
+        $historiesAttributes['discover_button_1_url'] = $request->input('discover_button_1_url');
+        $historiesAttributes['discover_button_2_label'] = $request->input('discover_button_2_label');
+        $historiesAttributes['discover_button_2_url'] = $request->input('discover_button_2_url');
+
         // === FOOTER ===
         $footerAttributes = [
             'footer_logo_rutac' => $section->footer['footer_logo_rutac'] ?? '',
@@ -40,33 +58,9 @@ class SeccionesController extends Controller
         $footerAttributes['footer_email_contact'] = $request->input('footer_email_contact');
         $footerAttributes['footer_address'] = $request->input('footer_address');
 
-        $layouts[] = [
-            'layout' => 'footer',
-            'attributes' => $footerAttributes
-        ];
 
-        // === HISTORIES ===
-        $historiesAttributes = [
-            'discover_bg_image' => $section->historia['discover_bg_image'] ?? '',
-        ];
-
-        if ($request->hasFile('discover_bg_image')) {
-            $path = $request->file('discover_bg_image')->store('backgrounds', 'public');
-            $historiesAttributes['discover_bg_image'] = 'storage/' . $path;
-        }
-
-        $historiesAttributes['histories_title'] = $request->input('histories_title');
-        $historiesAttributes['histories_description'] = $request->input('histories_description');
-        $historiesAttributes['discover_title'] = $request->input('discover_title');
-        $historiesAttributes['discover_button_1_label'] = $request->input('discover_button_1_label');
-        $historiesAttributes['discover_button_1_url'] = $request->input('discover_button_1_url');
-        $historiesAttributes['discover_button_2_label'] = $request->input('discover_button_2_label');
-        $historiesAttributes['discover_button_2_url'] = $request->input('discover_button_2_url');
-
-        $layouts[] = [
-            'layout' => 'Histories',
-            'attributes' => $historiesAttributes
-        ];
+        $data[0]['attributes'] = $historiesAttributes;
+        $data[1]['attributes'] = $footerAttributes;
 
         // === GUARDAR ===
         $section->update([
@@ -75,7 +69,7 @@ class SeccionesController extends Controller
             'video_url' => $request->input('video_url'),
             'seo_title' => $request->input('seo_title'),
             'seo_description' => $request->input('seo_description'),
-            'data' => $layouts
+            'data' => $data
         ]);
 
         return response()->json([

@@ -1,9 +1,21 @@
 <!-- Bottom Offcanvas -->
 <!-- Botón que abre una nueva página -->
 
+@auth()
 
+<a href="https://chatgpt.com/g/g-683a175ce0008191a30e84e26385f8cd-asesor-ruta-c"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="btn btn-primary toggle-btn ia">
+        <i class="icon-base ri ri-search-eye-fill"></i>
+        <span class="btn-text">marIA C</span>
+</a>
 
-<button class="btn btn-primary toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom">
+<button class="btn btn-primary toggle-btn expediente" 
+        type="button" 
+        data-bs-toggle="offcanvas" 
+        data-bs-target="#offcanvasBottom" 
+        aria-controls="offcanvasBottom">
     <i class="icon-base ri ri-user-search-fill"></i>
     <span class="btn-text">Expedientes Mercantiles</span>
 </button>
@@ -312,7 +324,6 @@
 <style>
 .toggle-btn {
   position: fixed;
-  top: 35%;
   right: 0;
   transform: translateY(-50%);
   border-radius: 25px 0 0 25px;
@@ -320,6 +331,14 @@
   transition: all 0.3s ease;
   z-index: 1050;
   white-space: nowrap;
+}
+
+.toggle-btn.expediente{
+  top: 35%;
+}
+
+.toggle-btn.ia{
+  top: 42%;
 }
 
 .toggle-btn .btn-text {
@@ -335,3 +354,4 @@
   padding-left:5px;
 }
 </style>
+@endauth
