@@ -11,15 +11,15 @@
             <span
               class="app-brand-text demo text-white fw-semibold ms-2 ps-1">{{ config('variables.templateName') }}</span>
           </a>
-          <p class="footer-text footer-logo-description mb-6">Most Powerful & Comprehensive 🤩 React NextJS Admin
-            Template with Elegant Material Design & Unique Layouts.</p>
+          <p class="footer-text footer-logo-description mb-6">La plantilla de administración para React y Next.js más potente y completa, 
+            con un elegante diseño Material y diseños únicos.</p>
           <form class="footer-form">
             <div class="d-flex mt-2 gap-4">
               <div class="form-floating form-floating-outline w-px-250">
-                <input type="text" class="form-control bg-transparent" id="newsletter-1" placeholder="Your email" />
-                <label for="newsletter-1">Subscribe to newsletter</label>
+                <input type="text" class="form-control bg-transparent" id="newsletter-1" placeholder="Tu correo electrónico" />
+                <label for="newsletter-1">Suscríbete al boletín</label>
               </div>
-              <button type="submit" class="btn btn-primary">Subscribe</button>
+              <button type="submit" class="btn btn-primary"></button>
             </div>
           </form>
         </div>
@@ -27,7 +27,7 @@
           <h6 class="footer-title mb-4 mb-lg-6">Demos</h6>
           <ul class="list-unstyled mb-0">
             <li class="mb-4">
-              <a href="/demo-1" target="_blank" class="footer-link">Vertical Layout</a>
+              <a href="/demo-1" target="_blank" class="footer-link">Diseño vertical</a>
             </li>
             <li class="mb-4">
               <a href="/demo-5" target="_blank" class="footer-link">Horizontal Layout</a>

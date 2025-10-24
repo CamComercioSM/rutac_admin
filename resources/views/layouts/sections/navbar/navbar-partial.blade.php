@@ -101,24 +101,24 @@ use Illuminate\Support\Facades\Route;
       <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill" id="nav-theme"
         href="javascript:void(0);" data-bs-toggle="dropdown">
         <i class="icon-base ri ri-sun-line icon-22px theme-icon-active"></i>
-        <span class="d-none ms-2" id="nav-theme-text">Toggle theme</span>
+        <span class="d-none ms-2" id="nav-theme-text">Cambiar tema</span>
       </a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-theme-text">
         <li>
           <button type="button" class="dropdown-item align-items-center active" data-bs-theme-value="light"
             aria-pressed="false">
-            <span> <i class="icon-base ri ri-sun-line icon-md me-3" data-icon="sun-line"></i>Light</span>
+            <span> <i class="icon-base ri ri-sun-line icon-md me-3" data-icon="sun-line"></i>Claro</span>
           </button>
         </li>
         <li>
           <button type="button" class="dropdown-item align-items-center" data-bs-theme-value="dark" aria-pressed="true">
-            <span> <i class="icon-base ri ri-moon-clear-line icon-md me-3" data-icon="moon-clear-line"></i>Dark</span>
+            <span> <i class="icon-base ri ri-moon-clear-line icon-md me-3" data-icon="moon-clear-line"></i>Oscuro</span>
           </button>
         </li>
         <li>
           <button type="button" class="dropdown-item align-items-center" data-bs-theme-value="system"
             aria-pressed="false">
-            <span> <i class="icon-base ri ri-computer-line icon-md me-3" data-icon="computer-line"></i>System</span>
+            <span> <i class="icon-base ri ri-computer-line icon-md me-3" data-icon="computer-line"></i>Sistema</span>
           </button>
         </li>
       </ul>
@@ -135,7 +135,7 @@ use Illuminate\Support\Facades\Route;
       <div class="dropdown-menu dropdown-menu-end p-0">
         <div class="dropdown-menu-header border-bottom">
           <div class="dropdown-header d-flex align-items-center py-2 my-50">
-            <h6 class="mb-0 me-auto">Shortcuts</h6>
+            <h6 class="mb-0 me-auto">Atajos</h6>
             <a href="javascript:void(0)" class="dropdown-shortcuts-add btn btn-text-secondary rounded-pill btn-icon"
               data-bs-toggle="tooltip" data-bs-placement="top" title="Add shortcuts">
               <i class="icon-base ri ri-add-line icon-20px text-heading"></i>
@@ -148,15 +148,15 @@ use Illuminate\Support\Facades\Route;
               <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                 <i class="icon-base ri ri-calendar-line icon-26px text-heading"></i>
               </span>
-              <a href="{{ url('app/calendar') }}" class="stretched-link">Calendar</a>
-              <small>Appointments</small>
+              <a href="{{ url('app/calendar') }}" class="stretched-link">Calendario</a>
+              <small>Citas</small>
             </div>
             <div class="dropdown-shortcuts-item col">
               <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                 <i class="icon-base ri ri-file-text-line icon-26px text-heading"></i>
               </span>
-              <a href="{{ url('app/invoice/list') }}" class="stretched-link">Invoice App</a>
-              <small>Manage Accounts</small>
+              <a href="{{ url('app/invoice/list') }}" class="stretched-link">Aplicación de facturas</a>
+              <small>Gestionar cuentas</small>
             </div>
           </div>
           <div class="row row-bordered overflow-visible g-0">
@@ -164,15 +164,15 @@ use Illuminate\Support\Facades\Route;
               <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                 <i class="icon-base ri ri-user-line icon-26px text-heading"></i>
               </span>
-              <a href="{{ url('app/user/list') }}" class="stretched-link">User App</a>
-              <small>Manage Users</small>
+              <a href="{{ url('app/user/list') }}" class="stretched-link">Aplicación de usuarios</a>
+              <small>Gestionar usuarios</small>
             </div>
             <div class="dropdown-shortcuts-item col">
               <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                 <i class="icon-base ri ri-computer-line icon-26px text-heading"></i>
               </span>
-              <a href="{{ url('app/access-roles') }}" class="stretched-link">Role Management</a>
-              <small>Permission</small>
+              <a href="{{ url('app/access-roles') }}" class="stretched-link">Gestión de roles</a>
+              <small>Permisos</small>
             </div>
           </div>
           <div class="row row-bordered overflow-visible g-0">
@@ -180,15 +180,15 @@ use Illuminate\Support\Facades\Route;
               <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                 <i class="icon-base ri ri-pie-chart-2-line icon-26px text-heading"></i>
               </span>
-              <a href="{{ url('/') }}" class="stretched-link">Dashboard</a>
-              <small>User Dashboard</small>
+              <a href="{{ url('/') }}" class="stretched-link">Tablero</a>
+              <small>Tablero del usuario</small>
             </div>
             <div class="dropdown-shortcuts-item col">
               <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                 <i class="icon-base ri ri-settings-4-line icon-26px text-heading"></i>
               </span>
-              <a href="{{ url('pages/account-settings-account') }}" class="stretched-link">Setting</a>
-              <small>Account Settings</small>
+              <a href="{{ url('pages/account-settings-account') }}" class="stretched-link">Configuración</a>
+              <small>Configuración de la cuenta</small>
             </div>
           </div>
           <div class="row row-bordered overflow-visible g-0">
@@ -196,15 +196,15 @@ use Illuminate\Support\Facades\Route;
               <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                 <i class="icon-base ri ri-question-line icon-26px text-heading"></i>
               </span>
-              <a href="{{ url('pages/faq') }}" class="stretched-link">FAQs</a>
-              <small>FAQs & Articles</small>
+              <a href="{{ url('pages/faq') }}" class="stretched-link">Preguntas frecuentes</a>
+              <small>Preguntas frecuentes y artículos</small>
             </div>
             <div class="dropdown-shortcuts-item col">
               <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                 <i class="icon-base ri ri-tv-2-line icon-26px text-heading"></i>
               </span>
-              <a href="{{ url('modal-examples') }}" class="stretched-link">Modals</a>
-              <small>Useful Popups</small>
+              <a href="{{ url('modal-examples') }}" class="stretched-link">Modales</a>
+              <small>Ventanas emergentes útiles</small>
             </div>
           </div>
         </div>
@@ -213,7 +213,7 @@ use Illuminate\Support\Facades\Route;
     <!-- Quick links -->
 
     <!-- Notification -->
-    <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-1">
+    {{-- <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-1">
       <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill"
         href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
         <span class="position-relative">
@@ -224,9 +224,9 @@ use Illuminate\Support\Facades\Route;
       <ul class="dropdown-menu dropdown-menu-end p-0">
         <li class="dropdown-menu-header border-bottom">
           <div class="dropdown-header d-flex align-items-center py-3">
-            <h6 class="mb-0 me-auto">Notification</h6>
+            <h6 class="mb-0 me-auto">Notificaciones</h6>
             <div class="d-flex align-items-center h6 mb-0">
-              <span class="badge bg-label-primary rounded-pill me-2">8 New</span>
+              <span class="badge bg-label-primary rounded-pill me-2">0 New</span>
               <a href="javascript:void(0)" class="dropdown-notifications-all p-2" data-bs-toggle="tooltip"
                 data-bs-placement="top" title="Mark all as read">
                 <i class="icon-base ri ri-mail-open-line text-heading"></i>
@@ -427,12 +427,12 @@ use Illuminate\Support\Facades\Route;
         <li class="border-top">
           <div class="d-grid p-4">
             <a class="btn btn-primary btn-sm d-flex h-px-34" href="javascript:void(0);">
-              <small class="align-middle">View all notifications</small>
+              <small class="align-middle">Ver todas las notificaciones</small>
             </a>
           </div>
         </li>
       </ul>
-    </li>
+    </li> --}}
     <!--/ Notification -->
     <!-- User -->
     <li class="nav-item navbar-dropdown dropdown-user dropdown">
@@ -458,10 +458,10 @@ use Illuminate\Support\Facades\Route;
                   @if (Auth::check())
                   {{ Auth::user()->name }}
                   @else
-                  John Doe
+                  John Perez
                   @endif
                 </h6>
-                <small class="text-body-secondary">Admin</small>
+                <small class="text-body-secondary">{{ Auth::user()->roles->first()->name}}</small>
               </div>
             </div>
           </a>
@@ -473,13 +473,13 @@ use Illuminate\Support\Facades\Route;
           <a class="dropdown-item"
             href="{{ Route::has('profile.show') ? route('profile.show') : url('pages/profile-user') }}">
             <i class="icon-base ri ri-user-3-line icon-22px me-2"></i>
-            <span class="align-middle">My Profile</span>
+            <span class="align-middle">Mi perfil</span>
           </a>
         </li>
         @if (Auth::check() && Laravel\Jetstream\Jetstream::hasApiFeatures())
         <li>
           <a class="dropdown-item" href="{{ route('api-tokens.index') }}">
-            <i class="icon-base ri ri-key-2-line icon-md me-3"></i><span>API Tokens</span>
+            <i class="icon-base ri ri-key-2-line icon-md me-3"></i><span>Claves de API</span>
           </a>
         </li>
         @endif
@@ -487,7 +487,7 @@ use Illuminate\Support\Facades\Route;
           <a class="dropdown-item" href="{{ url('pages/account-settings-billing') }}">
             <span class="d-flex align-items-center align-middle">
               <i class="flex-shrink-0 icon-base ri ri-file-text-line icon-22px me-2"></i>
-              <span class="flex-grow-1 align-middle">Billing</span>
+              <span class="flex-grow-1 align-middle">Facturación</span>
               <span
                 class="flex-shrink-0 badge badge-center rounded-pill bg-danger h-px-20 d-flex align-items-center justify-content-center">4</span>
             </span>
@@ -498,7 +498,7 @@ use Illuminate\Support\Facades\Route;
           <div class="dropdown-divider my-1"></div>
         </li>
         <li>
-          <h6 class="dropdown-header">Manage Team</h6>
+          <h6 class="dropdown-header">Gestionar equipo</h6>
         </li>
         <li>
           <div class="dropdown-divider my-1"></div>
@@ -506,13 +506,13 @@ use Illuminate\Support\Facades\Route;
         <li>
           <a class="dropdown-item"
             href="{{ Auth::user() ? route('teams.show', Auth::user()->currentTeam->id) : 'javascript:void(0)' }}">
-            <i class="icon-base ri ri-settings-3-line icon-md me-3"></i><span>Team Settings</span>
+            <i class="icon-base ri ri-settings-3-line icon-md me-3"></i><span>Configuración del equipo</span>
           </a>
         </li>
         @can('create', Laravel\Jetstream\Jetstream::newTeamModel())
         <li>
           <a class="dropdown-item" href="{{ route('teams.create') }}">
-            <i class="icon-base ri ri-group-line icon-md me-3"></i><span>Create New Team</span>
+            <i class="icon-base ri ri-group-line icon-md me-3"></i><span>Crear nuevo equipo</span>
           </a>
         </li>
         @endcan
@@ -521,7 +521,7 @@ use Illuminate\Support\Facades\Route;
           <div class="dropdown-divider my-1"></div>
         </li>
         <li>
-          <h6 class="dropdown-header">Switch Teams</h6>
+          <h6 class="dropdown-header">Cambiar de equipo</h6>
         </li>
         <li>
           <div class="dropdown-divider my-1"></div>
@@ -544,7 +544,7 @@ use Illuminate\Support\Facades\Route;
             <a class="btn btn-danger d-flex" href="{{ route('auth.logout') }}"
               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
               <i class="icon-base ri ri-logout-box-r-line ms-2 icon-16px"></i>
-              <small class="align-middle">Logout</small>
+              <small class="align-middle">Cerrar sesión</small>
             </a>
           </div>
         </li>
@@ -556,7 +556,7 @@ use Illuminate\Support\Facades\Route;
           <div class="d-grid px-4 pt-2 pb-1">
             <a class="btn btn-danger d-flex"
               href="{{ Route::has('login') ? route('login') : url('auth/login-basic') }}">
-              <small class="align-middle">Login</small>
+              <small class="align-middle">Iniciar sesión</small>
               <i class="icon-base ri ri-logout-box-r-line ms-2 icon-16px"></i>
             </a>
           </div>

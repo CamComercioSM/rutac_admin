@@ -18,15 +18,15 @@
             </div>
             <div class="d-none d-lg-inline-block">
                 <a href="{{ config('variables.adminTemplates') ? config('variables.adminTemplates') : '#' }}"
-                    class="footer-link me-4" target="_blank">Admin Templates</a>
+                    class="footer-link me-4" target="_blank">Administración</a>
                 <a href="{{ config('variables.licenseUrl') ? config('variables.licenseUrl') : '#' }}"
-                    class="footer-link me-4" target="_blank">License</a>
+                    class="footer-link me-4" target="_blank">Manuales y Procedimientos</a>
                 <a href="{{ config('variables.bootstrapDashboard') ? config('variables.bootstrapDashboard') : '#' }}"
                     target="_blank" class="footer-link me-4">Bootstrap Dashboard</a>
                 <a href="{{ config('variables.documentation') ? config('variables.documentation') . '/laravel-introduction.html' : '#' }}"
                     target="_blank" class="footer-link me-4">Documentation</a>
                 <a href="{{ config('variables.support') ? config('variables.support') : '#' }}" target="_blank"
-                    class="footer-link d-none d-sm-inline-block">Support</a>
+                    class="footer-link d-none d-sm-inline-block"></a>
             </div>
         </div>
     </div>
