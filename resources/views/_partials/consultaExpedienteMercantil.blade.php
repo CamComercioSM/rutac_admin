@@ -3,6 +3,13 @@
 
 
 
+<button class="btn btn-primary toggle-btn" type="button" onclick="window.open('https://chatgpt.com/g/g-683a175ce0008191a30e84e26385f8cd-asesor-ruta-c', '_blank');" >
+    <i class="icon-base ri ri-user-search-fill"></i>
+    <span class="btn-text">IA RutaC</span>
+</button>
+
+
+
 <button class="btn btn-primary toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom">
     <i class="icon-base ri ri-user-search-fill"></i>
     <span class="btn-text">Expedientes Mercantiles</span>
