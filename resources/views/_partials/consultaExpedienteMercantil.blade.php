@@ -3,7 +3,8 @@
 
 
 
-<button class="btn btn-primary toggle-btn" type="button" onclick="window.open('https://chatgpt.com/g/g-683a175ce0008191a30e84e26385f8cd-asesor-ruta-c', '_blank');" >
+<button class="btn btn-primary toggle-btn" type="button" style="top: 30%;"
+  onclick="window.open('https://chatgpt.com/g/g-683a175ce0008191a30e84e26385f8cd-asesor-ruta-c', '_blank');" >
     <i class="icon-base ri ri-user-search-fill"></i>
     <span class="btn-text">IA RutaC</span>
 </button>
