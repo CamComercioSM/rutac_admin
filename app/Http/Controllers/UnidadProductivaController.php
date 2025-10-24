@@ -138,12 +138,12 @@ class UnidadProductivaController extends Controller
                 'mp.municipionombreoficial as municipio',
                 'etapas.name as etapa',
             ])
-            ->join('etapas', 'unidadesproductivas.etapa_id', '=', 'etapas.etapa_id')
-            ->join('unidadesproductivas_personas as tp', 'unidadesproductivas.tipopersona_id', '=', 'tp.tipopersona_id')
-            ->join('ciiu_macrosectores as st', 'unidadesproductivas.sector_id', '=', 'st.sector_id')
-            ->join('unidadesproductivas_tamanos as tm', 'unidadesproductivas.tamano_id', '=', 'tm.tamano_id')
-            ->join('departamentos as dp', 'unidadesproductivas.department_id', '=', 'dp.departamento_id')
-            ->join('municipios as mp', 'unidadesproductivas.municipality_id', '=', 'mp.municipio_id');
+            ->leftJoin('etapas', 'unidadesproductivas.etapa_id', '=', 'etapas.etapa_id')
+            ->leftJoin('unidadesproductivas_personas as tp', 'unidadesproductivas.tipopersona_id', '=', 'tp.tipopersona_id')
+            ->leftJoin('ciiu_macrosectores as st', 'unidadesproductivas.sector_id', '=', 'st.sector_id')
+            ->leftJoin('unidadesproductivas_tamanos as tm', 'unidadesproductivas.tamano_id', '=', 'tm.tamano_id')
+            ->leftJoin('departamentos as dp', 'unidadesproductivas.department_id', '=', 'dp.departamento_id')
+            ->leftJoin('municipios as mp', 'unidadesproductivas.municipality_id', '=', 'mp.municipio_id');
 
         if(!empty($search))
         {

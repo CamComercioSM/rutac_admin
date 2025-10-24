@@ -29,18 +29,14 @@ class Section  extends Model {
     protected function historia(): Attribute
     {
         return Attribute::get(function () {
-            $data = $this->data ?? [];
-            return collect($data)
-                ->first(fn($item) => strtolower($item['layout'] ?? '') === 'histories')['attributes'] ?? [];
+            return collect($this->data[0]['attributes'] ?? []);
         });
     }
 
     protected function footer(): Attribute
     {
         return Attribute::get(function () {
-            $data = $this->data ?? [];
-            return collect($data)
-                ->first(fn($item) => strtolower($item['layout'] ?? '') === 'footer')['attributes'] ?? [];
+            return collect($this->data[1]['attributes'] ?? []);
         });
     }
 
