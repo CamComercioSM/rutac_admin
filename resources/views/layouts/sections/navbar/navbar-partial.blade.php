@@ -1,219 +1,225 @@
 @php
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
+    use Illuminate\Support\Facades\Auth;
+    use Illuminate\Support\Facades\Route;
 @endphp
 
 <!--  Brand demo (display only for navbar-full and hide on below xl) -->
 @if (isset($navbarFull))
-<div class="navbar-brand app-brand demo d-none d-xl-flex py-0 me-6">
-  <a href="{{ url('/') }}" class="app-brand-link gap-2">
-    <span class="app-brand-logo demo">@include('_partials.macros')</span>
-    <span class="app-brand-text demo menu-text fw-bold">{{ config('variables.templateName') }}</span>
-  </a>
+    <div class="navbar-brand app-brand demo d-none d-xl-flex py-0 me-6">
+        <a href="{{ url('/') }}" class="app-brand-link gap-2">
+            <span class="app-brand-logo demo">@include('_partials.macros')</span>
+            <span class="app-brand-text demo menu-text fw-bold">{{ config('variables.templateName') }}</span>
+        </a>
 
-  <!-- Display menu close icon only for horizontal-menu with navbar-full -->
-  @if (isset($menuHorizontal))
-  <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-xl-none">
-    <i class="icon-base ri ri-close-line icon-sm"></i>
-  </a>
-  @endif
-</div>
+        <!-- Display menu close icon only for horizontal-menu with navbar-full -->
+        @if (isset($menuHorizontal))
+            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-xl-none">
+                <i class="icon-base ri ri-close-line icon-sm"></i>
+            </a>
+        @endif
+    </div>
 @endif
 
 <!-- ! Not required for layout-without-menu -->
 @if (!isset($navbarHideToggle))
-<div
-  class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 {{ isset($menuHorizontal) ? ' d-xl-none ' : '' }} {{ isset($contentNavbar) ? ' d-xl-none ' : '' }}">
-  <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
-    <i class="icon-base ri ri-menu-line icon-md"></i>
-  </a>
-</div>
+    <div
+        class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 {{ isset($menuHorizontal) ? ' d-xl-none ' : '' }} {{ isset($contentNavbar) ? ' d-xl-none ' : '' }}">
+        <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
+            <i class="icon-base ri ri-menu-line icon-md"></i>
+        </a>
+    </div>
 @endif
 
 <div class="navbar-nav-right d-flex align-items-center justify-content-end" id="navbar-collapse">
 
-  @if (!isset($menuHorizontal))
-  <!-- Search -->
-  <div class="navbar-nav align-items-center">
-    <div class="nav-item navbar-search-wrapper mb-0">
-      <a class="nav-item nav-link search-toggler px-0" href="javascript:void(0);">
-        <span class="d-inline-block text-body-secondary fw-normal" id="autocomplete"></span>
-      </a>
-    </div>
-  </div>
-  <!-- /Search -->
-  @endif
-
-  <ul class="navbar-nav flex-row align-items-center ms-md-auto">
-    @if (isset($menuHorizontal))
-    <!-- Search -->
-    <li class="nav-item navbar-search-wrapper me-sm-2 me-xl-1 mb-50">
-      <a class="nav-item nav-link search-toggler px-0" href="javascript:void(0);">
-        <span class="d-inline-block text-body-secondary fw-normal" id="autocomplete"></span>
-      </a>
-    </li>
-    <!-- /Search -->
+    @if (!isset($menuHorizontal))
+        <!-- Search -->
+        <div class="navbar-nav align-items-center">
+            <div class="nav-item navbar-search-wrapper mb-0">
+                <a class="nav-item nav-link search-toggler px-0" href="javascript:void(0);">
+                    <span class="d-inline-block text-body-secondary fw-normal" id="autocomplete"></span>
+                </a>
+            </div>
+        </div>
+        <!-- /Search -->
     @endif
 
-    <!-- Language -->
-    <li class="nav-item dropdown-language dropdown me-2 me-xl-0">
-      <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-        <i class="icon-base ri ri-translate-2 icon-22px"></i>
-      </a>
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li>
-          <a class="dropdown-item {{ app()->getLocale() === 'es' ? 'active' : '' }}" href="{{ url('lang/es') }}"
-            data-language="es" data-text-direction="ltr">
-            <span>Español</span>
-          </a>
-        </li>
-        <li>
-          <a class="dropdown-item {{ app()->getLocale() === 'en' ? 'active' : '' }}" href="{{ url('lang/en') }}"
-            data-language="en" data-text-direction="ltr">
-            <span>English</span>
-          </a>
-        </li>
-        <li>
-          <a class="dropdown-item {{ app()->getLocale() === 'fr' ? 'active' : '' }}" href="{{ url('lang/fr') }}"
-            data-language="fr" data-text-direction="ltr">
-            <span>French</span>
-          </a>
-        </li>
-        <li>
-          <a class="dropdown-item {{ app()->getLocale() === 'ar' ? 'active' : '' }}" href="{{ url('lang/ar') }}"
-            data-language="ar" data-text-direction="rtl">
-            <span>Arabic</span>
-          </a>
-        </li>
-        <li>
-          <a class="dropdown-item {{ app()->getLocale() === 'de' ? 'active' : '' }}" href="{{ url('lang/de') }}"
-            data-language="de" data-text-direction="ltr">
-            <span>German</span>
-          </a>
-        </li>
-      </ul>
-    </li>
-    <!--/ Language -->
+    <ul class="navbar-nav flex-row align-items-center ms-md-auto">
+        @if (isset($menuHorizontal))
+            <!-- Search -->
+            <li class="nav-item navbar-search-wrapper me-sm-2 me-xl-1 mb-50">
+                <a class="nav-item nav-link search-toggler px-0" href="javascript:void(0);">
+                    <span class="d-inline-block text-body-secondary fw-normal" id="autocomplete"></span>
+                </a>
+            </li>
+            <!-- /Search -->
+        @endif
 
-    @if ($configData['hasCustomizer'] == true)
-    <!-- Style Switcher -->
-    <li class="nav-item dropdown me-sm-2 me-xl-0">
-      <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill" id="nav-theme"
-        href="javascript:void(0);" data-bs-toggle="dropdown">
-        <i class="icon-base ri ri-sun-line icon-22px theme-icon-active"></i>
-        <span class="d-none ms-2" id="nav-theme-text">Cambiar tema</span>
-      </a>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-theme-text">
-        <li>
-          <button type="button" class="dropdown-item align-items-center active" data-bs-theme-value="light"
-            aria-pressed="false">
-            <span> <i class="icon-base ri ri-sun-line icon-md me-3" data-icon="sun-line"></i>Claro</span>
-          </button>
-        </li>
-        <li>
-          <button type="button" class="dropdown-item align-items-center" data-bs-theme-value="dark" aria-pressed="true">
-            <span> <i class="icon-base ri ri-moon-clear-line icon-md me-3" data-icon="moon-clear-line"></i>Oscuro</span>
-          </button>
-        </li>
-        <li>
-          <button type="button" class="dropdown-item align-items-center" data-bs-theme-value="system"
-            aria-pressed="false">
-            <span> <i class="icon-base ri ri-computer-line icon-md me-3" data-icon="computer-line"></i>Sistema</span>
-          </button>
-        </li>
-      </ul>
-    </li>
-    <!-- / Style Switcher-->
-    @endif
-
-    <!-- Quick links  -->
-    <li class="nav-item dropdown-shortcuts navbar-dropdown dropdown me-sm-2 me-xl-0">
-      <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill"
-        href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-        <i class="icon-base ri ri-star-smile-line icon-22px"></i>
-      </a>
-      <div class="dropdown-menu dropdown-menu-end p-0">
-        <div class="dropdown-menu-header border-bottom">
-          <div class="dropdown-header d-flex align-items-center py-2 my-50">
-            <h6 class="mb-0 me-auto">Atajos</h6>
-            <a href="javascript:void(0)" class="dropdown-shortcuts-add btn btn-text-secondary rounded-pill btn-icon"
-              data-bs-toggle="tooltip" data-bs-placement="top" title="Add shortcuts">
-              <i class="icon-base ri ri-add-line icon-20px text-heading"></i>
+        <!-- Language -->
+        <li class="nav-item dropdown-language dropdown me-2 me-xl-0">
+            <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                <i class="icon-base ri ri-translate-2 icon-22px"></i>
             </a>
-          </div>
-        </div>
-        <div class="dropdown-shortcuts-list scrollable-container">
-          <div class="row row-bordered overflow-visible g-0">
-            <div class="dropdown-shortcuts-item col">
-              <span class="dropdown-shortcuts-icon rounded-circle mb-3">
-                <i class="icon-base ri ri-calendar-line icon-26px text-heading"></i>
-              </span>
-              <a href="{{ url('app/calendar') }}" class="stretched-link">Calendario</a>
-              <small>Citas</small>
-            </div>
-            <div class="dropdown-shortcuts-item col">
-              <span class="dropdown-shortcuts-icon rounded-circle mb-3">
-                <i class="icon-base ri ri-file-text-line icon-26px text-heading"></i>
-              </span>
-              <a href="{{ url('app/invoice/list') }}" class="stretched-link">Aplicación de facturas</a>
-              <small>Gestionar cuentas</small>
-            </div>
-          </div>
-          <div class="row row-bordered overflow-visible g-0">
-            <div class="dropdown-shortcuts-item col">
-              <span class="dropdown-shortcuts-icon rounded-circle mb-3">
-                <i class="icon-base ri ri-user-line icon-26px text-heading"></i>
-              </span>
-              <a href="{{ url('app/user/list') }}" class="stretched-link">Aplicación de usuarios</a>
-              <small>Gestionar usuarios</small>
-            </div>
-            <div class="dropdown-shortcuts-item col">
-              <span class="dropdown-shortcuts-icon rounded-circle mb-3">
-                <i class="icon-base ri ri-computer-line icon-26px text-heading"></i>
-              </span>
-              <a href="{{ url('app/access-roles') }}" class="stretched-link">Gestión de roles</a>
-              <small>Permisos</small>
-            </div>
-          </div>
-          <div class="row row-bordered overflow-visible g-0">
-            <div class="dropdown-shortcuts-item col">
-              <span class="dropdown-shortcuts-icon rounded-circle mb-3">
-                <i class="icon-base ri ri-pie-chart-2-line icon-26px text-heading"></i>
-              </span>
-              <a href="{{ url('/') }}" class="stretched-link">Tablero</a>
-              <small>Tablero del usuario</small>
-            </div>
-            <div class="dropdown-shortcuts-item col">
-              <span class="dropdown-shortcuts-icon rounded-circle mb-3">
-                <i class="icon-base ri ri-settings-4-line icon-26px text-heading"></i>
-              </span>
-              <a href="{{ url('pages/account-settings-account') }}" class="stretched-link">Configuración</a>
-              <small>Configuración de la cuenta</small>
-            </div>
-          </div>
-          <div class="row row-bordered overflow-visible g-0">
-            <div class="dropdown-shortcuts-item col">
-              <span class="dropdown-shortcuts-icon rounded-circle mb-3">
-                <i class="icon-base ri ri-question-line icon-26px text-heading"></i>
-              </span>
-              <a href="{{ url('pages/faq') }}" class="stretched-link">Preguntas frecuentes</a>
-              <small>Preguntas frecuentes y artículos</small>
-            </div>
-            <div class="dropdown-shortcuts-item col">
-              <span class="dropdown-shortcuts-icon rounded-circle mb-3">
-                <i class="icon-base ri ri-tv-2-line icon-26px text-heading"></i>
-              </span>
-              <a href="{{ url('modal-examples') }}" class="stretched-link">Modales</a>
-              <small>Ventanas emergentes útiles</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </li>
-    <!-- Quick links -->
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <a class="dropdown-item {{ app()->getLocale() === 'es' ? 'active' : '' }}"
+                        href="{{ url('lang/es') }}" data-language="es" data-text-direction="ltr">
+                        <span>Español</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item {{ app()->getLocale() === 'en' ? 'active' : '' }}"
+                        href="{{ url('lang/en') }}" data-language="en" data-text-direction="ltr">
+                        <span>English</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item {{ app()->getLocale() === 'fr' ? 'active' : '' }}"
+                        href="{{ url('lang/fr') }}" data-language="fr" data-text-direction="ltr">
+                        <span>French</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item {{ app()->getLocale() === 'ar' ? 'active' : '' }}"
+                        href="{{ url('lang/ar') }}" data-language="ar" data-text-direction="rtl">
+                        <span>Arabic</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item {{ app()->getLocale() === 'de' ? 'active' : '' }}"
+                        href="{{ url('lang/de') }}" data-language="de" data-text-direction="ltr">
+                        <span>German</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <!--/ Language -->
 
-    <!-- Notification -->
-    {{-- <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-1">
+        @if ($configData['hasCustomizer'] == true)
+            <!-- Style Switcher -->
+            <li class="nav-item dropdown me-sm-2 me-xl-0">
+                <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill"
+                    id="nav-theme" href="javascript:void(0);" data-bs-toggle="dropdown">
+                    <i class="icon-base ri ri-sun-line icon-22px theme-icon-active"></i>
+                    <span class="d-none ms-2" id="nav-theme-text">Cambiar tema</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-theme-text">
+                    <li>
+                        <button type="button" class="dropdown-item align-items-center active"
+                            data-bs-theme-value="light" aria-pressed="false">
+                            <span> <i class="icon-base ri ri-sun-line icon-md me-3"
+                                    data-icon="sun-line"></i>Claro</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="dropdown-item align-items-center" data-bs-theme-value="dark"
+                            aria-pressed="true">
+                            <span> <i class="icon-base ri ri-moon-clear-line icon-md me-3"
+                                    data-icon="moon-clear-line"></i>Oscuro</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="dropdown-item align-items-center" data-bs-theme-value="system"
+                            aria-pressed="false">
+                            <span> <i class="icon-base ri ri-computer-line icon-md me-3"
+                                    data-icon="computer-line"></i>Sistema</span>
+                        </button>
+                    </li>
+                </ul>
+            </li>
+            <!-- / Style Switcher-->
+        @endif
+
+        <!-- Quick links  -->
+        <li class="nav-item dropdown-shortcuts navbar-dropdown dropdown me-sm-2 me-xl-0">
+            <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill"
+                href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                <i class="icon-base ri ri-star-smile-line icon-22px"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end p-0">
+                <div class="dropdown-menu-header border-bottom">
+                    <div class="dropdown-header d-flex align-items-center py-2 my-50">
+                        <h6 class="mb-0 me-auto">Atajos</h6>
+                        <a href="javascript:void(0)"
+                            class="dropdown-shortcuts-add btn btn-text-secondary rounded-pill btn-icon"
+                            data-bs-toggle="tooltip" data-bs-placement="top" title="Add shortcuts">
+                            <i class="icon-base ri ri-add-line icon-20px text-heading"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="dropdown-shortcuts-list scrollable-container">
+                    <div class="row row-bordered overflow-visible g-0">
+                        <div class="dropdown-shortcuts-item col">
+                            <span class="dropdown-shortcuts-icon rounded-circle mb-3">
+                                <i class="icon-base ri ri-calendar-line icon-26px text-heading"></i>
+                            </span>
+                            <a href="{{ url('app/calendar') }}" class="stretched-link">Calendario</a>
+                            <small>Citas</small>
+                        </div>
+                        <div class="dropdown-shortcuts-item col">
+                            <span class="dropdown-shortcuts-icon rounded-circle mb-3">
+                                <i class="icon-base ri ri-file-text-line icon-26px text-heading"></i>
+                            </span>
+                            <a href="{{ url('app/invoice/list') }}" class="stretched-link">Aplicación de facturas</a>
+                            <small>Gestionar cuentas</small>
+                        </div>
+                    </div>
+                    <div class="row row-bordered overflow-visible g-0">
+                        <div class="dropdown-shortcuts-item col">
+                            <span class="dropdown-shortcuts-icon rounded-circle mb-3">
+                                <i class="icon-base ri ri-user-line icon-26px text-heading"></i>
+                            </span>
+                            <a href="{{ url('app/user/list') }}" class="stretched-link">Aplicación de usuarios</a>
+                            <small>Gestionar usuarios</small>
+                        </div>
+                        <div class="dropdown-shortcuts-item col">
+                            <span class="dropdown-shortcuts-icon rounded-circle mb-3">
+                                <i class="icon-base ri ri-computer-line icon-26px text-heading"></i>
+                            </span>
+                            <a href="{{ url('app/access-roles') }}" class="stretched-link">Gestión de roles</a>
+                            <small>Permisos</small>
+                        </div>
+                    </div>
+                    <div class="row row-bordered overflow-visible g-0">
+                        <div class="dropdown-shortcuts-item col">
+                            <span class="dropdown-shortcuts-icon rounded-circle mb-3">
+                                <i class="icon-base ri ri-pie-chart-2-line icon-26px text-heading"></i>
+                            </span>
+                            <a href="{{ url('/') }}" class="stretched-link">Tablero</a>
+                            <small>Tablero del usuario</small>
+                        </div>
+                        <div class="dropdown-shortcuts-item col">
+                            <span class="dropdown-shortcuts-icon rounded-circle mb-3">
+                                <i class="icon-base ri ri-settings-4-line icon-26px text-heading"></i>
+                            </span>
+                            <a href="{{ url('pages/account-settings-account') }}"
+                                class="stretched-link">Configuración</a>
+                            <small>Configuración de la cuenta</small>
+                        </div>
+                    </div>
+                    <div class="row row-bordered overflow-visible g-0">
+                        <div class="dropdown-shortcuts-item col">
+                            <span class="dropdown-shortcuts-icon rounded-circle mb-3">
+                                <i class="icon-base ri ri-question-line icon-26px text-heading"></i>
+                            </span>
+                            <a href="{{ url('pages/faq') }}" class="stretched-link">Preguntas frecuentes</a>
+                            <small>Preguntas frecuentes y artículos</small>
+                        </div>
+                        <div class="dropdown-shortcuts-item col">
+                            <span class="dropdown-shortcuts-icon rounded-circle mb-3">
+                                <i class="icon-base ri ri-tv-2-line icon-26px text-heading"></i>
+                            </span>
+                            <a href="{{ url('modal-examples') }}" class="stretched-link">Modales</a>
+                            <small>Ventanas emergentes útiles</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <!-- Quick links -->
+
+        <!-- Notification -->
+        {{-- <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-1">
       <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill"
         href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
         <span class="position-relative">
@@ -433,137 +439,159 @@ use Illuminate\Support\Facades\Route;
         </li>
       </ul>
     </li> --}}
-    <!--/ Notification -->
-    <!-- User -->
-    <li class="nav-item navbar-dropdown dropdown-user dropdown">
-      <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
-        <div class="avatar avatar-online">
-          <img src="{{ Auth::user() ? Auth::user()->profile_photo_url : asset('assets/img/avatars/1.png') }}" alt="alt"
-            class="rounded-circle" />
-        </div>
-      </a>
-      <ul class="dropdown-menu dropdown-menu-end mt-3 py-2">
-        <li>
-          <a class="dropdown-item"
-            href="{{ Route::has('profile.show') ? route('profile.show') : url('pages/profile-user') }}">
-            <div class="d-flex align-items-center">
-              <div class="flex-shrink-0 me-2">
-                <div class="avatar avatar-online">
-                  <img src="{{ Auth::user() ? Auth::user()->profile_photo_url : asset('assets/img/avatars/1.png') }}"
-                    alt="alt" class="w-px-40 h-auto rounded-circle" />
-                </div>
-              </div>
-              <div class="flex-grow-1">
-                <h6 class="mb-0 small">
-                  @if (Auth::check())
-                  {{ Auth::user()->name }}
-                  <small class="text-body-secondary">{{ Auth::user()->role?->name}}</small>
-                  @else
-                  John Perez
-                  @endif
-                </h6>
-              </div>
-            </div>
-          </a>
-        </li>
-        <li>
-          <div class="dropdown-divider"></div>
-        </li>
-        <li>
-          <a class="dropdown-item"
-            href="{{ Route::has('profile.show') ? route('profile.show') : url('pages/profile-user') }}">
-            <i class="icon-base ri ri-user-3-line icon-22px me-2"></i>
-            <span class="align-middle">Mi perfil</span>
-          </a>
-        </li>
-        @if (Auth::check() && Laravel\Jetstream\Jetstream::hasApiFeatures())
-        <li>
-          <a class="dropdown-item" href="{{ route('api-tokens.index') }}">
-            <i class="icon-base ri ri-key-2-line icon-md me-3"></i><span>Claves de API</span>
-          </a>
-        </li>
-        @endif
-        <li>
-          <a class="dropdown-item" href="{{ url('pages/account-settings-billing') }}">
-            <span class="d-flex align-items-center align-middle">
-              <i class="flex-shrink-0 icon-base ri ri-file-text-line icon-22px me-2"></i>
-              <span class="flex-grow-1 align-middle">Facturación</span>
-              <span
-                class="flex-shrink-0 badge badge-center rounded-pill bg-danger h-px-20 d-flex align-items-center justify-content-center">4</span>
-            </span>
-          </a>
-        </li>
-        @if (Auth::User() && Laravel\Jetstream\Jetstream::hasTeamFeatures())
-        <li>
-          <div class="dropdown-divider my-1"></div>
-        </li>
-        <li>
-          <h6 class="dropdown-header">Gestionar equipo</h6>
-        </li>
-        <li>
-          <div class="dropdown-divider my-1"></div>
-        </li>
-        <li>
-          <a class="dropdown-item"
-            href="{{ Auth::user() ? route('teams.show', Auth::user()->currentTeam->id) : 'javascript:void(0)' }}">
-            <i class="icon-base ri ri-settings-3-line icon-md me-3"></i><span>Configuración del equipo</span>
-          </a>
-        </li>
-        @can('create', Laravel\Jetstream\Jetstream::newTeamModel())
-        <li>
-          <a class="dropdown-item" href="{{ route('teams.create') }}">
-            <i class="icon-base ri ri-group-line icon-md me-3"></i><span>Crear nuevo equipo</span>
-          </a>
-        </li>
-        @endcan
-        @if (Auth::user()->allTeams()->count() > 1)
-        <li>
-          <div class="dropdown-divider my-1"></div>
-        </li>
-        <li>
-          <h6 class="dropdown-header">Cambiar de equipo</h6>
-        </li>
-        <li>
-          <div class="dropdown-divider my-1"></div>
-        </li>
-        @endif
-        @if (Auth::user())
-        @foreach (Auth::user()->allTeams() as $team)
-        {{-- Below commented code read by artisan command while installing jetstream. !! Do not remove if you want to use jetstream. --}}
+        <!--/ Notification -->
+        <!-- User -->
 
-        {{-- <x-switchable-team :team="$team" /> --}}
-        @endforeach
-        @endif
-        @endif
-        <li>
-          <div class="dropdown-divider my-1"></div>
-        </li>
-        @if (Auth::check())
-        <li>
-          <div class="d-grid px-4 pt-2 pb-1">
-            <a class="btn btn-danger d-flex" href="{{ route('auth.logout') }}"
-              onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-              <i class="icon-base ri ri-logout-box-r-line ms-2 icon-16px"></i>
-              <small class="align-middle">Cerrar sesión</small>
+        @php            
+            $confoto = Auth::user()->profile_photo_url ?? null;
+        @endphp
+
+        <li class="nav-item navbar-dropdown dropdown-user dropdown">
+            <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
+                <div class="avatar avatar-online">
+
+                    <img src="{{ Auth::user() ? Auth::user()->profile_photo_url : asset('assets/img/avatars/1.png') }}"
+                        alt="alt" class="rounded-circle" />
+                    <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
+                        style="width: 40px; height: 40px; background-color: #7367F0;">
+                        {{ sesion('iniciales') }}
+                    </div>
+                </div>
             </a>
-          </div>
+            <ul class="dropdown-menu dropdown-menu-end mt-3 py-2">
+                <li>
+                    <a class="dropdown-item"
+                        href="{{ Route::has('profile.show') ? route('profile.show') : url('pages/profile-user') }}">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-2">
+                                <div class="avatar avatar-online">
+
+                                    <img src="{{ Auth::user() ? Auth::user()->profile_photo_url : asset('assets/img/avatars/1.png') }}"
+                                        alt="alt" class="w-px-40 h-auto rounded-circle" />
+
+
+
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
+                                        style="width: 40px; height: 40px; background-color: #7367F0;">
+                                        {{ $inicial }}
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 small">
+                                    @if (Auth::check())
+                                        {{ Auth::user()->name }}
+                                    @else
+                                        John Perez
+                                    @endif
+                                </h6>
+                                <small class="text-body-secondary">{{ Auth::user()->role?->name }}</small>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <div class="dropdown-divider"></div>
+                </li>
+                <li>
+                    <a class="dropdown-item"
+                        href="{{ Route::has('profile.show') ? route('profile.show') : url('pages/profile-user') }}">
+                        <i class="icon-base ri ri-user-3-line icon-22px me-2"></i>
+                        <span class="align-middle">Mi perfil</span>
+                    </a>
+                </li>
+                @if (Auth::check() && Laravel\Jetstream\Jetstream::hasApiFeatures())
+                    <li>
+                        <a class="dropdown-item" href="{{ route('api-tokens.index') }}">
+                            <i class="icon-base ri ri-key-2-line icon-md me-3"></i><span>Claves de API</span>
+                        </a>
+                    </li>
+                @endif
+                <li>
+                    <a class="dropdown-item" href="{{ url('pages/account-settings-billing') }}">
+                        <span class="d-flex align-items-center align-middle">
+                            <i class="flex-shrink-0 icon-base ri ri-file-text-line icon-22px me-2"></i>
+                            <span class="flex-grow-1 align-middle">Facturación</span>
+                            <span
+                                class="flex-shrink-0 badge badge-center rounded-pill bg-danger h-px-20 d-flex align-items-center justify-content-center">4</span>
+                        </span>
+                    </a>
+                </li>
+                @if (Auth::User() && Laravel\Jetstream\Jetstream::hasTeamFeatures())
+                    <li>
+                        <div class="dropdown-divider my-1"></div>
+                    </li>
+                    <li>
+                        <h6 class="dropdown-header">Gestionar equipo</h6>
+                    </li>
+                    <li>
+                        <div class="dropdown-divider my-1"></div>
+                    </li>
+                    <li>
+                        <a class="dropdown-item"
+                            href="{{ Auth::user() ? route('teams.show', Auth::user()->currentTeam->id) : 'javascript:void(0)' }}">
+                            <i class="icon-base ri ri-settings-3-line icon-md me-3"></i><span>Configuración del
+                                equipo</span>
+                        </a>
+                    </li>
+                    @can('create', Laravel\Jetstream\Jetstream::newTeamModel())
+                        <li>
+                            <a class="dropdown-item" href="{{ route('teams.create') }}">
+                                <i class="icon-base ri ri-group-line icon-md me-3"></i><span>Crear nuevo equipo</span>
+                            </a>
+                        </li>
+                    @endcan
+                    @if (Auth::user()->allTeams()->count() > 1)
+                        <li>
+                            <div class="dropdown-divider my-1"></div>
+                        </li>
+                        <li>
+                            <h6 class="dropdown-header">Cambiar de equipo</h6>
+                        </li>
+                        <li>
+                            <div class="dropdown-divider my-1"></div>
+                        </li>
+                    @endif
+                    @if (Auth::user())
+                        @foreach (Auth::user()->allTeams() as $team)
+                            {{-- Below commented code read by artisan command while installing jetstream. !! Do not remove if you want to use jetstream. --}}
+
+                            {{-- <x-switchable-team :team="$team" /> --}}
+                        @endforeach
+                    @endif
+                @endif
+                <li>
+                    <div class="dropdown-divider my-1"></div>
+                </li>
+                @if (Auth::check())
+                    <li>
+                        <div class="d-grid px-4 pt-2 pb-1">
+                            <a class="btn btn-danger d-flex" href="{{ route('auth.logout') }}"
+                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <i class="icon-base ri ri-logout-box-r-line ms-2 icon-16px"></i>
+                                <small class="align-middle">Cerrar sesión</small>
+                            </a>
+                        </div>
+                    </li>
+                    <form method="POST" id="logout-form" action="{{ route('auth.logout') }}">
+                        @csrf
+                    </form>
+                @else
+                    <li>
+                        <div class="d-grid px-4 pt-2 pb-1">
+                            <a class="btn btn-danger d-flex"
+                                href="{{ Route::has('login') ? route('login') : url('auth/login-basic') }}">
+                                <small class="align-middle">Iniciar sesión</small>
+                                <i class="icon-base ri ri-logout-box-r-line ms-2 icon-16px"></i>
+                            </a>
+                        </div>
+                    </li>
+                @endif
+            </ul>
         </li>
-        <form method="POST" id="logout-form" action="{{ route('auth.logout') }}">
-          @csrf
-        </form>
-        @else
-        <li>
-          <div class="d-grid px-4 pt-2 pb-1">
-            <a class="btn btn-danger d-flex"
-              href="{{ Route::has('login') ? route('login') : url('auth/login-basic') }}">
-              <small class="align-middle">Iniciar sesión</small>
-              <i class="icon-base ri ri-logout-box-r-line ms-2 icon-16px"></i>
-            </a>
-          </div>
-        </li>
-        @endif
-      </ul>
-    </li>
-    <!--/ User -->
-  </ul>
+        <!--/ User -->
+    </ul>
 </div>

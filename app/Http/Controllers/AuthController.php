@@ -248,6 +248,7 @@ class AuthController extends Controller
             });
 
         // ✅ Guardar en sesión
+        Session::put('iniciales', strtoupper(mb_substr($user->name, 0, 1)) );
         Session::put('user_menu', $groupedMenus);
     }
 }
