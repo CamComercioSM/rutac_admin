@@ -1594,6 +1594,21 @@ TemplateCustomizer.DIRECTIONS = [
 
 // Theme setting language
 TemplateCustomizer.LANGUAGES = {
+  es: {
+    panel_header: 'Personalizador de plantilla',
+    panel_sub_header: 'Personaliza y previsualiza en tiempo real',
+    theming_header: 'Temas',
+    color_label: 'Color principal',
+    theme_label: 'Tema',
+    skin_label: 'Apariencias',
+    semiDark_label: 'Semi oscuro',
+    layout_header: 'Diseño',
+    layout_label: 'Menú (Navegación)',
+    layout_header_label: 'Tipos de encabezado',
+    content_label: 'Contenido',
+    layout_navbar_label: 'Tipo de barra de navegación',
+    direction_label: 'Dirección'
+  },
   en: {
     panel_header: 'Template Customizer',
     panel_sub_header: 'Customize and preview in real time',
