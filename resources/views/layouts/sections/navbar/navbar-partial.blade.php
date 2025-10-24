@@ -454,7 +454,7 @@
                         alt="alt" class="rounded-circle" />
                     <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
                         style="width: 40px; height: 40px; background-color: #7367F0;">
-                        {{ sesion('iniciales') }}
+                        {{ session('iniciales') }}
                     </div>
                 </div>
             </a>
