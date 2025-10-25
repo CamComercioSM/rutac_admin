@@ -70,7 +70,10 @@ class UnidadProductivaController extends Controller
             'tipoPersona',
             'diagnosticos',
             'inscripciones',
-            'diagnosticos'
+            'diagnosticos',
+            'usuario',
+            'transformadaDesde',
+            'transformadaEn'
         ])->findOrFail($id);
 
         $diagnostico = $unidadProductiva->diagnosticos->last();

@@ -13,6 +13,7 @@ use App\Models\TablasReferencias\UnidadProductivaPersona;
 use App\Models\TablasReferencias\UnidadProductivaTamano;
 use App\Models\TablasReferencias\UnidadProductivaTipo;
 use App\Models\TablasReferencias\VentasAnuales;
+use App\Models\User;
 use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
@@ -136,6 +137,21 @@ class UnidadProductiva extends Model
     public function inscripciones()
     {
         return $this->HasMany(ConvocatoriaInscripcion::class, 'unidadproductiva_id', 'unidadproductiva_id');
+    }
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function transformadaDesde()
+    {
+        return $this->belongsTo(UnidadProductiva::class, 'transformada_desde', 'unidadproductiva_id');
+    }
+
+    public function transformadaEn()
+    {
+        return $this->belongsTo(UnidadProductiva::class, 'transformada_en', 'unidadproductiva_id');
     }
 
     const CREATED_AT = 'fecha_creacion';

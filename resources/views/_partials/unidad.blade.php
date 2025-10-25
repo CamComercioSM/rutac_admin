@@ -32,6 +32,10 @@
                         <span>{{$unidad->tipoPersona->tipoPersonaNOMBRE ?? ' - '}} </span>
                     </li>
                     <li class="mb-2">
+                        <span class="h6">Actividad económica:</span>
+                        <span>{{$unidad->ciiuActividad->ciiuActividadTITULO ?? ' - '}} </span>
+                    </li>
+                    <li class="mb-2">
                         <span class="h6">Tipo de Registro:</span>
                         <span>{{$unidad->tipo_registro_rutac ?? ' - '}}</span>
                     </li>

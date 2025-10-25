@@ -21,6 +21,53 @@
         
         @include('_partials.unidad', [ "unidad"=> $detalle, "verMasDetalles"=> false, "editar"=> true, "transformar"=> true ])
 
+        <div class="card mb-6 p-3">
+
+            <div class="mb-4">
+                <h5 class="mb-0 ms-2 pt-1"> 
+                    <b>Datos del transformación</b> 
+                </h5>
+            </div> 
+            <table class="table table-sm mb-3" >
+                <tbody>
+                    <tr>
+                        <th class="text-primary" style="width: 50px;">Etapa</th>
+                        <td> {{ $detalle->etapa_intervencion ?? ' - ' }} </td>                            
+                    </tr>
+                    <tr>
+                        <th class="text-primary" style="width: 50px;">Fecha</th>
+                        <td> {{ $detalle->transformada_fecha ?? ' - ' }} </td>                            
+                    </tr>
+                    <tr>
+                        <th class="text-primary" style="width: 50px;">Desde</th>
+                        <td> 
+                            @if ($detalle->transformadaDesde)
+                                <a class="btn btn-xs btn-outline-info" href="{{ $detalle->transformadaDesde->unidadproductiva_id }}">
+                                    {{ $detalle->transformadaDesde->business_name }}
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </td>                            
+                    </tr>
+                    <tr>
+                        <th class="text-primary" style="width: 50px;">En</th>
+                        <td> 
+                            @if ($detalle->transformadaEn)
+                                <a class="btn btn-xs btn-outline-info" href="{{ $detalle->transformadaEn->unidadproductiva_id }}">
+                                    {{ $detalle->transformadaEn->business_name }}
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </td>                            
+                    </tr>
+                    
+                </tbody>
+            </table>
+
+        </div>
+
         <div class="card pt-2">
             <div id="chart"></div>
         </div>
@@ -63,7 +110,7 @@
                         <th class="text-primary" style="width: 50px;">Sitio web</th>
                         <td>
                             @if ($detalle->website )
-                                <a class="btn btn-sm btn-outline-info" href="{{ $detalle->website }}" target="_blank" >
+                                <a class="btn btn-xs btn-outline-info" href="{{ $detalle->website }}" target="_blank" >
                                     {{ $detalle->website }}
                                 </a>
                             @else
@@ -72,6 +119,37 @@
                             
                         </td>                         
                     </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+        <div class="card mb-6 p-3">
+
+            <div class="mb-4">
+                <h5 class="mb-0 ms-2 pt-1"> 
+                    <b>Datos del empresario</b> 
+                    <a class="btn btn-xs btn-outline-info float-end" href="/empresarios/{{ $detalle->usuario->id ?? '#' }}" >
+                        <i class="icon-base ri ri-eye-fill"></i> Más detalles
+                    </a>
+                </h5>
+            </div> 
+            <table class="table table-sm mb-3" >
+                <tbody>
+                    <tr>
+                        <th class="text-primary" style="width: 50px;">Identificación</th>
+                        <td> {{ $detalle->usuario->identification ?? ' - ' }} </td>                            
+                    </tr>
+                    <tr>
+                        <th class="text-primary" style="width: 50px;">Nombre</th>
+                        <td> {{ $detalle->usuario->name ?? '' }}  {{ $detalle->usuario->lastname ?? '' }} </td>                            
+                    </tr>
+
+                    <tr>
+                        <th class="text-primary" style="width: 50px;">Email</th>
+                        <td> {{ $detalle->usuario->email ?? '' }} </td>                            
+                    </tr>
+                    
                 </tbody>
             </table>
 
@@ -120,7 +198,7 @@
                         <th class="text-primary" style="width: 50px;">Instagram</th>
                         <td>
                             @if ($detalle->social_instagram )
-                                <a class="btn btn-sm btn-outline-info" href="{{ $detalle->social_instagram }}" target="_blank" >
+                                <a class="btn btn-xs btn-outline-info" href="{{ $detalle->social_instagram }}" target="_blank" >
                                     {{ $detalle->social_instagram }}
                                 </a>
                             @else
@@ -132,7 +210,7 @@
                         <th class="text-primary" style="width: 50px;">Facebook</th>
                         <td>
                             @if ($detalle->social_facebook )
-                                <a class="btn btn-sm btn-outline-info" href="{{ $detalle->social_facebook }}" target="_blank" >
+                                <a class="btn btn-xs btn-outline-info" href="{{ $detalle->social_facebook }}" target="_blank" >
                                     {{ $detalle->social_facebook }}
                                 </a>
                             @else
@@ -144,7 +222,7 @@
                         <th class="text-primary" style="width: 50px;">Linkedin</th>
                         <td>
                             @if ($detalle->social_linkedin )
-                                <a class="btn btn-sm btn-outline-info" href="{{ $detalle->social_linkedin }}" target="_blank" >
+                                <a class="btn btn-xs btn-outline-info" href="{{ $detalle->social_linkedin }}" target="_blank" >
                                     {{ $detalle->social_linkedin }}
                                 </a>
                             @else
@@ -184,7 +262,7 @@
                             <td>{{$item->etapa->name ?? ' - '}}</td>
                             <td>{{$item->resultado_puntaje ?? ' - '}}</td>
                             <td>
-                                <a class="btn btn-sm btn-outline-info" href="/diagnosticosResultados/{{ $item->resultado_id }}" >
+                                <a class="btn btn-xs btn-outline-info" href="/diagnosticosResultados/{{ $item->resultado_id }}" >
                                     <i class="icon-base ri ri-eye-fill"></i>
                                 </a>
                             </td>                            
@@ -218,7 +296,7 @@
                             <td>{{$item->convocatoria->nombre_convocatoria ?? ' - '}}</td>
                             <td>{{$item->estado->inscripcionEstadoNOMBRE ?? ' - '}}</td>
                             <td>
-                                <a class="btn btn-sm btn-outline-info" href="/inscripciones/{{ $item->inscripcion_id }}" >
+                                <a class="btn btn-xs btn-outline-info" href="/inscripciones/{{ $item->inscripcion_id }}" >
                                     <i class="icon-base ri ri-eye-fill"></i>
                                 </a>
                             </td>
