@@ -174,6 +174,9 @@ class InscripcionesController extends Controller
 
             // Enviar correo solo si el estado cambió
             if ($estadoAnterior != $entity->inscripcionestado_id) {
+                // Recargar la inscripción con las relaciones actualizadas para obtener el nuevo estado
+                $entity->refresh();
+                $entity->load(['unidadProductiva', 'estado', 'convocatoria.programa']);
                 $this->enviarCorreoCambioEstado($entity);
             }
         }
