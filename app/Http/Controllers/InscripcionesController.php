@@ -170,11 +170,11 @@ class InscripcionesController extends Controller
             $entity->inscripcionestado_id = $request->input('inscripcionestado_id');
             $entity->comentarios = $request->input('comentarios');
             $entity->activarPreguntas = $request->input('activarPreguntas') == 1;
-            //$entity->save();
+            $entity->save();
 
             // Enviar correo solo si el estado cambió
             if ($estadoAnterior != $entity->inscripcionestado_id) {
-            //    $this->enviarCorreoCambioEstado($entity);
+                $this->enviarCorreoCambioEstado($entity);
             }
         }
 
