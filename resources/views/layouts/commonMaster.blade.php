@@ -91,7 +91,7 @@
 
 <body>
 
-  <div class="d-flex h-100 w-100 justify-content-center align-items-center cargando d-none" style="position: fixed; z-index: 10000; background: #dbdbdb70;">
+  <div class="d-flex h-100 w-100 justify-content-center align-items-center cargando" style="position: fixed; z-index: 10000; background: #dbdbdb70;">
       <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
         <span class="visually-hidden">Cargando...</span>
       </div>
@@ -105,6 +105,14 @@
   <!-- Include Scripts -->
   <!-- $isFront is used to append the front layout scripts only on the front layout otherwise the variable will be blank -->
   @include('layouts/sections/scripts' . $isFront)
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.cargando').forEach(function(el) {
+            el.classList.add('d-none');
+        });
+    });
+  </script>
 </body>
 
 </html>
