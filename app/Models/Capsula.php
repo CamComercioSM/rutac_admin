@@ -7,10 +7,11 @@ use App\Models\TablasReferencias\Etapa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Traits\UserTrait;
 
 class Capsula extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, UserTrait;
 
     protected $table = 'capsulas';
     protected $primaryKey = 'capsula_id';
