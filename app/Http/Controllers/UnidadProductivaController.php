@@ -8,6 +8,7 @@ use App\Models\Diagnosticos\ResultadosDiagnostico;
 use App\Models\Empresarios\UnidadProductiva;
 use App\Models\TablasReferencias\Etapa;
 use App\Models\TablasReferencias\Sector;
+use App\Models\TablasReferencias\SectorSecciones;
 use App\Models\TablasReferencias\UnidadProductivaPersona;
 use App\Models\TablasReferencias\UnidadProductivaTamano;
 use App\Models\TablasReferencias\UnidadProductivaTipo;
@@ -16,6 +17,7 @@ use App\Models\TablasReferencias\Municipio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Services\SICAM32;
 
 class UnidadProductivaController extends Controller
 {
@@ -35,6 +37,8 @@ class UnidadProductivaController extends Controller
     function edit($id, $transformar = null)
     { 
         $data = [
+            'cargos'=> SICAM32::listadoViculosCargos(),
+            'SectorSecciones'=> SectorSecciones::with('actividades')->get(),
             'sectores'=> Sector::get(),
             'tamanos'=> UnidadProductivaTamano::get(),
             'tipoPersona'=> UnidadProductivaPersona::get(),

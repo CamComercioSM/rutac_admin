@@ -15,4 +15,9 @@ class SectorSecciones extends Model
         'ciiuSeccionCODIGO',
         'ciiuSeccionTITULO'
     ];
+
+    public function actividades()
+    {
+        return $this->hasMany(CiiuActividad::class, 'ciiuSeccionID', 'ciiuSeccionID');
+    }
 }

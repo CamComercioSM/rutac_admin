@@ -60,6 +60,7 @@ class UnidadProductiva extends Model
         'contact_position',
         'contact_email',
         'contact_phone',
+        'contact_sexo',
         'etapa_id',
         'update_info',
         'complete_diagnostic',

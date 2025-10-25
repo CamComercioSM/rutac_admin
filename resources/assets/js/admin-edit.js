@@ -64,6 +64,12 @@ $(document).ready(function () {
         $("#tipo_registro_rutac").val(text);
     });
 
+    if (window.SELECTS) 
+    {
+        window.SELECTS.forEach(item => {
+            $("#" + item).select2({ allowClear: true, placeholder: "Seleccione una opción" });
+        });
+    }
 
     if(window.DATA)
     {

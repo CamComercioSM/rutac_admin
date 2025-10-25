@@ -26,12 +26,12 @@
 
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="nit">NIT </label>
-                <input type="text" class="form-control" name="nit" id="nit" placeholder="NIT" required>
+                <input type="text" class="form-control" name="nit" id="nit" placeholder="NIT" pattern="^\d{5,12}(-\d{1})?$" required>
             </div>
 
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="registration_number">Número de matrícula </label>
-                <input type="text" class="form-control" name="registration_number" id="registration_number" placeholder="Número de matrícula" required>
+                <input type="text" class="form-control" name="registration_number" id="registration_number" placeholder="Número de matrícula" pattern="^\d{4,10}$" required>
             </div>
 
             <div class="col-12 col-md-4 form-group mb-3">
@@ -93,6 +93,20 @@
                 </select>
             </div>
 
+            <div class="col-12 col-md-6 form-group mb-3">
+                <label class="form-label" for="ciiuactividad_id">Actividad económica</label>
+                <select class="form-select" name="ciiuactividad_id" id="ciiuactividad_id">
+                    <option value="" selected >Seleccione una opción</option>
+                    @foreach ($SectorSecciones as $seccion)
+                        <optgroup label="{{ $seccion->ciiuSeccionTITULO }}" >
+                             @foreach ($seccion->actividades as $item)
+                                    <option value="{{$item->ciiuactividad_id}}">{{$item->ciiuActividadTITULO}}</option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
+                </select>
+            </div>
+
             <div class="col-12 col-md-12"> <hr> </div>
 
             <div class="col-12 col-md-4 form-group mb-3">
@@ -140,19 +154,28 @@
                 <input type="text" class="form-control" name="contact_person" id="contact_person" placeholder="Persona de contacto" required>
             </div>
             <div class="col-12 col-md-4 form-group mb-3">
-                <label class="form-label" for="sexo">Sexo de contacto </label>
-                <input type="text" class="form-control" name="sexo" id="sexo" placeholder="Sexo de contacto" required>
+                <label class="form-label" for="contact_sexo">Sexo de contacto</label>
+                <select class="form-select" name="contact_sexo" id="contact_sexo" required>
+                    <option value="">Seleccione una opción</option>
+                    <option value="MASCULINO" >MASCULINO</option>
+                    <option value="FEMENINO" >FEMENINO</option>
+                </select>
             </div>
             <div class="col-12 col-md-4 form-group mb-3">
-                <label class="form-label" for="contact_position">Cargo de contacto </label>
-                <input type="text" class="form-control" name="contact_position" id="contact_position" placeholder="Cargo de contacto" required>
+                <label class="form-label" for="contact_position">Cargo de contacto</label>
+                <select class="form-select" name="contact_position" id="contact_position">
+                    <option value="" selected >Seleccione una opción</option>
+                    @foreach ($cargos as $item)
+                        <option value="{{$item->vinculoCargoTITULO}}">{{$item->vinculoCargoTITULO}}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="col-12 col-md-4 form-group mb-3">
-                <label class="form-label" for="contact_email">Email de contacto  </label>
+                <label class="form-label" for="contact_email">Email de contacto</label>
                 <input type="email" class="form-control" name="contact_email" id="contact_email" placeholder="Email de contacto" required>
             </div>
             <div class="col-12 col-md-4 form-group mb-3">
-                <label class="form-label" for="contact_phone">Celular de contacto  </label>
+                <label class="form-label" for="contact_phone">Celular de contacto</label>
                 <input type="text" class="form-control" name="contact_phone" id="contact_phone" placeholder="Celular de contacto" required>
             </div>
 
@@ -160,20 +183,20 @@
 
             <div class="col-12 col-md-12 form-group mb-3">
                 <label class="form-label" for="website">Sitio web </label>
-                <input type="text" class="form-control" name="website" id="website" placeholder="Sitio web ">
+                <input type="url" class="form-control" name="website" id="website" placeholder="Sitio web ">
             </div>
 
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="social_instagram">Instagram </label>
-                <input type="text" class="form-control" name="social_instagram" id="social_instagram" placeholder="Instagram" >
+                <input type="url" class="form-control" name="social_instagram" id="social_instagram" placeholder="Instagram" >
             </div>
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="social_facebook">Facebook </label>
-                <input type="text" class="form-control" name="social_facebook" id="social_facebook" placeholder="Facebook" >
+                <input type="url" class="form-control" name="social_facebook" id="social_facebook" placeholder="Facebook" >
             </div>
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="social_linkedin">Linkedin </label>
-                <input type="text" class="form-control" name="social_linkedin" id="social_linkedin" placeholder="Linkedin" >
+                <input type="url" class="form-control" name="social_linkedin" id="social_linkedin" placeholder="Linkedin" >
             </div>
 
         </div>
@@ -193,13 +216,18 @@
 </div>
 @endsection
 
+@section('vendor-style')
+@vite(['resources/assets/vendor/libs/select2/select2.scss'])
+@endsection
+
 @section('vendor-script')
-@vite([])
+@vite(['resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('page-script')
 <script>
     window.URL_API = "{{ $api }}";
+    window.SELECTS = ['ciiuactividad_id', 'department_id', 'municipality_id'];
     window.DATA = @json($elemento);
 </script>
 @vite(['resources/assets/js/admin-edit.js'])
