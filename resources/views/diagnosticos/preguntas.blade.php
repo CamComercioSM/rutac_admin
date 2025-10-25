@@ -25,7 +25,7 @@
         <div class="col-12 col-md-6 form-group mb-3">
             <label class="form-label" for="preguntagrupo_id">Grupo</label>
             <select class="form-select" name="preguntagrupo_id" id="preguntagrupo_id">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 @foreach ($grupos as $item)
                     <option value="{{$item->preguntagrupo_id}}" >{{$item->preguntagrupo_nombre}}</option>
                 @endforeach
@@ -35,7 +35,7 @@
         <div class="col-12 col-md-6 form-group mb-3">
             <label class="form-label" for="preguntadimension_id">Dimensión</label>
             <select class="form-select" name="preguntadimension_id" id="preguntadimension_id">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 @foreach ($dimensiones as $item)
                     <option value="{{$item->preguntadimension_id}}" >{{$item->preguntadimension_nombre}}</option>
                 @endforeach
@@ -45,7 +45,7 @@
         <div class="col-12 col-md-6 form-group mb-3">
             <label class="form-label" for="preguntatipo_id">Tipo</label>
             <select class="form-select" name="preguntatipo_id" id="preguntatipo_id">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 @foreach ($tipos as $item)
                     <option value="{{$item->preguntatipo_id}}" >{{$item->preguntatipo_nombre}}</option>
                 @endforeach

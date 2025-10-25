@@ -96,9 +96,10 @@ class ConvocatoriaController extends Controller
 
     private function getQuery(Request $request)
     {
-        $search = $request->get('searchText');
+        $search = $request->get('search');
         $programa = $request->get('programa');
         $matricula = $request->get('matricula');
+        $sector = $request->get('sector');
         $fecha_inicio = $request->get('fecha_inicio');
         $fecha_fin = $request->get('fecha_fin');
 
@@ -121,7 +122,11 @@ class ConvocatoriaController extends Controller
 
         if(!empty($search))
         {
-            $filterts = ['programas_convocatorias.nombre_convocatoria', 'programas_convocatorias.persona_encargada'];
+            $filterts = [
+                'p.nombre',
+                'programas_convocatorias.nombre_convocatoria', 
+                'programas_convocatorias.persona_encargada'
+            ];
             $query->where(function ($q) use ($search, $filterts) {
                 foreach ($filterts as $field) {
                     $q->orWhere($field, 'like', "%{$search}%");
@@ -135,6 +140,10 @@ class ConvocatoriaController extends Controller
 
         if(!empty($matricula)){
             $query->where('programas_convocatorias.con_matricula', $matricula);
+        }
+
+        if(!empty($sector)){
+            $query->where('programas_convocatorias.sector_id', $sector);
         }
 
         if (!empty($fecha_inicio) && !empty($fecha_fin)) {

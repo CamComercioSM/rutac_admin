@@ -47,7 +47,7 @@
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="unidadtipo_id">Tipo de Registro</label>
                 <select class="form-select" name="unidadtipo_id" id="unidadtipo_id">
-                    <option value="" disabled selected>Seleccione una opción</option>
+                    <option value="" selected >Seleccione una opción</option>
                     @foreach ($tipoUnidad as $item)
                         <option value="{{$item->unidadtipo_id}}" >{{$item->unidadtipo_nombre}}</option>
                     @endforeach
@@ -57,7 +57,7 @@
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="tipopersona_id">Tipo de persona</label>
                 <select class="form-select" name="tipopersona_id" id="tipopersona_id">
-                    <option value="" disabled selected>Seleccione una opción</option>
+                    <option value="" selected >Seleccione una opción</option>
                     @foreach ($tipoPersona as $item)
                         <option value="{{$item->tipopersona_id}}" >{{$item->tipoPersonaNOMBRE}}</option>
                     @endforeach
@@ -67,7 +67,7 @@
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="tipopersona_id">Sector</label>
                 <select class="form-select" name="tipopersona_id" id="tipopersona_id">
-                    <option value="" disabled selected>Seleccione una opción</option>
+                    <option value="" selected >Seleccione una opción</option>
                     @foreach ($sectores as $item)
                         <option value="{{$item->sector_id}}" >{{$item->sectorNOMBRE}}</option>
                     @endforeach
@@ -77,7 +77,7 @@
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="tamano_id">Tamaño</label>
                 <select class="form-select" name="tamano_id" id="tamano_id">
-                    <option value="" disabled selected>Seleccione una opción</option>
+                    <option value="" selected >Seleccione una opción</option>
                     @foreach ($tamanos as $item)
                         <option value="{{$item->tamano_id}}" >{{$item->tamanoNOMBRE}}</option>
                     @endforeach
@@ -87,7 +87,7 @@
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="affiliated">Afiliado</label>
                 <select class="form-select" name="affiliated" id="affiliated">
-                    <option value="" disabled selected>Seleccione una opción</option>
+                    <option value="" selected >Seleccione una opción</option>
                     <option value="1" >SI</option>
                     <option value="0" >NO</option>
                 </select>
@@ -116,7 +116,7 @@
             <div class="col-12 col-md-6 form-group mb-3">
                 <label class="form-label" for="department_id">Departamento</label>
                 <select class="form-select" name="department_id" id="department_id">
-                    <option value="" disabled selected>Seleccione una opción</option>
+                    <option value="" selected >Seleccione una opción</option>
                     @foreach ($departamentos as $item)
                         <option value="{{$item->departamento_id}}" >{{$item->departamentoNOMBRE}}</option>
                     @endforeach
@@ -126,7 +126,7 @@
             <div class="col-12 col-md-6 form-group mb-3">
                 <label class="form-label" for="municipality_id">Municipio </label>
                 <select class="form-select" name="municipality_id" id="municipality_id">
-                    <option value="" disabled selected>Seleccione una opción</option>
+                    <option value="" selected >Seleccione una opción</option>
                     @foreach ($municipios as $item)
                         <option value="{{$item->municipio_id}}" data-departamento="{{ $item->departamentoID }}" >{{$item->municipioNOMBREOFICIAL}}</option>
                     @endforeach
@@ -182,11 +182,11 @@
         <input type="hidden" name="tipo_registro_rutac" id="tipo_registro_rutac" >
 
         <div class="text-center my-4">
-            <a type="button" class="btn btn-secondary" href="list" >
-                <i class="bi bi-sign-turn-left"></i> Cancelar
+            <a type="button" class="btn btn-secondary" href="/unidadesProductivas/1/edit" >
+                <i class="icon-base ri ri-arrow-go-back-line"></i> Cancelar
             </a>
             <button type="submit" class="btn btn-success">
-                <i class="bi bi-send-check"></i> Guardar
+                <i class="icon-base ri ri-send-plane-fil"></i> Guardar
             </button>
         </div>
     </form>

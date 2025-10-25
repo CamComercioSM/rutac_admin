@@ -87,7 +87,7 @@ class DiagnosticosResultadosController extends Controller
 
         if(!empty($search))
         {
-            $filterts = ['pc.nombre_convocatoria','p.nombre','up.nit','up.business_name'];
+            $filterts = ['up.nit','p.business_name','etapas.name'];
             $query->where(function ($q) use ($search, $filterts) {
                 foreach ($filterts as $field) {
                     $q->orWhere($field, 'like', "%{$search}%");

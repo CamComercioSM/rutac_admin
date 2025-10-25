@@ -15,7 +15,7 @@
         <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="active">Activo</label>
             <select class="form-select" name="active" id="active" required>
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 <option value="0">No</option>
                 <option value="1">Si</option>
             </select>
@@ -43,7 +43,7 @@
         <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="rol_id">Rol</label>
             <select class="form-select" name="rol_id" id="rol_id">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 @foreach ($roles as $item)
                     <option value="{{$item->id}}" >{{$item->name}}</option>
                 @endforeach

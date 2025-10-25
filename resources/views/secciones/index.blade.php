@@ -119,7 +119,7 @@
 
             <div class="text-center my-4">
                 <button type="submit" class="btn btn-success">
-                    <i class="bi bi-send-check"></i> Guardar
+                    <i class="icon-base ri ri-send-plane-fil"></i> Guardar
                 </button>
             </div>
 

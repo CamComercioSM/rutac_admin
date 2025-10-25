@@ -11,7 +11,7 @@
         <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="diagnostico_etapa_id">Etapa</label>
             <select class="form-select" name="diagnostico_etapa_id" id="diagnostico_etapa_id">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 @foreach ($etapas as $item)
                     <option value="{{$item->etapa_id}}" >{{$item->name}}</option>
                 @endforeach
@@ -21,7 +21,7 @@
         <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="diagnostico_conventas">Con ventas</label>
             <select class="form-select" name="diagnostico_conventas" id="diagnostico_conventas">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 <option value="0">No</option>
                 <option value="1">Si</option>
             </select>

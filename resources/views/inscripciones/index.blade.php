@@ -11,7 +11,7 @@
     <div class="col-12 col-md-4 form-group mb-3">
         <label class="form-label" for="programa">Programa</label>
         <select class="form-select" name="programa" id="programa">
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" selected >Seleccione una opción</option>
             @foreach ($programas as $item)
                 <option value="{{$item->programa_id}}" >{{$item->nombre}}</option>
             @endforeach
@@ -21,7 +21,7 @@
     <div class="col-12 col-md-4 form-group mb-3">
         <label class="form-label" for="convocatoria">Convocatoria</label>
         <select class="form-select" name="convocatoria" id="convocatoria">
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" selected >Seleccione una opción</option>
             @foreach ($convocatorias as $item)
                 <option value="{{$item->convocatoria_id}}" >{{$item->nombre_convocatoria}}</option>
             @endforeach
@@ -31,7 +31,7 @@
     <div class="col-12 col-md-4 form-group mb-3">
         <label class="form-label" for="estado">Estado inscripción</label>
         <select class="form-select" name="estado" id="estado">
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" selected >Seleccione una opción</option>
             @foreach ($estados as $item)
                 <option value="{{$item->inscripcionestado_id}}" >{{$item->inscripcionEstadoNOMBRE}}</option>
             @endforeach
@@ -41,7 +41,7 @@
     <div class="col-12 col-md-6 form-group mb-3">
         <label class="form-label" for="unidad">Unidad productiva</label>
         <select class="form-select" name="unidad" id="unidad">
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" selected >Seleccione una opción</option>
             @foreach ($unidades as $item)
                 <option value="{{$item->unidadproductiva_id}}" >{{$item->business_name}}</option>
             @endforeach
@@ -67,7 +67,7 @@
         <div class="col-12 col-md-12 form-group mb-4">
             <label class="form-label" for="programaAdd">Programa</label>
             <select class="form-select" name="programaAdd" id="programaAdd">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 @foreach ($programas as $item)
                     <option value="{{$item->programa_id}}" >{{$item->nombre}}</option>
                 @endforeach
@@ -77,7 +77,7 @@
         <div class="col-12 col-md-12 form-group mb-5">
             <label class="form-label" for="convocatoriaAdd">Convocatoria</label>
             <select class="form-select" name="convocatoriaAdd" id="convocatoriaAdd" required >
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 @foreach ($convocatorias as $item)
                     <option value="{{$item->convocatoria_id}}" data-programa="{{$item->programa_id}}" >{{$item->nombre_convocatoria}}</option>
                 @endforeach
@@ -131,7 +131,7 @@
                     <div class="col-sm-12 mb-3">
                         <label class="form-label" for="inscripcionestado_id">Estado</label>
                         <select id="inscripcionestado_id" name="inscripcionestado_id" class="form-select form-select-sm">
-                            <option value="" disabled selected>Seleccione una opción</option>
+                            <option value="" selected >Seleccione una opción</option>
                             @foreach ($estados as $item)
                                 <option value="{{$item->inscripcionestado_id}}" >{{$item->inscripcionEstadoNOMBRE}}</option>
                             @endforeach
@@ -146,7 +146,7 @@
                     <div class="col-sm-12 mb-3">
                         <label class="form-label" for="activarPreguntas">¿Activar preguntas nuevamente?</label>
                         <select class="form-select form-select-sm" name="activarPreguntas" id="activarPreguntas">
-                            <option value="" disabled selected>Seleccione una opción</option>
+                            <option value="" selected >Seleccione una opción</option>
                             <option value="0">No</option>
                             <option value="1">Si</option>
                         </select>

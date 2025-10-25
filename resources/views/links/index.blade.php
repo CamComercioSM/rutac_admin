@@ -11,7 +11,7 @@
         <div class="col-12 col-md-12 form-group mb-3">
             <label class="form-label" for="type">Tipo</label>
             <select id="type" class="form-control form-select">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 <option value="0"> URL externa </option>
                 <option value="1"> Archivo </option>
             </select>

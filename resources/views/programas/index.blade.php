@@ -5,7 +5,7 @@
     <div class="col-12 col-md-5 form-group mb-3">
         <label class="form-label" for="etapa">Etapa</label>
         <select class="form-select" name="etapa" id="etapa" >
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" selected >Seleccione una opción</option>
             @foreach ($etapas as $item)
                 <option value="{{$item->etapa_id}}" >{{$item->name}}</option>
             @endforeach
@@ -15,7 +15,7 @@
     <div class="col-12 col-md-5 form-group mb-3">
         <label class="form-label" for="modalidad">Modalidad</label>
         <select class="form-select" name="modalidad" id="modalidad" >
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" selected >Seleccione una opción</option>
             @foreach ($modalidades as $index => $item)
                 <option value="{{$index}}" >{{$item}}</option>
             @endforeach
@@ -101,7 +101,7 @@
             <label class="form-label" for="es_virtual">Modalidad</label>
             <select class="form-select" name="es_virtual" id="es_virtual" required >
                 @foreach ($modalidades as $index => $item)
-                    <option value="" disabled selected>Seleccione una opción</option>
+                    <option value="" selected >Seleccione una opción</option>
                     <option value="{{$index}}" >{{$item}}</option>
                 @endforeach
             </select>

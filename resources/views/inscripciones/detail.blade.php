@@ -139,7 +139,7 @@
             <div class="col-sm-12 mb-3">
                 <label class="form-label" for="inscripcionestado_id">Estado</label>
                 <select id="inscripcionestado_id" name="inscripcionestado_id" class="form-select form-select-sm">
-                    <option value="" disabled selected>Seleccione una opción</option>
+                    <option value="" selected >Seleccione una opción</option>
                     @foreach ($estados as $item)
                         <option value="{{$item->inscripcionestado_id}}" >{{$item->inscripcionEstadoNOMBRE}}</option>
                     @endforeach
@@ -154,7 +154,7 @@
             <div class="col-sm-12 mb-3">
                 <label class="form-label" for="activarPreguntas">¿Activar preguntas nuevamente?</label>
                 <select class="form-select form-select-sm" name="activarPreguntas" id="activarPreguntas">
-                    <option value="" disabled selected>Seleccione una opción</option>
+                    <option value="" selected >Seleccione una opción</option>
                     <option value="0">No</option>
                     <option value="1">Si</option>
                 </select>

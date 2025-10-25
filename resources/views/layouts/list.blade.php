@@ -70,6 +70,9 @@
     <div class="py-3 d-none" id="Modal">
 
         <h2 class="text-center text-primary mb-4">
+            <button type="button" class="btn btn-xs btn-outline-dark float-start cancelar">
+                <i class="icon-base ri ri-arrow-go-back-line"></i> Regresar
+            </button>
             <b> <span id="accionModal"></span> {{$tituloModal}} </b>
         </h2>
 
@@ -80,10 +83,10 @@
 
             <div class="text-center my-4">
                 <button type="button" class="btn btn-secondary cancelar">
-                    <i class="bi bi-sign-turn-left"></i> Cancelar
+                    <i class="icon-base ri ri-arrow-go-back-line"></i> Cancelar
                 </button>
                 <button type="submit" class="btn btn-success">
-                    <i class="bi bi-send-check"></i> Guardar
+                    <i class="icon-base ri ri-send-plane-fil"></i> Guardar
                 </button>
             </div>
         </form>

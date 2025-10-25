@@ -5,7 +5,7 @@
     <div class="col-12 col-md-6 form-group mb-3">
         <label class="form-label" for="unidad">Unidad productiva</label>
         <select class="form-select" name="unidad" id="unidad">
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" selected >Seleccione una opción</option>
             @foreach ($unidades as $item)
                 <option value="{{$item->unidadproductiva_id}}" >{{$item->business_name}}</option>
             @endforeach
@@ -16,7 +16,7 @@
         <div class="col-12 col-md-6 form-group mb-3">
             <label class="form-label" for="asesor">Asesor</label>
             <select class="form-select" name="asesor" id="asesor">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 @foreach ($asesores as $item)
                     <option value="{{$item->id}}" >{{$item->name}} {{$item->lastname}}</option>
                 @endforeach

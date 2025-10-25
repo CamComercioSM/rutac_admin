@@ -5,7 +5,7 @@
     <div class="col-12 col-md-4 form-group mb-3">
         <label class="form-label" for="tipopersona">Tipo de persona</label>
         <select class="form-select" name="tipopersona" id="tipopersona">
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" >Seleccione una opción</option>
             @foreach ($tipoPersona as $item)
                 <option value="{{$item->tipopersona_id}}" >{{$item->tipoPersonaNOMBRE}}</option>
             @endforeach
@@ -15,7 +15,7 @@
     <div class="col-12 col-md-4 form-group mb-3">
         <label class="form-label" for="sector">Sector</label>
         <select class="form-select" name="sector" id="sector">
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" >Seleccione una opción</option>
             @foreach ($sectores as $item)
                 <option value="{{$item->sector_id}}" >{{$item->sectorNOMBRE}}</option>
             @endforeach
@@ -25,7 +25,7 @@
     <div class="col-12 col-md-4 form-group mb-3">
         <label class="form-label" for="tamano">Tamaño</label>
         <select class="form-select" name="tamano" id="tamano">
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" selected >Seleccione una opción</option>
             @foreach ($tamanos as $item)
                 <option value="{{$item->tamano_id}}" >{{$item->tamanoNOMBRE}}</option>
             @endforeach
@@ -35,7 +35,7 @@
     <div class="col-12 col-md-4 form-group mb-3">
         <label class="form-label" for="etapa">Etapa</label>
         <select class="form-select" name="etapa" id="etapa">
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" selected >Seleccione una opción</option>
             @foreach ($etapas as $item)
                 <option value="{{$item->etapa_id}}" >{{$item->name}}</option>
             @endforeach

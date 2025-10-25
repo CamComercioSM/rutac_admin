@@ -5,7 +5,7 @@
     <div class="col-12 col-md-5 form-group mb-3">
         <label class="form-label" for="unidad">Unidad productiva</label>
         <select class="form-control" name="unidad" id="unidad">
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" selected >Seleccione una opción</option>
             @foreach ($unidades as $item)
                 <option value="{{$item->unidadproductiva_id}}" >{{$item->business_name}}</option>
             @endforeach
@@ -14,8 +14,8 @@
 
     <div class="col-12 col-md-3 form-group mb-3">
         <label class="form-label" for="estado">Etapa</label>
-        <select class="form-control" name="etapa" id="etapa">
-            <option value="" disabled selected>Seleccione una opción</option>
+        <select class="form-select" name="etapa" id="etapa">
+            <option value="" selected >Seleccione una opción</option>
             @foreach ($etapas as $item)
                 <option value="{{$item->etapa_id}}" >{{$item->name}}</option>
             @endforeach
@@ -48,7 +48,6 @@
                 { data: 'etapa', title: 'Etapa', orderable: true }
             ],
             initSelects: [ 
-                { id:'etapa'}, 
                 { 
                     id:'unidad', setting: {
                         ajax: {

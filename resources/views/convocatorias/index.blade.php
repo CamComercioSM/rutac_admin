@@ -5,7 +5,7 @@
     <div class="col-12 col-md-3 form-group mb-3">
         <label class="form-label" for="programa">Programa</label>
         <select class="form-select" name="programa" id="programa">
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" selected >Seleccione una opción</option>
             @foreach ($programas as $item)
                 <option value="{{$item->programa_id}}" >{{$item->nombre}}</option>
             @endforeach
@@ -15,7 +15,7 @@
     <div class="col-12 col-md-3 form-group mb-3">
         <label class="form-label" for="sector">Sector</label>
         <select class="form-select" name="sector" id="sector">
-            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="" selected >Seleccione una opción</option>
             @foreach ($sectores as $item)
                     <option value="{{$item->sector_id}}" >{{$item->sectorNOMBRE}}</option>
             @endforeach
@@ -40,7 +40,7 @@
         <div class="col-12 col-md-12 form-group mb-3">
             <label class="form-label" for="programa_id">Programa</label>
             <select class="form-select" name="programa_id" id="programa_id">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 @foreach ($programas as $item)
                     <option value="{{$item->programa_id}}" >{{$item->nombre}}</option>
                 @endforeach
@@ -80,7 +80,7 @@
         <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="sector_id">Sector</label>
             <select class="form-select" name="sector_id" id="sector_id">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 @foreach ($sectores as $item)
                     <option value="{{$item->sector_id}}" >{{$item->sectorNOMBRE}}</option>
                 @endforeach
@@ -90,7 +90,7 @@
         <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="con_matricula">Con matricula</label>
             <select class="form-select" name="con_matricula" id="con_matricula">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 <option value="0">No</option>
                 <option value="1">Si</option>
             </select>

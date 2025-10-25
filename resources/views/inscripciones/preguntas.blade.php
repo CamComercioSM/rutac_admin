@@ -11,7 +11,7 @@
         <div class="col-12 col-md-6 form-group mb-3">
             <label class="form-label" for="indicador_id">Indicador</label>
             <select class="form-select" name="indicador_id" id="indicador_id">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 @foreach ($indicadores as $item)
                     <option value="{{$item->indicador_id}}" >{{$item->indicador_nombre}}</option>
                 @endforeach
@@ -21,7 +21,7 @@
         <div class="col-12 col-md-6 form-group mb-3">
             <label class="form-label" for="preguntatipo_id">Tipo</label>
             <select class="form-select" name="preguntatipo_id" id="preguntatipo_id">
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" selected >Seleccione una opción</option>
                 @foreach ($tipos as $item)
                     <option value="{{$item->preguntatipo_id}}" >{{$item->preguntatipo_nombre}}</option>
                 @endforeach
