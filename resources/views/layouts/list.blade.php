@@ -36,10 +36,10 @@
 
                     <div class="col-12 col-md-12 my-3 text-center">
                         <button class="btn btn-sm btn-danger mx-1" id="btnLimpiarFiltrar" type="button">
-                            <i class="ri-filter-off-line"></i> Limpiar
+                            <i class="icon-base ri ri-filter-off-line me-2"></i> Limpiar
                         </button>
                         <button class="btn btn-sm btn-warning mx-1" id="btnFiltrar" type="button">
-                            <i class="ri-filter-line"></i> Filtrar
+                            <i class="icon-base ri ri-filter-line me-2"></i> Filtrar
                         </button>
                     </div>
                 </div>
@@ -71,7 +71,7 @@
 
         <h2 class="text-center text-primary mb-4">
             <button type="button" class="btn btn-xs btn-outline-dark float-start cancelar">
-                <i class="icon-base ri ri-arrow-go-back-line"></i> Regresar
+                <i class="icon-base ri ri-arrow-go-back-line me-2"></i> Regresar
             </button>
             <b> <span id="accionModal"></span> {{$tituloModal}} </b>
         </h2>
@@ -83,10 +83,10 @@
 
             <div class="text-center my-4">
                 <button type="button" class="btn btn-secondary cancelar">
-                    <i class="icon-base ri ri-arrow-go-back-line"></i> Cancelar
+                    <i class="icon-base ri ri-arrow-go-back-line me-2"></i> Cancelar
                 </button>
                 <button type="submit" class="btn btn-success">
-                    <i class="icon-base ri ri-send-plane-fil"></i> Guardar
+                    <i class="icon-base ri ri-send-plane-line me-2"></i> Guardar
                 </button>
             </div>
         </form>
