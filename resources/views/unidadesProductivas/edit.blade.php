@@ -182,7 +182,7 @@
         <input type="hidden" name="tipo_registro_rutac" id="tipo_registro_rutac" >
 
         <div class="text-center my-4">
-            <a type="button" class="btn btn-secondary" href="/unidadesProductivas/1/edit" >
+            <a type="button" class="btn btn-secondary" href="/unidadesProductivas/list" >
                 <i class="icon-base ri ri-arrow-go-back-line me-2"></i> Cancelar
             </a>
             <button type="submit" class="btn btn-success">
