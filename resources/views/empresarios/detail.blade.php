@@ -51,7 +51,7 @@
                 </li>
               </ul>
             </div>
-            <a href="javascript:void(0)" class="btn btn-primary"> <i class="icon-base ri ri-user-follow-line icon-16px me-1_5"></i>Connected </a>
+            <a href="javascript:void(0)" class="btn btn-primary"> <i class="icon-base ri ri-user-follow-line icon-16px me-1_5"></i>Conectado </a>
           </div>
         </div>
       </div>

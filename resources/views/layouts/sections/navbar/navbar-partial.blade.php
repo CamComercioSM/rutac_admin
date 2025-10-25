@@ -503,7 +503,7 @@
                         </a>
                     </li>
                 @endif
-                <li>
+                {{-- <li>
                     <a class="dropdown-item" href="{{ url('pages/account-settings-billing') }}">
                         <span class="d-flex align-items-center align-middle">
                             <i class="flex-shrink-0 icon-base ri ri-file-text-line icon-22px me-2"></i>
@@ -512,7 +512,7 @@
                                 class="flex-shrink-0 badge badge-center rounded-pill bg-danger h-px-20 d-flex align-items-center justify-content-center">4</span>
                         </span>
                     </a>
-                </li>
+                </li> --}}
                 @if (Auth::User() && Laravel\Jetstream\Jetstream::hasTeamFeatures())
                     <li>
                         <div class="dropdown-divider my-1"></div>

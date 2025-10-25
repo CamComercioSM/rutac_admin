@@ -22,9 +22,9 @@
                 <a href="{{ config('variables.licenseUrl') ? config('variables.licenseUrl') : '#' }}"
                     class="footer-link me-4" target="_blank">Manuales y Procedimientos</a>
                 <a href="{{ config('variables.bootstrapDashboard') ? config('variables.bootstrapDashboard') : '#' }}"
-                    target="_blank" class="footer-link me-4">Bootstrap Dashboard</a>
+                    target="_blank" class="footer-link me-4">Panel de Inicio</a>
                 <a href="{{ config('variables.documentation') ? config('variables.documentation') . '/laravel-introduction.html' : '#' }}"
-                    target="_blank" class="footer-link me-4">Documentation</a>
+                    target="_blank" class="footer-link me-4">Documentación</a>
                 <a href="{{ config('variables.support') ? config('variables.support') : '#' }}" target="_blank"
                     class="footer-link d-none d-sm-inline-block"></a>
             </div>
