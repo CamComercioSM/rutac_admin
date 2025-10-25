@@ -19,7 +19,12 @@
 <div class="row">
     <div class="col-12 col-md-5 mb-6">
         
-        @include('_partials.unidad', [ "unidad"=> $detalle, "verMasDetalles"=> false, "editar"=> true, "transformar"=> true ])
+        @include('_partials.unidad', [ 
+            "unidad"=> $detalle, 
+            "verMasDetalles"=> false, 
+            "editar"=> !$esAsesor, 
+            "transformar"=> !$esAsesor 
+        ])
 
         <div class="card mb-6 p-3">
 
@@ -285,6 +290,7 @@
             <table id="inscripciones" class="table" >
                 <thead>
                     <th>Fecha</th>
+                    <th>Programa</th>
                     <th>Convocatoria</th>
                     <th>Estado</th>
                     <th></th>
@@ -293,6 +299,7 @@
                     @foreach ($detalle->inscripciones as $item)
                         <tr>
                             <td>{{$item->fecha_creacion ?? ' - '}}</td>
+                            <td>{{$item->convocatoria->programa->nombre ?? ' - '}}</td>
                             <td>{{$item->convocatoria->nombre_convocatoria ?? ' - '}}</td>
                             <td>{{$item->estado->inscripcionEstadoNOMBRE ?? ' - '}}</td>
                             <td>
