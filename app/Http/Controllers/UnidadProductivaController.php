@@ -19,6 +19,9 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Services\SICAM32;
 
+use App\Models\Role;
+use Illuminate\Support\Facades\Auth;
+
 class UnidadProductivaController extends Controller
 {
     function list()
@@ -29,6 +32,7 @@ class UnidadProductivaController extends Controller
             'tamanos'=> UnidadProductivaTamano::get(),
             'tipoPersona'=> UnidadProductivaPersona::get(),
             'unidades'=> [],
+            'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0
         ];
         
         return View("unidadesProductivas.index", $data);
@@ -72,9 +76,8 @@ class UnidadProductivaController extends Controller
         $unidadProductiva = UnidadProductiva::with([
             'etapa',
             'tipoPersona',
-            'diagnosticos',
-            'inscripciones',
-            'diagnosticos',
+            'inscripciones.convocatoria.programa',
+            'diagnosticos.etapa',
             'usuario',
             'transformadaDesde',
             'transformadaEn'
@@ -92,6 +95,7 @@ class UnidadProductivaController extends Controller
             'detalle' => $unidadProductiva,
             'dimensions'=> json_encode($dimensiones),
             'results'=> json_encode($resultados),
+            'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0
          ]);
     }
 

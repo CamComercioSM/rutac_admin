@@ -56,12 +56,16 @@
 
 @section('script')
     <script> 
+
+        const editar = '{!! $esAsesor ? '' : '<a class="dropdown-item" href="/unidadesProductivas/ROWID/edit">Editar</a>' !!}';
+        const transformar = '{!! $esAsesor ? '' : '<a class="dropdown-item" href="/unidadesProductivas/ROWID/transformar">Transformar</a>' !!}';
+
         window.TABLA = {
             urlApi: '/unidadesProductivas',
             sortName: 'fecha_creacion',
             
             menu_row: ` <a class="dropdown-item" href="/unidadesProductivas/ROWID" >Ver detalles</a>
-                        <a class="dropdown-item" href="/unidadesProductivas/ROWID/edit">Editar</a>
+                        ${editar} ${transformar}
                         <a class="dropdown-item" href="/diagnosticosResultados/list?unidad=ROWID">Diagnósticos</a>
                         <a class="dropdown-item" href="/inscripciones/list?unidad=ROWID">Inscripciones</a>
                         <a class="dropdown-item" href="/intervenciones/list?unidad=ROWID">Intervenciones</a>
