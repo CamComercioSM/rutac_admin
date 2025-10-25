@@ -39,18 +39,33 @@ class EmpresariosController extends Controller
         return view('empresarios.detail', [ 'detalle' => $result ]);
     }
 
+    public function store(Request $request)
+    {
+        $data = $request->all();
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->input('password'));
+        } else {
+            unset($data['password']);
+        }
+
+        if ($request->filled('id')) 
+        {
+            $entity = User::findOrFail($request->id);
+            $entity->update($data);
+        } 
+        else {
+            $entity = User::create($data);
+        }
+
+        return response()->json([ 'message' => 'Stored' ], 201);
+    }
 
     private function getQuery(Request $request)
     {
         $search = $request->get('search');
 
-        $query = User::whereNull('rol_id')
-            ->select(
-                'id',
-                'identification',
-                'email',
-                DB::raw("concat(name, ' ', lastname) as full_name")
-            );
+        $query = User::whereNull('rol_id');
 
         if(!empty($search))
         {

@@ -34,7 +34,8 @@ class EmpresariosExport implements FromQuery, WithMapping, WithHeadings, WithChu
             'ID',
             'Email',
             'Identificatión',
-            'Nombre',
+            'Nombres',
+            'Apellidos',
         ];
     }
 
@@ -44,7 +45,8 @@ class EmpresariosExport implements FromQuery, WithMapping, WithHeadings, WithChu
             $row->id,
             $row->email,
             $row->identification,
-            $row->full_name,
+            $row->namespace,
+            $row->lastname,
         ];
     }
 
