@@ -156,6 +156,84 @@ class EmailController extends Controller
     }
 
     /**
+     * Enviar correo con HTML personalizado desde otra aplicación
+     */
+    public function sendHtml(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'to' => 'required|email',
+            'subject' => 'required|string|max:255',
+            'html' => 'required|string',
+            'cc' => 'nullable|array',
+            'cc.*' => 'email',
+            'bcc' => 'nullable|array',
+            'bcc.*' => 'email',
+            'reply_to' => 'nullable|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Datos de entrada inválidos',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+
+        try {
+            $emailData = [
+                'to' => $request->to,
+                'subject' => $request->subject,
+                'html' => $request->html,
+                'cc' => $request->cc ?? [],
+                'bcc' => $request->bcc ?? [],
+                'reply_to' => $request->reply_to ?? null,
+            ];
+
+            // Enviar correo con HTML personalizado
+            $this->mailService->sendRawHtml(
+                $emailData['to'],
+                $emailData['subject'],
+                $emailData['html'],
+                [
+                    'cc' => $emailData['cc'],
+                    'bcc' => $emailData['bcc'],
+                    'reply_to' => $emailData['reply_to']
+                ]
+            );
+
+            Log::info('Correo HTML personalizado enviado exitosamente', [
+                'to' => $emailData['to'],
+                'subject' => $emailData['subject'],
+                'timestamp' => now()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Correo HTML enviado exitosamente',
+                'data' => [
+                    'to' => $emailData['to'],
+                    'subject' => $emailData['subject'],
+                    'sent_at' => now()->format('Y-m-d H:i:s')
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error al enviar correo HTML personalizado', [
+                'to' => $request->to,
+                'subject' => $request->subject,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al enviar el correo',
+                'error' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor'
+            ], 500);
+        }
+    }
+
+    /**
      * Verificar estado del servicio de correo
      */
     public function healthCheck()

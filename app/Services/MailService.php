@@ -193,4 +193,49 @@ class MailService
             throw $e;
         }
     }
+
+    /**
+     * Enviar correo con HTML personalizado (para uso desde API externa)
+     */
+    public function sendRawHtml($to, $subject, $htmlContent, $options = [])
+    {
+        try {
+            Mail::send([], [], function ($message) use ($to, $subject, $htmlContent, $options) {
+                $message->to($to)
+                        ->subject($subject)
+                        ->html($htmlContent)
+                        ->from(config('mail.from.address'), config('mail.from.name'));
+                
+                // Agregar CC si existe
+                if (!empty($options['cc'])) {
+                    $message->cc($options['cc']);
+                }
+                
+                // Agregar BCC si existe
+                if (!empty($options['bcc'])) {
+                    $message->bcc($options['bcc']);
+                }
+                
+                // Agregar Reply-To si existe
+                if (!empty($options['reply_to'])) {
+                    $message->replyTo($options['reply_to']);
+                }
+            });
+            
+            Log::info('Correo HTML personalizado enviado exitosamente', [
+                'to' => $to,
+                'subject' => $subject,
+                'has_html' => !empty($htmlContent)
+            ]);
+            
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Error al enviar correo HTML personalizado', [
+                'to' => $to,
+                'subject' => $subject,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
 }

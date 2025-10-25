@@ -23,6 +23,9 @@ Route::prefix('email')->middleware([\App\Http\Middleware\ApiKeyMiddleware::class
     // Enviar correo personalizado
     Route::post('/custom', [EmailController::class, 'sendCustomEmail']);
     
+    // Enviar correo con HTML personalizado desde otra aplicación
+    Route::post('/html', [EmailController::class, 'sendHtml']);
+    
     // Verificar estado del servicio
     Route::get('/health', [EmailController::class, 'healthCheck']);
 });
