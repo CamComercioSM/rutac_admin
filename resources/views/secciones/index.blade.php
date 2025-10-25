@@ -97,9 +97,19 @@
                 <input type="file" class="form-control" id="footer_logo_ally" name="footer_logo_ally" accept="image/*">
             </div>
 
-            <div class="col-12 col-md-6 form-group mb-3">
+            <div class="col-12 col-md-4 form-group mb-3">
                 <label for="footer_number_contact" class="form-label">Número de contacto</label>
                 <input type="text" class="form-control" id="footer_number_contact" name="footer_number_contact" value="{{ $data->footer['footer_number_contact'] ?? '' }}" placeholder="+57 605 420 9909">
+            </div>
+
+            <div class="col-12 col-md-4 form-group mb-3">
+                <label for="footer_email_contact" class="form-label">Email de contacto</label>
+                <input type="email" class="form-control" id="footer_email_contact" name="footer_email_contact" value="{{ $data->footer['footer_email_contact'] ?? '' }}" placeholder="info@rutadecrecimiento.com">
+            </div>
+
+            <div class="col-12 col-md-4 form-group mb-3">
+                <label for="whatsapp" class="form-label">Número de whatsapp</label>
+                <input type="text" class="form-control" id="whatsapp" name="whatsapp" value="{{ $data->footer['whatsapp'] ?? '' }}" placeholder="+57 605 420 9909">
             </div>
 
             <div class="col-12 col-md-6 form-group mb-3">
@@ -108,13 +118,23 @@
             </div>
 
             <div class="col-12 col-md-6 form-group mb-3">
-                <label for="footer_email_contact" class="form-label">Email de contacto</label>
-                <input type="email" class="form-control" id="footer_email_contact" name="footer_email_contact" value="{{ $data->footer['footer_email_contact'] ?? '' }}" placeholder="info@rutadecrecimiento.com">
+                <label for="url_masinformacion" class="form-label">URL más información</label>
+                <input type="url" class="form-control" id="url_masinformacion" name="url_masinformacion" value="{{ $data->footer['url_masinformacion'] ?? '' }}" placeholder="https://www.ccsm.org.co/">
             </div>
 
-            <div class="col-12 col-md-6 form-group mb-3">
+            <div class="col-12 col-md-4 form-group mb-3">
                 <label for="footer_address" class="form-label">Dirección</label>
                 <input type="text" class="form-control" id="footer_address" name="footer_address" value="{{ $data->footer['footer_address'] ?? '' }}" placeholder="Calle 24 #2-66. Edificio Cámara de Comercio.">
+            </div>
+
+            <div class="col-12 col-md-4 form-group mb-3">
+                <label for="ubicacion_ciudad" class="form-label">Ubicación en la ciudad</label>
+                <input type="text" class="form-control" id="ubicacion_ciudad" name="ubicacion_ciudad" value="{{ $data->footer['ubicacion_ciudad'] ?? '' }}" placeholder="Ubicación en la ciudad">
+            </div>
+
+            <div class="col-12 col-md-4 form-group mb-3">
+                <label for="ubicacion_urlmapa" class="form-label">Dirección - URL mapa</label>
+                <input type="text" class="form-control" id="ubicacion_urlmapa" name="ubicacion_urlmapa" value="{{ $data->footer['ubicacion_urlmapa'] ?? '' }}" placeholder="Dirección - URL mapa">
             </div>
 
             <div class="text-center my-4">
