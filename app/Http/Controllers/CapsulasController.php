@@ -47,6 +47,7 @@ class CapsulasController extends Controller
         if ($request->hasFile('formFile')) 
         {
             $path = $request->file('formFile')->store('storage/capsules', 'public');
+            $path = config('app.archivos_url') . $path;
             $data['imagen'] = $path;
         }
 

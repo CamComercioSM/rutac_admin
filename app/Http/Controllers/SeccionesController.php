@@ -27,8 +27,9 @@ class SeccionesController extends Controller
         ];
 
         if ($request->hasFile('discover_bg_image')) {
-            $path = $request->file('discover_bg_image')->store('backgrounds', 'public');
-            $historiesAttributes['discover_bg_image'] = 'storage/' . $path;
+            $path = $request->file('discover_bg_image')->store('storage/backgrounds', 'public');
+            $path = config('app.archivos_url') . $path;
+            $historiesAttributes['discover_bg_image'] = $path;
         }
 
         $historiesAttributes['histories_title'] = $request->input('histories_title');
@@ -48,8 +49,9 @@ class SeccionesController extends Controller
 
         foreach (['footer_logo_rutac', 'footer_logo_ally'] as $fileField) {
             if ($request->hasFile($fileField)) {
-                $path = $request->file($fileField)->store('logos', 'public');
-                $footerAttributes[$fileField] = 'storage/' . $path;
+                $path = $request->file($fileField)->store('storage/logos', 'public');
+                $path = config('app.archivos_url') . $path;
+                $footerAttributes[$fileField] = $path;
             }
         }
 

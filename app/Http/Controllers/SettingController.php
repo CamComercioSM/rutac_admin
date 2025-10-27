@@ -42,6 +42,7 @@ class SettingController extends Controller
         if ($request->hasFile('formFile')) 
         {
             $path = $request->file('formFile')->store('storage/history', 'public');
+            $path = config('app.archivos_url') . $path;
             $data['value'] = $path;
         }
 

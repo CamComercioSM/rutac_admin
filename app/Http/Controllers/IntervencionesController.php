@@ -54,6 +54,7 @@ class IntervencionesController extends Controller
         if ($request->hasFile('formFile')) 
         {
             $path = $request->file('formFile')->store('storage/Intervenciones', 'public');
+            $path = config('app.archivos_url') . $path;
             $data['soporte'] = $path;
         }
 

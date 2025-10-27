@@ -140,4 +140,6 @@ return [
 
     'api_key' => env('API_KEY'),
 
+    'archivos_url' => env('ARCHIVOS_URL'),
+
 ];

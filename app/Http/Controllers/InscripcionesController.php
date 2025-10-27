@@ -149,6 +149,7 @@ class InscripcionesController extends Controller
         if($request->hasFile('archivo')) 
         {
             $path = $request->file('archivo')->store('storage/aplications', 'public');
+            $path = config('app.archivos_url') . $path;
         }
 
         if($request->todo == 1)
