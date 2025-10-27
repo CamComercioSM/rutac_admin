@@ -68,21 +68,6 @@
             font-weight: 500 !important;
             padding: 12px 24px !important;
         }
-
-
-        #toggle-password {
-            border-left: none;
-            background: transparent;
-        }
-
-        #togglePasswordIcon {
-            color: #6c757d;
-            transition: color 0.3s;
-        }
-
-        #togglePasswordIcon:hover {
-            color: #000;
-        }
     </style>
 @endsection
 
@@ -137,15 +122,29 @@
                                             <input type="password" id="password" class="form-control" name="password"
                                                 placeholder="Contraseña" aria-describedby="password" />
                                             <label for="password">Contraseña</label>
-                                            <span class="input-group-text cursor-pointer" id="toggle-password">
-                                                <i class="ri-eye-off-line ri-20px" id="togglePasswordIcon"></i>
-                                            </span>
-
                                         </div>
                                         <span class="input-group-text cursor-pointer"><i
-                                                class="ri-eye-off-line ri-20px"></i></span>
+                                                class="icon-base ri ri-eye-off-line"></i></span>
+                                        <span class="form-floating-focused"></span>
                                     </div>
                                 </div>
+
+                                <div class="form-password-toggle">
+                                    <div class="input-group input-group-floating">
+                                        <div class="form-floating">
+                                            <input type="password" class="form-control" id="basic-default-password22"
+                                                placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                                                aria-describedby="basic-default-password22" />
+                                            <label for="basic-default-password22">Password</label>
+                                        </div>
+                                        <span class="input-group-text cursor-pointer"><i
+                                                class="icon-base ri ri-eye-off-line"></i></span>
+                                        <span class="form-floating-focused"></span>
+                                    </div>
+                                </div>
+
+
+
                             </div>
                             <div class="mb-5 pb-2 d-flex justify-content-between pt-2 align-items-center">
                                 <div class="form-check mb-0">
@@ -381,22 +380,6 @@
 
             const loading = document.querySelectorAll('.cargando')[0];
             loading.classList.add('d-none');
-        });
-
-        // Mostrar / ocultar contraseña
-        document.addEventListener('DOMContentLoaded', function() {
-            const togglePassword = document.getElementById('toggle-password');
-            const passwordInput = document.getElementById('password');
-            const icon = document.getElementById('togglePasswordIcon');
-
-            if (togglePassword && passwordInput && icon) {
-                togglePassword.addEventListener('click', function() {
-                    const isPassword = passwordInput.getAttribute('type') === 'password';
-                    passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-                    icon.classList.toggle('ri-eye-line', isPassword);
-                    icon.classList.toggle('ri-eye-off-line', !isPassword);
-                });
-            }
         });
     </script>
 @endsection
