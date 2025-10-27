@@ -37,12 +37,14 @@ class BannerController extends Controller
         if ($request->hasFile('imgPc')) 
         {
             $path = $request->file('imgPc')->store('storage/banners', 'public');
+            $path = config('app.archivos_url') . $path;
             $data['image'] = $path;
         }
 
         if ($request->hasFile('imgMovil')) 
         {
             $path = $request->file('imgMovil')->store('storage/banners', 'public');
+            $path = config('app.archivos_url') . $path;
             $data['image_movil'] = $path;
         }
 

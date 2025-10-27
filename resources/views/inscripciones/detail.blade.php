@@ -106,7 +106,7 @@
                             <p class="mb-2">{{$item->comentarios ?? ' - '}}</p>
                             @if ($item->archivo)                            
                                 <div class="d-flex align-items-center mb-1">
-                                    <a class="badge bg-lightest" href="{{$item->archivo}}">
+                                    <a class="badge bg-lightest" href="{{$item->archivo}}" target="_blank" >
                                         <img src="{{ asset('assets/img/icons/misc/pdf.png') }}" alt="img" width="20" class="me-2" />
                                         <span class="h6 mb-0">Archivo</span>
                                     </a>
