@@ -129,22 +129,6 @@
                                     </div>
                                 </div>
 
-                                <div class="form-password-toggle">
-                                    <div class="input-group input-group-floating">
-                                        <div class="form-floating">
-                                            <input type="password" class="form-control" id="basic-default-password22"
-                                                placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                                                aria-describedby="basic-default-password22" />
-                                            <label for="basic-default-password22">Password</label>
-                                        </div>
-                                        <span class="input-group-text cursor-pointer"><i
-                                                class="icon-base ri ri-eye-off-line"></i></span>
-                                        <span class="form-floating-focused"></span>
-                                    </div>
-                                </div>
-
-
-
                             </div>
                             <div class="mb-5 pb-2 d-flex justify-content-between pt-2 align-items-center">
                                 <div class="form-check mb-0">
