@@ -4,3 +4,19 @@
 // ===================================================================================================================
 
 // $font-size-root: 14px;
+// Paleta institucional Ruta C
+$primary: #0B1890 !default; // Azul institucional
+$secondary: #F9B517 !default; // Amarillo energía
+$success: #48BD8F !default; // Verde digital
+$light: #E8E9EF !default; // Neutro claro
+$info: #1E88E5 !default;
+$warning: #FBBF24 !default;
+$danger: #EF4444 !default;
+$dark: #2A2E43 !default;
+
+// Gradiente
+$gradient-primary: linear-gradient(135deg, #0B1890 0%, #48BD8F 100%) !default;
+
+// Fondos y texto
+$body-bg: #F9FAFB !default;
+$body-color: #2A2E43 !default;

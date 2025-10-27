@@ -3,3 +3,27 @@
 // .card {
 //    background-color: #fd0000;
 //  }
+
+
+// Variables CSS para skins y gradientes
+:root,
+[data-bs-theme="light"] {
+    --bs-primary: #0B1890;
+    --bs-secondary: #F9B517;
+    --bs-success: #48BD8F;
+    --rutac-gradient-main: linear-gradient(135deg, #0B1890 0%, #48BD8F 100%);
+}
+
+[data-bs-theme="dark"] {
+    --bs-primary: #0B1890;
+    --bs-secondary: #F9B517;
+    --bs-success: #48BD8F;
+    --rutac-gradient-main: linear-gradient(135deg, #0B1890 0%, #48BD8F 100%);
+}
+
+/* ejemplo de uso del gradiente en un btn propio */
+.btn-gradient-primary {
+    background-image: var(--rutac-gradient-main);
+    color: #fff;
+    border: 0;
+}

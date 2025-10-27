@@ -2,8 +2,17 @@
 // Variables
 // Configuración institucional y técnica real de la Plataforma Ruta C
 return [
-  // ====== Identidad y créditos ======
+  // ====== Configuración de tema y colores ======
+  'tema_base' => [
+    'colores' => [
+      'principal' => '#0B1890',
+      'segundario' => '#F9B517',
+      'terciario' => '#48BD8F',
+      'suave' => '#E8E9EF',
+    ],
+  ],
 
+  // ====== Identidad y créditos ======
   "logo" => "https://cdnsicam.net/img/rutac/rutac-logo-con-ccsm.png",
   "creatorName" => "Cámara de Comercio de Santa Marta para el Magdalena",
   "creatorUrl" => "https://www.ccsm.org.co",
