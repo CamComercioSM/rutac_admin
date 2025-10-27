@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Database\QueryException;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
@@ -58,24 +59,36 @@ class AuthController extends Controller
     public function sendResetLink(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email',
         ], [
             'email.required' => 'El correo electrónico es requerido.',
             'email.email' => 'El formato del correo electrónico no es válido.',
-            'email.exists' => 'No existe una cuenta con este correo electrónico.',
         ]);
 
+        $email = trim($request->email);
+
         try {
-            Log::info('Intentando enviar correo de recuperación para', ['email' => $request->email]);
+            // Verificar si el usuario existe
+            $user = User::where('email', $email)->first();
+
+            if (!$user) {
+                Log::warning('Intento de recuperación con email no registrado', ['email' => $email]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No existe una cuenta con este correo electrónico.'
+                ], 422);
+            }
+
+            Log::info('Intentando enviar correo de recuperación para', ['email' => $email, 'user_id' => $user->id]);
 
             $status = Password::sendResetLink(
-                $request->only('email')
+                ['email' => $email]
             );
 
             Log::info('Estado del envío', ['status' => $status]);
 
             if ($status === Password::RESET_LINK_SENT) {
-                Log::info('Correo de recuperación enviado exitosamente para', ['email' => $request->email]);
+                Log::info('Correo de recuperación enviado exitosamente para', ['email' => $email]);
                 return response()->json([
                     'success' => true,
                     'message' => '✅ Se ha enviado un enlace de recuperación a tu correo electrónico. Revisa tu bandeja de entrada y la carpeta de spam.'
@@ -93,22 +106,50 @@ class AuthController extends Controller
                         $errorMessage = 'No se pudo enviar el enlace de recuperación. Inténtalo de nuevo.';
                 }
 
-                Log::warning('Error al enviar correo de recuperación: ' . $status . ' para: ' . $request->email);
+                Log::warning('Error al enviar correo de recuperación: ' . $status . ' para: ' . $email);
 
                 return response()->json([
                     'success' => false,
                     'message' => '❌ ' . $errorMessage
                 ], 400);
             }
+        } catch (QueryException $e) {
+            Log::error('Error de base de datos en sendResetLink: ' . $e->getMessage(), [
+                'email' => $email,
+                'error_code' => $e->getCode(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Verificar si es el error de tabla no encontrada
+            if ((str_contains($e->getMessage(), 'password_reset_tokens') || str_contains($e->getMessage(), 'password_resets')) 
+                && str_contains($e->getMessage(), "doesn't exist")) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ Error de configuración del sistema. Por favor contacta al administrador.'
+                ], 500);
+            }
+
+            // Verificar si es el error de base de datos desconocida
+            if (str_contains($e->getMessage(), 'Unknown database')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ Error de conexión con la base de datos. Por favor contacta al administrador.'
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => '❌ Error de conexión. Inténtalo de nuevo más tarde.'
+            ], 500);
         } catch (\Exception $e) {
             Log::error('Error en sendResetLink: ' . $e->getMessage(), [
-                'email' => $request->email,
+                'email' => $email,
                 'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => '❌ Error al enviar el correo: ' . $e->getMessage()
+                'message' => '❌ Error al procesar tu solicitud. Inténtalo de nuevo.'
             ], 500);
         }
     }
@@ -122,20 +163,35 @@ class AuthController extends Controller
     {
         $request->validate([
             'token' => 'required',
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email',
             'password' => 'required|min:8|confirmed',
         ], [
             'token.required' => 'El token es requerido.',
             'email.required' => 'El correo electrónico es requerido.',
             'email.email' => 'El formato del correo electrónico no es válido.',
-            'email.exists' => 'No existe una cuenta con este correo electrónico.',
             'password.required' => 'La contraseña es requerida.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
         ]);
 
+        // Verificar si el usuario existe
+        $email = trim($request->email);
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No existe una cuenta con este correo electrónico.'
+            ], 422);
+        }
+
         $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
+            [
+                'email' => $email,
+                'password' => $request->password,
+                'password_confirmation' => $request->password_confirmation,
+                'token' => $request->token
+            ],
             function (User $user, string $password) {
                 $user->forceFill([
                     'password' => Hash::make($password)
@@ -148,7 +204,7 @@ class AuthController extends Controller
         );
 
         if ($status === Password::PASSWORD_RESET) {
-            Log::info('Contraseña restablecida exitosamente para', ['email' => $request->email]);
+            Log::info('Contraseña restablecida exitosamente para', ['email' => $email]);
             return response()->json([
                 'success' => true,
                 'message' => 'Tu contraseña ha sido restablecida correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.'
@@ -166,7 +222,7 @@ class AuthController extends Controller
                     $errorMessage = 'No se pudo restablecer la contraseña. El enlace puede haber expirado.';
             }
 
-            Log::warning('Error al restablecer contraseña: ' . $status . ' para: ' . $request->email);
+            Log::warning('Error al restablecer contraseña: ' . $status . ' para: ' . $email);
 
             return response()->json([
                 'success' => false,

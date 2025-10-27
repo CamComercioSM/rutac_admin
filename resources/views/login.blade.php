@@ -245,12 +245,30 @@
                                     .getAttribute('content')
                             }
                         })
-                        .then(response => {
+                        .then(async response => {
                             console.log('Response status:', response.status);
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! status: ${response.status}`);
+                            
+                            // Intentar parsear el JSON incluso si hay error
+                            const contentType = response.headers.get("content-type");
+                            let data = {};
+                            
+                            if (contentType && contentType.includes("application/json")) {
+                                try {
+                                    data = await response.json();
+                                } catch (e) {
+                                    console.error('Error parsing JSON:', e);
+                                }
                             }
-                            return response.json();
+                            
+                            // Si la respuesta no es ok, lanzar el error con los datos
+                            if (!response.ok) {
+                                const error = new Error(`HTTP error! status: ${response.status}`);
+                                error.data = data;
+                                error.status = response.status;
+                                throw error;
+                            }
+                            
+                            return data;
                         })
                         .then(data => {
                             console.log('Response data:', data);
@@ -331,22 +349,31 @@
                             // Limpiar el formulario
                             forgotPasswordForm.reset();
 
+                            // Determinar el mensaje a mostrar
+                            let errorTitle = 'Error de Conexión 🌐';
+                            let errorMessage = 'Verifica tu conexión a internet e inténtalo de nuevo';
+                            let errorDetails = error.message;
+
+                            // Si el error tiene data con mensaje del backend, usarlo
+                            if (error.data && error.data.message) {
+                                errorTitle = 'Error ❌';
+                                errorMessage = error.data.message;
+                                errorDetails = '';
+                            }
+
                             // Mostrar SweetAlert de error después de cerrar el modal
                             setTimeout(() => {
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'Error de Conexión 🌐',
+                                    title: errorTitle,
                                     html: `
                             <div style="text-align: center;">
                                 <p style="font-size: 16px; margin-bottom: 15px;">
-                                    <strong>No se pudo conectar al servidor</strong>
+                                    <strong>${errorMessage}</strong>
                                 </p>
-                                <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
-                                    Verifica tu conexión a internet e inténtalo de nuevo
-                                </p>
-                                <p style="font-size: 12px; color: #999;">
-                                    Error: ${error.message}
-                                </p>
+                                ${errorDetails ? `<p style="font-size: 12px; color: #999;">
+                                    Error: ${errorDetails}
+                                </p>` : ''}
                             </div>
                         `,
                                     confirmButtonText: 'Intentar de Nuevo',
