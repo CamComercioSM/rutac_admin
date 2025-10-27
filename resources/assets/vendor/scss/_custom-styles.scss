@@ -5,6 +5,20 @@
 //  }
 
 
+// =============================
+// Fuente personalizada - Syne
+// =============================
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap');
+
+// Establecer Syne como fuente principal
+$font-family-sans-serif: 'Syne', sans-serif !default;
+$font-family-base: $font-family-sans-serif !default;
+
+body {
+  font-family: 'Syne', sans-serif !important;
+}
+
+
 // Variables CSS para skins y gradientes
 :root,
 [data-bs-theme="light"] {
