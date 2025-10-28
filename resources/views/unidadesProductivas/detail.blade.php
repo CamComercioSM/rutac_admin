@@ -115,7 +115,13 @@
                         <th class="text-primary" style="width: 50px;">Sitio web</th>
                         <td>
                             @if ($detalle->website )
-                                <a class="btn btn-xs btn-outline-info" href="{{ $detalle->website }}" target="_blank" >
+                                @php
+                                    $websiteUrl = $detalle->website;
+                                    if (!preg_match('#^https?://#', $websiteUrl)) {
+                                        $websiteUrl = 'https://' . $websiteUrl;
+                                    }
+                                @endphp
+                                <a class="btn btn-xs btn-outline-info" href="{{ $websiteUrl }}" target="_blank" >
                                     {{ $detalle->website }}
                                 </a>
                             @else
@@ -203,7 +209,13 @@
                         <th class="text-primary" style="width: 50px;">Instagram</th>
                         <td>
                             @if ($detalle->social_instagram )
-                                <a class="btn btn-xs btn-outline-info" href="{{ $detalle->social_instagram }}" target="_blank" >
+                                @php
+                                    $instagramUrl = $detalle->social_instagram;
+                                    if (!preg_match('#^https?://#', $instagramUrl)) {
+                                        $instagramUrl = 'https://' . $instagramUrl;
+                                    }
+                                @endphp
+                                <a class="btn btn-xs btn-outline-info" href="{{ $instagramUrl }}" target="_blank" >
                                     {{ $detalle->social_instagram }}
                                 </a>
                             @else
@@ -215,7 +227,13 @@
                         <th class="text-primary" style="width: 50px;">Facebook</th>
                         <td>
                             @if ($detalle->social_facebook )
-                                <a class="btn btn-xs btn-outline-info" href="{{ $detalle->social_facebook }}" target="_blank" >
+                                @php
+                                    $facebookUrl = $detalle->social_facebook;
+                                    if (!preg_match('#^https?://#', $facebookUrl)) {
+                                        $facebookUrl = 'https://' . $facebookUrl;
+                                    }
+                                @endphp
+                                <a class="btn btn-xs btn-outline-info" href="{{ $facebookUrl }}" target="_blank" >
                                     {{ $detalle->social_facebook }}
                                 </a>
                             @else
@@ -227,7 +245,13 @@
                         <th class="text-primary" style="width: 50px;">Linkedin</th>
                         <td>
                             @if ($detalle->social_linkedin )
-                                <a class="btn btn-xs btn-outline-info" href="{{ $detalle->social_linkedin }}" target="_blank" >
+                                @php
+                                    $linkedinUrl = $detalle->social_linkedin;
+                                    if (!preg_match('#^https?://#', $linkedinUrl)) {
+                                        $linkedinUrl = 'https://' . $linkedinUrl;
+                                    }
+                                @endphp
+                                <a class="btn btn-xs btn-outline-info" href="{{ $linkedinUrl }}" target="_blank" >
                                     {{ $detalle->social_linkedin }}
                                 </a>
                             @else
