@@ -84,11 +84,17 @@ class UnidadProductivaController extends Controller
         ])->findOrFail($id);
 
         $diagnostico = $unidadProductiva->diagnosticos->last();
-           
-        $resultados = ResultadosDiagnostico::where('resultado_id', $diagnostico->resultado_id)->get();
-
-        $dimensiones = $resultados->pluck('dimension')->toArray();
-        $resultados = $resultados->pluck('valor')->toArray();
+        
+        // Inicializar arrays vacíos por defecto
+        $dimensiones = [];
+        $resultados = [];
+        
+        // Solo procesar resultados si existe un diagnóstico
+        if ($diagnostico && $diagnostico->resultado_id) {
+            $resultadosData = ResultadosDiagnostico::where('resultado_id', $diagnostico->resultado_id)->get();
+            $dimensiones = $resultadosData->pluck('dimension')->toArray();
+            $resultados = $resultadosData->pluck('valor')->toArray();
+        }
                 
         return view('unidadesProductivas.detail',
          [
