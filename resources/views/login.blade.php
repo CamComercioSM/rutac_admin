@@ -174,7 +174,7 @@
                 <!-- /Login -->
                 <img src="{{ asset('assets/img/illustrations/tree-3.png') }}" alt="auth-tree"
                     class="authentication-image-object-left d-none d-lg-block">
-                <img src="{{ asset('img/img-fondo-sierra-m.png') }}"
+                <img src="{{ asset('img/img-fondo-sierra-m-mini.png') }}"
                     class="authentication-image d-none d-lg-block" height="100%" alt="triangle-bg" style="height: auto;" >
                 <img src="{{ asset('assets/img/illustrations/tree.png') }}" alt="auth-tree"
                     class="authentication-image-object-right d-none d-lg-block">
