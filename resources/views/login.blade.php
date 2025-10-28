@@ -176,7 +176,7 @@
                     class="authentication-image-object-left d-none d-lg-block">
                 <img src="{{ asset('img/img-fondo-sierra-m-min.png') }}"
                     class="authentication-image d-none d-lg-block" height="100%" alt="triangle-bg" style="height: auto;" >
-                <img src="{{ asset('img/mariac-saludando.png') }}" alt="auth-tree"
+                <img src="{{ asset('img/mariac-saludando.png') }}" alt="auth-tree" style="height: 35vh;" 
                     class="authentication-image-object-right d-none d-lg-block">
             </div>
         </div>
