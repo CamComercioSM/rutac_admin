@@ -161,8 +161,6 @@
                     
                     @method('PATCH')
 
-                    <input type="hidden" name="todo" id="todos" value="0" >
-
                     <div class="col-sm-12 text-center">
                         <hr class="mx-md-n5 mx-n3" />
 
@@ -315,6 +313,10 @@
             $('#cambioEstadoForm').on('submit', function (e) {
                 e.preventDefault();
 
+                if (window.TABLA.seleccionados.size === 0) {
+                    return alert('Debe seleccionar al menos un registro.');
+                }
+
                 cargando.classList.remove('d-none');
 
                 let form = $(this); 
@@ -365,31 +367,28 @@
                     return alert('Debe seleccionar al menos un registro.');
                 }
 
-                $('#listaUnidades').empty();
-               
-                if($('#todos').val() == 1)
-                {
-                    $('#listaUnidades').html(`
-                            <li class="list-group-item bg-warning">
-                                Se cambiara el estado a ${window.TABLA.totalRegistros} registros.
-                            </li>`);
-                    $('#cantidad').text(window.TABLA.totalRegistros);
-                }
-                else
-                {
-                    $('#cantidad').text(window.TABLA.seleccionados.size);
-                    window.TABLA.seleccionados
-                    .forEach((nombre, id) => {
-                        $('#listaUnidades').append(`
-                            <li class="list-group-item bg-warning">
-                                <input type="hidden" name="inscripciones[]" value="${id}"> ${nombre}
-                            </li>`);
-                    });
-                }
+                pintarSeleccionados();
 
                 const modal = new bootstrap.Modal(document.getElementById('cambioEstadoModal'));
                 modal.show();
             });
+
+            window.pintarSeleccionados = function ()
+            {
+                $('#listaUnidades').empty();
+               
+                $('#cantidad').text(window.TABLA.seleccionados.size);
+                window.TABLA.seleccionados
+                .forEach((nombre, id) => {
+                    $('#listaUnidades').append(`
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-warning">
+                            <input type="hidden" name="inscripciones[]" value="${id}"> 
+                            ${nombre}
+                            <input type="button" class="btn btn-xs btn-danger" value="Eliminar" onClick="eliminarSeleccionado(${id}); pintarSeleccionados();" > 
+                        </li>`);
+                });
+            }
+
         });
 
     </script>

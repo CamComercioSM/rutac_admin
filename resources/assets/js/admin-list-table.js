@@ -1,3 +1,5 @@
+import languageEs from '../../assets/es-ES.json';
+
 $(document).ready(function () {
 
     const dropdown = $('#MenurowTable');
@@ -126,19 +128,12 @@ $(document).ready(function () {
             columnDefs: columnDefs,
             pageLength: 10,
             lengthMenu: [10, 15, 25, 50, 100],
-            language: {
-                paginate: {
-                    next: '<i class="icon-base ri ri-arrow-right-s-line scaleX-n1-rtl icon-22px"></i>',
-                    previous: '<i class="icon-base ri ri-arrow-left-s-line scaleX-n1-rtl icon-22px"></i>',
-                    first: '<i class="icon-base ri ri-skip-back-mini-line scaleX-n1-rtl icon-22px"></i>',
-                    last: '<i class="icon-base ri ri-skip-forward-mini-line scaleX-n1-rtl icon-22px"></i>'
-                }
-            },
+            language: languageEs,
             layout: {
                 topStart: {
                     rowClass: 'row mx-2 justify-content-between',
                     features: [
-                        { pageLength: { menu: [10, 25, 50, 100], text: 'Show_MENU_entries' } }
+                        { pageLength: { menu: [10, 25, 50, 100] } }
                     ]
                 },
                 topEnd: { search: { placeholder: 'Busqueda...' } },
@@ -175,6 +170,21 @@ $(document).ready(function () {
                     }
                 });
             });
+
+            window.eliminarSeleccionado = function(id = null) {
+                if (window.TABLA.seleccionados.has(id)) {
+
+                    window.TABLA.seleccionados.delete(id);
+
+                    const fila = tabla.rows().indexes().filter((idx) => {
+                        const data = tabla.row(idx).data();
+                        return data.id === id;
+                    });
+
+                    if (fila.length > 0) { tabla.rows(fila).deselect(); }
+                }
+            };
+
         }
     }
 
@@ -361,7 +371,10 @@ $(document).ready(function () {
                     $(document).off('mousedown.menuContext'); // remover handler
                 }
             });
-            
+            dropdown.on('click.menuContext', 'a, button, .dropdown-item', function () {
+                dropdown.hide();
+                $(document).off('mousedown.menuContext');
+            });
         }
         else
         {

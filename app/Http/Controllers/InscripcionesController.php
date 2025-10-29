@@ -152,13 +152,6 @@ class InscripcionesController extends Controller
             $path = config('app.archivos_url') . $path;
         }
 
-        if($request->todo == 1)
-        {
-            $query = $this->getQuery(new Request($request->filtros)); 
-            $request->inscripciones = $query->select('inscripcion_id')->get()->pluck('inscripcion_id')->toArray();
-            dd($request->inscripciones);
-        }
-
         foreach($request->inscripciones as $ins_id)
         {
             $entity = ConvocatoriaInscripcion::with(['unidadProductiva', 'estado', 'convocatoria.programa'])

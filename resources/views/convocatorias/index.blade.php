@@ -154,7 +154,8 @@
                 { data: 'persona_encargada', title: 'Persona a cargo', orderable: true },
                 { data: 'telefono', title: 'Teléfono', orderable: true },
                 { data: 'fecha_apertura_convocatoria', title: 'Fecha inicio', orderable: true, render: v => window.formatearFecha(v) },
-                { data: 'fecha_cierre_convocatoria', title: 'Fecha finalización', orderable: true, render: v => window.formatearFecha(v) }
+                { data: 'fecha_cierre_convocatoria', title: 'Fecha finalización', orderable: true, render: v => window.formatearFecha(v) },
+                { data: 'sector', title: 'Sector', orderable: true },
             ],
 
             initSelects: [ 

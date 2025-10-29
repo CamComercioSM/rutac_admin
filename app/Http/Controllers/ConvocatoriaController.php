@@ -116,9 +116,11 @@ class ConvocatoriaController extends Controller
                 'programas_convocatorias.con_matricula',
                 'programas_convocatorias.sector_id',
                 'p.programa_id',
-                'p.nombre AS nombre_programa'
+                'p.nombre AS nombre_programa',
+                'st.sectorNOMBRE as sector',
             ])
-            ->join('programas as p', 'programas_convocatorias.programa_id', '=', 'p.programa_id');
+            ->join('programas as p', 'programas_convocatorias.programa_id', '=', 'p.programa_id')
+            ->leftJoin('ciiu_macrosectores as st', 'programas_convocatorias.sector_id', '=', 'st.sector_id');
 
         if(!empty($search))
         {

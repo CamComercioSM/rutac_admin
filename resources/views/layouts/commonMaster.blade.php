@@ -107,10 +107,16 @@
   @include('layouts/sections/scripts' . $isFront)
 
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        document.querySelectorAll('.cargando').forEach(function(el) {
+    function ocultarCargando() {
+        document.querySelectorAll('.cargando').forEach(function (el) {
             el.classList.add('d-none');
         });
+    }
+
+    document.addEventListener("DOMContentLoaded", ocultarCargando);
+
+    window.addEventListener("pageshow", function (event) {
+        if (event.persisted) { ocultarCargando();  }
     });
   </script>
 </body>
