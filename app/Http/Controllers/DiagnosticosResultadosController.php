@@ -54,8 +54,14 @@ class DiagnosticosResultadosController extends Controller
 
         $resultados = ResultadosDiagnostico::where('resultado_id', $id)->get();
 
-        $dimensiones = $resultados->pluck('dimension')->toArray();
-        $resultados = $resultados->pluck('valor')->toArray();
+        $dimensionIds = $resultados->pluck('dimension')->filter()->unique()->values();
+        $dimensionNames = \App\Models\TablasReferencias\PreguntaDimension::whereIn('preguntadimension_id', $dimensionIds)
+            ->pluck('preguntadimension_nombre', 'preguntadimension_id');
+
+        $dimensiones = $resultados->map(function($row) use ($dimensionNames){
+            return $dimensionNames[$row->dimension] ?? (string)$row->dimension;
+        })->toArray();
+        $resultados = $resultados->pluck('valor')->map(function($v){ return (float)$v; })->toArray();
         
         return view('diagnosticosRespuesta.detail',
          [

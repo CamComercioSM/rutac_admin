@@ -375,11 +375,22 @@
     const categories = Array.isArray(_dimensions) ? _dimensions.filter(v => v != null) : [];
 
     const options = {
-        series: [{ data: seriesData }],
-        chart: { height: 350, type: 'radar' },
+        series: [{ data: seriesData, name: 'Puntaje' }],
+        chart: { height: 380, type: 'radar', toolbar: { show: true } },
         title: { text: 'Último diagnóstico' },
-        yaxis: { stepSize: 20 },
-        xaxis: { categories }
+        stroke: { width: 2 },
+        fill: { opacity: 0.3 },
+        markers: { size: 4 },
+        dataLabels: { enabled: false },
+        yaxis: { tickAmount: 5, decimalsInFloat: 0 },
+        xaxis: { 
+            categories,
+            labels: { 
+                show: true,
+                style: { colors: Array(categories.length).fill('#6c757d'), fontSize: '12px' }
+            }
+        },
+        plotOptions: { radar: { polygons: { strokeColors: '#e9ecef', fill: { colors: ['#f8f9fa', '#fff'] } } } }
     };
 
     const CHARTS = [ { id:'chart', options: options } ];
@@ -387,6 +398,7 @@
     document.querySelectorAll('.cargando').forEach(function(element) {
         element.classList.add('d-none');
     });
+
 
 </script>
 @vite(['resources/assets/js/admin-table.js', 'resources/assets/js/admin-chart.js'])

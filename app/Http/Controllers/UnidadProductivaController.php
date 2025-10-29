@@ -92,8 +92,18 @@ class UnidadProductivaController extends Controller
         // Solo procesar resultados si existe un diagnóstico
         if ($diagnostico && $diagnostico->resultado_id) {
             $resultadosData = ResultadosDiagnostico::where('resultado_id', $diagnostico->resultado_id)->get();
-            $dimensiones = $resultadosData->pluck('dimension')->toArray();
-            $resultados = $resultadosData->pluck('valor')->toArray();
+
+            $dimensionIds = $resultadosData->pluck('dimension')->filter()->unique()->values();
+            $dimensionNames = \App\Models\TablasReferencias\PreguntaDimension::whereIn('preguntadimension_id', $dimensionIds)
+                ->pluck('preguntadimension_nombre', 'preguntadimension_id');
+
+            $dimensiones = $resultadosData->map(function($row) use ($dimensionNames){
+                return $dimensionNames[$row->dimension] ?? (string)$row->dimension;
+            })->toArray();
+
+            $resultados = $resultadosData->pluck('valor')->map(function($v){
+                return (float)$v;
+            })->toArray();
         }
                 
         return view('unidadesProductivas.detail',
