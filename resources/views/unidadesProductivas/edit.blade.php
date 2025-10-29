@@ -16,22 +16,22 @@
 
             <div class="col-12 col-md-12 form-group mb-3">
                 <label class="form-label" for="business_name">Razon social </label>
-                <input type="text" class="form-control" name="business_name" id="business_name" placeholder="Razon social" required>
+                <input type="text" class="form-control" name="business_name" id="business_name" placeholder="Razon social" required maxlength="150" pattern="^[^<>]{2,150}$" title="Máximo 150 caracteres. No se permiten < ni >.">
             </div>
 
             <div class="col-12 col-md-12 form-group mb-3">
                 <label class="form-label" for="description">Descripción </label>
-                <textarea class="form-control" name="description" id="description" placeholder="Descripción"></textarea>
+                <textarea class="form-control" name="description" id="description" placeholder="Descripción" maxlength="500"></textarea>
             </div>
 
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="nit">NIT </label>
-                <input type="text" class="form-control" name="nit" id="nit" placeholder="NIT" pattern="^\d{5,12}(-\d{1})?$" required>
+                <input type="text" class="form-control" name="nit" id="nit" placeholder="NIT" inputmode="numeric" autocomplete="off" pattern="^\d{5,12}$" maxlength="12" title="Ingrese solo números (5 a 12 dígitos), sin dígito de verificación ni guiones." required>
             </div>
 
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="registration_number">Número de matrícula </label>
-                <input type="text" class="form-control" name="registration_number" id="registration_number" placeholder="Número de matrícula" pattern="^\d{4,10}$" required>
+                <input type="text" class="form-control" name="registration_number" id="registration_number" placeholder="Número de matrícula" maxlength="20" pattern="^[A-Za-z0-9]{4,20}$" title="Alfanumérico sin espacios ni símbolos. 4 a 20 caracteres." required>
             </div>
 
             <div class="col-12 col-md-4 form-group mb-3">
@@ -111,20 +111,20 @@
 
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="registration_email">Email </label>
-                <input type="email" class="form-control" name="registration_email" id="registration_email" placeholder="Email" required>
+                <input type="email" class="form-control" name="registration_email" id="registration_email" placeholder="Email" maxlength="120" required>
             </div>
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="telephone">Teléfono </label>
-                <input type="text" class="form-control" name="telephone" id="telephone" placeholder="Teléfono" >
+                <input type="text" class="form-control" name="telephone" id="telephone" placeholder="Teléfono" pattern="^\d{7,10}$" title="Solo números, 7 a 10 dígitos.">
             </div>
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="mobile">Celular </label>
-                <input type="text" class="form-control" name="mobile" id="mobile" placeholder="Celular" >
+                <input type="text" class="form-control" name="mobile" id="mobile" placeholder="Celular" pattern="^\d{10}$" title="Solo números, 10 dígitos.">
             </div>
 
             <div class="col-12 col-md-12 form-group mb-3">
                 <label class="form-label" for="address">Dirección </label>
-                <input type="text" class="form-control" name="address" id="address" placeholder="Dirección" >
+                <input type="text" class="form-control" name="address" id="address" placeholder="Dirección" maxlength="120" pattern="^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9\s#\-\.]{5,120}$" title="Solo letras, números y # - .  (mín. 5, máx. 120).">
             </div>
 
             <div class="col-12 col-md-6 form-group mb-3">
@@ -172,11 +172,11 @@
             </div>
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="contact_email">Email de contacto</label>
-                <input type="email" class="form-control" name="contact_email" id="contact_email" placeholder="Email de contacto" required>
+                <input type="email" class="form-control" name="contact_email" id="contact_email" placeholder="Email de contacto" maxlength="120" required>
             </div>
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="contact_phone">Celular de contacto</label>
-                <input type="text" class="form-control" name="contact_phone" id="contact_phone" placeholder="Celular de contacto" required>
+                <input type="text" class="form-control" name="contact_phone" id="contact_phone" placeholder="Celular de contacto" pattern="^\d{10}$" title="Solo números, 10 dígitos." required>
             </div>
 
             <div class="col-12 col-md-12"> <hr> </div>
@@ -229,6 +229,25 @@
     window.URL_API = "{{ $api }}";
     window.SELECTS = ['ciiuactividad_id', 'department_id', 'municipality_id'];
     window.DATA = @json($elemento);
+
+    // Validaciones adicionales de cliente
+    window.validarExtraForm = function(){
+        const email1 = document.getElementById('registration_email');
+        const email2 = document.getElementById('contact_email');
+        const registration = document.getElementById('registration_number');
+
+        // limpiar estados previos
+        [email1, email2, registration].forEach(el => el.setCustomValidity(''));
+
+        // Evitar correos duplicados en el formulario
+        if(email1.value && email2.value && email1.value.trim().toLowerCase() === email2.value.trim().toLowerCase()){
+            email2.setCustomValidity('El email de contacto no puede ser igual al email de registro.');
+            email2.reportValidity();
+            return false;
+        }
+
+        return true;
+    }
 </script>
 @vite(['resources/assets/js/admin-edit.js'])
 @endsection

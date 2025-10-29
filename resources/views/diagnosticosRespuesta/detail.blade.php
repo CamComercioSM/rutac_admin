@@ -93,12 +93,19 @@
         }
     ];
 
+    // Normalizar datos del gráfico para evitar null/undefined
+    const _results = (() => { try { return {!! $results !!} } catch(e){ return [] } })();
+    const _dimensions = (() => { try { return {!! $dimensions !!} } catch(e){ return [] } })();
+
+    const seriesData = Array.isArray(_results) ? _results.filter(v => v != null).map(Number) : [];
+    const categories = Array.isArray(_dimensions) ? _dimensions.filter(v => v != null) : [];
+
     const options = {
-        series: [{ data: {{$results}} }],
+        series: [{ data: seriesData }],
         chart: { height: 350, type: 'radar' },
         title: { text: 'Diagnóstico' },
         yaxis: { stepSize: 20 },
-        xaxis: { categories: {!! $dimensions !!} }
+        xaxis: { categories }
     };
 
     const CHARTS = [ { id:'chart', options: options } ];

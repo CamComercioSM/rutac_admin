@@ -24,11 +24,22 @@ $(document).ready(function () {
         try {
             $('.cargando').removeClass('d-none');
 
-            await axios.post(window.URL_API, formData, {
+            // En transformar, la URL incluye el id y el método correcto es PUT
+            if(/\/unidadesProductivas\/[0-9]+$/.test(window.URL_API)){
+                formData.append('_method', 'PUT');
+            }
+
+            const response = await axios.post(window.URL_API, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
             $('.cargando').addClass('d-none');
+
+            // Redirigir al detalle de la unidad productiva
+            const id = document.getElementById('unidadproductiva_id')?.value || document.getElementById('id')?.value;
+            if(id){
+                window.location.href = `/unidadesProductivas/${id}`;
+            }
         } 
         catch (error) {
             console.error('Error al guardar:', error);
@@ -91,6 +102,37 @@ $(document).ready(function () {
             }
         }
     }
+
+    // Enmascarar solo números en teléfonos (sin bloquear pegado; validar por patrón)
+    ['telephone','mobile','contact_phone','nit'].forEach(function(id){
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener('input', function(){
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    });
+
+    // Bloquear caracteres no numéricos mientras se escribe en NIT
+    (function(){
+        const nit = document.getElementById('nit');
+        if(!nit) return;
+        nit.addEventListener('keydown', function(e){
+            const allowed = ['Backspace','Tab','ArrowLeft','ArrowRight','Delete','Home','End'];
+            if (allowed.includes(e.key) || e.ctrlKey || e.metaKey) return;
+            if(!/^[0-9]$/.test(e.key)){
+                e.preventDefault();
+            }
+        });
+        nit.addEventListener('paste', function(e){
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            const digits = text.replace(/[^0-9]/g, '');
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            this.value = this.value.slice(0,start) + digits + this.value.slice(end);
+            this.setSelectionRange(start + digits.length, start + digits.length);
+        });
+    })();
 
     $('.cargando').addClass('d-none');
 });
