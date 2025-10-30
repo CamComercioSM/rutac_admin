@@ -130,8 +130,7 @@ class UnidadProductivaController extends Controller
         $data = $request->except('unidadproductiva_id');
         $data['transformada_desde'] = $current->unidadproductiva_id;
         $data['complete_diagnostic'] = 0;
-        // Asociar el usuario autenticado a la nueva unidad transformada
-        $data['user_id'] = Auth::id();
+        $data['user_id'] = $current->user_id;
         $entity = UnidadProductiva::create($data);
 
         $current->etapa_intervencion = 'TRANSFORMADA';
