@@ -184,11 +184,11 @@ class InscripcionesController extends Controller
     private function enviarCorreoCambioEstado(ConvocatoriaInscripcion $inscripcion)
     {
         try {
-            // Obtener el email de la unidad productiva
-            $email = $inscripcion->unidadProductiva->contact_email ?? 
-                     $inscripcion->unidadProductiva->registration_email;
+            // Email principal: registration_email; CC: contact_email
+            $to = $inscripcion->unidadProductiva->registration_email;
+            $cc = $inscripcion->unidadProductiva->contact_email;
 
-            if (!$email) {
+            if (!$to && !$cc) {
                 Log::warning('No se encontró email para la unidad productiva', [
                     'inscripcion_id' => $inscripcion->inscripcion_id,
                     'unidad_productiva_id' => $inscripcion->unidadproductiva_id
@@ -196,13 +196,19 @@ class InscripcionesController extends Controller
                 return;
             }
 
-            // Enviar el correo con copia a cpc591@gmail.com para verificación
-            Mail::to($email)->send(new CambioEstadoInscripcionMail($inscripcion));
+            $mailable = new CambioEstadoInscripcionMail($inscripcion);
+            if ($to && $cc && strcasecmp($to, $cc) !== 0) {
+                Mail::to($to)->cc($cc)->send($mailable);
+            } elseif ($to) {
+                Mail::to($to)->send($mailable);
+            } else { // fallback: solo contacto si no hay registration_email
+                Mail::to($cc)->send($mailable);
+            }
 
             Log::info('Correo de cambio de estado enviado exitosamente', [
                 'inscripcion_id' => $inscripcion->inscripcion_id,
-                'email' => $email,
-                'cc' => 'cpc591@gmail.com',
+                'to' => $to,
+                'cc' => $cc,
                 'estado' => $inscripcion->estado->inscripcionEstadoNOMBRE ?? 'No especificado'
             ]);
 
