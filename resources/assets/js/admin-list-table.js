@@ -1,4 +1,10 @@
 import languageEs from '../../assets/es-ES.json';
+import axios from 'axios';
+
+// Asegurar axios global en páginas que no cargan bootstrap.js
+if (!window.axios) {
+    window.axios = axios;
+}
 
 $(document).ready(function () {
 
