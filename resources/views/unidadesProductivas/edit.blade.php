@@ -42,8 +42,8 @@
 
             <div class="col-12 col-md-12 form-group mb-3">
                 <label class="form-label" for="name_legal_representative">Nombre del representante legal </label>
-                <input type="text" class="form-control" name="name_legal_representative" id="name_legal_representative" placeholder="Nombre del representante legal" required maxlength="200" pattern="^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]{2,200}$" title="Solo letras y espacios. Mínimo 2 y máximo 200 caracteres.">
-                <div class="invalid-feedback">Solo letras y espacios. 2 a 200 caracteres.</div>
+                <input type="text" class="form-control" name="name_legal_representative" id="name_legal_representative" placeholder="Nombre del representante legal" required maxlength="200" pattern="^[^0-9]{2,200}$" title="No se permiten números. Mínimo 2 y máximo 200 caracteres.">
+                <div class="invalid-feedback">No se permiten números. 2 a 200 caracteres.</div>
             </div>
 
             <div class="col-12 col-md-4 form-group mb-3">
@@ -153,8 +153,8 @@
 
             <div class="col-12 col-md-8 form-group mb-3">
                 <label class="form-label" for="contact_person">Persona de contacto </label>
-                <input type="text" class="form-control" name="contact_person" id="contact_person" placeholder="Persona de contacto" required maxlength="200" pattern="^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]{2,200}$" title="Solo letras y espacios. Mínimo 2 y máximo 200 caracteres.">
-                <div class="invalid-feedback">Solo letras y espacios. 2 a 200 caracteres.</div>
+                <input type="text" class="form-control" name="contact_person" id="contact_person" placeholder="Persona de contacto" required maxlength="200" pattern="^[^0-9]{2,200}$" title="No se permiten números. Mínimo 2 y máximo 200 caracteres.">
+                <div class="invalid-feedback">No se permiten números. 2 a 200 caracteres.</div>
             </div>
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="contact_sexo">Sexo de contacto</label>

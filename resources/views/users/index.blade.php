@@ -5,7 +5,8 @@
 
         <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="identification">N° documento</label>
-            <input type="number" class="form-control" name="identification" id="identification" placeholder="N° documento" required>
+            <input type="text" class="form-control" name="identification" id="identification" placeholder="N° documento" required maxlength="20" pattern="^[A-Za-z0-9]{5,20}$" title="Alfanumérico sin espacios ni símbolos. 5 a 20 caracteres (permite pasaporte).">
+            <div class="invalid-feedback">Alfanumérico sin espacios ni símbolos. 5 a 20 caracteres.</div>
         </div>
         <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="position">Cargo</label>
@@ -23,16 +24,19 @@
 
         <div class="col-12 col-md-6 form-group mb-3">
             <label class="form-label" for="name">Nombre (s)</label>
-            <input type="text" class="form-control" name="name" id="name" placeholder="Nombre (s)" required>
+            <input type="text" class="form-control" name="name" id="name" placeholder="Nombre (s)" required maxlength="200" pattern="^[^0-9]{2,200}$" title="No se permiten números. 2 a 200 caracteres.">
+            <div class="invalid-feedback">No se permiten números. 2 a 200 caracteres.</div>
         </div>
         <div class="col-12 col-md-6 form-group mb-3">
             <label class="form-label" for="lastname" >Apellido (s)</label>
-            <input type="text" class="form-control" name="lastname" id="lastname" placeholder="Apellido (s)" required>
+            <input type="text" class="form-control" name="lastname" id="lastname" placeholder="Apellido (s)" required maxlength="200" pattern="^[^0-9]{2,200}$" title="No se permiten números. 2 a 200 caracteres.">
+            <div class="invalid-feedback">No se permiten números. 2 a 200 caracteres.</div>
         </div>
 
         <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="email">Email</label>
-            <input type="email" class="form-control" name="email" id="email" placeholder="Email" required>
+            <input type="email" class="form-control" name="email" id="email" placeholder="Email" required maxlength="120" pattern="^[^<>\s]{5,120}$" title="Correo válido, sin espacios ni < >. Máximo 120 caracteres.">
+            <div class="invalid-feedback">Correo válido, sin espacios ni < >. Máximo 120 caracteres.</div>
         </div>
 
         <div class="col-12 col-md-4 form-group mb-3">
