@@ -58,7 +58,7 @@
         window.TABLA = {
             urlApi: '/users',
             sortName: 'name',
-            accion_editar: true,
+            menu_row: ` <button class="dropdown-item" onClick="openEditar()" >Editar</button> `,
             columns: [
                 { data: 'identification', title: 'N° documento', orderable: true },
                 { data: 'name', title: 'Nombre (s)', orderable: true },

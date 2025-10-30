@@ -115,17 +115,6 @@
   <!--/ User Content -->
 </div>
 
-<div class="position-fixed top-0 end-0 w-100 d-flex justify-content-center" style="z-index: 1111;">
-    <div id="estadoToast" class="toast align-items-center text-bg-success border-0 m-5" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                ✅ Cambio guardado exitosamente
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    </div>
-</div>
-
 @endsection
 
 @section('page-script')
@@ -156,9 +145,7 @@
                       cargando.classList.add('d-none');
 
                       if (response.success) {
-                          let toastEl = document.getElementById('estadoToast');
-                          let toast = new bootstrap.Toast(toastEl, { delay: 5000 });
-                          toast.show();
+                          Swal.fire({ title: "Cambio guardado exitosamente", icon: "success" });
                           formEl.reset();
                       }
 

@@ -21,7 +21,7 @@
         window.TABLA = {
             urlApi: '/settings',
             sortName: 'id',
-            accion_editar: true,
+            menu_row: ` <button class="dropdown-item" onClick="openEditar()" >Editar</button> `,
             columns: [
                 { data: 'type_name', title: 'Tipo', orderable: true },
                 { data: 'value', title: 'Descripción', orderable: false },

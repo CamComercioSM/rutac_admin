@@ -155,6 +155,18 @@ class UnidadProductiva extends Model
         return $this->belongsTo(UnidadProductiva::class, 'transformada_en', 'unidadproductiva_id');
     }
 
+    public static function getLogo($tipo)
+    {
+        $logos = [
+            1 => 'idea_negocio',
+            2 => 'informal_negocio_en_casa',
+            3 => 'registrado_fuera_ccsm',
+            4 => 'registrado_ccsm',
+        ];
+
+        return "/img/registro/" . $logos[$tipo] . ".png";
+    } 
+
     const CREATED_AT = 'fecha_creacion';
     const UPDATED_AT = 'fecha_actualizacion';
     const DELETED_AT = 'fecha_eliminacion';

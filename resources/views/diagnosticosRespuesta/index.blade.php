@@ -39,7 +39,7 @@
         window.TABLA = {
             urlApi: '/diagnosticosResultados',
             sortName: 'fecha_creacion',
-            accion_ver: true,
+            menu_row: ` <a class="dropdown-item" href="/diagnosticosResultados/ROWID" >Ver detalles</a> `,
             columns: [
                 { data: 'fecha_creacion', title: 'Fecha de inscripcion', orderable: true, render: v => window.formatearFecha(v) },
                 { data: 'nit', title: 'NIT', orderable: true },

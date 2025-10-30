@@ -50,7 +50,7 @@
         window.TABLA = {
             urlApi: '/convocatoriasRequisitos',
             sortName: 'requisito_titulo',
-            accion_editar: true,
+            menu_row: ` <button class="dropdown-item" onClick="openEditar()" >Editar</button> `,
             columns: [
                 { data: 'requisito_titulo', title: 'Nombre', orderable: true },
                 { data: 'indicador', title: 'Indicador', orderable: true },

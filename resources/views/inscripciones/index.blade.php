@@ -10,7 +10,7 @@
 
     <div class="col-12 col-md-4 form-group mb-3">
         <label class="form-label" for="programa">Programa</label>
-        <select class="form-select" name="programa" id="programa">
+        <select class="form-select" name="programa" id="programa" required >
             <option value="" selected >Seleccione una opción</option>
             @foreach ($programas as $item)
                 <option value="{{$item->programa_id}}" >{{$item->nombre}}</option>
@@ -20,7 +20,7 @@
 
     <div class="col-12 col-md-4 form-group mb-3">
         <label class="form-label" for="convocatoria">Convocatoria</label>
-        <select class="form-select" name="convocatoria" id="convocatoria">
+        <select class="form-select" name="convocatoria" id="convocatoria" required >
             <option value="" selected >Seleccione una opción</option>
             @foreach ($convocatorias as $item)
                 <option value="{{$item->convocatoria_id}}" >{{$item->nombre_convocatoria}}</option>
@@ -175,20 +175,6 @@
             </div>
         </div>
     </div>
-
-    <div class="position-fixed top-0 end-0 w-100 d-flex justify-content-center" style="z-index: 1111;">
-        <div id="warningToast" class="toast bg-warning text-dark m-5" role="alert">
-            <div class="toast-body"> ⚠️ El registro ya existe en la tabla. </div>
-        </div>
-        
-        <div id="estadoToast" class="toast align-items-center text-bg-success border-0 m-5" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body"> ✅ Cambio guardado exitosamente </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
-    </div>
-
 @endsection
 
 @section('script')
@@ -260,9 +246,7 @@
 
             let existe = $("#table_opciones tr[data-id='" + id + "']").length > 0;
             if (existe) {
-                let toastEl = document.getElementById('warningToast');
-                let toast = new bootstrap.Toast(toastEl, { delay: 2000 });
-                toast.show();
+                Swal.fire({ title: "El registro ya existe en la tabla.", icon: "info" });
                 return;
             }
 
@@ -303,7 +287,13 @@
 
         window.validarExtraForm = function()
         {
-            return $("#table_opciones tr").length > 0;
+            if( $("#table_opciones tr").length  == 0)
+            {
+                Swal.fire({ title: "Agregar por lo menos una unidad productiva", icon: "info" });
+                return false;
+            }
+
+            return true;
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -343,12 +333,8 @@
                         $(".modal").modal('hide');
                         cargando.classList.add('d-none');
                         
-                        let toastEl = document.getElementById('estadoToast');
-                        let toast = new bootstrap.Toast(toastEl, { delay: 2000 }); // 3s
-                        toast.show();
-
-                        // Recargar la página después de que el toast se oculte
-                        toastEl.addEventListener('hidden.bs.toast', () => {
+                        Swal.fire({ title: "Cambio de estado guardado exitosamente", icon: "success" })
+                        .then((result) => {
                             cargando.classList.remove('d-none');
                             location.reload();
                         });

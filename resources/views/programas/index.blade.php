@@ -204,9 +204,7 @@
 
             let existe = $("#table_opciones tr[data-id='" + id + "']").length > 0;
             if (existe) {
-                let toastEl = document.getElementById('warningToast');
-                let toast = new bootstrap.Toast(toastEl, { delay: 2000 });
-                toast.show();
+                Swal.fire({ title: "Elemento ya existe", icon: "info" });
                 return;
             }
 

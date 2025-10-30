@@ -127,14 +127,6 @@
 
     </div>
 
-<div class="position-fixed top-0 end-0 p-5 w-100 d-flex justify-content-center" style="z-index: 1111;">
-  <div id="warningToast" class="toast bg-warning text-dark" role="alert">
-    <div class="toast-body">
-      ⚠️ El registro ya existe en la tabla.
-    </div>
-  </div>
-</div>
-
 @endsection
 
 @section('script')
@@ -185,9 +177,7 @@
 
             let existe = $("#table_opciones tr[data-id='" + id + "']").length > 0;
             if (existe) {
-                let toastEl = document.getElementById('warningToast');
-                let toast = new bootstrap.Toast(toastEl, { delay: 2000 });
-                toast.show();
+                Swal.fire({ title: "Elemento ya existe", icon: "info" });
                 return;
             }
 

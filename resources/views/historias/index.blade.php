@@ -26,7 +26,7 @@
         window.TABLA = {
             urlApi: '/historias',
             sortName: 'name',
-            accion_editar: true,
+            menu_row: ` <button class="dropdown-item" onClick="openEditar()" >Editar</button> `,
             columns: [
                 { data: 'name', title: 'Nombre', orderable: true },
                 { data: 'video_url', title: 'Video', orderable: false },

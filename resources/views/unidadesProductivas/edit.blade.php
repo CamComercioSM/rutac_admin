@@ -208,9 +208,9 @@
         <input type="hidden" name="tipo_registro_rutac" id="tipo_registro_rutac" >
 
         <div class="text-center my-4">
-            <a type="button" class="btn btn-secondary" href="/unidadesProductivas/list" >
+            <button type="button" class="btn btn-secondary" onclick="window.history.back()">
                 <i class="icon-base ri ri-arrow-go-back-line me-2"></i> Cancelar
-            </a>
+            </button>
             <button type="submit" class="btn btn-success">
                 <i class="icon-base ri ri-send-plane-line me-2"></i> Guardar
             </button>

@@ -131,6 +131,7 @@ class UnidadProductivaController extends Controller
         $data['transformada_desde'] = $current->unidadproductiva_id;
         $data['complete_diagnostic'] = 0;
         $data['user_id'] = $current->user_id;
+        $data['logo'] = UnidadProductiva::getLogo($data['unidadtipo_id']);
         $entity = UnidadProductiva::create($data);
 
         $current->etapa_intervencion = 'TRANSFORMADA';

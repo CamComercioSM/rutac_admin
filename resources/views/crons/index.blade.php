@@ -31,7 +31,7 @@
         window.TABLA = {
             urlApi: '/crons',
             sortName: 'nombre',
-            accion_editar: true,
+            menu_row: ` <button class="dropdown-item" onClick="openEditar()" >Editar</button> `,
             columns: [
                 { data: 'nombre', title: 'Nombre', orderable: true },
                 { data: 'descripcion', title: 'Descripcion', orderable: true },

@@ -382,18 +382,6 @@ $(document).ready(function () {
                 $(document).off('mousedown.menuContext');
             });
         }
-        else
-        {
-            if(TABLA.accion_editar)
-            {
-                CrearRegistro(row);
-            }
-            else if(TABLA.accion_ver)
-            {
-                $('.cargando').removeClass('d-none');
-                window.location.href = TABLA.urlApi +'/'+ row.id;
-            }
-        }
     }
 
     window.formatearFecha = function(value) {

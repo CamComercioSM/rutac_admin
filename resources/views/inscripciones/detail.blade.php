@@ -4,12 +4,15 @@
 @section('vendor-style')
 @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
+'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss',
 ])
 @endsection
 
 <!-- Vendor Scripts -->
 @section('vendor-script')
-@vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js'])
+@vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
+'resources/assets/vendor/libs/sweetalert2/sweetalert2.js',
+])
 @endsection
 
 @section('content')
@@ -217,21 +220,6 @@
   </div>
 </div>
 
-<div class="position-fixed top-0 end-0 w-100 d-flex justify-content-center" style="z-index: 1111;">
-    <div id="estadoToast" class="toast align-items-center text-bg-success border-0 m-5" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                ✅ Cambio guardado exitosamente
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    </div>
-</div>
-
-@endsection
-
-@section('vendor-script')
-@vite([])
 @endsection
 
 @section('page-script')
@@ -276,12 +264,8 @@
                         $(".modal").modal('hide');
                         cargando.classList.add('d-none');
                         
-                        let toastEl = document.getElementById('estadoToast');
-                        let toast = new bootstrap.Toast(toastEl, { delay: 2000 }); // 3s
-                        toast.show();
-
-                        // Recargar la página después de que el toast se oculte
-                        toastEl.addEventListener('hidden.bs.toast', () => {
+                        Swal.fire({ title: "Cambio de estado guardado exitosamente", icon: "success" })
+                        .then((result) => {
                             cargando.classList.remove('d-none');
                             location.reload();
                         });

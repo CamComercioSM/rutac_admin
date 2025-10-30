@@ -44,7 +44,7 @@
         window.TABLA = {
             urlApi: '/banners',
             sortName: 'name',
-            accion_editar: true,
+            menu_row: ` <button class="dropdown-item" onClick="openEditar()" >Editar</button> `,
             columns: [
                 { data: 'name', title: 'Nombre', orderable: true },
                 { data: 'title', title: 'Titulo', orderable: true },

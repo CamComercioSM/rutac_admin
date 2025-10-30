@@ -82,7 +82,7 @@
         window.TABLA = {
             urlApi: '/diagnosticosPreguntas',
             sortName: 'pregunta_titulo',
-            accion_editar: true,
+            menu_row: ` <button class="dropdown-item" onClick="openEditar()" >Editar</button> `,
             columns: [
                 { data: 'pregunta_titulo', title: 'Nombre', sortable: true },
                 { data: 'pregunta_porcentaje', title: 'Porcentaje ', sortable: true }

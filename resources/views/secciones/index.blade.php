@@ -1,5 +1,15 @@
 @extends('layouts.layoutMaster')
 
+<!-- Vendor Styles -->
+@section('vendor-style')
+@vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+@endsection
+
+<!-- Vendor Scripts -->
+@section('vendor-script')
+@vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+@endsection
+
 @section('content')
 <div class="container card my-3 py-4 shadow-sm">
 
@@ -146,15 +156,6 @@
         </div>
     </form>
 
-    <div class="position-fixed top-0 end-0 w-100 d-flex justify-content-center" style="z-index: 1111;">        
-        <div id="estadoToast" class="toast align-items-center text-bg-success border-0 m-5" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body"> ✅ Cambio guardado exitosamente </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
-    </div>
-
 </div>
 @endsection
 
@@ -183,9 +184,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             cargando?.classList.add('d-none');
 
-            let toastEl = document.getElementById('estadoToast');
-            let toast = new bootstrap.Toast(toastEl, { delay: 2000 }); // 3s
-            toast.show();
+            Swal.fire({ title: "Cambio guardado exitosamente", icon: "success" });
 
         } catch (error) {
             cargando?.classList.add('d-none');
