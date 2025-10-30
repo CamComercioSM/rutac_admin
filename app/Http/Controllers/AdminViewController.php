@@ -4,16 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Empresarios\UnidadProductiva;
-use App\Models\TablasReferencias\Departamento;
-use App\Models\TablasReferencias\Municipio;
-use App\Models\TablasReferencias\CiiuActividad;
-use App\Models\TablasReferencias\Etapa;
-use App\Models\TablasReferencias\UnidadProductivaTamano;
-use App\Models\TablasReferencias\UnidadProductivaPersona;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class AdminViewController extends Controller
 {
@@ -83,4 +78,38 @@ class AdminViewController extends Controller
         return view("dashboard", $data);
     }
     
+    public function perfil()
+    {
+        $user = Auth::user();
+        return view("perfil", [ 'user'=> $user ]);
+    }
+
+    public function editarPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'newPassword' => [ 'required', 'string', 'min:8', 'regex:/[A-Z]/', 'regex:/[\W_]/' ],
+            'confirmPassword' => 'required|string|same:newPassword',
+        ], [
+            'newPassword.regex' => 'La contraseña debe tener al menos una letra mayúscula y un símbolo.',
+            'newPassword.min' => 'La contraseña debe tener mínimo 8 caracteres.',
+            'confirmPassword.same' => 'La confirmación de la contraseña no coincide.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = Auth::user();
+        $user->password = Hash::make($request->newPassword);
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Contraseña actualizada correctamente.'
+        ]);
+    }
+
 }

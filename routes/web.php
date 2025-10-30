@@ -196,6 +196,8 @@ Route::as('admin.')
 ->middleware('auth')
 ->group(function () {
     Route::get('/dashboard', [AdminViewController::class, 'dashboard'])->name("dashboard");
+    Route::get('/perfil', [AdminViewController::class, 'perfil'])->name("perfil");
+    Route::post('/editarPassword', [AdminViewController::class, 'editarPassword'])->name("editarPassword");
 
     Route::middleware(ValidateUserMenuAccess::class)
     ->group(function () {

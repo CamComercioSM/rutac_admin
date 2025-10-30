@@ -458,7 +458,7 @@
             <ul class="dropdown-menu dropdown-menu-end mt-3 py-2">
                 <li>
                     <a class="dropdown-item"
-                        href="{{ url('pages/profile-user') }}">
+                        href="{{ url('perfil') }}">
                         <div class="d-flex align-items-center">
                             <div class="flex-shrink-0 me-2">
                                 <div class="avatar avatar-online">
@@ -491,7 +491,7 @@
                 </li>
                 <li>
                     <a class="dropdown-item"
-                        href="{{  url('pages/profile-user') }}">
+                        href="{{  url('/perfil') }}">
                         <i class="icon-base ri ri-user-3-line icon-22px me-2"></i>
                         <span class="align-middle">Mi perfil</span>
                     </a>
