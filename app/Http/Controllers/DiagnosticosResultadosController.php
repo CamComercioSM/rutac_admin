@@ -12,6 +12,7 @@ use App\Models\Empresarios\UnidadProductiva;
 use App\Models\TablasReferencias\Etapa;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
 
 class DiagnosticosResultadosController extends Controller
 {
@@ -52,22 +53,35 @@ class DiagnosticosResultadosController extends Controller
             'respuestas'
         ])->findOrFail($id);
 
-        $resultados = ResultadosDiagnostico::where('resultado_id', $id)->get();
+        $rows = DB::table('resultados_diagnosticos')
+            ->where('resultado_id', $id)
+            ->get(['dimension', 'valor']);
 
-        $dimensionIds = $resultados->pluck('dimension')->filter()->unique()->values();
-        $dimensionNames = \App\Models\TablasReferencias\PreguntaDimension::whereIn('preguntadimension_id', $dimensionIds)
-            ->pluck('preguntadimension_nombre', 'preguntadimension_id');
+        $dimensiones = $rows->pluck('dimension')->values()->toArray();
+        $valores = $rows->pluck('valor')->map(function($v){ return round((float)$v, 3); })->values()->toArray();
 
-        $dimensiones = $resultados->map(function($row) use ($dimensionNames){
-            return $dimensionNames[$row->dimension] ?? (string)$row->dimension;
-        })->toArray();
-        $resultados = $resultados->pluck('valor')->map(function($v){ return (float)$v; })->toArray();
+        if (empty($dimensiones)) {
+            // Fallback: reconstruir dimensiones y valores desde respuestas
+            $reconstruidos = DB::table('diagnosticos_respuestas as dr')
+                ->join('diagnosticos_preguntas as dp', 'dp.pregunta_id', '=', 'dr.pregunta_id')
+                ->join('preguntas_dimensiones as pd', 'pd.preguntadimension_id', '=', 'dp.preguntadimension_id')
+                ->where('dr.resultado_id', $id)
+                ->groupBy('pd.preguntadimension_nombre')
+                ->orderBy('pd.preguntadimension_nombre')
+                ->select([
+                    'pd.preguntadimension_nombre as dimension',
+                    DB::raw('ROUND(SUM(dp.pregunta_porcentaje/100 * dr.diagnosticorespuesta_valor), 2) as valor')
+                ])->get();
+
+            $dimensiones = $reconstruidos->pluck('dimension')->values()->toArray();
+            $valores = $reconstruidos->pluck('valor')->map(function($v){ return round((float)$v, 3); })->values()->toArray();
+        }
         
         return view('diagnosticosRespuesta.detail',
          [
             'detalle' => $result,
-            'dimensions'=> json_encode($dimensiones),
-            'results'=> json_encode($resultados),
+            'dimensions'=> $dimensiones,
+            'results'=> $valores,
          ]);
     }
 

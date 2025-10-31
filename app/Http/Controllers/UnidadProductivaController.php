@@ -91,26 +91,36 @@ class UnidadProductivaController extends Controller
         
         // Solo procesar resultados si existe un diagnóstico
         if ($diagnostico && $diagnostico->resultado_id) {
-            $resultadosData = ResultadosDiagnostico::where('resultado_id', $diagnostico->resultado_id)->get();
+            $rows = DB::table('resultados_diagnosticos')
+                ->where('resultado_id', $diagnostico->resultado_id)
+                ->get(['dimension', 'valor']);
 
-            $dimensionIds = $resultadosData->pluck('dimension')->filter()->unique()->values();
-            $dimensionNames = \App\Models\TablasReferencias\PreguntaDimension::whereIn('preguntadimension_id', $dimensionIds)
-                ->pluck('preguntadimension_nombre', 'preguntadimension_id');
+            if ($rows->isNotEmpty()) {
+                $dimensiones = $rows->pluck('dimension')->values()->toArray();
+                $resultados = $rows->pluck('valor')->map(function($v){ return round((float)$v, 3); })->values()->toArray();
+            } else {
+                // Fallback: reconstruir desde respuestas si no hay resultados precomputados
+                $reconstruidos = DB::table('diagnosticos_respuestas as dr')
+                    ->join('diagnosticos_preguntas as dp', 'dp.pregunta_id', '=', 'dr.pregunta_id')
+                    ->join('preguntas_dimensiones as pd', 'pd.preguntadimension_id', '=', 'dp.preguntadimension_id')
+                    ->where('dr.resultado_id', $diagnostico->resultado_id)
+                    ->groupBy('pd.preguntadimension_nombre')
+                    ->orderBy('pd.preguntadimension_nombre')
+                    ->select([
+                        'pd.preguntadimension_nombre as dimension',
+                        DB::raw('ROUND(SUM(dp.pregunta_porcentaje/100 * dr.diagnosticorespuesta_valor), 2) as valor')
+                    ])->get();
 
-            $dimensiones = $resultadosData->map(function($row) use ($dimensionNames){
-                return $dimensionNames[$row->dimension] ?? (string)$row->dimension;
-            })->toArray();
-
-            $resultados = $resultadosData->pluck('valor')->map(function($v){
-                return (float)$v;
-            })->toArray();
+                $dimensiones = $reconstruidos->pluck('dimension')->values()->toArray();
+                $resultados = $reconstruidos->pluck('valor')->map(function($v){ return round((float)$v, 3); })->values()->toArray();
+            }
         }
                 
         return view('unidadesProductivas.detail',
          [
             'detalle' => $unidadProductiva,
-            'dimensions'=> json_encode($dimensiones),
-            'results'=> json_encode($resultados),
+            'dimensions'=> $dimensiones,
+            'results'=> $resultados,
             'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0
          ]);
     }

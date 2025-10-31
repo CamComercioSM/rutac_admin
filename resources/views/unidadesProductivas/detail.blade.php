@@ -367,12 +367,11 @@
         }
     ];
 
-    // Normalizar datos del gráfico para evitar null/undefined
-    const _results = (() => { try { return {!! $results !!} } catch(e){ return [] } })();
-    const _dimensions = (() => { try { return {!! $dimensions !!} } catch(e){ return [] } })();
-
-    const seriesData = Array.isArray(_results) ? _results.filter(v => v != null).map(Number) : [];
-    const categories = Array.isArray(_dimensions) ? _dimensions.filter(v => v != null) : [];
+    // Pasar arrays desde PHP sin doble encoding
+    const categories = @json($dimensions ?? []);
+    const seriesData = @json($results ?? []);
+    
+    console.log('Chart data:', { categories, seriesData });
 
     const options = {
         series: [{ data: seriesData, name: 'Puntaje' }],
