@@ -168,4 +168,35 @@ class ConvocatoriaController extends Controller
         return $query;
     }
 
+    /**
+     * Obtener convocatorias por programa
+     */
+    public function getByPrograma($programa_id)
+    {
+        try {
+            $query = ProgramaConvocatoria::select('convocatoria_id', 'nombre_convocatoria', 'programa_id')
+                ->where('programa_id', $programa_id);
+
+            // Si hay usuario autenticado y es asesor, filtrar solo sus convocatorias
+            if (Auth::check() && Auth::user()->rol_id == Role::ASESOR) {
+                $userId = Auth::id();
+                $query->whereHas('asesores', function ($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                });
+            }
+
+            $convocatorias = $query->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $convocatorias
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener convocatorias: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

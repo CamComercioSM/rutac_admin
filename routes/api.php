@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\EmailController;
 use App\Http\Controllers\InscripcionesController;
 use App\Http\Controllers\EmpresariosController;
+use App\Http\Controllers\ConvocatoriaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,5 +42,8 @@ Route::get('/test', function () {
         'version' => '1.0.0'
     ]);
 });
+
+// Obtener convocatorias por programa
+Route::get('/convocatorias/by-programa/{programa_id}', [ConvocatoriaController::class, 'getByPrograma']);
 
 

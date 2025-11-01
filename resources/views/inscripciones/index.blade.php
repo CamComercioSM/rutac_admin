@@ -23,7 +23,7 @@
         <select class="form-select" name="convocatoria" id="convocatoria" required >
             <option value="" selected >Seleccione una opción</option>
             @foreach ($convocatorias as $item)
-                <option value="{{$item->convocatoria_id}}" >{{$item->nombre_convocatoria}}</option>
+                <option value="{{$item->convocatoria_id}}" data-programa="{{$item->programa_id}}" >{{$item->nombre_convocatoria}}</option>
             @endforeach
         </select>
     </div>
@@ -197,8 +197,116 @@
                 { data: 'estado', title: 'Estado', orderable: true }
             ],
             initSelects: [ 
-                { id:'programa'}, 
-                { id:'convocatoria'}, 
+                { 
+                    id:'programa',
+                    change: function(e) {
+                        // Evitar actualización si viene desde convocatoria
+                        if (window.updatingFromConvocatoria) {
+                            return;
+                        }
+                        
+                        // Cuando cambia el programa, actualizar las convocatorias
+                        const programaId = $("#programa").val();
+                        
+                        if (programaId) {
+                            // Cargar convocatorias del programa seleccionado
+                            $.ajax({
+                                url: '/api/convocatorias/by-programa/' + programaId,
+                                type: 'GET',
+                                dataType: 'json',
+                                success: function(response) {
+                                    if (response.success) {
+                                        // Guardar convocatoria seleccionada actualmente si existe y pertenece al programa
+                                        const currentConvocatoriaId = $("#convocatoria").val();
+                                        let shouldKeepCurrent = false;
+                                        
+                                        // Limpiar y actualizar opciones de convocatorias
+                                        const convocatoriaSelect = $("#convocatoria");
+                                        convocatoriaSelect.empty();
+                                        convocatoriaSelect.append('<option value="">Seleccione una opción</option>');
+                                        
+                                        response.data.forEach(function(conv) {
+                                            convocatoriaSelect.append(
+                                                '<option value="' + conv.convocatoria_id + '" data-programa="' + conv.programa_id + '">' + conv.nombre_convocatoria + '</option>'
+                                            );
+                                            
+                                            // Si la convocatoria actual pertenece a este programa, mantenerla seleccionada
+                                            if (currentConvocatoriaId == conv.convocatoria_id) {
+                                                shouldKeepCurrent = true;
+                                            }
+                                        });
+                                        
+                                        // Reinicializar select2 para convocatorias
+                                        if (shouldKeepCurrent && currentConvocatoriaId) {
+                                            convocatoriaSelect.val(currentConvocatoriaId).trigger('change');
+                                        } else {
+                                            convocatoriaSelect.val(null).trigger('change');
+                                        }
+                                        convocatoriaSelect.select2();
+                                    }
+                                },
+                                error: function(xhr) {
+                                    console.error('Error al cargar convocatorias:', xhr);
+                                }
+                            });
+                        } else {
+                            // Si no hay programa seleccionado, mostrar todas las convocatorias
+                            const convocatoriaSelect = $("#convocatoria");
+                            const currentConvocatoriaId = convocatoriaSelect.val();
+                            
+                            convocatoriaSelect.empty();
+                            convocatoriaSelect.append('<option value="">Seleccione una opción</option>');
+                            
+                            // Restaurar todas las convocatorias originales
+                            if (window.allConvocatorias) {
+                                window.allConvocatorias.forEach(function(conv) {
+                                    convocatoriaSelect.append(
+                                        '<option value="' + conv.convocatoria_id + '" data-programa="' + conv.programa_id + '">' + conv.nombre_convocatoria + '</option>'
+                                    );
+                                });
+                                
+                                // Mantener la convocatoria seleccionada si existe
+                                if (currentConvocatoriaId) {
+                                    convocatoriaSelect.val(currentConvocatoriaId);
+                                }
+                            }
+                            
+                            convocatoriaSelect.trigger('change');
+                            convocatoriaSelect.select2();
+                        }
+                    }
+                }, 
+                { 
+                    id:'convocatoria',
+                    change: function(e) {
+                        // Cuando cambia la convocatoria, actualizar el programa
+                        const convocatoriaId = $("#convocatoria").val();
+                        
+                        if (convocatoriaId && !window.updatingFromConvocatoria) {
+                            const selectedOption = $("#convocatoria option:selected");
+                            const programaId = selectedOption.data('programa');
+                            
+                            if (programaId) {
+                                // Bandera para evitar bucles infinitos
+                                window.updatingFromConvocatoria = true;
+                                
+                                // Actualizar el select de programa sin disparar su evento change
+                                const programaSelect = $("#programa");
+                                const currentProgramaValue = programaSelect.val();
+                                
+                                // Solo actualizar si es diferente
+                                if (currentProgramaValue !== programaId) {
+                                    programaSelect.val(programaId).trigger('change.select2');
+                                }
+                                
+                                // Resetear la bandera después de un momento
+                                setTimeout(function() {
+                                    window.updatingFromConvocatoria = false;
+                                }, 300);
+                            }
+                        }
+                    }
+                }, 
                 { id:'estado'}, 
                 { id:'unidad', setting: {
                         ajax: {
@@ -297,6 +405,18 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
+            
+            // Guardar todas las convocatorias originales para restaurar cuando se deseleccione el programa
+            window.allConvocatorias = [];
+            $("#convocatoria option").each(function() {
+                if ($(this).val()) {
+                    window.allConvocatorias.push({
+                        convocatoria_id: $(this).val(),
+                        nombre_convocatoria: $(this).text(),
+                        programa_id: $(this).data('programa') || ''
+                    });
+                }
+            });
 
             const cargando = document.querySelectorAll('.cargando')[0];
 
