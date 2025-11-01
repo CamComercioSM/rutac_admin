@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -193,8 +194,8 @@ class InscripcionesController extends Controller
 
         if($request->hasFile('archivo')) 
         {
-            $path = $request->file('archivo')->store('storage/aplications', 'public');
-            $path = config('app.archivos_url') . $path;
+            $path = $request->file('archivo')->store('storage/aplications', 'archivos');
+            $path = Storage::disk('archivos')->url($path);
         }
 
         foreach($request->inscripciones as $ins_id)

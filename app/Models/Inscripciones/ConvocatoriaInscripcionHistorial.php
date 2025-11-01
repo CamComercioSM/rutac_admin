@@ -82,4 +82,30 @@ class ConvocatoriaInscripcionHistorial extends Model
             get: fn ($value) => $value ? \Carbon\Carbon::parse($value)->setTimezone('America/Bogota') : null,
         );
     }
+
+    /**
+     * Accessor para archivo - siempre retorna URL absoluta
+     */
+    protected function archivo(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                if (!$value) return null;
+                
+                // Si ya es una URL completa (http o https), retornarla tal cual
+                if (filter_var($value, FILTER_VALIDATE_URL)) {
+                    return $value;
+                }
+                
+                // Si es una ruta relativa, agregar ARCHIVOS_URL
+                $archivosUrl = config('app.archivos_url');
+                if ($archivosUrl) {
+                    return rtrim($archivosUrl, '/') . '/' . ltrim($value, '/');
+                }
+                
+                // Fallback: retornar la ruta relativa
+                return $value;
+            }
+        );
+    }
 }
