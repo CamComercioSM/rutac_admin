@@ -40,8 +40,8 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('FILES_DOMAIN', env('APP_URL').'/storage'),
+            'root' => '/home/cr3c1m13nt0/public_html/archivos',
+            'url' => env('ARCHIVOS_URL'),
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
@@ -49,8 +49,8 @@ return [
 
         'archivos' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('ARCHIVOS_URL', env('APP_URL').'/storage'),
+            'root' => '/home/cr3c1m13nt0/public_html/archivos',
+            'url' => env('ARCHIVOS_URL'),
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
