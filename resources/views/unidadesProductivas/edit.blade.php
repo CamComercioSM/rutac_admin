@@ -32,7 +32,7 @@
 
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="registration_number">Número de matrícula </label>
-                <input type="text" class="form-control" name="registration_number" id="registration_number" placeholder="Número de matrícula" maxlength="20" pattern="^[A-Za-z0-9]{4,20}$" title="Alfanumérico sin espacios ni símbolos. 4 a 20 caracteres." required>
+                <input type="text" class="form-control" name="registration_number" id="registration_number" placeholder="Número de matrícula" maxlength="20" pattern="^[A-Za-z0-9]{4,20}$" title="Alfanumérico sin espacios ni símbolos. 4 a 20 caracteres.">
             </div>
 
             <div class="col-12 col-md-4 form-group mb-3">
@@ -230,7 +230,7 @@
 @section('page-script')
 <script>
     window.URL_API = "{{ $api }}";
-    window.SELECTS = ['ciiuactividad_id', 'department_id', 'municipality_id'];
+    window.SELECTS = ['ciiuactividad_id', 'department_id', 'municipality_id', 'unidadtipo_id'];
     window.DATA = @json($elemento);
 
     // Validaciones adicionales de cliente

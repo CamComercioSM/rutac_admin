@@ -73,6 +73,27 @@ $(document).ready(function () {
     $("#unidadtipo_id").on("change", function() {
         var text = $("#unidadtipo_id option:selected").text(); 
         $("#tipo_registro_rutac").val(text);
+        
+        // Obtener el ID seleccionado del tipo de registro
+        var tipoId = $(this).val();
+        
+        // El campo Número de matrícula es obligatorio solo para tipos de registro formal (3 y 4)
+        // ID 1: Idea de negocio
+        // ID 2: Informal 
+        // ID 3: Registrado fuera CCSM
+        // ID 4: Registrado CCSM
+        // NIT y Fecha de matrícula siempre son obligatorios
+        var esFormal = tipoId && (tipoId === '3' || tipoId === '4');
+        
+        // Obtener el campo
+        var registrationNumber = document.getElementById('registration_number');
+        
+        // Establecer o quitar el atributo required según el tipo solo para número de matrícula
+        if (esFormal) {
+            if (registrationNumber) registrationNumber.setAttribute('required', 'required');
+        } else {
+            if (registrationNumber) registrationNumber.removeAttribute('required');
+        }
     });
 
     if (window.SELECTS) 
@@ -100,6 +121,12 @@ $(document).ready(function () {
                 
                 $(input).val(window.DATA[nb]).trigger('change');       
             }
+        }
+        
+        // Aplicar validación condicional después de cargar los datos
+        var unidadtipoId = document.getElementById('unidadtipo_id');
+        if (unidadtipoId && unidadtipoId.value) {
+            $(unidadtipoId).trigger('change');
         }
     }
 
@@ -133,6 +160,32 @@ $(document).ready(function () {
             this.setSelectionRange(start + digits.length, start + digits.length);
         });
     })();
+
+    // Validación en tiempo real de emails duplicados
+    const email1 = document.getElementById('registration_email');
+    const email2 = document.getElementById('contact_email');
+    
+    if (email1 && email2) {
+        const revalidarEmails = function() {
+            // Limpiar validación previa
+            email1.setCustomValidity('');
+            email2.setCustomValidity('');
+            
+            // Verificar si hay duplicación
+            if(email1.value && email2.value && email1.value.trim().toLowerCase() === email2.value.trim().toLowerCase()){
+                email2.setCustomValidity('El email de contacto no puede ser igual al email de registro.');
+                email2.reportValidity();
+            }
+        };
+        
+        email1.addEventListener('input', revalidarEmails);
+        email2.addEventListener('input', revalidarEmails);
+        email1.addEventListener('blur', revalidarEmails);
+        email2.addEventListener('blur', revalidarEmails);
+        
+        // Ejecutar validación inicial en caso de que haya datos precargados
+        setTimeout(revalidarEmails, 100);
+    }
 
     $('.cargando').addClass('d-none');
 });
