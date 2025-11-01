@@ -48,23 +48,29 @@
         </div>
 
         <div class="col-12 col-md-12 form-group mb-3">
-            <label class="form-label" for="nombre_convocatoria">Nombre </label>
-            <input type="text" class="form-control" name="nombre_convocatoria" id="nombre_convocatoria" placeholder="Nombre " required>
+            <label class="form-label" for="nombre_convocatoria">Nombre <span class="text-muted">(Máximo 200 caracteres)</span></label>
+            <input type="text" class="form-control" name="nombre_convocatoria" id="nombre_convocatoria" placeholder="Nombre " maxlength="200" required>
+            <div class="invalid-feedback">El nombre debe tener máximo 200 caracteres.</div>
+            <small class="text-muted caracteres-restantes" id="nombre_convocatoria_counter">200 caracteres restantes</small>
         </div>
 
         <div class="col-12 col-md-12 form-group mb-3">
-            <label class="form-label" for="persona_encargada">Persona a cargo</label>
-            <input type="text" class="form-control" name="persona_encargada" id="persona_encargada" placeholder="Persona a cargo" required>
+            <label class="form-label" for="persona_encargada">Persona a cargo <span class="text-muted">(Máximo 200 caracteres)</span></label>
+            <input type="text" class="form-control" name="persona_encargada" id="persona_encargada" placeholder="Persona a cargo" maxlength="200" required>
+            <div class="invalid-feedback">El nombre debe tener máximo 200 caracteres.</div>
+            <small class="text-muted caracteres-restantes" id="persona_encargada_counter">200 caracteres restantes</small>
         </div>
 
         <div class="col-12 col-md-6 form-group mb-3">
             <label class="form-label" for="correo_contacto" >Correo de contacto</label>
-            <input type="email" class="form-control" name="correo_contacto" id="correo_contacto" placeholder="Correo de contacto" required>
+            <input type="email" class="form-control" name="correo_contacto" id="correo_contacto" placeholder="Correo de contacto" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" required>
+            <div class="invalid-feedback">Ingrese un correo electrónico válido (no se permiten símbolos extraños).</div>
         </div>
 
         <div class="col-12 col-md-6 form-group mb-3">
-            <label class="form-label" for="telefono">Teléfono de contacto</label>
-            <input type="text" class="form-control" name="telefono" id="telefono" placeholder="Teléfono de contacto" required>
+            <label class="form-label" for="telefono">Teléfono de contacto <span class="text-muted">(Solo números)</span></label>
+            <input type="text" class="form-control" name="telefono" id="telefono" placeholder="Teléfono de contacto" pattern="[0-9]+" required>
+            <div class="invalid-feedback">El teléfono solo debe contener números.</div>
         </div>
 
         <div class="col-12 col-md-6 form-group mb-3">
@@ -259,6 +265,161 @@
         // Inicializa una sola vez al cargar
         window.enableDrag();
 
+        // Validaciones del lado del cliente
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Validación de máximo 200 caracteres para campos de nombre
+            const nombreFields = ['nombre_convocatoria', 'persona_encargada'];
+            nombreFields.forEach(function(fieldId) {
+                const field = document.getElementById(fieldId);
+                const counter = document.getElementById(fieldId + '_counter');
+                
+                if (field && counter) {
+                    field.addEventListener('input', function() {
+                        const length = this.value.length;
+                        const remaining = 200 - length;
+                        counter.textContent = remaining + ' caracteres restantes';
+                        
+                        if (length > 200) {
+                            this.value = this.value.substring(0, 200);
+                            counter.textContent = '0 caracteres restantes';
+                        }
+                        
+                        // Validación visual
+                        if (length > 200) {
+                            this.classList.add('is-invalid');
+                        } else {
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+            });
+
+            // Validación de teléfono: solo números
+            const telefonoField = document.getElementById('telefono');
+            if (telefonoField) {
+                // Prevenir entrada de caracteres no numéricos
+                telefonoField.addEventListener('keypress', function(e) {
+                    const char = String.fromCharCode(e.which);
+                    if (!/[0-9]/.test(char)) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+
+                // Validar al pegar texto
+                telefonoField.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                    const numbersOnly = pastedText.replace(/[^0-9]/g, '');
+                    this.value = numbersOnly;
+                    
+                    if (numbersOnly !== pastedText) {
+                        Swal.fire({
+                            title: 'Caracteres no válidos eliminados',
+                            text: 'Solo se permiten números en el teléfono.',
+                            icon: 'warning',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                });
+
+                // Validar al escribir
+                telefonoField.addEventListener('input', function() {
+                    const originalValue = this.value;
+                    const numbersOnly = originalValue.replace(/[^0-9]/g, '');
+                    
+                    if (originalValue !== numbersOnly) {
+                        this.value = numbersOnly;
+                        this.classList.add('is-invalid');
+                        
+                        setTimeout(() => {
+                            this.classList.remove('is-invalid');
+                        }, 2000);
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            }
+
+            // Validación mejorada de correo electrónico
+            const correoField = document.getElementById('correo_contacto');
+            if (correoField) {
+                // Expresión regular para validar email válido (sin símbolos extraños)
+                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                
+                correoField.addEventListener('blur', function() {
+                    const email = this.value.trim();
+                    
+                    if (email && !emailPattern.test(email)) {
+                        this.classList.add('is-invalid');
+                        Swal.fire({
+                            title: 'Correo inválido',
+                            text: 'Por favor ingrese un correo electrónico válido. No se permiten símbolos extraños.',
+                            icon: 'error',
+                            timer: 3000
+                        });
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+
+                correoField.addEventListener('input', function() {
+                    // Remover caracteres no permitidos en tiempo real (opcional)
+                    // Solo permitir: letras, números, puntos, guiones, guiones bajos, @, y %
+                    const value = this.value;
+                    const cleaned = value.replace(/[^a-zA-Z0-9._%+-@]/g, '');
+                    
+                    if (value !== cleaned) {
+                        this.value = cleaned;
+                    }
+                });
+            }
+
+            // Validación antes de enviar el formulario
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    let isValid = true;
+
+                    // Validar campos de nombre
+                    nombreFields.forEach(function(fieldId) {
+                        const field = document.getElementById(fieldId);
+                        if (field && field.value.length > 200) {
+                            field.classList.add('is-invalid');
+                            isValid = false;
+                        }
+                    });
+
+                    // Validar teléfono
+                    if (telefonoField && !/^[0-9]+$/.test(telefonoField.value)) {
+                        telefonoField.classList.add('is-invalid');
+                        isValid = false;
+                    }
+
+                    // Validar correo
+                    if (correoField) {
+                        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                        if (correoField.value && !emailPattern.test(correoField.value.trim())) {
+                            correoField.classList.add('is-invalid');
+                            isValid = false;
+                        }
+                    }
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Error de validación',
+                            text: 'Por favor corrija los errores en el formulario antes de continuar.',
+                            icon: 'error'
+                        });
+                        return false;
+                    }
+                });
+            }
+        });
+
     </script>
 
     <style>
@@ -271,6 +432,20 @@
             opacity: 0.5;
             background: #f8f9fa;
             cursor: grabbing;
+        }
+
+        .caracteres-restantes {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .is-invalid {
+            border-color: #dc3545;
+        }
+
+        .is-invalid ~ .invalid-feedback {
+            display: block;
         }
     </style>
 @endsection

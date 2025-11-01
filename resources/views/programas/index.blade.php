@@ -28,8 +28,10 @@
     <div class="row">
 
         <div class="col-12 col-md-9 form-group mb-3">
-            <label class="form-label" for="nombre">Nombre </label>
-            <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Nombre " required>
+            <label class="form-label" for="nombre">Nombre <span class="text-muted">(Máximo 200 caracteres)</span></label>
+            <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Nombre " maxlength="200" required>
+            <div class="invalid-feedback">El nombre debe tener máximo 200 caracteres.</div>
+            <small class="text-muted caracteres-restantes" id="nombre_counter">200 caracteres restantes</small>
         </div>
 
         <div class="col-12 col-md-3 form-group mb-3">
@@ -285,5 +287,64 @@
         // Inicializa una sola vez al cargar
         window.enableDrag();
 
+        // Validación de máximo 200 caracteres para el campo nombre
+        document.addEventListener('DOMContentLoaded', function() {
+            const nombreField = document.getElementById('nombre');
+            const counter = document.getElementById('nombre_counter');
+            
+            if (nombreField && counter) {
+                nombreField.addEventListener('input', function() {
+                    const length = this.value.length;
+                    const remaining = 200 - length;
+                    counter.textContent = remaining + ' caracteres restantes';
+                    
+                    if (length > 200) {
+                        this.value = this.value.substring(0, 200);
+                        counter.textContent = '0 caracteres restantes';
+                    }
+                    
+                    // Validación visual
+                    if (length > 200) {
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            }
+
+            // Validación antes de enviar el formulario
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (nombreField && nombreField.value.length > 200) {
+                        nombreField.classList.add('is-invalid');
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Error de validación',
+                            text: 'El nombre debe tener máximo 200 caracteres.',
+                            icon: 'error'
+                        });
+                        return false;
+                    }
+                });
+            }
+        });
+
     </script>
+
+    <style>
+        .caracteres-restantes {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .is-invalid {
+            border-color: #dc3545;
+        }
+
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+    </style>
 @endsection
