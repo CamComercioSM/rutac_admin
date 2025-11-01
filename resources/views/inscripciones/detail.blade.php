@@ -27,7 +27,13 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <span class="badge bg-label-primary rounded-pill">{{$detalle->estado->inscripcionEstadoNOMBRE ?? ' - '}}</span>
                     <div class="d-flex justify-content-center">
-                        <sub class="h6 pricing-duration mt-auto mb-3 fw-normal">{{$detalle->fecha_creacion ?? ' - '}}</sub>
+                        <sub class="h6 pricing-duration mt-auto mb-3 fw-normal">
+                            @if($detalle->fecha_creacion)
+                                {{ \Carbon\Carbon::parse($detalle->fecha_creacion)->setTimezone('America/Bogota')->format('Y-m-d H:i:s') }}
+                            @else
+                                -
+                            @endif
+                        </sub>
                     </div>
                 </div>
                 <ul class="list-unstyled g-2 my-6">
@@ -104,7 +110,13 @@
                         <div class="timeline-event">
                             <div class="timeline-header mb-3">
                                 <h6 class="mb-0">{{$item->estado->inscripcionEstadoNOMBRE ?? ' - '}}</h6>
-                                <small class="text-body-secondary">{{$item->fecha_creacion ?? ' - '}}</small>
+                                <small class="text-body-secondary">
+                                    @if($item->fecha_creacion)
+                                        {{ \Carbon\Carbon::parse($item->fecha_creacion)->setTimezone('America/Bogota')->format('Y-m-d H:i:s') }}
+                                    @else
+                                        -
+                                    @endif
+                                </small>
                             </div>
                             <p class="mb-2">{{$item->comentarios ?? ' - '}}</p>
                             @if ($item->archivo)                            
@@ -140,13 +152,18 @@
             method="POST" >
           
             <div class="col-sm-12 mb-3">
-                <label class="form-label" for="inscripcionestado_id">Estado</label>
-                <select id="inscripcionestado_id" name="inscripcionestado_id" class="form-select form-select-sm">
-                    <option value="">Seleccione una opción</option>
+                <label class="form-label" for="inscripcionestado_id">Estado <span class="text-danger">*</span></label>
+                <select id="inscripcionestado_id" name="inscripcionestado_id" class="form-select form-select-sm" required>
+                    @if(empty($detalle->inscripcionestado_id))
+                        <option value="">Seleccione una opción</option>
+                    @endif
                     @foreach ($estados as $item)
                         <option value="{{$item->inscripcionestado_id}}" {{ ($detalle->inscripcionestado_id ?? null) == $item->inscripcionestado_id ? 'selected' : '' }} >{{$item->inscripcionEstadoNOMBRE}}</option>
                     @endforeach
                 </select>
+                <div class="invalid-feedback">
+                    Debe seleccionar un estado válido.
+                </div>
             </div>
           
             <div class="col-sm-12 mb-3">
@@ -156,10 +173,9 @@
 
             <div class="col-sm-12 mb-3">
                 <label class="form-label" for="activarPreguntas">¿Activar preguntas nuevamente?</label>
-                <select class="form-select form-select-sm" name="activarPreguntas" id="activarPreguntas">
-                    <option value="">Seleccione una opción</option>
-                    <option value="0" selected>No</option>
-                    <option value="1">Si</option>
+                <select class="form-select form-select-sm" name="activarPreguntas" id="activarPreguntas" required>
+                    <option value="0" {{ !($detalle->activarPreguntas ?? false) ? 'selected' : '' }}>No</option>
+                    <option value="1" {{ ($detalle->activarPreguntas ?? false) ? 'selected' : '' }}>Si</option>
                 </select>
             </div>
 
@@ -243,10 +259,36 @@
             $('#cambioEstadoForm, #editarPreguntaForm').on('submit', function (e) {
                 e.preventDefault();
 
-                cargando.classList.remove('d-none');
-
                 let form = $(this); 
-                let formEl = this; 
+                let formEl = this;
+                
+                // Validar que se haya seleccionado un estado válido
+                if (formEl.id === 'cambioEstadoForm') {
+                    let estadoSelect = $('#inscripcionestado_id');
+                    let estadoValue = estadoSelect.val();
+                    
+                    // Remover clase de error previa
+                    estadoSelect.removeClass('is-invalid');
+                    
+                    if (!estadoValue || estadoValue === '') {
+                        estadoSelect.addClass('is-invalid');
+                        Swal.fire({
+                            title: 'Error de validación',
+                            text: 'El campo estado es obligatorio. Debe seleccionar un estado válido.',
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar'
+                        });
+                        return false;
+                    }
+                }
+
+                // Validar formulario HTML5
+                if (!formEl.checkValidity()) {
+                    formEl.reportValidity();
+                    return false;
+                }
+
+                cargando.classList.remove('d-none');
 
                 let method = form.attr('method'); 
                 let actionUrl = form.attr('action');
@@ -272,8 +314,40 @@
                     },
                     error: function (xhr) {
                         console.error(xhr.responseText);
-                        alert('Ocurrió un error al guardar');
-                       cargando.classList.add('d-none');
+                        cargando.classList.add('d-none');
+                        
+                        // Mostrar errores de validación
+                        let errorMessage = 'Ocurrió un error al guardar';
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            let errors = xhr.responseJSON.errors;
+                            let errorText = '';
+                            
+                            // Recopilar todos los mensajes de error
+                            for (let field in errors) {
+                                if (errors.hasOwnProperty(field)) {
+                                    errorText += errors[field].join('<br>') + '<br>';
+                                }
+                            }
+                            
+                            if (errorText) {
+                                errorMessage = errorText;
+                            }
+                            
+                            // Mostrar error específico del campo estado si existe
+                            if (errors.inscripcionestado_id) {
+                                $('#inscripcionestado_id').addClass('is-invalid');
+                                $('#inscripcionestado_id').on('change', function() {
+                                    $(this).removeClass('is-invalid');
+                                });
+                            }
+                        }
+                        
+                        Swal.fire({
+                            title: 'Error de validación',
+                            html: errorMessage,
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar'
+                        });
                     }
                 });
             });

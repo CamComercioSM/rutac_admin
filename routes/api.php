@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\EmailController;
+use App\Http\Controllers\InscripcionesController;
+use App\Http\Controllers\EmpresariosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +27,7 @@ Route::prefix('email')->middleware([\App\Http\Middleware\ApiKeyMiddleware::class
     
     // Enviar correo con HTML personalizado desde otra aplicación
     Route::post('/html', [EmailController::class, 'sendHtml']);
+    
     
     // Verificar estado del servicio
     Route::get('/health', [EmailController::class, 'healthCheck']);

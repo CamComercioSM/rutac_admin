@@ -6,6 +6,7 @@ use App\Models\Empresarios\UnidadProductiva;
 use App\Models\Programas\ProgramaConvocatoria;
 use App\Models\TablasReferencias\InscripcionEstado;
 use App\Models\Traits\UserTrait;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -29,6 +30,20 @@ class ConvocatoriaInscripcion extends Model
 
     protected static function booted()
     {
+        static::creating(function ($model) {
+            // Asegurar que las fechas se guarden en timezone de Colombia
+            $timezone = 'America/Bogota';
+            if (!isset($model->fecha_creacion)) {
+                $model->fecha_creacion = now($timezone);
+            }
+        });
+
+        static::updating(function ($model) {
+            // Asegurar que las fechas de actualización se guarden en timezone de Colombia
+            $timezone = 'America/Bogota';
+            $model->fecha_actualizacion = now($timezone);
+        });
+
         static::saved(function ($model) {
             if ($model->isDirty(['inscripcionestado_id', 'comentarios', 'archivo'])) 
             {
@@ -46,6 +61,15 @@ class ConvocatoriaInscripcion extends Model
     const CREATED_AT = 'fecha_creacion';
     const UPDATED_AT = 'fecha_actualizacion';
     const DELETED_AT = 'fecha_eliminacion';
+
+    protected function casts(): array
+    {
+        return [
+            'fecha_creacion' => 'datetime:Y-m-d H:i:s',
+            'fecha_actualizacion' => 'datetime:Y-m-d H:i:s',
+            'fecha_eliminacion' => 'datetime:Y-m-d H:i:s',
+        ];
+    }
 
     public function convocatoria()
     {
@@ -71,6 +95,26 @@ class ConvocatoriaInscripcion extends Model
     {
         return $this->HasMany(ConvocatoriaInscripcionHistorial::class, 'inscripcion_id', 'inscripcion_id')
         ->orderBy('fecha_creacion', 'desc');
+    }
+
+    /**
+     * Accessor para fecha_creacion - siempre retorna en timezone de Colombia
+     */
+    protected function fechaCreacion(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? \Carbon\Carbon::parse($value)->setTimezone('America/Bogota') : null,
+        );
+    }
+
+    /**
+     * Accessor para fecha_actualizacion - siempre retorna en timezone de Colombia
+     */
+    protected function fechaActualizacion(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? \Carbon\Carbon::parse($value)->setTimezone('America/Bogota') : null,
+        );
     }
 
 }

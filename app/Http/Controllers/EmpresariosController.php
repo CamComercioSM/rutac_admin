@@ -6,13 +6,22 @@ use App\Exports\EmpresariosExport;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\MailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 
 class EmpresariosController extends Controller
 {
+    protected $mailService;
+
+    public function __construct(MailService $mailService)
+    {
+        $this->mailService = $mailService;
+    }
+
     function list()
     { 
         return View("empresarios.index");
@@ -49,16 +58,51 @@ class EmpresariosController extends Controller
             unset($data['password']);
         }
 
-        if ($request->filled('id')) 
+        $isNew = !$request->filled('id');
+
+        if ($isNew) {
+            // Crear nuevo empresario
+            $entity = User::create($data);
+            
+            // Enviar correo de bienvenida
+            try {
+                $this->enviarCorreoBienvenida($entity);
+            } catch (\Exception $e) {
+                Log::error('Error al enviar correo de bienvenida de empresario', [
+                    'user_id' => $entity->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        } 
+        else 
         {
             $entity = User::findOrFail($request->id);
             $entity->update($data);
-        } 
-        else {
-            $entity = User::create($data);
         }
 
         return response()->json([ 'message' => 'Stored' ], 201);
+    }
+
+    /**
+     * Enviar correo de bienvenida por registro de empresario
+     */
+    private function enviarCorreoBienvenida(User $empresario)
+    {
+        try {
+            $this->mailService->sendBienvenidaEmpresario($empresario);
+            
+            Log::info('Correo de bienvenida de empresario enviado exitosamente', [
+                'user_id' => $empresario->id,
+                'nombre' => ($empresario->name ?? '') . ' ' . ($empresario->lastname ?? '')
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al enviar correo de bienvenida de empresario', [
+                'user_id' => $empresario->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            // No relanzar la excepción para no interrumpir el flujo
+        }
     }
 
     private function getQuery(Request $request)
@@ -79,4 +123,5 @@ class EmpresariosController extends Controller
 
         return $query;
     }
+
 }

@@ -272,6 +272,7 @@ Route::as('admin.')
     Route::resource('defaultEmailTemplates', DefaultEmailTemplateController::class);
 
     Route::post('/inscripciones/updateRespuesta', [InscripcionesController::class, 'updateRespuesta']);
+    Route::post('/inscripciones/test-email', [InscripcionesController::class, 'testInscripcionEmail'])->name("inscripciones.test-email");
     
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search']);
     Route::get('/unidadesProductivas/{id}/{transformar}', [UnidadProductivaController::class, 'edit']);

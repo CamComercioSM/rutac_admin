@@ -267,6 +267,89 @@ class EmailController extends Controller
     }
 
     /**
+     * Enviar correo de prueba con template personalizado
+     * Permite probar diferentes tipos de correos antes de integrarlos en los flujos
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function sendTestTemplate(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'to' => 'required|email',
+            'template_type' => 'required|string|max:255',
+            'data' => 'nullable|array',
+            'cc' => 'nullable|array',
+            'cc.*' => 'email',
+            'bcc' => 'nullable|array',
+            'bcc.*' => 'email',
+            'reply_to' => 'nullable|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Datos de entrada inválidos',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+
+        try {
+            $options = [];
+            
+            if ($request->has('cc')) {
+                $options['cc'] = $request->cc;
+            }
+            
+            if ($request->has('bcc')) {
+                $options['bcc'] = $request->bcc;
+            }
+            
+            if ($request->has('reply_to')) {
+                $options['reply_to'] = $request->reply_to;
+            }
+
+            // Enviar correo de prueba
+            $this->mailService->sendTestTemplate(
+                $request->to,
+                $request->template_type,
+                $request->data ?? [],
+                $options
+            );
+
+            Log::info('Correo de prueba enviado exitosamente', [
+                'to' => $request->to,
+                'template_type' => $request->template_type,
+                'timestamp' => now()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Correo de prueba enviado exitosamente',
+                'data' => [
+                    'to' => $request->to,
+                    'template_type' => $request->template_type,
+                    'sent_at' => now()->format('Y-m-d H:i:s')
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error al enviar correo de prueba', [
+                'to' => $request->to,
+                'template_type' => $request->template_type,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al enviar el correo de prueba',
+                'error' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor'
+            ], 500);
+        }
+    }
+
+    /**
      * Generar token de recuperación
      */
     private function generateResetToken()

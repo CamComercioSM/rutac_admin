@@ -13,16 +13,25 @@ use App\Models\Programas\ProgramaConvocatoria;
 use App\Models\Role;
 use App\Models\TablasReferencias\InscripcionEstado;
 use App\Models\Empresarios\UnidadProductiva;
+use App\Services\MailService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 
 
 class InscripcionesController extends Controller
 {
+    protected $mailService;
+
+    public function __construct(MailService $mailService)
+    {
+        $this->mailService = $mailService;
+    }
+
     function list(Request $request)
     { 
         $programas = [];
@@ -96,6 +105,7 @@ class InscripcionesController extends Controller
     public function store(Request $request)
     {
         $convocatoria = $request->input('convocatoriaAdd');
+        $asesor = Auth::user();
 
         foreach($request->input('unidades') as $u)
         {
@@ -113,6 +123,20 @@ class InscripcionesController extends Controller
                 $entity->comentarios = "Solicitud de registro creada";
                 $entity->activarPreguntas = true;
                 $entity->save();
+
+                // Enviar correo de bienvenida por inscripción
+                try {
+                    // Cargar relaciones necesarias para el correo
+                    $entity->load(['unidadProductiva', 'convocatoria.programa']);
+                    $this->enviarCorreoInscripcion($entity, $asesor);
+                } catch (\Exception $e) {
+                    // Log del error pero no fallar la creación de la inscripción
+                    Log::error('Error al enviar correo de inscripción', [
+                        'inscripcion_id' => $entity->inscripcion_id,
+                        'unidad_productiva_id' => $u,
+                        'error' => $e->getMessage()
+                    ]);
+                }
             }
         }
 
@@ -144,6 +168,27 @@ class InscripcionesController extends Controller
 
     public function update($id, Request $request)
     {
+        // Validar que se haya seleccionado un estado válido
+        $validator = Validator::make($request->all(), [
+            'inscripcionestado_id' => [
+                'required',
+                'integer',
+                'exists:inscripciones_estados,inscripcionestado_id',
+            ],
+        ], [
+            'inscripcionestado_id.required' => 'El campo estado es obligatorio. Debe seleccionar un estado válido.',
+            'inscripcionestado_id.integer' => 'El estado seleccionado no es válido.',
+            'inscripcionestado_id.exists' => 'El estado seleccionado no existe en el sistema.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         $path = null;
 
         if($request->hasFile('archivo')) 
@@ -157,17 +202,21 @@ class InscripcionesController extends Controller
             $entity = ConvocatoriaInscripcion::with(['unidadProductiva', 'estado', 'convocatoria.programa'])
                 ->findOrFail($ins_id);
             
-            // Guardar el estado anterior para comparar
+            // Guardar valores anteriores para comparar
             $estadoAnterior = $entity->inscripcionestado_id;
+            $activarPreguntasAnterior = $entity->activarPreguntas;
+            
             $entity->archivo = $path;            
-
             $entity->inscripcionestado_id = $request->input('inscripcionestado_id');
             $entity->comentarios = $request->input('comentarios');
             $entity->activarPreguntas = $request->input('activarPreguntas') == 1;
             $entity->save();
 
-            // Enviar correo solo si el estado cambió
-            if ($estadoAnterior != $entity->inscripcionestado_id) {
+            // Enviar correo si el estado cambió O si activarPreguntas cambió
+            $cambioEstado = ($estadoAnterior != $entity->inscripcionestado_id);
+            $cambioActivarPreguntas = ($activarPreguntasAnterior != $entity->activarPreguntas);
+            
+            if ($cambioEstado || $cambioActivarPreguntas) {
                 // Recargar la inscripción con las relaciones actualizadas para obtener el nuevo estado
                 $entity->refresh();
                 $entity->load(['unidadProductiva', 'estado', 'convocatoria.programa']);
@@ -176,6 +225,29 @@ class InscripcionesController extends Controller
         }
 
         return response()->json([ 'message' => 'Stored' ], 201);
+    }
+
+    /**
+     * Enviar correo de bienvenida por inscripción a programa
+     */
+    private function enviarCorreoInscripcion(ConvocatoriaInscripcion $inscripcion, $asesor)
+    {
+        try {
+            $this->mailService->sendInscripcionPrograma($inscripcion, $asesor);
+            
+            Log::info('Correo de inscripción enviado exitosamente', [
+                'inscripcion_id' => $inscripcion->inscripcion_id,
+                'unidad_productiva_id' => $inscripcion->unidadproductiva_id,
+                'programa' => $inscripcion->convocatoria->programa->nombre ?? 'N/A'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al enviar correo de inscripción', [
+                'inscripcion_id' => $inscripcion->inscripcion_id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            // No relanzar la excepción para no interrumpir el flujo
+        }
     }
 
     /**
@@ -321,4 +393,5 @@ class InscripcionesController extends Controller
 
         return Excel::download(new InscripcionesRespuestasExport($query), 'respuestasInscripcion.xlsx');
     }
+
 }
