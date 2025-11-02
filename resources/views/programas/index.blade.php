@@ -154,11 +154,18 @@
     ])
 
     <script> 
+        const btn_eliminar = `{!! 
+            $esAsesor == 1 ? '' 
+                : '<button class="dropdown-item" onClick="eliminarRegistro()">Eliminar</button>' 
+            !!}`;
+
         window.TABLA = {
             urlApi: '/programas',
             sortName: 'programa_id',
+            mensajeEliminar: 'Esta seguro de eliminar el programa.',
 
             menu_row: ` <button class="dropdown-item" onClick="openEditar()" >Editar</button>
+                        ${btn_eliminar}
                         <a class="dropdown-item" href="/programas/ROWID" >Ver detalles</a>
                         <a class="dropdown-item" href="/convocatorias/list?programa=ROWID">Convocatorias</a>`,
 

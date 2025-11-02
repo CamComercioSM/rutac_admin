@@ -8,7 +8,9 @@ use App\Models\Programas\Programa;
 use App\Models\Programas\ProgramaConvocatoria;
 use App\Models\Programas\InscripcionesRequisitos;
 use App\Models\TablasReferencias\Etapa;
+use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ProgramaController extends Controller
@@ -19,6 +21,7 @@ class ProgramaController extends Controller
             'etapas'=> Etapa::get(),
             'modalidades'=> Programa::$es_virtual_text,
             'preguntas'=> InscripcionesRequisitos::select('requisito_id', 'requisito_titulo')->get(),
+            'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0
         ];
 
         return View("programas.index", $data);
@@ -88,6 +91,14 @@ class ProgramaController extends Controller
         $entity->requisitosTodos()->attach($data);
 
         return response()->json([ 'message' => 'Stored' ], 201);
+    }
+
+    public function destroy($id)
+    {
+        $entity = Programa::findOrFail($id);
+        $entity->delete();
+
+        return response()->json(['message' => 'Programa eliminado exitosamente']);
     }
 
     private function getQuery(Request $request)

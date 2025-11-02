@@ -88,8 +88,7 @@ class ConvocatoriaController extends Controller
     public function destroy($id)
     {
         $entity = ProgramaConvocatoria::findOrFail($id);
-        $entity->status = false;
-        $entity->save();
+        $entity->delete();
 
         return response()->json(['message' => 'Removed']);
     }

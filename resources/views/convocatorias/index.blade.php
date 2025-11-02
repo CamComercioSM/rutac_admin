@@ -137,12 +137,19 @@
 
 @section('script')
     <script> 
-        const btn_edit =  '{!! $esAsesor == 1 ? '' : '<button class="dropdown-item" onClick="openEditar()" >Editar</button>' !!}';
+        const btn_editar_eliminar = `{!! 
+            $esAsesor == 1  ? '' 
+                : '
+                    <button class="dropdown-item" onClick="openEditar()">Editar</button>
+                    <button class="dropdown-item" onClick="eliminarRegistro()">Eliminar</button>
+                ' 
+        !!}`;
         window.TABLA = {
             urlApi: '/convocatorias',
             sortName: 'convocatoria_id',
+            mensajeEliminar: 'Esta seguro de eliminar la convocatoria.',
             
-            menu_row: ` ${btn_edit}
+            menu_row: ` ${btn_editar_eliminar}
                         <a class="dropdown-item" href="/convocatorias/ROWID" >Ver detalles</a>
                         <a class="dropdown-item" href="/inscripciones/list?convocatoria=ROWID">Inscripciones</a>`,
 

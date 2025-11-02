@@ -1,5 +1,6 @@
 import languageEs from '../../assets/es-ES.json';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 // Asegurar axios global en páginas que no cargan bootstrap.js
 if (!window.axios) {
@@ -284,6 +285,55 @@ $(document).ready(function () {
         itemSelect = null;
         CrearRegistro(); 
     });
+
+    window.eliminarRegistro = function() {
+        
+        const id = itemSelect.id;
+
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: window.TABLA?.mensajeEliminar ?? '¿Está seguro de eliminar este registro?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                // Mostrar alerta de carga
+                Swal.fire({
+                    title: 'Eliminando...',
+                    text: 'Por favor, espere un momento.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                axios.delete(`${TABLA.urlApi}/${id}`)
+                .then(response => {
+                    Swal.fire({
+                        title: 'Eliminado',
+                        text: response.data.message || 'Registro eliminado correctamente.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    // Recargar tabla
+                    if (typeof tabla !== 'undefined') {
+                        tabla.ajax.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    Swal.fire('Error', 'No se pudo eliminar el registro.', 'error');
+                });
+            }
+        });
+
+    };
 
     window.openEditar = function() {
         dropdown.hide();
