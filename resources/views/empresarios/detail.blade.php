@@ -20,6 +20,57 @@
 @vite(['resources/assets/js/pages-profile-user.js'])
 <script>
     loading.classList.add('d-none');
+    
+    function sendPasswordReset(id) {
+        const btn = document.getElementById('btnPasswordReset');
+        const originalText = btn.innerHTML;
+        
+        // Deshabilitar botón y mostrar loading
+        btn.disabled = true;
+        btn.innerHTML = '<i class="icon-base ri ri-loader-4-line icon-16px me-1_5"></i>Enviando...';
+        
+        // Enviar petición
+        fetch(`/empresarios/${id}/send-password-reset`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: data.message,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'No se pudo enviar el correo de recuperación',
+                    timer: 3000
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Ocurrió un error al enviar el correo de recuperación',
+                timer: 3000
+            });
+        })
+        .finally(() => {
+            // Restaurar botón
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+    }
 </script>
 @endsection
 
@@ -51,7 +102,12 @@
                 </li>
               </ul>
             </div>
-            <a href="javascript:void(0)" class="btn btn-primary"> <i class="icon-base ri ri-user-follow-line icon-16px me-1_5"></i>Conectado </a>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-warning" onclick="sendPasswordReset({{ $detalle->id }})" id="btnPasswordReset">
+                    <i class="icon-base ri ri-mail-send-line icon-16px me-1_5"></i>Enviar recuperación de contraseña
+                </button>
+                <a href="javascript:void(0)" class="btn btn-primary"> <i class="icon-base ri ri-user-follow-line icon-16px me-1_5"></i>Conectado </a>
+            </div>
           </div>
         </div>
       </div>

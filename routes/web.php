@@ -249,6 +249,7 @@ Route::as('admin.')
     Route::get('/intervenciones/export', [IntervencionesController::class, 'export']);
 
     Route::resource('empresarios', EmpresariosController::class);
+    Route::post('/empresarios/{id}/send-password-reset', [EmpresariosController::class, 'sendPasswordResetEmail'])->name('empresarios.send-password-reset');
     Route::resource('users', UserController::class);
     Route::resource('menu', MenuController::class);
     Route::resource('inscripciones', InscripcionesController::class);

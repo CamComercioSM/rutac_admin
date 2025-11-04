@@ -37,13 +37,22 @@
 
         <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="email">Email</label>
-            <input type="email" class="form-control" name="email" id="email" placeholder="Email" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" required>
+            <input type="email" class="form-control" name="email" id="email" placeholder="Email" required>
             <div class="invalid-feedback">Ingrese un correo electrónico válido (no se permiten símbolos extraños).</div>
         </div>
 
         <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="password">Contraseña</label>
             <input type="text" class="form-control" name="password" id="password" placeholder="**********">
+        </div>
+
+        <div class="col-12 col-md-12 form-group mb-3">
+            <button type="button" class="btn btn-warning" onclick="sendPasswordResetEmail()" id="btnPasswordResetEmail">
+                <i class="icon-base ri ri-mail-send-line me-2"></i>Enviar correo de recuperación de contraseña
+            </button>
+            <small class="form-text text-muted d-block mt-2">
+                Enviará un correo de recuperación de contraseña al email del empresario.
+            </small>
         </div>
 
     </div>
@@ -158,7 +167,7 @@
             const correoField = document.getElementById('email');
             if (correoField) {
                 // Expresión regular para validar email válido (sin símbolos extraños)
-                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                const emailPattern = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
                 
                 correoField.addEventListener('blur', function() {
                     const email = this.value.trim();
@@ -211,7 +220,7 @@
 
                     // Validar correo
                     if (correoField) {
-                        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                        const emailPattern = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
                         if (correoField.value && !emailPattern.test(correoField.value.trim())) {
                             correoField.classList.add('is-invalid');
                             isValid = false;
@@ -229,6 +238,84 @@
                     }
                 });
             }
+            
+            // Función para enviar correo de recuperación de contraseña desde el modal
+            window.sendPasswordResetEmail = function() {
+                const idField = document.getElementById('id');
+                const emailField = document.getElementById('email');
+                
+                if (!idField || !idField.value) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Advertencia',
+                        text: 'Por favor, guarda primero el empresario antes de enviar el correo de recuperación.',
+                        timer: 3000
+                    });
+                    return;
+                }
+                
+                const id = idField.value;
+                const email = emailField ? emailField.value : '';
+                
+                if (!email) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Advertencia',
+                        text: 'El empresario no tiene un correo electrónico registrado.',
+                        timer: 3000
+                    });
+                    return;
+                }
+                
+                const btn = document.getElementById('btnPasswordResetEmail');
+                const originalText = btn.innerHTML;
+                
+                // Deshabilitar botón y mostrar loading
+                btn.disabled = true;
+                btn.innerHTML = '<i class="icon-base ri ri-loader-4-line me-2"></i>Enviando...';
+                
+                // Enviar petición
+                fetch(`/empresarios/${id}/send-password-reset`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: data.message,
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'No se pudo enviar el correo de recuperación',
+                            timer: 3000
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al enviar el correo de recuperación',
+                        timer: 3000
+                    });
+                })
+                .finally(() => {
+                    // Restaurar botón
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+            };
         });
     </script>
 

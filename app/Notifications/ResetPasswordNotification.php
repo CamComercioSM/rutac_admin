@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 
 class ResetPasswordNotification extends Notification
 {
@@ -38,18 +39,23 @@ class ResetPasswordNotification extends Notification
 
     /**
      * Get the mail representation of the notification.
+     * Esta notificación solo se usa como fallback si falla el envío personalizado.
      */
     public function toMail(object $notifiable): MailMessage
     {
-        // Generar URL de forma más segura
-        $resetUrl = url('/auth/reset-password/' . $this->token . '?email=' . urlencode($notifiable->email));
+        // Usar el host de la aplicación pública para el enlace de recuperación
+        $publicHost = 'https://app.rutadecrecimiento.com';
+        $resetUrl = $publicHost . '/password/reset?token=' . $this->token . '&email=' . urlencode($notifiable->email);
 
+        // Preparar nombre del usuario
+        $userName = trim(($notifiable->name ?? '') . ' ' . ($notifiable->lastname ?? '')) ?: 'Usuario';
+        
         return (new MailMessage)
             ->subject('Restablecer contraseña - Ruta C')
-            ->greeting('Hola ' . ($notifiable->name ?? 'Usuario'))
+            ->greeting('Hola ' . $userName)
             ->line('Has solicitado restablecer tu contraseña.')
             ->action('Restablecer contraseña', $resetUrl)
-            ->line('Este enlace expirará en 60 minutos.')
+            ->line('Este enlace expirará en 24 horas.')
             ->line('Si no solicitaste este cambio, puedes ignorar este correo.')
             ->salutation('Saludos, Equipo Ruta C');
     }

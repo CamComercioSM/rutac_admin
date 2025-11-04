@@ -10,6 +10,7 @@ use App\Services\MailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 
@@ -102,6 +103,66 @@ class EmpresariosController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             // No relanzar la excepción para no interrumpir el flujo
+        }
+    }
+
+    /**
+     * Enviar correo de recuperación de contraseña a un empresario
+     */
+    public function sendPasswordResetEmail($id)
+    {
+        try {
+            $empresario = User::findOrFail($id);
+
+            if (!$empresario->email) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El empresario no tiene un correo electrónico registrado.'
+                ], 422);
+            }
+
+            Log::info('Enviando correo de recuperación de contraseña para empresario', [
+                'user_id' => $empresario->id,
+                'email' => $empresario->email
+            ]);
+
+            // Usar el sistema de recuperación de contraseña de Laravel
+            $status = Password::sendResetLink(
+                ['email' => $empresario->email]
+            );
+
+            if ($status === Password::RESET_LINK_SENT) {
+                Log::info('Correo de recuperación enviado exitosamente', [
+                    'user_id' => $empresario->id,
+                    'email' => $empresario->email
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => '✅ Se ha enviado un correo de recuperación de contraseña a ' . $empresario->email
+                ]);
+            } else {
+                Log::warning('Error al enviar correo de recuperación', [
+                    'user_id' => $empresario->id,
+                    'status' => $status
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se pudo enviar el correo de recuperación. Inténtalo de nuevo.'
+                ], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error al enviar correo de recuperación de contraseña', [
+                'user_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al enviar el correo de recuperación. ' . ($e->getMessage() ?? 'Error desconocido')
+            ], 500);
         }
     }
 
