@@ -127,8 +127,15 @@ class UnidadProductivaController extends Controller
 
     public function store(Request $request)
     {
+        $data = $request->all();
         $entity = UnidadProductiva::findOrFail($request->unidadproductiva_id);
-        $entity->update( $request->all() );
+
+        if($data['unidadtipo_id'] != $entity->unidadtipo_id)
+        {
+            $data['logo'] = UnidadProductiva::getLogo($data['unidadtipo_id']);
+        }
+
+        $entity->update($data);
 
         return response()->json([ 'message' => 'Stored' ], 201);
     }

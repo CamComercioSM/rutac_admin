@@ -220,21 +220,40 @@
 @endsection
 
 @section('vendor-style')
-@vite(['resources/assets/vendor/libs/select2/select2.scss'])
+@vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('vendor-script')
-@vite(['resources/assets/vendor/libs/select2/select2.js'])
+@vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('page-script')
 <script>
     window.URL_API = "{{ $api }}";
-    window.SELECTS = ['ciiuactividad_id', 'department_id', 'municipality_id', 'unidadtipo_id'];
+    window.SELECTS = ['ciiuactividad_id', 'department_id', 'municipality_id'];
     window.DATA = @json($elemento);
 
     // Validaciones adicionales de cliente
-    window.validarExtraForm = function(){
+    window.validarExtraForm = function()
+    {
+
+        if("{{ $accion }}" == "Transformar")
+        {
+            let tipo = $('#unidadtipo_id').val();
+
+            if(tipo == {{ $elemento->unidadtipo_id }})
+            {
+                Swal.fire({ title: "Para la transformación es necesario cambiar el tipo de Registro.", icon: "info" });
+                return false;
+            }
+
+            if(tipo < {{ $elemento->unidadtipo_id }})
+            {
+                Swal.fire({ title: "La transformación debe ser positiva.", icon: "info" });
+                return false;
+            }
+        }
+
         const email1 = document.getElementById('registration_email');
         const email2 = document.getElementById('contact_email');
         const registration = document.getElementById('registration_number');
