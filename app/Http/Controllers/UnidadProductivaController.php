@@ -128,32 +128,8 @@ class UnidadProductivaController extends Controller
 
     public function store(Request $request)
     {
-        // Validación: número de matrícula único (ignorando la unidad actual)
-        $rules = [];
-        if ($request->filled('registration_number')) {
-            $rules['registration_number'] = [
-                'string',
-                'max:191',
-                'unique:unidadesproductivas,registration_number,' . $request->unidadproductiva_id . ',unidadproductiva_id'
-            ];
-        }
-
-        if (!empty($rules)) {
-            $validator = Validator::make($request->all(), $rules, [
-                'registration_number.unique' => 'El número de matrícula ya está registrado para otra unidad productiva.'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error de validación',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-        }
-
         $entity = UnidadProductiva::findOrFail($request->unidadproductiva_id);
-        $entity->update($request->all());
+        $entity->update( $request->all() );
 
         return response()->json([ 'message' => 'Stored' ], 201);
     }

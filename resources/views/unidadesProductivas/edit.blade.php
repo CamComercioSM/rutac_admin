@@ -237,13 +237,32 @@
 @section('page-script')
 <script>
     window.URL_API = "{{ $api }}";
-    window.SELECTS = ['ciiuactividad_id', 'department_id', 'municipality_id', 'unidadtipo_id'];
+    window.SELECTS = ['ciiuactividad_id', 'department_id', 'municipality_id'];
     window.DATA = @json($elemento);
     // Silenciar consola en esta vista (evitar logs en producción)
     window.ENV_SILENCE_CONSOLE = true;
 
     // Validaciones adicionales de cliente
-    window.validarExtraForm = function(){
+    window.validarExtraForm = function()
+    {
+
+        if("{{ $accion }}" == "Transformar")
+        {
+            let tipo = $('#unidadtipo_id').val();
+
+            if(tipo == {{ $elemento->unidadtipo_id }})
+            {
+                Swal.fire({ title: "Para la transformación es necesario cambiar el tipo de Registro.", icon: "info" });
+                return false;
+            }
+
+            if(tipo < {{ $elemento->unidadtipo_id }})
+            {
+                Swal.fire({ title: "La transformación debe ser positiva.", icon: "info" });
+                return false;
+            }
+        }
+
         const email1 = document.getElementById('registration_email');
         const email2 = document.getElementById('contact_email');
         const registration = document.getElementById('registration_number');
