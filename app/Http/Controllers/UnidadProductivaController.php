@@ -21,6 +21,7 @@ use App\Services\SICAM32;
 
 use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class UnidadProductivaController extends Controller
 {
@@ -127,8 +128,32 @@ class UnidadProductivaController extends Controller
 
     public function store(Request $request)
     {
+        // Validación: número de matrícula único (ignorando la unidad actual)
+        $rules = [];
+        if ($request->filled('registration_number')) {
+            $rules['registration_number'] = [
+                'string',
+                'max:191',
+                'unique:unidadesproductivas,registration_number,' . $request->unidadproductiva_id . ',unidadproductiva_id'
+            ];
+        }
+
+        if (!empty($rules)) {
+            $validator = Validator::make($request->all(), $rules, [
+                'registration_number.unique' => 'El número de matrícula ya está registrado para otra unidad productiva.'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error de validación',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+        }
+
         $entity = UnidadProductiva::findOrFail($request->unidadproductiva_id);
-        $entity->update( $request->all() );
+        $entity->update($request->all());
 
         return response()->json([ 'message' => 'Stored' ], 201);
     }
@@ -136,6 +161,30 @@ class UnidadProductivaController extends Controller
     public function update($id, Request $request)
     {
         $current = UnidadProductiva::findOrFail($id);
+
+        // Validación: número de matrícula único al transformar (creación de nueva unidad)
+        $rules = [];
+        if ($request->filled('registration_number')) {
+            $rules['registration_number'] = [
+                'string',
+                'max:191',
+                'unique:unidadesproductivas,registration_number'
+            ];
+        }
+
+        if (!empty($rules)) {
+            $validator = Validator::make($request->all(), $rules, [
+                'registration_number.unique' => 'El número de matrícula ya está registrado para otra unidad productiva.'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error de validación',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+        }
 
         $data = $request->except('unidadproductiva_id');
         $data['transformada_desde'] = $current->unidadproductiva_id;
@@ -234,6 +283,23 @@ class UnidadProductivaController extends Controller
             ]);
 
         return response()->json(['results' => $items]);
+    }
+
+    public function checkRegistrationNumber(Request $request)
+    {
+        $registrationNumber = trim((string) $request->get('registration_number'));
+        $ignoreId = $request->get('ignore_id');
+
+        if ($registrationNumber === '') {
+            return response()->json(['exists' => false]);
+        }
+
+        $query = UnidadProductiva::where('registration_number', $registrationNumber);
+        if (!empty($ignoreId)) {
+            $query->where('unidadproductiva_id', '!=', $ignoreId);
+        }
+
+        return response()->json(['exists' => $query->exists()]);
     }
 
 }

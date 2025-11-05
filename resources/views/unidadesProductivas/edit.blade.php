@@ -33,6 +33,7 @@
             <div class="col-12 col-md-4 form-group mb-3">
                 <label class="form-label" for="registration_number">Número de matrícula </label>
                 <input type="text" class="form-control" name="registration_number" id="registration_number" placeholder="Número de matrícula" maxlength="20" pattern="^[A-Za-z0-9]{4,20}$" title="Alfanumérico sin espacios ni símbolos. 4 a 20 caracteres.">
+                <div class="invalid-feedback" id="registration_number_feedback">Este número de matrícula ya existe en la base de datos.</div>
             </div>
 
             <div class="col-12 col-md-4 form-group mb-3">
@@ -220,11 +221,17 @@
 @endsection
 
 @section('vendor-style')
-@vite(['resources/assets/vendor/libs/select2/select2.scss'])
+@vite([
+    'resources/assets/vendor/libs/select2/select2.scss',
+    'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'
+])
 @endsection
 
 @section('vendor-script')
-@vite(['resources/assets/vendor/libs/select2/select2.js'])
+@vite([
+    'resources/assets/vendor/libs/select2/select2.js',
+    'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'
+])
 @endsection
 
 @section('page-script')
@@ -232,6 +239,8 @@
     window.URL_API = "{{ $api }}";
     window.SELECTS = ['ciiuactividad_id', 'department_id', 'municipality_id', 'unidadtipo_id'];
     window.DATA = @json($elemento);
+    // Silenciar consola en esta vista (evitar logs en producción)
+    window.ENV_SILENCE_CONSOLE = true;
 
     // Validaciones adicionales de cliente
     window.validarExtraForm = function(){

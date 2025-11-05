@@ -1,5 +1,14 @@
 $(document).ready(function () {
 
+    // Silenciar logs si la vista lo solicita
+    try {
+        if (window.ENV_SILENCE_CONSOLE) {
+            ['log','warn','error'].forEach(function(m){
+                if (typeof console[m] === 'function') console[m] = function(){};
+            });
+        }
+    } catch (_) {}
+
     document.getElementById('form').addEventListener('submit', async function (e) {
     
         e.preventDefault();
@@ -29,22 +38,72 @@ $(document).ready(function () {
                 formData.append('_method', 'PUT');
             }
 
+            // Pre-chequeo: validar matrícula duplicada y marcar input en rojo
+            const regInput = document.getElementById('registration_number');
+            if (regInput) {
+                const invalida = await validarMatriculaDuplicada();
+                if (invalida) { $('.cargando').addClass('d-none'); return; }
+            }
+
             const response = await axios.post(window.URL_API, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: { 'Content-Type': 'multipart/form-data' },
+                validateStatus: () => true
             });
 
             $('.cargando').addClass('d-none');
 
-            // Redirigir al detalle de la unidad productiva
-            const id = document.getElementById('unidadproductiva_id')?.value || document.getElementById('id')?.value;
-            if(id){
-                window.location.href = `/unidadesProductivas/${id}`;
+            // Manejo según status sin disparar errores de consola
+            if (response && response.status >= 200 && response.status < 300) {
+                const id = document.getElementById('unidadproductiva_id')?.value || document.getElementById('id')?.value;
+                if(id){
+                    window.location.href = `/unidadesProductivas/${id}`;
+                }
+            } else if (response && response.status === 422) {
+                const errs = response.data?.errors || {};
+                const mensajes = Object.values(errs).flat().join('\n') || response.data?.message || 'Error de validación.';
+                Swal.fire({ icon: 'error', title: 'No se pudo guardar', text: mensajes });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo guardar. Intenta nuevamente.' });
             }
         } 
         catch (error) {
-            console.error('Error al guardar:', error);
+            $('.cargando').addClass('d-none');
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo guardar. Intenta nuevamente.' });
         }
     });    
+    // Validación en tiempo real de matrícula duplicada
+    async function validarMatriculaDuplicada(){
+        const input = document.getElementById('registration_number');
+        if(!input) return false;
+        const feedback = document.getElementById('registration_number_feedback');
+        input.setCustomValidity('');
+        input.classList.remove('is-invalid');
+        if (!input.value) return false;
+        try {
+            const ignoreId = document.getElementById('unidadproductiva_id')?.value || '';
+            const resp = await axios.get('/unidadesProductivas/check/matricula', {
+                params: { registration_number: input.value.trim(), ignore_id: ignoreId },
+                validateStatus: () => true
+            });
+            if (resp?.data?.exists) {
+                input.setCustomValidity('duplicated');
+                input.classList.add('is-invalid');
+                if (feedback) feedback.textContent = 'Este número de matrícula ya existe en la base de datos.';
+                input.reportValidity();
+                return true;
+            }
+        } catch(_) { /* ignorar errores */ }
+        return false;
+    }
+
+    const registrationInput = document.getElementById('registration_number');
+    if (registrationInput) {
+        registrationInput.addEventListener('blur', validarMatriculaDuplicada);
+        registrationInput.addEventListener('input', function(){
+            this.setCustomValidity('');
+            this.classList.remove('is-invalid');
+        });
+    }
 
     function formatDateForInput(dateStr) {
         const date = new Date(dateStr);

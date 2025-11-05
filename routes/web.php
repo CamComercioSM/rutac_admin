@@ -276,6 +276,8 @@ Route::as('admin.')
     Route::post('/inscripciones/test-email', [InscripcionesController::class, 'testInscripcionEmail'])->name("inscripciones.test-email");
     
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search']);
+    // Endpoint de verificación aislado para evitar colisión con resource
+    Route::get('/unidadesProductivas/check/matricula', [UnidadProductivaController::class, 'checkRegistrationNumber']);
     Route::get('/unidadesProductivas/{id}/{transformar}', [UnidadProductivaController::class, 'edit']);
     
     Route::post('/emailTemplates/toggle-status/{id}', [EmailTemplateController::class, 'toggleStatus'])->name("emailTemplates.toggle-status");
