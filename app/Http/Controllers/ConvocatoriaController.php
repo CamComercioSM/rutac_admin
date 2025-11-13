@@ -85,6 +85,20 @@ class ConvocatoriaController extends Controller
         return response()->json([ 'message' => 'Stored' ], 201);
     }
 
+    function search(Request $request)
+    { 
+        $busqueda = $request->term;
+
+        $items = ProgramaConvocatoria::where('nombre_convocatoria', 'like', "%{$busqueda}%")
+            ->take(10)
+            ->get([
+                'convocatoria_id as id',
+                'nombre_convocatoria  as text'
+            ]);
+
+        return response()->json(['results' => $items]);
+    }
+
     public function destroy($id)
     {
         $entity = ProgramaConvocatoria::findOrFail($id);

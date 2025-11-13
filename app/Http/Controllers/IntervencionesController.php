@@ -8,6 +8,8 @@ use App\Models\Empresarios\UnidadProductivaIntervenciones;
 use App\Models\Empresarios\UnidadProductiva;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\TablasReferencias\CategoriasIntervenciones;
+use App\Models\TablasReferencias\TiposIntervenciones;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -18,6 +20,9 @@ class IntervencionesController extends Controller
     function list(Request $request)
     { 
         $data = [ 
+            'categorias'=> CategoriasIntervenciones::get(),
+            'tipos'=> TiposIntervenciones::get(),
+            'modalidades'=> UnidadProductivaIntervenciones::$modalidades,
             'asesores'=> User::where('rol_id', Role::ASESOR)->get(),
             'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0,
             'filtros'=> $request->all(),
@@ -58,9 +63,10 @@ class IntervencionesController extends Controller
             $data['soporte'] = $path;
         }
 
-        foreach($request->unidades as $id)
+        foreach($request->unidades as $item)
         {
-            $data['unidadproductiva_id'] = $id;
+            $data['unidadproductiva_id'] = $item['unidadproductiva_id'];
+            $data['participantes'] = $item['participantes'];
             $entity = UnidadProductivaIntervenciones::create($data);
         }
 
@@ -76,7 +82,11 @@ class IntervencionesController extends Controller
                 'unidadesproductivas_intervenciones.*',
                 DB::raw("CONCAT(users.name, ' ', users.lastname) as asesor"),
                 'unidadesproductivas.business_name as unidad',
+                'categorias_intervenciones.nombre as categoria',
+                'tipos_intervenciones.nombre as tipo',
             ])
+            ->join('categorias_intervenciones', 'categorias_intervenciones.id', '=', 'unidadesproductivas_intervenciones.categoria_id')
+            ->join('tipos_intervenciones', 'tipos_intervenciones.id', '=', 'unidadesproductivas_intervenciones.tipo_id')
             ->join('users', 'users.id', '=', 'unidadesproductivas_intervenciones.asesor_id')
             ->join('unidadesproductivas', 'unidadesproductivas.unidadproductiva_id', '=', 'unidadesproductivas_intervenciones.unidadproductiva_id');
 

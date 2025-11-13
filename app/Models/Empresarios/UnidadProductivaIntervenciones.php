@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\TablasReferencias\CategoriasIntervenciones;
+use App\Models\TablasReferencias\TiposIntervenciones;
 
 class UnidadProductivaIntervenciones extends Model
 {
@@ -21,6 +23,13 @@ class UnidadProductivaIntervenciones extends Model
         'soporte',
         'fecha_inicio',
         'fecha_fin',
+
+        'categoria_id',
+        'tipo_id',
+        'referencia_id',
+        'modalidad',
+        'participantes',
+        'conclusiones',
     ];
 
     // Relaciones
@@ -33,6 +42,21 @@ class UnidadProductivaIntervenciones extends Model
     {
         return $this->belongsTo(User::class, 'asesor_id', 'id');
     }
+
+    public function categoria()
+    {
+        return $this->belongsTo(CategoriasIntervenciones::class, 'categoria_id', 'id');
+    }
+
+    public function tipo()
+    {
+        return $this->belongsTo(TiposIntervenciones::class, 'tipo_id', 'id');
+    }
+
+    public static $modalidades = [
+        'Presencial' => 'Presencial',
+        'Virtual' => 'Virtual',
+    ];
 
     const CREATED_AT = 'fecha_creacion';
     const UPDATED_AT = 'fecha_actualizacion';

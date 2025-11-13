@@ -32,12 +32,17 @@ class IntervencionesExport implements FromQuery, WithMapping, WithHeadings, With
     {
         return [
             'ID',
+            'Categoría',
+            'Tipo',
+            'Modalidad',
             'Fecha inicio',
             'Fecha fin',
             'Unidad productiva',
+            'Participantes',
             'Asesor',
             'Soporte',
-            'Descripción'
+            'Descripción',
+            'Conclusiones',
         ];
     }
 
@@ -45,12 +50,17 @@ class IntervencionesExport implements FromQuery, WithMapping, WithHeadings, With
     {
         return [
             $row->id,
+            $row->categoria,
+            $row->tipo,
+            $row->modalidad,
             $row->fecha_inicio,
             $row->fecha_fin,
             $row->unidad,
+            $row->participantes,
             $row->asesor,
             $row->soporte,
-            $row->descripcion
+            $row->descripcion,
+            $row->conclusiones,
         ];
     }
 

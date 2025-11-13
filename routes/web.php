@@ -248,6 +248,9 @@ Route::as('admin.')
     Route::get('/settings/export', [SettingController::class, 'export']);
     Route::get('/intervenciones/export', [IntervencionesController::class, 'export']);
 
+    Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search'])->name("unidadProductiva.search");
+    Route::get('/convocatorias/search', [ConvocatoriaController::class, 'search'])->name("convocatorias.search");
+
     Route::resource('empresarios', EmpresariosController::class);
     Route::post('/empresarios/{id}/send-password-reset', [EmpresariosController::class, 'sendPasswordResetEmail'])->name('empresarios.send-password-reset');
     Route::resource('users', UserController::class);
@@ -275,7 +278,6 @@ Route::as('admin.')
     Route::post('/inscripciones/updateRespuesta', [InscripcionesController::class, 'updateRespuesta']);
     Route::post('/inscripciones/test-email', [InscripcionesController::class, 'testInscripcionEmail'])->name("inscripciones.test-email");
     
-    Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search']);
     // Endpoint de verificación aislado para evitar colisión con resource
     Route::get('/unidadesProductivas/check/matricula', [UnidadProductivaController::class, 'checkRegistrationNumber']);
     Route::get('/unidadesProductivas/{id}/{transformar}', [UnidadProductivaController::class, 'edit']);
