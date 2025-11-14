@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\IntervencionesExport;
+use App\Imports\UnidadProductivaIntervencionesImport;
 use App\Http\Controllers\Controller;
 use App\Models\Empresarios\UnidadProductivaIntervenciones;
 use App\Models\Empresarios\UnidadProductiva;
@@ -40,6 +41,13 @@ class IntervencionesController extends Controller
     { 
         $query = $this->getQuery($request);
         return Excel::download(new IntervencionesExport($query), 'Intervenciones.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        Excel::import(new UnidadProductivaIntervencionesImport, $request->file('archivo'));
+
+        return back()->with('ok', 'Datos cargados correctamente.');
     }
 
     public function index(Request $request)

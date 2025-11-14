@@ -248,6 +248,8 @@ Route::as('admin.')
     Route::get('/settings/export', [SettingController::class, 'export']);
     Route::get('/intervenciones/export', [IntervencionesController::class, 'export']);
 
+    Route::post('/intervenciones/import', [IntervencionesController::class, 'import']);
+
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search'])->name("unidadProductiva.search");
     Route::get('/convocatorias/search', [ConvocatoriaController::class, 'search'])->name("convocatorias.search");
 

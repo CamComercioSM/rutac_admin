@@ -138,6 +138,49 @@
     </div>
 @endsection
 
+@section('btns-actions')
+    <button id="btnImport" class="btn btn-success me-3" >
+        <i class="icon-base ri ri-file-excel-2-line  me-2"></i> Importar
+    </button>
+@endsection
+
+@section('modals')
+<div class="modal fade" id="importModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Importar Intervenciones</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form id="formImport" enctype="multipart/form-data">
+                @csrf
+
+                <div class="modal-body">
+                    <p class="mb-2">Seleccione archivo Excel (.xlsx)</p>
+                    <input type="file" name="archivo" class="form-control" accept=".xlsx" required>
+
+                    <div class="alert alert-danger d-none mt-3" id="importErrors"></div>
+
+                    <div class="mt-3">
+                        <a href="/plantilla_intervenciones.xlsx" 
+                           class="btn btn-outline-primary btn-sm"> Descargar plantilla
+                        </a>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success" id="btnUpload">Importar</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+@endsection
+
 @section('script')
     <script> 
         window.TABLA = {
@@ -253,6 +296,56 @@
                 }
                  
             });
+
+            $('#btnImport').on('click', function () {
+                let modal = new bootstrap.Modal(document.getElementById('importModal'));
+                modal.show();
+            });
+
+            $('#formImport').on('submit', function (e) {
+                e.preventDefault();
+
+                $(".cargando").removeClass("d-none");
+                let formData = new FormData(this);
+
+                $("#btnUpload").prop("disabled", true).text("Importando...");
+
+                $.ajax({
+                    url: "/intervenciones/import",
+                    type: "POST",
+                    data: formData,
+                    processData: false,   // Necesario para FormData
+                    contentType: false,   // Necesario para FormData
+                    success: function (response) {
+
+                        if (response.ok) {
+                            // Éxito
+                            alert("Importación completada: " + response.importados + " registros");
+                            $("#importModal").modal("hide");
+                        } else {
+                            // Errores de validación del import
+                            mostrarErrores(response.errores);
+                        }
+
+                        $("#btnUpload").prop("disabled", false).text("Importar");
+                        $(".cargando").addClass("d-none");
+                    },
+                    error: function (xhr) {
+                        mostrarErrores(["Error interno, verifique el archivo"]);
+                        $("#btnUpload").prop("disabled", false).text("Importar");
+                        $(".cargando").addClass("d-none");
+                    }
+                });
+            });
+
+            function mostrarErrores(errores) {
+                let div = $("#importErrors");
+                div.removeClass("d-none").empty();
+
+                errores.forEach(err => {
+                    div.append("<div>• " + err + "</div>");
+                });
+            }
 
         });
 
