@@ -108,8 +108,8 @@
 <style>
 .whatsapp-float {
     position: fixed;
-    right: 20px;
-    top: 75vh;
+    right: 5px;
+    top: 85vh;
     transform: translateY(-50%);
 
     background-color: #25D366;
