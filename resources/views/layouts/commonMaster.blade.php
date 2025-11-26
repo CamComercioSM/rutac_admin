@@ -119,6 +119,29 @@
         if (event.persisted) { ocultarCargando();  }
     });
   </script>
+
+<a href="https://chat.whatsapp.com/Ft4XIbgDtjkKR33gKzBLCK" target="_blank" class="btn-wsp">
+  🔰 Unirme al grupo de soporte
+</a>
+
+<style>
+.btn-wsp {
+    background-color: #25D366;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+}
+.btn-wsp:hover {
+    background-color: #1ebe5d;
+}
+</style>
+
+
+
 </body>
 
 </html>
