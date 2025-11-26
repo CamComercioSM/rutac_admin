@@ -79,7 +79,7 @@ class UserController extends Controller
 
         if(!empty($search))
         {
-            $filterts = ['identification', 'name', 'lastname', 'position', 'email'];
+            $filterts = ['identification', 'name', 'lastname', 'position', 'email', 'email_cargo'];
             $query->where(function ($q) use ($search, $filterts) {
                 foreach ($filterts as $field) {
                     $q->orWhere($field, 'like', "%{$search}%");
