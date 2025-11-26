@@ -101,7 +101,7 @@
 <a href="https://chat.whatsapp.com/Ft4XIbgDtjkKR33gKzBLCK" 
    class="whatsapp-float" 
    target="_blank">
-    <i class="ri-whatsapp-line"></i>
+    <i class="icon-base ri ri-whatsapp-line"></i>
     <span class="wsp-text">Soporte</span>
 </a>
 
