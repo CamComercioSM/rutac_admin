@@ -98,26 +98,31 @@
   </div>
   @include('_partials.consultaExpedienteMercantil')
 
-  <a href="https://chat.whatsapp.com/Ft4XIbgDtjkKR33gKzBLCK" 
+<a href="https://chat.whatsapp.com/Ft4XIbgDtjkKR33gKzBLCK" 
    class="whatsapp-float" 
    target="_blank">
-    🟢 Soporte
+    <i class="ri-whatsapp-line"></i>
+    <span class="wsp-text">Soporte</span>
 </a>
 
 <style>
 .whatsapp-float {
     position: fixed;
-    right: 20px;            /* separación del lado derecho */
-    top: 75vh;              /* 3/4 de la altura de la pantalla */
+    right: 20px;
+    top: 75vh;
     transform: translateY(-50%);
-    
+
     background-color: #25D366;
     color: white;
-    font-size: 16px;
-    font-weight: bold;
     padding: 12px 18px;
     border-radius: 50px;
     text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     z-index: 9999;
     transition: all 0.25s ease;
@@ -126,6 +131,27 @@
 .whatsapp-float:hover {
     background-color: #1ebe5d;
     box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+
+/* Icono */
+.whatsapp-float i {
+    font-size: 24px;
+}
+
+/* 📱 En celulares: ocultar texto y hacer botón circular */
+@media (max-width: 768px) {
+    .whatsapp-float {
+        padding: 14px;
+        border-radius: 50%;
+        width: 55px;
+        height: 55px;
+        justify-content: center;
+        gap: 0;
+    }
+
+    .wsp-text {
+        display: none;
+    }
 }
 </style>
 
