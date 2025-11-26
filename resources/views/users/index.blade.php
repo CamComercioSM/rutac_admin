@@ -74,7 +74,8 @@
                 { data: 'lastname', title: 'Apellido (s)', orderable: true },
                 { data: 'email', title: 'Usuario', orderable: true },
                 { data: 'email_cargo', title: 'Correo', orderable: true },
-                { data: 'position', title: 'Cargo', orderable: true }
+                { data: 'position', title: 'Cargo', orderable: true },
+                { data: 'active', title: 'Activo', orderable: true }
             ]
         };
     </script>
