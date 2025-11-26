@@ -97,6 +97,38 @@
       </div>
   </div>
   @include('_partials.consultaExpedienteMercantil')
+
+  <a href="https://chat.whatsapp.com/Ft4XIbgDtjkKR33gKzBLCK" 
+   class="whatsapp-float" 
+   target="_blank">
+    🟢 Soporte
+</a>
+
+<style>
+.whatsapp-float {
+    position: fixed;
+    right: 20px;            /* separación del lado derecho */
+    top: 75vh;              /* 3/4 de la altura de la pantalla */
+    transform: translateY(-50%);
+    
+    background-color: #25D366;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 18px;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    z-index: 9999;
+    transition: all 0.25s ease;
+}
+
+.whatsapp-float:hover {
+    background-color: #1ebe5d;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+</style>
+
   
   <!-- Layout Content -->
   @yield('layoutContent')
@@ -120,25 +152,6 @@
     });
   </script>
 
-<a href="https://chat.whatsapp.com/Ft4XIbgDtjkKR33gKzBLCK" target="_blank" class="btn-wsp">
-  🔰 Unirme al grupo de soporte
-</a>
-
-<style>
-.btn-wsp {
-    background-color: #25D366;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: bold;
-    font-family: Arial, sans-serif;
-}
-.btn-wsp:hover {
-    background-color: #1ebe5d;
-}
-</style>
 
 
 
