@@ -140,7 +140,10 @@
 
 @section('btns-actions')
     <button id="btnImport" class="btn btn-success me-3" >
-        <i class="icon-base ri ri-file-excel-2-line  me-2"></i> Importar
+        <i class="icon-base ri ri-file-excel-2-line me-2"></i> Importar
+    </button>
+    <button id="btnInforme" class="btn btn-info me-3" >
+        <i class="icon-base ri ri-file-pdf-2-line me-2"></i> Informe
     </button>
 @endsection
 
@@ -173,6 +176,41 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-success" id="btnUpload">Importar</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="informeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Importar Intervenciones</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form action="/intervenciones/informe" target="_blank" >
+
+                <div class="modal-body">
+
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Fecha inicio</label>
+                        <input type="datetime-local" class="form-control" name="fecha_inicio" placeholder="Fecha inicio" required>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Fecha fin</label>
+                        <input type="datetime-local" class="form-control" name="fecha_fin" placeholder="Fecha fin" required>
+                    </div>
+                   
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success" >Importar</button>
                 </div>
             </form>
 
@@ -300,6 +338,13 @@
             $('#btnImport').on('click', function () {
                 let modal = new bootstrap.Modal(document.getElementById('importModal'));
                 modal.show();
+            });
+
+            $('#btnInforme').on('click', function () {
+                const form = document.getElementById('filters');
+                const params = new URLSearchParams(new FormData(form));
+                const url = "/intervenciones/informe?" + params.toString();
+                window.open(url, "_blank");
             });
 
             $('#formImport').on('submit', function (e) {

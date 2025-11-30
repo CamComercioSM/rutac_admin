@@ -13,6 +13,8 @@ use App\Models\Programas\ProgramaConvocatoria;
 use App\Models\Role;
 use App\Models\TablasReferencias\InscripcionEstado;
 use App\Models\Empresarios\UnidadProductiva;
+use App\Models\Empresarios\UnidadProductivaIntervenciones;
+use App\Models\Inscripciones\ConvocatoriaInscripcionHistorial;
 use App\Services\MailService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -221,8 +223,10 @@ class InscripcionesController extends Controller
                 // Recargar la inscripción con las relaciones actualizadas para obtener el nuevo estado
                 $entity->refresh();
                 $entity->load(['unidadProductiva', 'estado', 'convocatoria.programa']);
-                $this->enviarCorreoCambioEstado($entity);
+                //$this->enviarCorreoCambioEstado($entity);
             }
+
+            $this->intervencion($entity);
         }
 
         return response()->json([ 'message' => 'Stored' ], 201);
@@ -393,6 +397,34 @@ class InscripcionesController extends Controller
         $query = $query->where('inscripcion_id', $request->id);
 
         return Excel::download(new InscripcionesRespuestasExport($query), 'respuestasInscripcion.xlsx');
+    }
+
+    public function intervencion($inscripcion)
+    {
+        // Crear intervención solo si el estado es Admitido (3) o No Admitido (4)
+        if($inscripcion->inscripcionestado_id == 3 || $inscripcion->inscripcionestado_id == 4)
+        {
+            $fecha_fin = ConvocatoriaInscripcionHistorial::where('inscripcion_id', $inscripcion->inscripcion_id)
+                ->where('inscripcionestado_id', $inscripcion->inscripcionestado_id)
+                ->orderBy('fecha_creacion', 'desc')
+                ->value('fecha_creacion');
+
+            $data = [
+                'asesor_id' => Auth::user()->id,
+                'unidadproductiva_id' => $inscripcion->unidadproductiva_id,
+                'descripcion' => 'Intervención generada automáticamente tras cambio de estado de inscripción.',
+                'fecha_inicio' => $fecha_fin,
+                'fecha_fin' => Carbon::today(),
+                'categoria_id' => 1,
+                'tipo_id' => 1,
+                'referencia_id' => $inscripcion->convocatoria_id,
+                'modalidad' => 'Virtual',
+                'participantes' => 1,
+                'conclusiones' => 'Intervención generada automáticamente tras cambio de estado de inscripción.',
+            ];
+
+            UnidadProductivaIntervenciones::create($data);
+        }
     }
 
 }
