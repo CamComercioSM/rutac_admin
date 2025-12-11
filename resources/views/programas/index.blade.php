@@ -203,6 +203,16 @@
             }
         };
 
+        window.validarExtraForm = function()
+        {
+            if ($("#table_opciones tr").length == 0)
+            {
+                return confirm("¿Confirmar guardar sin requisitos?");
+            }
+
+            return true;
+        }
+
         window.openAdd = function() 
         {
             const id = $("#pregunta").val();

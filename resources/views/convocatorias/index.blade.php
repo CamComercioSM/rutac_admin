@@ -180,6 +180,17 @@
             }
         };
 
+
+        window.validarExtraForm = function()
+        {
+            if ($("#table_opciones tr").length == 0)
+            {
+                return confirm("¿Confirmar guardar sin requisitos?");
+            }
+
+            return true;
+        }
+
         window.openAdd = function() 
         {
             const id = $("#pregunta").val();
@@ -265,7 +276,7 @@
         window.reindexInputs = function() {
             document.querySelectorAll("#table_opciones tr").forEach((row, i) => {
                 let hidden = row.querySelector("input[type=hidden]");
-                if (hidden) hidden.name = `requisitosTodos${i}]`;
+                if (hidden) hidden.name = `requisitosTodos[${i}]`;
             });
         };
 
