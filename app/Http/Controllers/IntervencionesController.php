@@ -103,6 +103,7 @@ class IntervencionesController extends Controller
         $data = [
             'inicio' => Carbon::parse($fi)->translatedFormat('Y-m-d H:i'),
             'fin'    => Carbon::parse($ff)->translatedFormat('Y-m-d H:i'),
+            'conclusiones' => $request->get('conclusiones', ''),
             'intervenciones' => $query->get(),
             'porCategoria' => $porCategoria,
             'porTipo' => $porTipo,

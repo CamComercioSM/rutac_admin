@@ -86,7 +86,7 @@
 
         <div class="col-12 col-md-12 form-group mb-3">
             <label class="form-label" for="descripcion" >Descripción</label>
-            <textarea class="form-control" name="descripcion" id="descripcion" rows="7" placeholder="Descripción"></textarea>
+            <div id="descripcion" ></div>
         </div>
 
         <div class="col-12 col-md-12 form-group mb-4">
@@ -127,7 +127,7 @@
 
         <div class="col-12 col-md-12 form-group mb-3">
             <label class="form-label" for="conclusiones" >Conclusiones</label>
-            <textarea class="form-control" name="conclusiones" id="conclusiones" rows="7" placeholder="Conclusiones"></textarea>
+            <div id="conclusiones" ></div>
         </div>
 
         <div class="col-12 col-md-12 form-group mb-3" id="contFormFile">
@@ -188,31 +188,23 @@
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title">Importar Intervenciones</h5>
+                <h5 class="modal-title">Informe Intervenciones</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+                
+            <div class="modal-body">
 
-            <form action="/intervenciones/informe" target="_blank" >
-
-                <div class="modal-body">
-
-                    <div class="col-12 mb-3">
-                        <label class="form-label">Fecha inicio</label>
-                        <input type="datetime-local" class="form-control" name="fecha_inicio" placeholder="Fecha inicio" required>
-                    </div>
-
-                    <div class="col-12 mb-3">
-                        <label class="form-label">Fecha fin</label>
-                        <input type="datetime-local" class="form-control" name="fecha_fin" placeholder="Fecha fin" required>
-                    </div>
-                   
+                <div class="col-12 mb-3">
+                    <label class="form-label">Conclusiones</label>
+                    <textarea class="form-control" name="conclusionesI" id="conclusionesI" rows="6" placeholder="Ingrese las conclusiones"></textarea>
                 </div>
+                
+            </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success" >Importar</button>
-                </div>
-            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnExportInforme" >Generar</button>
+            </div>
 
         </div>
     </div>
@@ -220,6 +212,17 @@
 @endsection
 
 @section('script')
+
+    @vite([
+        'resources/assets/vendor/libs/quill/typography.scss', 
+        'resources/assets/vendor/libs/quill/editor.scss',
+    ])
+
+    @vite([
+        'resources/assets/vendor/libs/quill/katex.js', 
+        'resources/assets/vendor/libs/quill/quill.js'
+    ])
+
     <script> 
         window.TABLA = {
             urlApi: '/intervenciones',
@@ -238,6 +241,7 @@
                 { data: 'conclusiones', title: 'Conclusiones', orderable: false },
                 { data: 'soporte', title: 'Soporte', orderable: false },
             ],
+            initEditors: [ { id:'descripcion' }, { id:'conclusiones' } ],
             initSelects: [ 
                 { id:'unidadAdd', setting: {
                         ajax: {
@@ -341,8 +345,24 @@
             });
 
             $('#btnInforme').on('click', function () {
+
+                if(!($("#fecha_inicio").val() && $("#fecha_fin").val()) )
+                {
+                    Swal.fire({ title: "Seleccione un rango de fechas para el informe", icon: "info" });
+                    return;
+                }
+
+                let modal = new bootstrap.Modal(document.getElementById('informeModal'));
+                modal.show();
+            });
+
+            $('#btnExportInforme').on('click', function () {
                 const form = document.getElementById('filters');
-                const params = new URLSearchParams(new FormData(form));
+
+                let formData = new FormData(form);
+                formData.set('conclusiones', document.getElementById('conclusionesI').value);
+
+                const params = new URLSearchParams(formData);
                 const url = "/intervenciones/informe?" + params.toString();
                 window.open(url, "_blank");
             });

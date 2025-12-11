@@ -12,13 +12,12 @@
 
         header {
             position: fixed;
-            top: -130px;
+            top: -110px;
             left: 0;
             right: 0;
-            height: 120px;
+            height: 110px;
             text-align: center;
             padding-bottom: 10px;
-            border-bottom: 2px solid #555;
         }
 
         footer {
@@ -34,9 +33,10 @@
 
         h2{
            margin-top: 20px !important;
+           text-align: left;
         }
 
-        h1, h2, h3 { text-align: center; margin: 0; padding: 0; }
+        h1, h2, h3 { margin: 0; padding: 0; color: #0e188a; }
         .section-title { background: #eee; padding: 6px; font-weight: bold; margin-top: 20px; }
 
         table {
@@ -53,6 +53,7 @@
         th {
             background: #f5f5f5;
             font-weight: bold;
+            padding: 10px 5px;
         }
 
         .page-break {
@@ -71,9 +72,19 @@
 <body>
 
 <header>
-    <img src="https://cdnsicam.net/img/rutac/rutac-logo-con-ccsm.png" width="auto" height="80">
-    <h2 style="margin:0 !important;">Informe de Intervenciones</h2>
-    <small>Desde {{ $inicio }} hasta {{ $fin }}</small>
+    <table>
+        <thead>
+            <tr>
+                <th style="padding: 5px;">
+                    <img src="https://cdnsicam.net/img/rutac/rutac-logo-con-ccsm.png" width="auto" height="80">
+                </th>
+                <th style="padding: 5px;">
+                    <h2 style="margin:0 !important; text-align: center;">Informe de Intervenciones</h2>
+                    <small>Desde {{ $inicio }} hasta {{ $fin }}</small>
+                </th>
+            </tr>
+        </thead>
+    </table>
 </header>
 
 <footer>
@@ -90,15 +101,17 @@
 <table>
     <thead>
     <tr>
-        <th>Categoría</th>
-        <th>Cantidad</th>
+        <th>Categorías de Intervención</th>
+        <th style="width: 100px" >Cantidad</th>
     </tr>
     </thead>
     <tbody>
     @foreach($porCategoria as $c)
         <tr>
-            <td>{{ $c->categoria->nombre ?? 'Sin categoría' }}</td>
-            <td>{{ $c->total }}</td>
+            <td>
+                <strong>{{ $c->categoria->nombre ?? 'Sin categoría' }}</strong>
+            </td>
+            <td style="text-align: right">{{ $c->total }}</td>
         </tr>
     @endforeach
     </tbody>
@@ -110,14 +123,16 @@
     <thead>
     <tr>
         <th>Tipo</th>
-        <th>Cantidad</th>
+        <th style="width: 100px" >Cantidad</th>
     </tr>
     </thead>
     <tbody>
     @foreach($porTipo as $t)
         <tr>
-            <td>{{ $t->tipo->nombre ?? 'Sin tipo' }}</td>
-            <td>{{ $t->total }}</td>
+            <td>
+                <strong>{{ $t->tipo->nombre ?? 'Sin tipo' }}</strong>
+            </td>
+            <td style="text-align: right">{{ $t->total }}</td>
         </tr>
     @endforeach
     </tbody>
@@ -129,14 +144,16 @@
     <thead>
     <tr>
         <th>Unidad Productiva</th>
-        <th>Cantidad</th>
+        <th style="width: 100px" >Cantidad</th>
     </tr>
     </thead>
     <tbody>
     @foreach($porUnidad as $u)
         <tr>
-            <td>{{ $u->unidadProductiva->business_name }}</td>
-            <td>{{ $u->total }}</td>
+            <td>
+                <strong>{{ $u->unidadProductiva->business_name }}</strong>
+            </td>
+            <td style="text-align: right">{{ $u->total }}</td>
         </tr>
     @endforeach
     </tbody>
@@ -151,26 +168,43 @@
     <thead>
     <tr>
         <th>Fecha</th>
-        <th>Unidad Productiva</th>
-        <th>Asesor</th>
+        <th>Unidad Productiva / Asesor</th>
         <th>Categoría</th>
-        <th>Tipo</th>
         <th>Descripción</th>
     </tr>
     </thead>
     <tbody>
     @foreach($intervenciones as $i)
         <tr>
-            <td>{{ $i->fecha_inicio }}</td>
-            <td>{{ $i->unidadProductiva->business_name ?? '' }}</td>
-            <td>{{ $i->asesor->name ?? '' }}</td>
-            <td>{{ $i->categoria->nombre ?? '' }}</td>
-            <td>{{ $i->tipo->nombre ?? '' }}</td>
-            <td>{{ $i->descripcion }}</td>
+            <td>
+                {{ $i->fecha_inicio }}
+            </td>
+            <td>
+                <strong>Unidad Productiva</strong><br>
+                {{ $i->unidadProductiva->business_name ?? '' }}
+
+                <br><br>
+                <strong>Asesor</strong><br>
+                {{ $i->asesor->name ?? '' }}
+            </td>
+            <td>
+                <strong>Categoría</strong><br>
+                {{ $i->categoria->nombre ?? '' }}
+
+                <br><br>
+                <strong>Tipo</strong><br>
+                {{ $i->tipo->nombre ?? '' }}
+            </td>
+            <td>{!! $i->descripcion !!}</td>
         </tr>
     @endforeach
     </tbody>
 </table>
+
+<div class="page-break"></div>
+
+<h2>Conclusiones</h2>
+<p>{!! nl2br(e($conclusiones)) !!}</p>
 
 </body>
 </html>

@@ -2,16 +2,22 @@
 
 <!-- Vendor Styles -->
 @section('vendor-style')
-@vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
-'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
-'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss',
+@vite([
+    'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
+    'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
+    'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss',
+    'resources/assets/vendor/libs/quill/typography.scss', 
+    'resources/assets/vendor/libs/quill/editor.scss',
 ])
 @endsection
 
 <!-- Vendor Scripts -->
 @section('vendor-script')
-@vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
-'resources/assets/vendor/libs/sweetalert2/sweetalert2.js',
+@vite([
+    'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
+    'resources/assets/vendor/libs/sweetalert2/sweetalert2.js',
+    'resources/assets/vendor/libs/quill/katex.js', 
+    'resources/assets/vendor/libs/quill/quill.js'
 ])
 @endsection
 
@@ -118,7 +124,7 @@
                                     @endif
                                 </small>
                             </div>
-                            <p class="mb-2">{{$item->comentarios ?? ' - '}}</p>
+                            <p class="mb-2">{!! $item->comentarios ?? ' - ' !!}</p>
                             @if ($item->archivo)                            
                                 <div class="d-flex align-items-center mb-1">
                                     <a class="badge bg-lightest" href="{{$item->archivo}}" target="_blank" >
@@ -168,7 +174,7 @@
           
             <div class="col-sm-12 mb-3">
                 <label class="form-label" for="comentarios">Comentarios </label>
-                <textarea class="form-control" name="comentarios" id="comentarios" rows="4" placeholder="Ingrese los comentarios"></textarea>
+                <div id="comentarios" name="comentarios"></div>
             </div>
 
             <div class="col-sm-12 mb-3">
@@ -295,6 +301,11 @@
 
                 let formData = new FormData(formEl);
 
+                if(window.quill)
+                {
+                    formData.append('comentarios', window.quill.root.innerHTML);
+                }
+
                 $.ajax({
                     type: method,
                     url: actionUrl,
@@ -351,6 +362,23 @@
                     }
                 });
             });
+
+            const fullToolbar = [
+                [ { size: [] } ],
+                ['bold', 'italic', 'underline', 'strike'],
+                [ { color: [] }, {  background: [] } ],
+                [ { header: '1' }, { header: '2' }, 'blockquote', 'code-block' ],
+                [ { list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' } ],
+                [ 'direction', { align: [] } ]
+            ];
+
+            window.quill = new Quill("#comentarios", {
+                bounds: "#comentarios",
+                placeholder: 'Escriba aqui...',
+                modules: { toolbar: fullToolbar },
+                theme: 'snow'
+            });
+
         });
 
         window.editarRequisito = function(respuesta_id, requisito_id, value){

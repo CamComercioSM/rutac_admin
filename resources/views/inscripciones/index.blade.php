@@ -140,7 +140,7 @@
                 
                     <div class="col-sm-12 mb-3">
                         <label class="form-label" for="comentarios">Comentarios </label>
-                        <textarea class="form-control" name="comentarios" id="comentarios" rows="4" placeholder="Ingrese los comentarios"></textarea>
+                        <div id="comentarios" name="comentarios"></div>
                     </div>
 
                     <div class="col-sm-12 mb-3">
@@ -196,6 +196,7 @@
                 { data: 'fecha_creacion', title: 'Fecha de inscripcion', orderable: true, render: v => window.formatearFecha(v) },
                 { data: 'estado', title: 'Estado', orderable: true }
             ],
+            initEditors: [ { id:'descripcion' }  ],
             initSelects: [ 
                 { 
                     id:'programa',

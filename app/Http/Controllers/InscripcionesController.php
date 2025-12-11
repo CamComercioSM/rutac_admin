@@ -223,7 +223,7 @@ class InscripcionesController extends Controller
                 // Recargar la inscripción con las relaciones actualizadas para obtener el nuevo estado
                 $entity->refresh();
                 $entity->load(['unidadProductiva', 'estado', 'convocatoria.programa']);
-                //$this->enviarCorreoCambioEstado($entity);
+                $this->enviarCorreoCambioEstado($entity);
             }
 
             $this->intervencion($entity);
@@ -414,7 +414,7 @@ class InscripcionesController extends Controller
                 'unidadproductiva_id' => $inscripcion->unidadproductiva_id,
                 'descripcion' => 'Intervención generada automáticamente tras cambio de estado de inscripción.',
                 'fecha_inicio' => $fecha_fin,
-                'fecha_fin' => Carbon::today(),
+                'fecha_fin' => Carbon::now(),
                 'categoria_id' => 1,
                 'tipo_id' => 1,
                 'referencia_id' => $inscripcion->convocatoria_id,
