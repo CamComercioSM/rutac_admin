@@ -26,7 +26,7 @@ class IntervencionesController extends Controller
             'categorias'=> CategoriasIntervenciones::get(),
             'tipos'=> TiposIntervenciones::get(),
             'modalidades'=> UnidadProductivaIntervenciones::$modalidades,
-            'asesores'=> User::where('rol_id', Role::ASESOR)->get(),
+            'asesores' => User::whereNotNull('rol_id')->get(),
             'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0,
             'filtros'=> $request->all(),
             'unidades'=> []

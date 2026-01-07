@@ -35,7 +35,7 @@ class UnidadProductivaIntervenciones extends Model
     // Relaciones
     public function unidadProductiva()
     {
-        return $this->belongsTo(unidadProductiva::class, 'unidadproductiva_id', 'unidadproductiva_id');
+        return $this->belongsTo(UnidadProductiva::class, 'unidadproductiva_id', 'unidadproductiva_id');
     }
 
     public function asesor()

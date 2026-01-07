@@ -1,5 +1,21 @@
 @extends('layouts.list', ['titulo'=> 'Inscripciones', 'tituloModal'=> 'Inscripción'])
 
+@section('vendor-style')
+    @parent
+    @vite([
+        'resources/assets/vendor/libs/quill/typography.scss',
+        'resources/assets/vendor/libs/quill/editor.scss',
+    ])
+@endsection
+
+@section('vendor-script')
+    @parent
+    @vite([
+        'resources/assets/vendor/libs/quill/katex.js',
+        'resources/assets/vendor/libs/quill/quill.js',
+    ])
+@endsection
+
 @section('btns-actions')
     <button class="btn btn-primary" id="btnCambioEstado">
         Cambio de estado
@@ -196,7 +212,7 @@
                 { data: 'fecha_creacion', title: 'Fecha de inscripcion', orderable: true, render: v => window.formatearFecha(v) },
                 { data: 'estado', title: 'Estado', orderable: true }
             ],
-            initEditors: [ { id:'descripcion' }  ],
+            initEditors: [ { id:'comentarios' }  ],
             initSelects: [ 
                 { 
                     id:'programa',

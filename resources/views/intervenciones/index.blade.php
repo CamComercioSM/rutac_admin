@@ -14,7 +14,7 @@
 
     @if (!$esAsesor)
         <div class="col-12 col-md-6 form-group mb-3">
-            <label class="form-label" for="asesor">Asesor</label>
+            <label class="form-label" for="asesor">Usuario</label>
             <select class="form-select" name="asesor" id="asesor">
                 <option value="" selected >Seleccione una opción</option>
                 @foreach ($asesores as $item)
