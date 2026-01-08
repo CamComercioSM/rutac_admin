@@ -209,6 +209,23 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="textoCompletoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="textoCompletoModalTitle">Texto completo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="textoCompletoModalContent" style="max-height: 70vh; overflow-y: auto;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('script')
@@ -224,6 +241,49 @@
     ])
 
     <script> 
+        // Función para limitar texto y agregar botón "ver más"
+        window.limitarTexto = function(texto, maxLength = 150, titulo = '') {
+            if (!texto) return '';
+            
+            // Remover etiquetas HTML para contar caracteres
+            const textoLimpio = texto.replace(/<[^>]*>/g, '');
+            
+            if (textoLimpio.length <= maxLength) {
+                return texto;
+            }
+            
+            // Crear un elemento temporal para trabajar con el HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = texto;
+            
+            // Obtener solo el texto sin HTML
+            const textoPlano = tempDiv.textContent || tempDiv.innerText || '';
+            
+            // Truncar el texto plano
+            const textoTruncado = textoPlano.substring(0, maxLength);
+            
+            const idUnico = 'texto_' + Math.random().toString(36).substr(2, 9);
+            
+            // Almacenar el texto completo y el título en un objeto global
+            if (!window.textosCompletos) {
+                window.textosCompletos = {};
+            }
+            window.textosCompletos[idUnico] = {
+                texto: texto,
+                titulo: titulo
+            };
+            
+            return `${textoTruncado}... <a href="#" class="text-primary ver-mas-link" data-id="${idUnico}" style="cursor: pointer; text-decoration: underline;">ver más</a>`;
+        };
+        
+        // Función para renderizar soporte como hipervínculo
+        window.renderSoporte = function(url) {
+            if (!url) return '';
+            // Escapar la URL para evitar problemas de seguridad
+            const urlEscapada = url.replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+            return `<a href="${urlEscapada}" target="_blank" class="text-primary" style="text-decoration: underline;">Ver adjunto</a>`;
+        };
+        
         window.TABLA = {
             urlApi: '/intervenciones',
             sortName: 'id',
@@ -237,9 +297,30 @@
                 { data: 'unidad', title: 'Unidad productiva', orderable: true },
                 { data: 'participantes', title: 'Participantes', orderable: true },
                 { data: 'asesor', title: 'Asesor', orderable: true },
-                { data: 'descripcion', title: 'Descripción', orderable: false },
-                { data: 'conclusiones', title: 'Conclusiones', orderable: false },
-                { data: 'soporte', title: 'Soporte', orderable: false },
+                { 
+                    data: 'descripcion', 
+                    title: 'Descripción', 
+                    orderable: false,
+                    render: function(data, type, row) {
+                        return window.limitarTexto(data || '', 150, 'Descripción');
+                    }
+                },
+                { 
+                    data: 'conclusiones', 
+                    title: 'Conclusiones', 
+                    orderable: false,
+                    render: function(data, type, row) {
+                        return window.limitarTexto(data || '', 150, 'Conclusiones');
+                    }
+                },
+                { 
+                    data: 'soporte', 
+                    title: 'Soporte', 
+                    orderable: false,
+                    render: function(data, type, row) {
+                        return window.renderSoporte(data);
+                    }
+                },
             ],
             initEditors: [ { id:'descripcion' }, { id:'conclusiones' } ],
             initSelects: [ 
@@ -411,6 +492,27 @@
                     div.append("<div>• " + err + "</div>");
                 });
             }
+
+            // Manejar clics en "ver más" para abrir modal
+            $(document).on('click', '.ver-mas-link', function(e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                
+                // Obtener el texto completo y el título del objeto global
+                const datos = window.textosCompletos && window.textosCompletos[id] ? window.textosCompletos[id] : null;
+                
+                if (datos) {
+                    // Establecer el título del modal
+                    $('#textoCompletoModalTitle').text(datos.titulo || 'Texto completo');
+                    
+                    // Establecer el contenido del modal
+                    $('#textoCompletoModalContent').html(datos.texto || '');
+                    
+                    // Mostrar el modal
+                    const modal = new bootstrap.Modal(document.getElementById('textoCompletoModal'));
+                    modal.show();
+                }
+            });
 
         });
 
