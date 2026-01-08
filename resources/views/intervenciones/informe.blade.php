@@ -109,7 +109,7 @@
     @foreach($porCategoria as $c)
         <tr>
             <td>
-                <strong>{{ $c->categoria->nombre ?? 'Sin categoría' }}</strong>
+                <strong>{{ $c->categoria?->nombre ?? 'Sin categoría' }}</strong>
             </td>
             <td style="text-align: right">{{ $c->total }}</td>
         </tr>
@@ -130,7 +130,7 @@
     @foreach($porTipo as $t)
         <tr>
             <td>
-                <strong>{{ $t->tipo->nombre ?? 'Sin tipo' }}</strong>
+                <strong>{{ $t->tipo?->nombre ?? 'Sin tipo' }}</strong>
             </td>
             <td style="text-align: right">{{ $t->total }}</td>
         </tr>
@@ -151,7 +151,7 @@
     @foreach($porUnidad as $u)
         <tr>
             <td>
-                <strong>{{ $u->unidadProductiva->business_name }}</strong>
+                <strong>{{ $u->unidadProductiva?->business_name ?? 'Sin unidad productiva' }}</strong>
             </td>
             <td style="text-align: right">{{ $u->total }}</td>
         </tr>
@@ -181,21 +181,21 @@
             </td>
             <td>
                 <strong>Unidad Productiva</strong><br>
-                {{ $i->unidadProductiva->business_name ?? '' }}
+                {{ $i->unidadProductiva?->business_name ?? 'N/A' }}
 
                 <br><br>
                 <strong>Asesor</strong><br>
-                {{ $i->asesor->name ?? '' }}
+                {{ $i->asesor?->name ?? 'N/A' }}
             </td>
             <td>
                 <strong>Categoría</strong><br>
-                {{ $i->categoria->nombre ?? '' }}
+                {{ $i->categoria?->nombre ?? 'N/A' }}
 
                 <br><br>
                 <strong>Tipo</strong><br>
-                {{ $i->tipo->nombre ?? '' }}
+                {{ $i->tipo?->nombre ?? 'N/A' }}
             </td>
-            <td>{!! $i->descripcion !!}</td>
+            <td>{!! $i->descripcion ?? 'Sin descripción' !!}</td>
         </tr>
     @endforeach
     </tbody>

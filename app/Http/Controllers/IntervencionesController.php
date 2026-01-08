@@ -39,6 +39,18 @@ class IntervencionesController extends Controller
         return View("intervenciones.index", $data);
     }
 
+    public function preview(Request $request)
+    {
+        $request->validate([
+            'fecha_inicio' => 'required|date',
+            'fecha_fin'    => 'required|date',
+        ]);
+
+        $data = $this->getInformeData($request);
+
+        return view('intervenciones.preview', $data);
+    }
+
     public function informe(Request $request)
     {
         $request->validate([
@@ -46,8 +58,17 @@ class IntervencionesController extends Controller
             'fecha_fin'    => 'required|date',
         ]);
 
-        $fi = $request->fecha_inicio;
-        $ff = $request->fecha_fin;
+        $data = $this->getInformeData($request);
+
+        $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
+
+        return $pdf->stream('informe_intervenciones.pdf');
+    }
+
+    private function getInformeData(Request $request)
+    {
+        $fi = $request->input('fecha_inicio') ?? $request->get('fecha_inicio');
+        $ff = $request->input('fecha_fin') ?? $request->get('fecha_fin');
 
         // ----- LISTADO DETALLADO -----
         $query = UnidadProductivaIntervenciones::with([
@@ -59,61 +80,60 @@ class IntervencionesController extends Controller
         ->whereBetween('fecha_inicio', [$fi, $ff])
         ->orderBy('fecha_inicio', 'ASC');
 
-        $asesor = (Auth::user()->rol_id === Role::ASESOR) ? Auth::id() : $request->get('asesor');
+        $asesor = (Auth::user()->rol_id === Role::ASESOR) ? Auth::id() : ($request->input('asesor') ?? $request->get('asesor'));
         if ($asesor) {
             $query->where('asesor_id', $asesor);
         }
 
-        if ($unidad = $request->get('unidad')) {
+        if ($unidad = $request->input('unidad') ?? $request->get('unidad')) {
             $query->where('unidadproductiva_id', $unidad);
+        }
+
+        // Aplicar filtros también a las agrupaciones
+        $queryAgrupaciones = UnidadProductivaIntervenciones::whereBetween('fecha_inicio', [$fi, $ff]);
+        
+        if ($asesor) {
+            $queryAgrupaciones->where('asesor_id', $asesor);
+        }
+        
+        if ($unidad) {
+            $queryAgrupaciones->where('unidadproductiva_id', $unidad);
         }
 
         // ----- AGRUPACIONES -----
         // Conteo por Categoría
-        $porCategoria = UnidadProductivaIntervenciones::select(
-                'categoria_id',
-                DB::raw('COUNT(*) as total')
-            )
-            ->whereBetween('fecha_inicio', [$fi, $ff])
+        $porCategoria = (clone $queryAgrupaciones)
+            ->select('categoria_id', DB::raw('COUNT(*) as total'))
             ->groupBy('categoria_id')
             ->with('categoria')
             ->get();
 
         // Conteo por Tipo
-        $porTipo = UnidadProductivaIntervenciones::select(
-                'tipo_id',
-                DB::raw('COUNT(*) as total')
-            )
-            ->whereBetween('fecha_inicio', [$fi, $ff])
+        $porTipo = (clone $queryAgrupaciones)
+            ->select('tipo_id', DB::raw('COUNT(*) as total'))
             ->groupBy('tipo_id')
             ->with('tipo')
             ->get();
 
         // Conteo por Unidad Productiva
-        $porUnidad = UnidadProductivaIntervenciones::select(
-                'unidadproductiva_id',
-                DB::raw('COUNT(*) as total')
-            )
-            ->whereBetween('fecha_inicio', [$fi, $ff])
+        $porUnidad = (clone $queryAgrupaciones)
+            ->select('unidadproductiva_id', DB::raw('COUNT(*) as total'))
             ->groupBy('unidadproductiva_id')
             ->with('unidadProductiva')
             ->get();
 
+        $conclusiones = $request->input('conclusiones') ?? $request->get('conclusiones', '');
         
-        $data = [
+        return [
             'inicio' => Carbon::parse($fi)->translatedFormat('Y-m-d H:i'),
             'fin'    => Carbon::parse($ff)->translatedFormat('Y-m-d H:i'),
-            'conclusiones' => $request->get('conclusiones', ''),
+            'conclusiones' => $conclusiones,
             'intervenciones' => $query->get(),
             'porCategoria' => $porCategoria,
             'porTipo' => $porTipo,
             'porUnidad' => $porUnidad,
             'totalGeneral' => $query->count(),
         ];
-
-        $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
-
-        return $pdf->stream('informe_intervenciones.pdf');
     }
 
     function export(Request $request)
