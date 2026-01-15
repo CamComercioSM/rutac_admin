@@ -195,6 +195,7 @@ class UnidadProductivaController extends Controller
                 'unidadesproductivas.nit',
                 'unidadesproductivas.name_legal_representative',
                 'unidadesproductivas.registration_email',
+                'unidadesproductivas.mobile',
                 'tp.tipoPersonaNOMBRE as tipo_persona',
                 'st.sectorNOMBRE as sector',
                 'tm.tamanoNOMBRE as tamano',
