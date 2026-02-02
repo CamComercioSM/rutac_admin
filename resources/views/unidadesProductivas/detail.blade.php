@@ -16,6 +16,13 @@
 
 @section('content')
 
+@if (session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+@endif
+
 <div class="row">
     <div class="col-12 col-md-5 mb-6">
         
@@ -270,11 +277,18 @@
 
         <div class="card mb-6 p-3">
 
-            <div class="d-flex">
+            <div class="d-flex flex-wrap align-items-center gap-2">
                 <a class="btn btn-success px-2" href="/diagnosticosResultados/export?unidad={{ $detalle->unidadproductiva_id }}" target="_blanck" >
                     <i class="icon-base ri ri-file-excel-2-line me-2"></i> Exportar
                 </a>
-
+                @if (!$esAsesor && $detalle->complete_diagnostic)
+                    <form id="formActivarDiagnostico" action="{{ route('admin.unidadesProductivas.permitir-nuevo-diagnostico', $detalle->unidadproductiva_id) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="button" class="btn btn-outline-primary px-2" data-bs-toggle="modal" data-bs-target="#modalActivarDiagnostico">
+                            <i class="icon-base ri ri-refresh-line me-2"></i> Activar diagnóstico
+                        </button>
+                    </form>
+                @endif
                 <h5 class="text-center mb-0 ms-2 pt-1">Listado de diagnósticos</h5>
             </div> 
             <table id="diagnosticos" class="table" >
@@ -341,6 +355,26 @@
     </div>
 
 </div>
+
+@if (!$esAsesor && $detalle->complete_diagnostic)
+<div class="modal fade" id="modalActivarDiagnostico" tabindex="-1" aria-labelledby="modalActivarDiagnosticoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalActivarDiagnosticoLabel">Activar diagnóstico</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">¿Permitir que esta unidad productiva realice un nuevo diagnóstico? Los diagnósticos anteriores se conservarán.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="document.getElementById('formActivarDiagnostico').submit();">Activar diagnóstico</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 
 @endsection
 
