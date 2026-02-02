@@ -439,13 +439,48 @@
 
             $('#btnExportInforme').on('click', function () {
                 const form = document.getElementById('filters');
+                const conclusiones = document.getElementById('conclusionesI').value;
 
+                // Crear FormData con los filtros
                 let formData = new FormData(form);
-                formData.set('conclusiones', document.getElementById('conclusionesI').value);
+                formData.append('conclusiones', conclusiones);
+                formData.append('_token', '{{ csrf_token() }}');
 
-                const params = new URLSearchParams(formData);
-                const url = "/intervenciones/informe?" + params.toString();
-                window.open(url, "_blank");
+                // Mostrar loading
+                const btn = $(this);
+                const originalText = btn.html();
+                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Generando...');
+
+                // Enviar por POST a la ruta de previsualización
+                $.ajax({
+                    url: '/intervenciones/informe/preview',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        // Abrir la previsualización en una nueva ventana
+                        const previewWindow = window.open('', '_blank');
+                        previewWindow.document.write(response);
+                        previewWindow.document.close();
+                        
+                        // Cerrar el modal
+                        $('#informeModal').modal('hide');
+                        
+                        // Restaurar botón
+                        btn.prop('disabled', false).html(originalText);
+                    },
+                    error: function(xhr) {
+                        Swal.fire({ 
+                            title: "Error", 
+                            text: "No se pudo generar la previsualización. Por favor, intente nuevamente.",
+                            icon: "error" 
+                        });
+                        
+                        // Restaurar botón
+                        btn.prop('disabled', false).html(originalText);
+                    }
+                });
             });
 
             $('#formImport').on('submit', function (e) {

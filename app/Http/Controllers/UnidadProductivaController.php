@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Services\SICAM32;
+use App\Services\WhatsappService;
 
 use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
@@ -74,6 +75,18 @@ class UnidadProductivaController extends Controller
 
     public function show($id)
     {
+        // Si es una petición AJAX, devolver JSON
+        if (request()->wantsJson() || request()->ajax()) {
+            $unidadProductiva = UnidadProductiva::findOrFail($id);
+            return response()->json([
+                'id' => $unidadProductiva->unidadproductiva_id,
+                'business_name' => $unidadProductiva->business_name,
+                'mobile' => $unidadProductiva->mobile,
+                'telephone' => $unidadProductiva->telephone,
+                'contact_phone' => $unidadProductiva->contact_phone,
+            ]);
+        }
+
         $unidadProductiva = UnidadProductiva::with([
             'etapa',
             'tipoPersona',
@@ -195,7 +208,6 @@ class UnidadProductivaController extends Controller
                 'unidadesproductivas.nit',
                 'unidadesproductivas.name_legal_representative',
                 'unidadesproductivas.registration_email',
-                'unidadesproductivas.mobile',
                 'tp.tipoPersonaNOMBRE as tipo_persona',
                 'st.sectorNOMBRE as sector',
                 'tm.tamanoNOMBRE as tamano',
@@ -277,6 +289,31 @@ class UnidadProductivaController extends Controller
         }
 
         return response()->json(['exists' => $query->exists()]);
+    }
+
+    public function enviarWhatsApp($id, Request $request)
+    {
+        $request->validate([
+            'telefono' => 'required|string',
+            'mensaje' => 'required|string|max:1000',
+        ]);
+
+        $unidadProductiva = UnidadProductiva::findOrFail($id);
+        
+        $whatsappService = new WhatsappService();
+        $resultado = $whatsappService->send($request->telefono, $request->mensaje);
+
+        if ($resultado['success']) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Mensaje enviado correctamente a ' . $unidadProductiva->business_name
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => $resultado['message'] ?? 'Error al enviar el mensaje'
+            ], 400);
+        }
     }
 
 }

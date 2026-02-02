@@ -42,4 +42,9 @@ return [
         'maps_key' => env('GOOGLE_MAPS_KEY'),
     ],
 
+    'wati' => [
+        'api_url' => env('WATI_API_URL', 'https://api.wati.io'),
+        'api_token' => env('WATI_API_TOKEN'),
+    ],
+
 ];
