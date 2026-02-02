@@ -249,6 +249,8 @@ Route::as('admin.')
     Route::get('/intervenciones/export', [IntervencionesController::class, 'export']);
 
     Route::post('/intervenciones/import', [IntervencionesController::class, 'import']);
+    Route::post('/intervenciones/informe/preview', [IntervencionesController::class, 'preview']);
+    Route::post('/intervenciones/informe', [IntervencionesController::class, 'informe']);
     Route::get('/intervenciones/informe', [IntervencionesController::class, 'informe']);
 
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search'])->name("unidadProductiva.search");
@@ -262,6 +264,7 @@ Route::as('admin.')
     Route::resource('crons', CronController::class);
     Route::resource('cronLog', CronLogController::class);
     Route::resource('diagnosticosResultados', DiagnosticosResultadosController::class);
+    Route::post('/unidadesProductivas/{id}/enviar-whatsapp', [UnidadProductivaController::class, 'enviarWhatsApp']);
     Route::resource('unidadesProductivas', UnidadProductivaController::class);
     Route::resource('programas', ProgramaController::class);
     Route::resource('convocatorias', ConvocatoriaController::class);
