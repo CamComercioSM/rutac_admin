@@ -155,6 +155,11 @@ class UnidadProductiva extends Model
         return $this->belongsTo(UnidadProductiva::class, 'transformada_en', 'unidadproductiva_id');
     }
 
+    public function whatsappLogs()
+    {
+        return $this->hasMany(\App\Models\UnidadProductivaWhatsappLog::class, 'unidadproductiva_id', 'unidadproductiva_id');
+    }
+
     public static function getLogo($tipo)
     {
         $logos = [

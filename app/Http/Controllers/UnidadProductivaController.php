@@ -21,7 +21,9 @@ use App\Services\SICAM32;
 use App\Services\WhatsappService;
 
 use App\Models\Role;
+use App\Models\UnidadProductivaWhatsappLog;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class UnidadProductivaController extends Controller
@@ -295,20 +297,49 @@ class UnidadProductivaController extends Controller
     {
         $request->validate([
             'telefono' => 'required|string',
+            'phone_type' => 'nullable|string|in:mobile,telephone,contact_phone',
             'mensaje' => 'required|string|max:1000',
         ]);
 
         $unidadProductiva = UnidadProductiva::findOrFail($id);
-        
+
+        $log = UnidadProductivaWhatsappLog::create([
+            'unidadproductiva_id' => $unidadProductiva->unidadproductiva_id,
+            'user_id' => Auth::id(),
+            'phone' => $request->telefono,
+            'phone_type' => $request->phone_type,
+            'message' => $request->mensaje,
+            'status' => 'pending',
+        ]);
+
         $whatsappService = new WhatsappService();
         $resultado = $whatsappService->send($request->telefono, $request->mensaje);
 
+        $log->update([
+            'status' => $resultado['success'] ? 'sent' : 'failed',
+            'provider_response' => $resultado['data'] ?? $resultado['error'] ?? null,
+            'error_message' => $resultado['success'] ? null : ($resultado['message'] ?? 'Error al enviar el mensaje'),
+        ]);
+
         if ($resultado['success']) {
+            Log::info('WhatsApp enviado', [
+                'unidad_productiva_id' => $unidadProductiva->unidadproductiva_id,
+                'business_name' => $unidadProductiva->business_name,
+                'phone' => $request->telefono,
+                'log_id' => $log->id,
+            ]);
             return response()->json([
                 'success' => true,
                 'message' => 'Mensaje enviado correctamente a ' . $unidadProductiva->business_name
             ]);
         } else {
+            Log::warning('WhatsApp NO enviado', [
+                'unidad_productiva_id' => $unidadProductiva->unidadproductiva_id,
+                'business_name' => $unidadProductiva->business_name,
+                'phone' => $request->telefono,
+                'error' => $resultado['message'] ?? 'Error desconocido',
+                'log_id' => $log->id,
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => $resultado['message'] ?? 'Error al enviar el mensaje'

@@ -47,4 +47,9 @@ return [
         'api_token' => env('WATI_API_TOKEN'),
     ],
 
+    'whatsapp' => [
+        'api_url' => env('WHATSAPP_API_URL'),
+        'api_token' => env('WHATSAPP_API_TOKEN', env('WATI_API_TOKEN')),
+    ],
+
 ];

@@ -184,6 +184,10 @@ use App\Http\Controllers\EmpresariosController;
 use App\Http\Controllers\SeccionesController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\IntervencionesController;
+use App\Http\Controllers\Whatsapp\WhatsappCategoryController;
+use App\Http\Controllers\Whatsapp\WhatsappTemplateController;
+use App\Http\Controllers\Whatsapp\WhatsappTestSendController;
+use App\Http\Controllers\Whatsapp\WhatsappLogController;
 use App\Http\Middleware\ValidateUserMenuAccess;
 
 
@@ -290,6 +294,18 @@ Route::as('admin.')
     
     Route::post('/emailTemplates/toggle-status/{id}', [EmailTemplateController::class, 'toggleStatus'])->name("emailTemplates.toggle-status");
     Route::post('/emailTemplates/send-test', [EmailTemplateController::class, 'sendTestEmail'])->name("emailTemplates.send-test");
+
+    // WhatsApp: plantillas, categorías, prueba de envío y logs
+    Route::prefix('admin/whatsapp')->name('whatsapp.')->group(function () {
+        Route::resource('categories', WhatsappCategoryController::class)->names('categories');
+        Route::post('categories/{category}/toggle-status', [WhatsappCategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
+        Route::resource('templates', WhatsappTemplateController::class)->names('templates');
+        Route::get('test-send', [WhatsappTestSendController::class, 'index'])->name('test-send.index');
+        Route::post('send-test', [WhatsappTestSendController::class, 'sendTest'])->name('send-test');
+        Route::get('templates-by-category', [WhatsappTestSendController::class, 'templatesByCategory'])->name('templates-by-category');
+        Route::get('logs', [WhatsappLogController::class, 'index'])->name('logs.index');
+        Route::get('logs/{log}', [WhatsappLogController::class, 'show'])->name('logs.show');
+    });
 });
 
 // Rutas para Google OAuth

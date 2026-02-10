@@ -9,11 +9,20 @@ class WhatsappService
 {
     protected $apiUrl;
     protected $apiToken;
+    protected $useWhatsappApi;
 
     public function __construct()
     {
-        $this->apiUrl = config('services.wati.api_url');
-        $this->apiToken = config('services.wati.api_token');
+        $whatsappUrl = config('services.whatsapp.api_url');
+        if (!empty($whatsappUrl)) {
+            $this->apiUrl = rtrim($whatsappUrl, '/');
+            $this->apiToken = config('services.whatsapp.api_token');
+            $this->useWhatsappApi = true;
+        } else {
+            $this->apiUrl = rtrim(config('services.wati.api_url', 'https://api.wati.io'), '/');
+            $this->apiToken = config('services.wati.api_token');
+            $this->useWhatsappApi = false;
+        }
     }
 
     /**
@@ -34,12 +43,15 @@ class WhatsappService
                 $to = '57' . $to;
             }
 
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiToken,
-                'Content-Type' => 'application/json'
-            ])->post($this->apiUrl . '/api/v1/sendSessionMessage/' . $to, [
-                'text' => $message
-            ]);
+            $headers = ['Content-Type' => 'application/json'];
+            if (!empty($this->apiToken)) {
+                $headers['Authorization'] = 'Bearer ' . $this->apiToken;
+            }
+
+            $response = Http::withHeaders($headers)
+                ->post($this->apiUrl . '/api/v1/sendSessionMessage/' . $to, [
+                    'text' => $message
+                ]);
 
             if ($response->successful()) {
                 return [
