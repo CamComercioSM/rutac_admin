@@ -16,13 +16,11 @@ class WhatsappTemplate extends Model
         'provider',
         'language',
         'expected_fields',
-        'default_payload',
         'is_active',
     ];
 
     protected $casts = [
         'expected_fields' => 'array',
-        'default_payload' => 'array',
         'is_active' => 'boolean',
     ];
 

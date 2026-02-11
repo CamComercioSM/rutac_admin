@@ -41,7 +41,6 @@ class WhatsappTemplateController extends Controller
         $data = $request->validated();
         $data['channel'] = $data['channel'] ?? 'whatsapp';
         $data['expected_fields'] = $this->parseJsonField($data['expected_fields'] ?? null);
-        $data['default_payload'] = $this->parseJsonField($data['default_payload'] ?? null, true);
         $data['is_active'] = $request->boolean('is_active', true);
 
         WhatsappTemplate::create($data);
@@ -65,7 +64,6 @@ class WhatsappTemplateController extends Controller
     {
         $data = $request->validated();
         $data['expected_fields'] = $this->parseJsonField($data['expected_fields'] ?? null);
-        $data['default_payload'] = $this->parseJsonField($data['default_payload'] ?? null, true);
         $data['is_active'] = $request->boolean('is_active', true);
 
         $template->update($data);

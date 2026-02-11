@@ -50,19 +50,6 @@ class UpdateTemplateRequest extends FormRequest
                     }
                 }
             }],
-            'default_payload' => ['nullable', 'string', function ($attribute, $value, $fail) {
-                if ($value === '' || $value === null) {
-                    return;
-                }
-                $decoded = json_decode($value, true);
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    $fail('El campo default_payload debe ser un JSON válido.');
-                    return;
-                }
-                if (! is_array($decoded) || array_keys($decoded) === range(0, count($decoded) - 1)) {
-                    $fail('El campo default_payload debe ser un objeto JSON (no un array).');
-                }
-            }],
             'is_active' => ['boolean'],
         ];
     }
@@ -84,7 +71,6 @@ class UpdateTemplateRequest extends FormRequest
             'provider' => 'proveedor',
             'language' => 'idioma',
             'expected_fields' => 'campos esperados',
-            'default_payload' => 'payload por defecto',
             'is_active' => 'activo',
         ];
     }
