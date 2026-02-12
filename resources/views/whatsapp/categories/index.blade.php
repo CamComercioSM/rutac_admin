@@ -4,8 +4,6 @@
 
 @section('content')
 <div class="container card my-3 shadow-sm">
-    @include('whatsapp._nav')
-
     <div id="Data">
         <div class="table-responsive p-3 h-100">
             <div id="toolbar" class="d-flex mb-3">

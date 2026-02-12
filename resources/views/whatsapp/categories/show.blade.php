@@ -4,8 +4,6 @@
 
 @section('content')
 <div class="container card my-3 shadow-sm">
-    @include('whatsapp._nav')
-
     {{-- Nivel 1 → Nivel 2: estás dentro de una categoría --}}
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 border-bottom pb-3">
         <div>

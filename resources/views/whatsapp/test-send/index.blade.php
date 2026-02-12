@@ -5,8 +5,6 @@
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="container card my-3 shadow-sm">
-    @include('whatsapp._nav')
-
     <div class="row mb-3">
         <div class="col-12">
             <h5 class="mb-1 fw-bold">Probar envío de plantilla WhatsApp</h5>

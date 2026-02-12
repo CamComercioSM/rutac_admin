@@ -4,8 +4,6 @@
 
 @section('content')
 <div class="container card my-3 shadow-sm">
-    @include('whatsapp._nav')
-
     <div id="Data">
         <form method="GET" action="{{ route('admin.whatsapp.templates.index') }}" class="border p-3 mt-3">
             <div class="row justify-content-center align-items-end">

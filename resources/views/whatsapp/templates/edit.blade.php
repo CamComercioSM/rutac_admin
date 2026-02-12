@@ -58,7 +58,6 @@
                                     <label class="form-check-label" for="is_active">Activa</label>
                                 </div>
                             </div>
-                            <input type="hidden" name="default_payload" value="{{ old('default_payload', $template->default_payload ? json_encode($template->default_payload) : '{}') }}">
                             <div class="col-12 mb-3">
                                 <label class="form-label fw-semibold">Expected fields (plantillaDatos)</label>
                                 <small class="text-muted d-block mb-2">Campos que se obtienen de la BD al enviar (ej: usuarioNOMBRE, empresaRAZONSOCIAL). Marque "Requerido" si es obligatorio.</small>

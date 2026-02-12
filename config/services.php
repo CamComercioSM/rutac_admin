@@ -52,4 +52,9 @@ return [
         'api_token' => env('WHATSAPP_API_TOKEN', env('WATI_API_TOKEN')),
     ],
 
+    // API externa para envío de plantillas WhatsApp (rutac.apisicam.net)
+    'whatsapp_templates' => [
+        'api_url' => env('WHATSAPP_TEMPLATES_API_URL', 'https://rutac.apisicam.net/enviarPlantillaWhatsAPP'),
+    ],
+
 ];

@@ -109,6 +109,29 @@
                 });
                 document.getElementById('whatsappUnidadNombre').textContent = nombre;
                 document.getElementById('whatsappUnidadId').value = unidadId;
+
+                var repLegal = (response.name_legal_representative || '').toString().trim();
+                var contactPerson = (response.contact_person || '').toString().trim();
+                var nombreSelect = document.getElementById('whatsappNombreSelect');
+                nombreSelect.innerHTML = '<option value="">Seleccione un nombre...</option>';
+                if (repLegal) {
+                    var o = document.createElement('option');
+                    o.value = repLegal;
+                    o.textContent = 'Representante legal: ' + repLegal;
+                    nombreSelect.appendChild(o);
+                }
+                if (contactPerson && contactPerson !== repLegal) {
+                    var o2 = document.createElement('option');
+                    o2.value = contactPerson;
+                    o2.textContent = 'Persona de contacto: ' + contactPerson;
+                    nombreSelect.appendChild(o2);
+                }
+                if (repLegal || contactPerson) {
+                    document.getElementById('whatsappNombreGroup').style.display = '';
+                } else {
+                    document.getElementById('whatsappNombreGroup').style.display = 'none';
+                }
+
                 const select = document.getElementById('whatsappTelefonoSelect');
                 select.innerHTML = '<option value="">Seleccione un número...</option>';
                 numerosUnicos.forEach(n => {
@@ -131,6 +154,8 @@
             .catch(function() {
                 document.getElementById('whatsappUnidadNombre').textContent = 'Unidad Productiva #' + unidadId;
                 document.getElementById('whatsappUnidadId').value = unidadId;
+                document.getElementById('whatsappNombreSelect').innerHTML = '<option value="">Seleccione un nombre...</option>';
+                document.getElementById('whatsappNombreGroup').style.display = 'none';
                 document.getElementById('whatsappTelefonoSelect').innerHTML = '<option value="">Seleccione un número...</option>';
                 document.getElementById('whatsappTelefonoGroup').style.display = 'none';
                 document.getElementById('whatsappSinNumeros').classList.remove('d-none').classList.add('d-block');
@@ -169,6 +194,8 @@
             formData.append('telefono', telefono);
             formData.append('phone_type', phoneType);
             formData.append('mensaje', mensaje);
+            var nombreEmpresario = document.getElementById('whatsappNombreSelect').value;
+            if (nombreEmpresario) formData.append('nombre_empresario', nombreEmpresario);
 
             fetch('/unidadesProductivas/' + unidadId + '/enviar-whatsapp', {
                 method: 'POST',
@@ -233,6 +260,14 @@
                         <label class="form-label">Unidad Productiva</label>
                         <p class="form-control-plaintext fw-bold" id="whatsappUnidadNombre">-</p>
                         <input type="hidden" id="whatsappUnidadId" name="unidad_id">
+                    </div>
+
+                    <div class="mb-3" id="whatsappNombreGroup">
+                        <label class="form-label" for="whatsappNombreSelect">Nombre a enviar en el mensaje</label>
+                        <select class="form-select" id="whatsappNombreSelect" name="nombre_empresario">
+                            <option value="">Seleccione un nombre...</option>
+                        </select>
+                        <small class="form-text text-muted">Seleccione el nombre que aparecerá en el mensaje (representante legal o persona de contacto)</small>
                     </div>
                     
                     <div class="mb-3" id="whatsappTelefonoGroup">
