@@ -193,16 +193,19 @@ class IntervencionesController extends Controller
             ];
         })->values()->all();
 
+        $estadisticas = [
+            'fecha_inicio'            => $fi,
+            'fecha_fin'               => $ff,
+            'total_intervenciones'    => (int) ($data['totalGeneral'] ?? 0),
+            'categorias_intervencion' => $categorias,
+            'tipos_intervencion'      => $tipos,
+            'unidades_productivas'    => $unidades,
+        ];
+
+        // La API hace trim() a todos los parámetros; si recibe un array falla. Enviamos estadisticas como JSON string.
         return [
-            'conclusiones' => $data['conclusiones'] ?? '',
-            'estadisticas' => [
-                'fecha_inicio'           => $fi,
-                'fecha_fin'              => $ff,
-                'total_intervenciones'   => (int) ($data['totalGeneral'] ?? 0),
-                'categorias_intervencion' => $categorias,
-                'tipos_intervencion'     => $tipos,
-                'unidades_productivas'   => $unidades,
-            ],
+            'conclusiones' => (string) ($data['conclusiones'] ?? ''),
+            'estadisticas' => \json_encode($estadisticas, JSON_UNESCAPED_UNICODE),
         ];
     }
 
@@ -236,9 +239,10 @@ class IntervencionesController extends Controller
             }
 
             $body = $response->json();
-            if (isset($body['RESPUESTA']) && $body['RESPUESTA'] === 'EXITO' && !empty($body['MENSAJE'])) {
-                // Convertir Markdown a HTML para mostrar correctamente negritas, listas, etc.
-                return $this->markdownToHtml($body['MENSAJE']);
+            // Formato nuevo: { mensaje, tipo, analisis_id } o formato antiguo: { RESPUESTA, MENSAJE }
+            $mensaje = $body['mensaje'] ?? $body['MENSAJE'] ?? null;
+            if (!empty($mensaje) && is_string($mensaje)) {
+                return $this->markdownToHtml($mensaje);
             }
 
             return null;

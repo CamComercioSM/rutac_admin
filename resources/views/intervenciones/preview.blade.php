@@ -471,13 +471,11 @@
                 })
                 .then(apiResponse => {
                     loading.style.display = 'none';
-                    
-                    if (apiResponse.RESPUESTA === 'EXITO' && apiResponse.MENSAJE) {
-                        // El mensaje viene en Markdown, se renderizará como HTML
-                        content.innerHTML = apiResponse.MENSAJE;
+                    // Formato nuevo: { mensaje, tipo, analisis_id } o formato antiguo: { RESPUESTA, MENSAJE }
+                    const mensaje = apiResponse.mensaje || apiResponse.MENSAJE;
+                    if (mensaje && typeof mensaje === 'string') {
+                        content.innerHTML = mensaje;
                         content.style.display = 'block';
-                        
-                        // Convertir Markdown básico a HTML (negritas, listas, etc.)
                         convertMarkdownToHtml(content);
                     } else {
                         errorDiv.style.display = 'block';
