@@ -56,6 +56,37 @@
             padding: 10px 5px;
         }
 
+        strong {
+            font-weight: bold;
+            color: #0e188a;
+        }
+
+        em {
+            font-style: italic;
+        }
+
+        ul, ol {
+            margin: 10px 0;
+            padding-left: 25px;
+            line-height: 1.6;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+
+        h3, h4 {
+            color: #0e188a;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
         .page-break {
             page-break-after: always;
         }
@@ -205,6 +236,11 @@
 
 <h2>Conclusiones</h2>
 <p>{!! nl2br(e($conclusiones)) !!}</p>
+
+@if(!empty($analisis_ia))
+<div class="section-title" style="margin-top: 25px;">Análisis complementario (IA)</div>
+<div>{!! $analisis_ia !!}</div>
+@endif
 
 </body>
 </html>

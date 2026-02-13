@@ -256,6 +256,7 @@ Route::as('admin.')
     Route::post('/intervenciones/informe/preview', [IntervencionesController::class, 'preview']);
     Route::post('/intervenciones/informe', [IntervencionesController::class, 'informe']);
     Route::get('/intervenciones/informe', [IntervencionesController::class, 'informe']);
+    Route::post('/intervenciones/informe/payload-ia', [IntervencionesController::class, 'getPayloadAnalisisIA']);
 
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search'])->name("unidadProductiva.search");
     Route::get('/convocatorias/search', [ConvocatoriaController::class, 'search'])->name("convocatorias.search");

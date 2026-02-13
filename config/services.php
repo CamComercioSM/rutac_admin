@@ -57,4 +57,9 @@ return [
         'api_url' => env('WHATSAPP_TEMPLATES_API_URL', 'https://rutac.apisicam.net/enviarPlantillaWhatsAPP'),
     ],
 
+    // API para análisis IA de intervenciones (rutac.apisicam.net)
+    'analizar_intervenciones_ia' => [
+        'api_url' => env('ANALIZAR_INTERVENCIONES_IA_URL', 'https://rutac.apisicam.net/analizarIntervencionesIA'),
+    ],
+
 ];
