@@ -291,6 +291,7 @@ Route::as('admin.')
     
     // Endpoint de verificación aislado para evitar colisión con resource
     Route::get('/unidadesProductivas/check/matricula', [UnidadProductivaController::class, 'checkRegistrationNumber']);
+    Route::post('/unidadesProductivas/{id}/permitir-nuevo-diagnostico', [UnidadProductivaController::class, 'allowNewDiagnostic'])->name('unidadesProductivas.permitir-nuevo-diagnostico');
     Route::get('/unidadesProductivas/{id}/{transformar}', [UnidadProductivaController::class, 'edit']);
     
     Route::post('/emailTemplates/toggle-status/{id}', [EmailTemplateController::class, 'toggleStatus'])->name("emailTemplates.toggle-status");

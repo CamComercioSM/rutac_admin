@@ -61,8 +61,8 @@ class InscripcionesRequisitosController extends Controller
         $idsRecibidos = collect($opcionesData)->pluck('opcion_id')->filter()->toArray();
 
         // Eliminar opciones que no llegaron
-        RequisitosOpciones::where('pregunta_id', $pregunta->pregunta_id)
-            ->whereNotIn('opcion_id', $idsRecibidos)
+        RequisitosOpciones::where('requisito_id', $pregunta->requisito_id)
+            ->whereNotIn('opcionrequisito_id', $idsRecibidos)
             ->delete();
 
         // Crear o actualizar opciones

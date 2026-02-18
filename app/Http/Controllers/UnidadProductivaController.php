@@ -147,6 +147,28 @@ class UnidadProductivaController extends Controller
          ]);
     }
 
+    /**
+     * Permite que la unidad productiva pueda realizar un nuevo diagnóstico.
+     * Solo pone complete_diagnostic = 0; la nueva fila en diagnosticos_resultados
+     * se crea cuando el usuario complete el diagnóstico en el portal.
+     */
+    public function allowNewDiagnostic($id)
+    {
+        $unidad = UnidadProductiva::findOrFail($id);
+        $unidad->complete_diagnostic = 0;
+        $unidad->save();
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Se permitió un nuevo diagnóstico para esta unidad. Los diagnósticos anteriores se mantienen.',
+            ]);
+        }
+
+        return redirect()->route('admin.unidadesProductivas.show', $id)
+            ->with('success', 'Se permitió un nuevo diagnóstico para esta unidad. Los diagnósticos anteriores se mantienen.');
+    }
+
     public function store(Request $request)
     {
         $entity = UnidadProductiva::findOrFail($request->unidadproductiva_id);

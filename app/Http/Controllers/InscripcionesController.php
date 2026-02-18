@@ -324,6 +324,7 @@ class InscripcionesController extends Controller
                 'p.nombre as nombre_programa',
                 'up.nit',
                 'up.business_name',
+                'up.mobile',
                 'st.sectorNOMBRE as sector',
                 'vt.ventasAnualesNOMBRE as ventas',
                 'ie.inscripcionEstadoNOMBRE as estado',
