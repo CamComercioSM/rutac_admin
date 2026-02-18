@@ -69,6 +69,7 @@
                         <a class="dropdown-item" href="/diagnosticosResultados/list?unidad=ROWID">Diagnósticos</a>
                         <a class="dropdown-item" href="/inscripciones/list?unidad=ROWID">Inscripciones</a>
                         <a class="dropdown-item" href="/intervenciones/list?unidad=ROWID">Intervenciones</a>
+                        <a class="dropdown-item" href="javascript:void(0);" onclick="abrirModalWhatsApp(ROWID)">Enviar mensaje vía WhatsApp</a>
                     `,
             
             columns: [
@@ -86,5 +87,216 @@
                 { data: 'municipio', title: 'Municipio', orderable: true }
             ]
         };
+
+        // Función para abrir el modal de WhatsApp (vanilla JS, sin jQuery)
+        window.abrirModalWhatsApp = function(unidadId) {
+            fetch('/unidadesProductivas/' + unidadId, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(function(response) {
+                const nombre = response.business_name || 'Unidad Productiva';
+                const numeros = [];
+                if (response.mobile) numeros.push({ value: response.mobile, label: 'Móvil', type: 'mobile' });
+                if (response.telephone) numeros.push({ value: response.telephone, label: 'Teléfono', type: 'telephone' });
+                if (response.contact_phone) numeros.push({ value: response.contact_phone, label: 'Tel. contacto', type: 'contact_phone' });
+                const seen = new Set();
+                const numerosUnicos = numeros.filter(n => {
+                    const v = n.value.replace(/\D/g, '');
+                    if (seen.has(v)) return false;
+                    seen.add(v);
+                    return true;
+                });
+                document.getElementById('whatsappUnidadNombre').textContent = nombre;
+                document.getElementById('whatsappUnidadId').value = unidadId;
+
+                var repLegal = (response.name_legal_representative || '').toString().trim();
+                var contactPerson = (response.contact_person || '').toString().trim();
+                var nombreSelect = document.getElementById('whatsappNombreSelect');
+                nombreSelect.innerHTML = '<option value="">Seleccione un nombre...</option>';
+                if (repLegal) {
+                    var o = document.createElement('option');
+                    o.value = repLegal;
+                    o.textContent = 'Representante legal: ' + repLegal;
+                    nombreSelect.appendChild(o);
+                }
+                if (contactPerson && contactPerson !== repLegal) {
+                    var o2 = document.createElement('option');
+                    o2.value = contactPerson;
+                    o2.textContent = 'Persona de contacto: ' + contactPerson;
+                    nombreSelect.appendChild(o2);
+                }
+                if (repLegal || contactPerson) {
+                    document.getElementById('whatsappNombreGroup').style.display = '';
+                } else {
+                    document.getElementById('whatsappNombreGroup').style.display = 'none';
+                }
+
+                const select = document.getElementById('whatsappTelefonoSelect');
+                select.innerHTML = '<option value="">Seleccione un número...</option>';
+                numerosUnicos.forEach(n => {
+                    const opt = document.createElement('option');
+                    opt.value = n.value;
+                    opt.dataset.type = n.type;
+                    opt.textContent = n.label + ': ' + n.value;
+                    select.appendChild(opt);
+                });
+                document.getElementById('whatsappTelefonoGroup').style.display = numerosUnicos.length > 0 ? '' : 'none';
+                const sinNumeros = document.getElementById('whatsappSinNumeros');
+                sinNumeros.classList.toggle('d-none', numerosUnicos.length > 0);
+                sinNumeros.classList.toggle('d-block', numerosUnicos.length === 0);
+                const btn = document.getElementById('btnEnviarWhatsApp');
+                btn.disabled = numerosUnicos.length === 0;
+                btn.style.display = '';
+                document.getElementById('whatsappMensaje').value = '';
+                new bootstrap.Modal(document.getElementById('whatsappModal')).show();
+            })
+            .catch(function() {
+                document.getElementById('whatsappUnidadNombre').textContent = 'Unidad Productiva #' + unidadId;
+                document.getElementById('whatsappUnidadId').value = unidadId;
+                document.getElementById('whatsappNombreSelect').innerHTML = '<option value="">Seleccione un nombre...</option>';
+                document.getElementById('whatsappNombreGroup').style.display = 'none';
+                document.getElementById('whatsappTelefonoSelect').innerHTML = '<option value="">Seleccione un número...</option>';
+                document.getElementById('whatsappTelefonoGroup').style.display = 'none';
+                document.getElementById('whatsappSinNumeros').classList.remove('d-none').classList.add('d-block');
+                document.getElementById('btnEnviarWhatsApp').disabled = true;
+                document.getElementById('whatsappMensaje').value = '';
+                new bootstrap.Modal(document.getElementById('whatsappModal')).show();
+            });
+        };
+
+        // Enviar mensaje de WhatsApp
+        document.getElementById('formWhatsApp')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const unidadId = document.getElementById('whatsappUnidadId').value;
+            const opt = document.getElementById('whatsappTelefonoSelect').selectedOptions[0];
+            const telefono = opt ? opt.value : '';
+            const phoneType = opt ? (opt.dataset.type || '') : '';
+            const mensaje = document.getElementById('whatsappMensaje').value;
+            const btnEnviar = document.getElementById('btnEnviarWhatsApp');
+            const textoOriginal = btnEnviar.innerHTML;
+
+            if (!telefono) {
+                (window.Swal && window.Swal.fire) ? window.Swal.fire({ title: 'Seleccione un número', text: 'Esta unidad productiva no tiene números registrados o debe elegir uno', icon: 'warning' }) : alert('Seleccione un número');
+                return false;
+            }
+            if (!mensaje) {
+                (window.Swal && window.Swal.fire) ? window.Swal.fire({ title: 'Mensaje requerido', text: 'Por favor, ingrese el mensaje a enviar', icon: 'warning' }) : alert('Ingrese el mensaje');
+                return false;
+            }
+
+            btnEnviar.disabled = true;
+            btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando...';
+
+            const formData = new FormData();
+            formData.append('_token', '{{ csrf_token() }}');
+            formData.append('telefono', telefono);
+            formData.append('phone_type', phoneType);
+            formData.append('mensaje', mensaje);
+            var nombreEmpresario = document.getElementById('whatsappNombreSelect').value;
+            if (nombreEmpresario) formData.append('nombre_empresario', nombreEmpresario);
+
+            fetch('/unidadesProductivas/' + unidadId + '/enviar-whatsapp', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+            })
+            .then(function(r) {
+                return r.json().then(function(data) { return { ok: r.ok, data: data }; });
+            })
+            .then(function(result) {
+                const response = result.data;
+                if (result.ok && response.success) {
+                    (window.Swal && window.Swal.fire) ? window.Swal.fire({ title: '¡Éxito!', text: response.message || 'Mensaje enviado correctamente', icon: 'success' }) : alert('Mensaje enviado');
+                    bootstrap.Modal.getInstance(document.getElementById('whatsappModal')).hide();
+                    document.getElementById('formWhatsApp').reset();
+                    if (window.history && window.history.replaceState) window.history.replaceState({}, document.title, window.location.pathname);
+                } else {
+                    const msg = (response && response.message) ? response.message : 'No se pudo enviar el mensaje';
+                    (window.Swal && window.Swal.fire) ? window.Swal.fire({ title: 'Error', text: msg, icon: 'error' }) : alert(msg);
+                }
+                btnEnviar.disabled = false;
+                btnEnviar.innerHTML = textoOriginal;
+            })
+            .catch(function() {
+                (window.Swal && window.Swal.fire) ? window.Swal.fire({ title: 'Error', text: 'Error al enviar el mensaje', icon: 'error' }) : alert('Error al enviar el mensaje');
+                btnEnviar.disabled = false;
+                btnEnviar.innerHTML = textoOriginal;
+                if (window.history && window.history.replaceState && window.location.search) window.history.replaceState({}, document.title, window.location.pathname);
+            });
+
+            return false;
+        });
+
+        document.getElementById('whatsappModal')?.addEventListener('hidden.bs.modal', function() {
+            if (window.history && window.history.replaceState && window.location.search) window.history.replaceState({}, document.title, window.location.pathname);
+        });
+
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            if (params.has('unidad_id') || params.has('telefono') || params.has('mensaje')) {
+                if (window.history && window.history.replaceState) window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        })();
     </script>
+@endsection
+
+@section('modals')
+<div class="modal fade" id="whatsappModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="icon-base ri ri-whatsapp-line me-2" style="color: #25D366;"></i>
+                    Enviar mensaje vía WhatsApp
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form id="formWhatsApp" method="post" action="javascript:void(0);" onsubmit="return false;">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Unidad Productiva</label>
+                        <p class="form-control-plaintext fw-bold" id="whatsappUnidadNombre">-</p>
+                        <input type="hidden" id="whatsappUnidadId" name="unidad_id">
+                    </div>
+
+                    <div class="mb-3" id="whatsappNombreGroup">
+                        <label class="form-label" for="whatsappNombreSelect">Nombre a enviar en el mensaje</label>
+                        <select class="form-select" id="whatsappNombreSelect" name="nombre_empresario">
+                            <option value="">Seleccione un nombre...</option>
+                        </select>
+                        <small class="form-text text-muted">Seleccione el nombre que aparecerá en el mensaje (representante legal o persona de contacto)</small>
+                    </div>
+                    
+                    <div class="mb-3" id="whatsappTelefonoGroup">
+                        <label class="form-label" for="whatsappTelefonoSelect">Número de teléfono</label>
+                        <select class="form-select" id="whatsappTelefonoSelect" name="telefono">
+                            <option value="">Seleccione un número...</option>
+                        </select>
+                        <small class="form-text text-muted">Seleccione uno de los números asociados a la unidad productiva</small>
+                    </div>
+                    <div class="mb-3 alert alert-warning py-2 d-none" id="whatsappSinNumeros">
+                        <small>Esta unidad productiva no tiene números de teléfono registrados (móvil, teléfono o contacto).</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label" for="whatsappMensaje">Mensaje <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="whatsappMensaje" name="mensaje" rows="5" 
+                                  placeholder="Escriba el mensaje a enviar..." required></textarea>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success" id="btnEnviarWhatsApp">
+                        <i class="icon-base ri ri-send-plane-line me-2"></i>
+                        Enviar mensaje
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection

@@ -13,10 +13,13 @@ use App\Models\TablasReferencias\CategoriasIntervenciones;
 use App\Models\TablasReferencias\TiposIntervenciones;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use PDF;
+use League\CommonMark\CommonMarkConverter;
 
 class IntervencionesController extends Controller
 {
@@ -47,8 +50,29 @@ class IntervencionesController extends Controller
         ]);
 
         $data = $this->getInformeData($request);
+        $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
 
         return view('intervenciones.preview', $data);
+    }
+
+    /**
+     * Endpoint que devuelve el payload para la API de análisis IA.
+     * Útil para que el frontend pueda obtener los datos estructurados.
+     */
+    public function getPayloadAnalisisIA(Request $request)
+    {
+        $request->validate([
+            'fecha_inicio' => 'required|date',
+            'fecha_fin'    => 'required|date',
+        ]);
+
+        $data = $this->getInformeData($request);
+        $payload = self::buildPayloadInformeIntervenciones($request, $data);
+
+        return response()->json([
+            'payload' => $payload,
+            'api_url' => config('services.analizar_intervenciones_ia.api_url'),
+        ]);
     }
 
     public function informe(Request $request)
@@ -59,6 +83,7 @@ class IntervencionesController extends Controller
         ]);
 
         $data = $this->getInformeData($request);
+        $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
 
         $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
 
@@ -134,6 +159,127 @@ class IntervencionesController extends Controller
             'porUnidad' => $porUnidad,
             'totalGeneral' => $query->count(),
         ];
+    }
+
+    /**
+     * Construye el payload para la API analizarIntervencionesIA.
+     * Estructura: conclusiones (texto) y estadisticas (resto de campos).
+     */
+    public static function buildPayloadInformeIntervenciones(Request $request, array $data): array
+    {
+        $fi = $request->input('fecha_inicio') ?? $request->get('fecha_inicio');
+        $ff = $request->input('fecha_fin') ?? $request->get('fecha_fin');
+
+        $categorias = collect($data['porCategoria'] ?? [])->map(function ($c) {
+            return [
+                'categoria' => $c->categoria->nombre ?? 'Sin categoría',
+                'cantidad'  => (int) $c->total,
+            ];
+        })->values()->all();
+
+        $tipos = collect($data['porTipo'] ?? [])->map(function ($t) {
+            return [
+                'tipo'      => $t->tipo->nombre ?? 'Sin tipo',
+                'cantidad' => (int) $t->total,
+            ];
+        })->values()->all();
+
+        $unidades = collect($data['porUnidad'] ?? [])->map(function ($u) {
+            return [
+                'unidad_productiva' => $u->unidadProductiva?->business_name ?? 'Sin unidad productiva',
+                'cantidad'          => (int) $u->total,
+            ];
+        })->values()->all();
+
+        $estadisticas = [
+            'fecha_inicio'            => $fi,
+            'fecha_fin'               => $ff,
+            'total_intervenciones'    => (int) ($data['totalGeneral'] ?? 0),
+            'categorias_intervencion' => $categorias,
+            'tipos_intervencion'      => $tipos,
+            'unidades_productivas'    => $unidades,
+        ];
+
+        // La API hace trim() a todos los parámetros; si recibe un array falla. Enviamos estadisticas como JSON string.
+        return [
+            'conclusiones' => (string) ($data['conclusiones'] ?? ''),
+            'estadisticas' => \json_encode($estadisticas, JSON_UNESCAPED_UNICODE),
+        ];
+    }
+
+    /**
+     * Llama a la API analizarIntervencionesIA con el payload del informe y devuelve el MENSAJE para el reporte.
+     */
+    private function llamarApiAnalizarIntervencionesIA(Request $request, array $data): ?string
+    {
+        $url = config('services.analizar_intervenciones_ia.api_url');
+        if (empty($url)) {
+            return null;
+        }
+
+        $payload = self::buildPayloadInformeIntervenciones($request, $data);
+
+        // Log del payload para debugging (visible en logs de Laravel)
+        Log::info('analizarIntervencionesIA: Payload enviado', [
+            'url' => $url,
+            'payload' => $payload,
+        ]);
+
+        try {
+            $response = Http::timeout(30)->asJson()->post($url, $payload);
+
+            if (!$response->successful()) {
+                Log::warning('analizarIntervencionesIA: respuesta no exitosa', [
+                    'status' => $response->status(),
+                    'body'   => $response->body(),
+                ]);
+                return null;
+            }
+
+            $body = $response->json();
+            // Formato nuevo: { mensaje, tipo, analisis_id } o formato antiguo: { RESPUESTA, MENSAJE }
+            $mensaje = $body['mensaje'] ?? $body['MENSAJE'] ?? null;
+            if (!empty($mensaje) && is_string($mensaje)) {
+                return $this->markdownToHtml($mensaje);
+            }
+
+            return null;
+        } catch (\Throwable $e) {
+            Log::error('analizarIntervencionesIA: error', ['message' => $e->getMessage()]);
+            return null;
+        }
+    }
+
+    /**
+     * Convierte texto Markdown a HTML para renderizar correctamente negritas, listas, etc.
+     */
+    private function markdownToHtml(string $markdown): string
+    {
+        try {
+            $converter = new CommonMarkConverter([
+                'html_input' => 'strip',
+                'allow_unsafe_links' => false,
+            ]);
+            return $converter->convert($markdown)->getContent();
+        } catch (\Throwable $e) {
+            Log::warning('Error al convertir Markdown a HTML', ['message' => $e->getMessage()]);
+            // Fallback: convertir solo negritas básicas si falla CommonMark
+            return $this->markdownToHtmlFallback($markdown);
+        }
+    }
+
+    /**
+     * Fallback básico para convertir Markdown simple si CommonMark falla.
+     */
+    private function markdownToHtmlFallback(string $markdown): string
+    {
+        // Convertir **texto** a <strong>texto</strong>
+        $html = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $markdown);
+        // Convertir *texto* a <em>texto</em>
+        $html = preg_replace('/\*(.+?)\*/', '<em>$1</em>', $html);
+        // Convertir saltos de línea a <br>
+        $html = nl2br($html);
+        return $html;
     }
 
     function export(Request $request)

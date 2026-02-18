@@ -42,4 +42,24 @@ return [
         'maps_key' => env('GOOGLE_MAPS_KEY'),
     ],
 
+    'wati' => [
+        'api_url' => env('WATI_API_URL', 'https://api.wati.io'),
+        'api_token' => env('WATI_API_TOKEN'),
+    ],
+
+    'whatsapp' => [
+        'api_url' => env('WHATSAPP_API_URL'),
+        'api_token' => env('WHATSAPP_API_TOKEN', env('WATI_API_TOKEN')),
+    ],
+
+    // API externa para envío de plantillas WhatsApp (rutac.apisicam.net)
+    'whatsapp_templates' => [
+        'api_url' => env('WHATSAPP_TEMPLATES_API_URL', 'https://rutac.apisicam.net/enviarPlantillaWhatsAPP'),
+    ],
+
+    // API para análisis IA de intervenciones (rutac.apisicam.net)
+    'analizar_intervenciones_ia' => [
+        'api_url' => env('ANALIZAR_INTERVENCIONES_IA_URL', 'https://rutac.apisicam.net/analizarIntervencionesIA'),
+    ],
+
 ];

@@ -70,6 +70,11 @@ class User extends Authenticatable
         return $this->hasMany(UnidadProductiva::class, 'user_id');
     }
 
+    public function whatsappMessageLogs()
+    {
+        return $this->hasMany(\App\Models\WhatsappMessageLog::class, 'user_id');
+    }
+
 
     /**
      * Get the e-mail address where password reset links are sent.

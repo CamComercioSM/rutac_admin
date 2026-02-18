@@ -186,26 +186,30 @@
 <div class="modal fade" id="informeModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
+            <form id="formPreviewInforme" action="{{ url('/intervenciones/informe/preview') }}" method="POST" target="_blank">
+                @csrf
+                <input type="hidden" name="fecha_inicio" id="preview_fecha_inicio" value="">
+                <input type="hidden" name="fecha_fin" id="preview_fecha_fin" value="">
+                <input type="hidden" name="asesor" id="preview_asesor" value="">
+                <input type="hidden" name="unidad" id="preview_unidad" value="">
 
-            <div class="modal-header">
-                <h5 class="modal-title">Informe Intervenciones</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-                
-            <div class="modal-body">
-
-                <div class="col-12 mb-3">
-                    <label class="form-label">Conclusiones</label>
-                    <textarea class="form-control" name="conclusionesI" id="conclusionesI" rows="6" placeholder="Ingrese las conclusiones"></textarea>
+                <div class="modal-header">
+                    <h5 class="modal-title">Informe Intervenciones</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                
-            </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" id="btnExportInforme" >Generar</button>
-            </div>
+                <div class="modal-body">
+                    <div class="col-12 mb-3">
+                        <label class="form-label" for="conclusionesI">Conclusiones</label>
+                        <textarea class="form-control" name="conclusiones" id="conclusionesI" rows="6" placeholder="Ingrese las conclusiones"></textarea>
+                    </div>
+                </div>
 
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success" id="btnExportInforme">Generar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -437,50 +441,14 @@
                 modal.show();
             });
 
-            $('#btnExportInforme').on('click', function () {
-                const form = document.getElementById('filters');
-                const conclusiones = document.getElementById('conclusionesI').value;
-
-                // Crear FormData con los filtros
-                let formData = new FormData(form);
-                formData.append('conclusiones', conclusiones);
-                formData.append('_token', '{{ csrf_token() }}');
-
-                // Mostrar loading
-                const btn = $(this);
-                const originalText = btn.html();
-                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Generando...');
-
-                // Enviar por POST a la ruta de previsualización
-                $.ajax({
-                    url: '/intervenciones/informe/preview',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        // Abrir la previsualización en una nueva ventana
-                        const previewWindow = window.open('', '_blank');
-                        previewWindow.document.write(response);
-                        previewWindow.document.close();
-                        
-                        // Cerrar el modal
-                        $('#informeModal').modal('hide');
-                        
-                        // Restaurar botón
-                        btn.prop('disabled', false).html(originalText);
-                    },
-                    error: function(xhr) {
-                        Swal.fire({ 
-                            title: "Error", 
-                            text: "No se pudo generar la previsualización. Por favor, intente nuevamente.",
-                            icon: "error" 
-                        });
-                        
-                        // Restaurar botón
-                        btn.prop('disabled', false).html(originalText);
-                    }
-                });
+            // Al enviar el formulario de previsualización, copiar filtros al formulario y abrir en ruta real del servidor
+            $('#formPreviewInforme').on('submit', function () {
+                var $filters = $('#filters');
+                $('#preview_fecha_inicio').val($filters.find('input[name="fecha_inicio"]').val() || '');
+                $('#preview_fecha_fin').val($filters.find('input[name="fecha_fin"]').val() || '');
+                $('#preview_asesor').val($filters.find('select[name="asesor"]').val() || '');
+                $('#preview_unidad').val($filters.find('select[name="unidad"]').val() || '');
+                $('#informeModal').modal('hide');
             });
 
             $('#formImport').on('submit', function (e) {

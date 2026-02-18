@@ -6,6 +6,7 @@ use App\Exports\UnidadProductivaExport;
 use App\Http\Controllers\Controller;
 use App\Models\Diagnosticos\ResultadosDiagnostico;
 use App\Models\Empresarios\UnidadProductiva;
+use App\Models\Empresarios\UnidadProductivaIntervenciones;
 use App\Models\TablasReferencias\Etapa;
 use App\Models\TablasReferencias\Sector;
 use App\Models\TablasReferencias\SectorSecciones;
@@ -18,10 +19,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Services\SICAM32;
+use App\Services\WhatsappService;
+use App\Models\WhatsappTemplate;
+use App\Models\WhatsappMessageLog;
 
 use App\Models\Role;
+use App\Models\UnidadProductivaWhatsappLog;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
 
 class UnidadProductivaController extends Controller
 {
@@ -74,6 +81,20 @@ class UnidadProductivaController extends Controller
 
     public function show($id)
     {
+        // Si es una petición AJAX, devolver JSON
+        if (request()->wantsJson() || request()->ajax()) {
+            $unidadProductiva = UnidadProductiva::findOrFail($id);
+            return response()->json([
+                'id' => $unidadProductiva->unidadproductiva_id,
+                'business_name' => $unidadProductiva->business_name,
+                'name_legal_representative' => $unidadProductiva->name_legal_representative,
+                'contact_person' => $unidadProductiva->contact_person,
+                'mobile' => $unidadProductiva->mobile,
+                'telephone' => $unidadProductiva->telephone,
+                'contact_phone' => $unidadProductiva->contact_phone,
+            ]);
+        }
+
         $unidadProductiva = UnidadProductiva::with([
             'etapa',
             'tipoPersona',
@@ -217,7 +238,6 @@ class UnidadProductivaController extends Controller
                 'unidadesproductivas.nit',
                 'unidadesproductivas.name_legal_representative',
                 'unidadesproductivas.registration_email',
-                'unidadesproductivas.mobile',
                 'tp.tipoPersonaNOMBRE as tipo_persona',
                 'st.sectorNOMBRE as sector',
                 'tm.tamanoNOMBRE as tamano',
@@ -299,6 +319,213 @@ class UnidadProductivaController extends Controller
         }
 
         return response()->json(['exists' => $query->exists()]);
+    }
+
+    public function enviarWhatsApp($id, Request $request)
+    {
+        $request->validate([
+            'telefono' => 'required|string',
+            'phone_type' => 'nullable|string|in:mobile,telephone,contact_phone',
+            'mensaje' => 'required|string|max:1000',
+            'nombre_empresario' => 'nullable|string|max:255',
+        ]);
+
+        $unidadProductiva = UnidadProductiva::findOrFail($id);
+
+        // Normalizar número: solo dígitos y agregar 57 si viene en formato nacional (10 dígitos)
+        $rawPhone = $request->telefono;
+        $to = preg_replace('/[^0-9]/', '', $rawPhone);
+        if (!preg_match('/^57/', $to) && strlen($to) === 10) {
+            $to = '57' . $to;
+        }
+
+        // 1) Buscar plantilla activa por group_code = mensaje_desde_rutac
+        $template = WhatsappTemplate::where('group_code', 'mensaje_desde_rutac')
+            ->where('is_active', true)
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $template) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró una plantilla activa con el grupo "mensaje_desde_rutac".'
+            ], 422);
+        }
+
+        // 2) Construir los datos para plantillaDatos[...] a partir de expected_fields
+        $expected = is_array($template->expected_fields) ? $template->expected_fields : [];
+        $templateData = [];
+
+        foreach ($expected as $item) {
+            if (!is_array($item) || empty($item['key'])) {
+                continue;
+            }
+            $key = $item['key'];
+
+            switch ($key) {
+                case 'usuarioNOMBRE':
+                    $templateData[$key] = optional($unidadProductiva->usuario)->name
+                        ?? $unidadProductiva->contact_person
+                        ?? $unidadProductiva->name_legal_representative
+                        ?? '';
+                    break;
+                case 'empresaRAZONSOCIAL':
+                    $templateData[$key] = $unidadProductiva->business_name ?? '';
+                    break;
+                case 'etapaRUTAC':
+                    $templateData[$key] = optional($unidadProductiva->etapa)->name
+                        ?? $unidadProductiva->etapa_intervencion
+                        ?? '';
+                    break;
+                case 'mensaje_usuario':
+                    // Mensaje que el asesor escribe en el modal
+                    $templateData[$key] = $request->mensaje;
+                    break;
+                case 'nombre_empresario':
+                    // Nombre del empresario: el que el usuario eligió en el modal (representante legal o persona de contacto)
+                    $templateData[$key] = $request->input('nombre_empresario') ?: ($unidadProductiva->contact_person ?? '');
+                    break;
+                case 'nombre_asesor':
+                    // Nombre del asesor: usuario autenticado (campo name)
+                    $templateData[$key] = Auth::user()->name ?? '';
+                    break;
+                default:
+                    // Para claves desconocidas, enviar vacío para no romper el endpoint
+                    $templateData[$key] = '';
+            }
+        }
+
+        $log = UnidadProductivaWhatsappLog::create([
+            'unidadproductiva_id' => $unidadProductiva->unidadproductiva_id,
+            'user_id' => Auth::id(),
+            'phone' => $to,
+            'phone_type' => $request->phone_type,
+            'message' => $request->mensaje,
+            'status' => 'pending',
+        ]);
+
+        // 3) Llamar API externa de plantillas
+        $apiUrl = rtrim(config('services.whatsapp_templates.api_url'), '/');
+
+        // Formato x-www-form-urlencoded / form-data
+        $payload = [
+            'whatsappNumber' => $to,
+            'plantillaNombre' => $template->name,
+            'plantillaGrupo' => $template->group_code,
+        ];
+
+        foreach ($templateData as $k => $v) {
+            $payload["plantillaDatos[$k]"] = $v;
+        }
+
+        // Registrar en whatsapp_message_logs (payload para auditoría)
+        $messageLogPayload = [
+            'whatsappNumber' => $to,
+            'plantillaNombre' => $template->name,
+            'plantillaGrupo' => $template->group_code,
+            'plantillaDatos' => $templateData,
+            'unidadproductiva_id' => $unidadProductiva->unidadproductiva_id,
+        ];
+        $messageLog = WhatsappMessageLog::create([
+            'template_id' => $template->id,
+            'user_id' => Auth::id(),
+            'phone' => $to,
+            'template_name' => $template->name,
+            'template_group' => $template->group_code,
+            'status' => 'pending',
+            'payload' => $messageLogPayload,
+        ]);
+
+        try {
+            $response = Http::asForm()->post($apiUrl, $payload);
+
+            $success = $response->successful();
+            $body = $response->json() ?? $response->body();
+
+            Log::info('Respuesta API plantilla WhatsApp', [
+                'url' => $apiUrl,
+                'payload' => $payload,
+                'status' => $response->status(),
+                'body' => $body,
+            ]);
+
+            $resultado = [
+                'success' => $success,
+                'message' => $success ? 'Mensaje enviado correctamente' : 'Error al enviar el mensaje',
+                'data' => $success ? $body : null,
+                'error' => $success ? null : $body,
+            ];
+        } catch (\Throwable $e) {
+            Log::error('Error al llamar API de plantilla WhatsApp', [
+                'error' => $e->getMessage(),
+            ]);
+
+            $resultado = [
+                'success' => false,
+                'message' => 'Error al comunicarse con el servicio de WhatsApp',
+                'error' => $e->getMessage(),
+            ];
+        }
+
+        $log->update([
+            'status' => $resultado['success'] ? 'sent' : 'failed',
+            'provider_response' => $resultado['data'] ?? $resultado['error'] ?? null,
+            'error_message' => $resultado['success'] ? null : ($resultado['message'] ?? 'Error al enviar el mensaje'),
+        ]);
+
+        // Actualizar whatsapp_message_logs con resultado del proveedor
+        $providerMessageId = null;
+        $providerResponse = $resultado['data'] ?? $resultado['error'];
+        if (is_array($providerResponse) && isset($providerResponse['contact']['id'])) {
+            $providerMessageId = $providerResponse['contact']['id'];
+        } elseif (is_array($providerResponse) && isset($providerResponse['contact']['wAid'])) {
+            $providerMessageId = $providerResponse['contact']['wAid'];
+        }
+        $messageLog->update([
+            'status' => $resultado['success'] ? 'sent' : 'failed',
+            'provider_message_id' => $providerMessageId,
+            'provider_response' => is_array($providerResponse) ? $providerResponse : ['raw' => $providerResponse],
+            'error_message' => $resultado['success'] ? null : ($resultado['message'] ?? 'Error al enviar el mensaje'),
+        ]);
+
+        if ($resultado['success']) {
+            // Registrar como intervención (categoría 1, tipo 4)
+            $now = now();
+            UnidadProductivaIntervenciones::create([
+                'asesor_id' => Auth::id(),
+                'unidadproductiva_id' => $unidadProductiva->unidadproductiva_id,
+                'categoria_id' => 1,
+                'tipo_id' => 4,
+                'descripcion' => 'Mensaje enviado vía WhatsApp: ' . $request->mensaje,
+                'fecha_inicio' => $now,
+                'fecha_fin' => $now,
+                'modalidad' => 'Virtual',
+                'participantes' => 1,
+            ]);
+
+            Log::info('WhatsApp enviado', [
+                'unidad_productiva_id' => $unidadProductiva->unidadproductiva_id,
+                'business_name' => $unidadProductiva->business_name,
+                'phone' => $request->telefono,
+                'log_id' => $log->id,
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Mensaje enviado correctamente a ' . $unidadProductiva->business_name
+            ]);
+        } else {
+            Log::warning('WhatsApp NO enviado', [
+                'unidad_productiva_id' => $unidadProductiva->unidadproductiva_id,
+                'business_name' => $unidadProductiva->business_name,
+                'phone' => $request->telefono,
+                'error' => $resultado['message'] ?? 'Error desconocido',
+                'log_id' => $log->id,
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => $resultado['message'] ?? 'Error al enviar el mensaje'
+            ], 400);
+        }
     }
 
 }

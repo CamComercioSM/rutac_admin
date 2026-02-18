@@ -169,7 +169,40 @@
             white-space: pre-wrap;
             line-height: 1.8;
         }
-        
+
+        .conclusiones-section strong {
+            font-weight: bold;
+            color: #0e188a;
+        }
+
+        .conclusiones-section em {
+            font-style: italic;
+        }
+
+        .conclusiones-section ul,
+        .conclusiones-section ol {
+            margin: 10px 0;
+            padding-left: 30px;
+            line-height: 1.8;
+        }
+
+        .conclusiones-section li {
+            margin: 5px 0;
+        }
+
+        .conclusiones-section h3,
+        .conclusiones-section h4 {
+            color: #0e188a;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .conclusiones-section p {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
         .footer-info {
             margin-top: 30px;
             padding-top: 20px;
@@ -200,7 +233,7 @@
     <div class="preview-container">
         <div class="preview-actions">
             <button type="button" class="btn btn-secondary" onclick="window.close()">Cerrar</button>
-            <form id="formGenerarPDF" method="POST" action="/intervenciones/informe" style="display: inline;" target="_blank">
+            <form id="formGenerarPDF" method="POST" action="{{ url('/intervenciones/informe') }}" style="display: inline;" target="_blank">
                 @csrf
                 <input type="hidden" name="fecha_inicio" value="{{ request('fecha_inicio') ?? request()->input('fecha_inicio') }}">
                 <input type="hidden" name="fecha_fin" value="{{ request('fecha_fin') ?? request()->input('fecha_fin') }}">
@@ -351,6 +384,13 @@
             <h2>Conclusiones</h2>
             <p>{!! nl2br(e($conclusiones ?: 'No se han ingresado conclusiones.')) !!}</p>
         </div>
+
+        @if(!empty($analisis_ia))
+        <div class="conclusiones-section" style="margin-top: 20px;">
+            <h2>Análisis complementario (IA)</h2>
+            <div>{!! $analisis_ia !!}</div>
+        </div>
+        @endif
 
         <div class="footer-info">
             Intervenciones - Generado el {{ date('d/m/Y H:i') }}
