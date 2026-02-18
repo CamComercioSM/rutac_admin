@@ -50,9 +50,7 @@ class IntervencionesController extends Controller
         ]);
 
         $data = $this->getInformeData($request);
-        // No llamamos a la API aquí, se hará desde el frontend para poder verlo en Network
-        $data['analisis_ia'] = null;
-        $data['api_url'] = config('services.analizar_intervenciones_ia.api_url');
+        $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
 
         return view('intervenciones.preview', $data);
     }
@@ -85,10 +83,7 @@ class IntervencionesController extends Controller
         ]);
 
         $data = $this->getInformeData($request);
-        // Si la previsualización envió el análisis ya generado, usarlo; si no, llamar a la API
-        $data['analisis_ia'] = $request->filled('analisis_ia')
-            ? $request->input('analisis_ia')
-            : $this->llamarApiAnalizarIntervencionesIA($request, $data);
+        $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
 
         $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
 

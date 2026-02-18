@@ -203,20 +203,6 @@
             line-height: 1.8;
         }
 
-        #analisis-ia-loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
-
-        #analisis-ia-error {
-            color: #dc3545;
-            padding: 10px;
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: 4px;
-        }
-        
         .footer-info {
             margin-top: 30px;
             padding-top: 20px;
@@ -258,7 +244,6 @@
                     <input type="hidden" name="unidad" value="{{ request('unidad') ?? request()->input('unidad') }}">
                 @endif
                 <input type="hidden" name="conclusiones" value="{{ $conclusiones }}">
-                <input type="hidden" name="analisis_ia" id="analisis_ia_hidden" value="">
                 <button type="submit" class="btn btn-primary">Generar PDF</button>
             </form>
         </div>
@@ -400,170 +385,16 @@
             <p>{!! nl2br(e($conclusiones ?: 'No se han ingresado conclusiones.')) !!}</p>
         </div>
 
-        <div id="analisis-ia-container" class="conclusiones-section" style="margin-top: 20px; display: none;">
+        @if(!empty($analisis_ia))
+        <div class="conclusiones-section" style="margin-top: 20px;">
             <h2>Análisis complementario (IA)</h2>
-            <div id="analisis-ia-loading" style="text-align: center; padding: 20px; color: #666;">
-                <p>Cargando análisis de IA...</p>
-            </div>
-            <div id="analisis-ia-content" style="display: none;"></div>
-            <div id="analisis-ia-error" style="display: none; color: #dc3545; padding: 10px;"></div>
+            <div>{!! $analisis_ia !!}</div>
         </div>
+        @endif
 
         <div class="footer-info">
             Intervenciones - Generado el {{ date('d/m/Y H:i') }}
         </div>
     </div>
-
-    <script>
-        (function() {
-            // Tomar directamente los datos del formulario que genera el PDF,
-            // así evitamos problemas de inyección JS con textos largos.
-            const formPdf = document.getElementById('formGenerarPDF');
-            const formData = new FormData(formPdf);
-            formData.append('_token', '{{ csrf_token() }}');
-
-            // URL absoluta al endpoint en Laravel (evita problemas con about:blank y rutas relativas)
-            const payloadUrl = '{{ url('/intervenciones/informe/payload-ia') }}';
-
-            // Obtener el payload desde el backend
-            fetch(payloadUrl, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                const container = document.getElementById('analisis-ia-container');
-                const loading = document.getElementById('analisis-ia-loading');
-                const content = document.getElementById('analisis-ia-content');
-                const errorDiv = document.getElementById('analisis-ia-error');
-
-                container.style.display = 'block';
-
-                if (!data.payload || !data.api_url) {
-                    loading.style.display = 'none';
-                    errorDiv.style.display = 'block';
-                    errorDiv.textContent = 'No se pudo obtener el payload para el análisis.';
-                    return;
-                }
-
-                // Llamar a la API externa (esto aparecerá en Network)
-                fetch(data.api_url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(data.payload)
-                })
-                .then(response => response.json())
-                .then(apiResponse => {
-                    loading.style.display = 'none';
-                    // Formato nuevo: { mensaje, tipo, analisis_id } o formato antiguo: { RESPUESTA, MENSAJE }
-                    const mensaje = apiResponse.mensaje || apiResponse.MENSAJE;
-                    if (mensaje && typeof mensaje === 'string') {
-                        content.innerHTML = mensaje;
-                        content.style.display = 'block';
-                        convertMarkdownToHtml(content);
-                        var hidden = document.getElementById('analisis_ia_hidden');
-                        if (hidden) hidden.value = content.innerHTML;
-                    } else {
-                        errorDiv.style.display = 'block';
-                        errorDiv.textContent = 'La API no devolvió un mensaje válido.';
-                    }
-                })
-                .catch(error => {
-                    loading.style.display = 'none';
-                    errorDiv.style.display = 'block';
-                    errorDiv.textContent = 'Error al llamar a la API: ' + error.message;
-                });
-            })
-            .catch(error => {
-                const container = document.getElementById('analisis-ia-container');
-                const loading = document.getElementById('analisis-ia-loading');
-                const errorDiv = document.getElementById('analisis-ia-error');
-                
-                container.style.display = 'block';
-                loading.style.display = 'none';
-                errorDiv.style.display = 'block';
-                errorDiv.textContent = 'Error al obtener el payload: ' + error.message;
-            });
-
-            // Función para convertir Markdown básico a HTML
-            function convertMarkdownToHtml(element) {
-                let html = element.innerHTML;
-                
-                // Primero proteger los bloques de código si los hay
-                const codeBlocks = [];
-                html = html.replace(/```[\s\S]*?```/g, (match) => {
-                    const id = 'CODE_BLOCK_' + codeBlocks.length;
-                    codeBlocks.push(match);
-                    return id;
-                });
-                
-                // Convertir **texto** a <strong>texto</strong> (negritas)
-                html = html.replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
-                
-                // Convertir *texto* a <em>texto</em> (cursiva, solo si no está dentro de **)
-                html = html.replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/g, '<em>$1</em>');
-                
-                // Convertir títulos ### a <h3>
-                html = html.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
-                html = html.replace(/^##\s+(.+)$/gm, '<h3>$1</h3>');
-                
-                // Convertir listas con - o * al inicio de línea
-                const lines = html.split('\n');
-                let inList = false;
-                let listHtml = '';
-                
-                lines.forEach((line, index) => {
-                    const listMatch = line.match(/^[\-\*]\s+(.+)$/);
-                    const numberedMatch = line.match(/^\d+\.\s+(.+)$/);
-                    
-                    if (listMatch || numberedMatch) {
-                        if (!inList) {
-                            listHtml += '<ul>';
-                            inList = true;
-                        }
-                        listHtml += '<li>' + (listMatch ? listMatch[1] : numberedMatch[1]) + '</li>';
-                    } else {
-                        if (inList) {
-                            listHtml += '</ul>';
-                            inList = false;
-                        }
-                        if (line.trim()) {
-                            listHtml += line + '\n';
-                        }
-                    }
-                });
-                
-                if (inList) {
-                    listHtml += '</ul>';
-                }
-                
-                html = listHtml || html;
-                
-                // Convertir saltos de línea dobles a párrafos
-                html = html.split(/\n\n+/).map(para => {
-                    para = para.trim();
-                    if (!para) return '';
-                    if (para.startsWith('<')) return para; // Ya es HTML
-                    return '<p>' + para + '</p>';
-                }).join('');
-                
-                // Convertir saltos de línea simples a <br>
-                html = html.replace(/\n/g, '<br>');
-                
-                // Restaurar bloques de código
-                codeBlocks.forEach((block, index) => {
-                    html = html.replace('CODE_BLOCK_' + index, block);
-                });
-                
-                element.innerHTML = html;
-            }
-        })();
-    </script>
 </body>
 </html>
