@@ -247,7 +247,7 @@
     <div class="preview-container">
         <div class="preview-actions">
             <button type="button" class="btn btn-secondary" onclick="window.close()">Cerrar</button>
-            <form id="formGenerarPDF" method="POST" action="/intervenciones/informe" style="display: inline;" target="_blank">
+            <form id="formGenerarPDF" method="POST" action="{{ url('/intervenciones/informe') }}" style="display: inline;" target="_blank">
                 @csrf
                 <input type="hidden" name="fecha_inicio" value="{{ request('fecha_inicio') ?? request()->input('fecha_inicio') }}">
                 <input type="hidden" name="fecha_fin" value="{{ request('fecha_fin') ?? request()->input('fecha_fin') }}">
@@ -258,6 +258,7 @@
                     <input type="hidden" name="unidad" value="{{ request('unidad') ?? request()->input('unidad') }}">
                 @endif
                 <input type="hidden" name="conclusiones" value="{{ $conclusiones }}">
+                <input type="hidden" name="analisis_ia" id="analisis_ia_hidden" value="">
                 <button type="submit" class="btn btn-primary">Generar PDF</button>
             </form>
         </div>
@@ -415,21 +416,17 @@
 
     <script>
         (function() {
-            // Obtener los datos del formulario para construir el payload
-            const formData = new FormData();
-            formData.append('fecha_inicio', '{{ request('fecha_inicio') ?? request()->input('fecha_inicio') }}');
-            formData.append('fecha_fin', '{{ request('fecha_fin') ?? request()->input('fecha_fin') }}');
+            // Tomar directamente los datos del formulario que genera el PDF,
+            // así evitamos problemas de inyección JS con textos largos.
+            const formPdf = document.getElementById('formGenerarPDF');
+            const formData = new FormData(formPdf);
             formData.append('_token', '{{ csrf_token() }}');
-            @if(request('asesor') || request()->input('asesor'))
-            formData.append('asesor', '{{ request('asesor') ?? request()->input('asesor') }}');
-            @endif
-            @if(request('unidad') || request()->input('unidad'))
-            formData.append('unidad', '{{ request('unidad') ?? request()->input('unidad') }}');
-            @endif
-            formData.append('conclusiones', '{{ addslashes($conclusiones ?? '') }}');
+
+            // URL absoluta al endpoint en Laravel (evita problemas con about:blank y rutas relativas)
+            const payloadUrl = '{{ url('/intervenciones/informe/payload-ia') }}';
 
             // Obtener el payload desde el backend
-            fetch('/intervenciones/informe/payload-ia', {
+            fetch(payloadUrl, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -452,10 +449,6 @@
                     return;
                 }
 
-                // Mostrar el payload en consola para debugging
-                console.log('Payload que se enviará a la API:', data.payload);
-                console.log('URL de la API:', data.api_url);
-
                 // Llamar a la API externa (esto aparecerá en Network)
                 fetch(data.api_url, {
                     method: 'POST',
@@ -465,10 +458,7 @@
                     },
                     body: JSON.stringify(data.payload)
                 })
-                .then(response => {
-                    console.log('Respuesta de la API:', response);
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(apiResponse => {
                     loading.style.display = 'none';
                     // Formato nuevo: { mensaje, tipo, analisis_id } o formato antiguo: { RESPUESTA, MENSAJE }
@@ -477,17 +467,17 @@
                         content.innerHTML = mensaje;
                         content.style.display = 'block';
                         convertMarkdownToHtml(content);
+                        var hidden = document.getElementById('analisis_ia_hidden');
+                        if (hidden) hidden.value = content.innerHTML;
                     } else {
                         errorDiv.style.display = 'block';
                         errorDiv.textContent = 'La API no devolvió un mensaje válido.';
-                        console.error('Respuesta de API:', apiResponse);
                     }
                 })
                 .catch(error => {
                     loading.style.display = 'none';
                     errorDiv.style.display = 'block';
                     errorDiv.textContent = 'Error al llamar a la API: ' + error.message;
-                    console.error('Error:', error);
                 });
             })
             .catch(error => {
@@ -499,7 +489,6 @@
                 loading.style.display = 'none';
                 errorDiv.style.display = 'block';
                 errorDiv.textContent = 'Error al obtener el payload: ' + error.message;
-                console.error('Error:', error);
             });
 
             // Función para convertir Markdown básico a HTML

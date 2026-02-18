@@ -85,7 +85,10 @@ class IntervencionesController extends Controller
         ]);
 
         $data = $this->getInformeData($request);
-        $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
+        // Si la previsualización envió el análisis ya generado, usarlo; si no, llamar a la API
+        $data['analisis_ia'] = $request->filled('analisis_ia')
+            ? $request->input('analisis_ia')
+            : $this->llamarApiAnalizarIntervencionesIA($request, $data);
 
         $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
 
