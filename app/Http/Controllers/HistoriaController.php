@@ -44,6 +44,7 @@ class HistoriaController extends Controller
             $entity = Historia::findOrFail($request->id);
             $entity->update($data);
         } else {
+            $data['section_id'] = 1;
             $entity = Historia::create($data);
         }
 
