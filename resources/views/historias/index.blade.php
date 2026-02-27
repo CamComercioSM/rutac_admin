@@ -1,4 +1,4 @@
-@extends('layouts.list', ['titulo'=> 'Historias', 'tituloModal'=> 'historia'])
+@extends('layouts.list', ['titulo' => 'Historias', 'tituloModal' => 'historia'])
 
 @section('form-fields')
     <div class="row">
@@ -18,18 +18,32 @@
             <input class="form-control" type="file" id="formFile" name="formFile">
         </div>
 
+        <div class="col-12 mb-3">
+            <a href="https://www.canva.com/design/DAHCbleDaAg/L-oTXqpe8zVYsNrzue8FPQ/edit?utm_content=DAHCbleDaAg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton"
+                target="_blank" class="small text-decoration-none">
+                Ver plantilla de miniatura
+            </a>
+        </div>
+
     </div>
 @endsection
 
 @section('script')
-    <script> 
+    <script>
         window.TABLA = {
             urlApi: '/historias',
             sortName: 'name',
             menu_row: ` <button class="dropdown-item" onClick="openEditar()" >Editar</button> `,
-            columns: [
-                { data: 'name', title: 'Nombre', orderable: true },
-                { data: 'video_url', title: 'Video', orderable: false },
+            columns: [{
+                    data: 'name',
+                    title: 'Nombre',
+                    orderable: true
+                },
+                {
+                    data: 'video_url',
+                    title: 'Video',
+                    orderable: false
+                },
             ]
         };
     </script>
