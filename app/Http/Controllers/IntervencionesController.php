@@ -7,6 +7,7 @@ use App\Imports\UnidadProductivaIntervencionesImport;
 use App\Http\Controllers\Controller;
 use App\Models\Empresarios\UnidadProductivaIntervenciones;
 use App\Models\Empresarios\UnidadProductiva;
+use App\Models\ReporteMensual;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\TablasReferencias\CategoriasIntervenciones;
@@ -18,21 +19,22 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use PDF;
 use League\CommonMark\CommonMarkConverter;
 
 class IntervencionesController extends Controller
 {
     function list(Request $request)
-    { 
-        $data = [ 
-            'categorias'=> CategoriasIntervenciones::get(),
-            'tipos'=> TiposIntervenciones::get(),
-            'modalidades'=> UnidadProductivaIntervenciones::$modalidades,
+    {
+        $data = [
+            'categorias' => CategoriasIntervenciones::get(),
+            'tipos' => TiposIntervenciones::get(),
+            'modalidades' => UnidadProductivaIntervenciones::$modalidades,
             'asesores' => User::whereNotNull('rol_id')->get(),
-            'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0,
-            'filtros'=> $request->all(),
-            'unidades'=> []
+            'esAsesor' => Auth::user()->rol_id == Role::ASESOR ?  1 : 0,
+            'filtros' => $request->all(),
+            'unidades' => []
         ];
 
         if ($unidad = $request->get('unidad')) {
@@ -52,9 +54,50 @@ class IntervencionesController extends Controller
         $data = $this->getInformeData($request);
         $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
 
+
+        $reporte = ReporteMensual::create([
+            'asesor_id'        => Auth::id(),
+            'fecha_generacion' => now(),
+            'total_intervenciones' => $data['totalGeneral'] ?? 0,
+            'total_unidades' => count($data['porUnidad'] ?? []),
+            'usuario_creo'     => Auth::id(),
+            'usuario_actualizo' => Auth::id(),
+        ]);
+
+        $data['reporte_id'] = $reporte->id;
+
         return view('intervenciones.preview', $data);
     }
 
+    public function saveInforme(Request $request)
+    {
+        $request->validate([
+            'mes'          => 'required|string',
+            'anio'         => 'required|string',
+        ]);
+        $data = $this->getInformeData($request);
+        $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
+
+        $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
+
+        $nombre = "informe_" . time() . ".pdf";
+        $ruta = public_path("informes/$nombre");
+        if (!file_exists(public_path('informes'))) {
+            mkdir(public_path('informes'), 0777, true);
+        }
+        $pdf->save($ruta);
+
+        ReporteMensual::where('id', $request->input('reporte_id'))->update([
+            'anio' => $request->input('anio'),
+            'mes' => $request->input('mes'),
+            'estado' => 'PENDIENTE_REVISION',
+            'informe_url' => "/informes/$nombre",
+            'usuario_actualizo' => Auth::id(),
+        ]);
+
+
+        return response()->file($ruta);
+    }
     /**
      * Endpoint que devuelve el payload para la API de análisis IA.
      * Útil para que el frontend pueda obtener los datos estructurados.
@@ -86,6 +129,8 @@ class IntervencionesController extends Controller
         $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
 
         $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
+        $path = "storage/InformesIntervenciones/informe_" . time() . ".pdf";
+        $pdf->save(public_path($path));
 
         return $pdf->stream('informe_intervenciones.pdf');
     }
@@ -102,8 +147,8 @@ class IntervencionesController extends Controller
             'categoria',
             'tipo'
         ])
-        ->whereBetween('fecha_inicio', [$fi, $ff])
-        ->orderBy('fecha_inicio', 'ASC');
+            ->whereBetween('fecha_inicio', [$fi, $ff])
+            ->orderBy('fecha_inicio', 'ASC');
 
         $asesor = (Auth::user()->rol_id === Role::ASESOR) ? Auth::id() : ($request->input('asesor') ?? $request->get('asesor'));
         if ($asesor) {
@@ -116,11 +161,11 @@ class IntervencionesController extends Controller
 
         // Aplicar filtros también a las agrupaciones
         $queryAgrupaciones = UnidadProductivaIntervenciones::whereBetween('fecha_inicio', [$fi, $ff]);
-        
+
         if ($asesor) {
             $queryAgrupaciones->where('asesor_id', $asesor);
         }
-        
+
         if ($unidad) {
             $queryAgrupaciones->where('unidadproductiva_id', $unidad);
         }
@@ -148,7 +193,7 @@ class IntervencionesController extends Controller
             ->get();
 
         $conclusiones = $request->input('conclusiones') ?? $request->get('conclusiones', '');
-        
+
         return [
             'inicio' => Carbon::parse($fi)->translatedFormat('Y-m-d H:i'),
             'fin'    => Carbon::parse($ff)->translatedFormat('Y-m-d H:i'),
@@ -283,7 +328,7 @@ class IntervencionesController extends Controller
     }
 
     function export(Request $request)
-    { 
+    {
         $query = $this->getQuery($request);
         return Excel::download(new IntervencionesExport($query), 'Intervenciones.xlsx');
     }
@@ -300,7 +345,7 @@ class IntervencionesController extends Controller
         $query = $this->getQuery($request);
         $data = $this->paginate($query, $request);
 
-        return response()->json( $data );
+        return response()->json($data);
     }
 
     public function store(Request $request)
@@ -309,15 +354,13 @@ class IntervencionesController extends Controller
 
         $data['asesor_id'] = Auth::user()->id;
 
-        if ($request->hasFile('formFile')) 
-        {
+        if ($request->hasFile('formFile')) {
             $path = $request->file('formFile')->store('storage/Intervenciones', 'public');
             $path = config('app.archivos_url') . $path;
             $data['soporte'] = $path;
         }
 
-        foreach($request->unidades as $item)
-        {
+        foreach ($request->unidades as $item) {
             $data['unidadproductiva_id'] = $item['unidadproductiva_id'];
             $data['participantes'] = $item['participantes'];
             $entity = UnidadProductivaIntervenciones::create($data);
@@ -361,8 +404,7 @@ class IntervencionesController extends Controller
             $query->whereDate('fecha_fin', '<=', $fechaFin);
         }
 
-        if(!empty($search))
-        {
+        if (!empty($search)) {
             $filters = ['descripcion'];
             $query->where(function ($q) use ($search, $filters) {
                 foreach ($filters as $field) {

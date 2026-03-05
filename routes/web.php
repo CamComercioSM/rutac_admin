@@ -184,6 +184,7 @@ use App\Http\Controllers\EmpresariosController;
 use App\Http\Controllers\SeccionesController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\IntervencionesController;
+use App\Http\Controllers\ReporteMensualController;
 use App\Http\Controllers\Whatsapp\WhatsappCategoryController;
 use App\Http\Controllers\Whatsapp\WhatsappTemplateController;
 use App\Http\Controllers\Whatsapp\WhatsappTestSendController;
@@ -252,9 +253,13 @@ Route::as('admin.')
     Route::get('/settings/export', [SettingController::class, 'export']);
     Route::get('/intervenciones/export', [IntervencionesController::class, 'export']);
 
+    Route::get('/reportes/list', [ReporteMensualController::class, 'index'])->name("reporteMensual");
+    Route::get('/reportes/reportesMensuales', [ReporteMensualController::class, 'reportesMensuales'])->name("reportesMensuales");
+
     Route::post('/intervenciones/import', [IntervencionesController::class, 'import']);
     Route::post('/intervenciones/informe/preview', [IntervencionesController::class, 'preview']);
-    Route::post('/intervenciones/informe', [IntervencionesController::class, 'informe']);
+    Route::post('/intervenciones/informe', [IntervencionesController::class, 'saveInforme']);
+    //Route::post('/intervenciones/informe', [IntervencionesController::class, 'informe']);
     Route::get('/intervenciones/informe', [IntervencionesController::class, 'informe']);
     Route::post('/intervenciones/informe/payload-ia', [IntervencionesController::class, 'getPayloadAnalisisIA']);
 

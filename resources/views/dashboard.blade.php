@@ -53,7 +53,7 @@
                     <div class="d-flex align-items-center">
                         <div class="avatar">
                             <div class="avatar-initial bg-white">
-                                <img src="/img/registro/{{ $imgTipoRegistro[$item->unidadtipo_id] }}" alt="">
+                                <img src="/img/registro/idea_negocio.png" alt="">
                             </div>
                         </div>
                         <div class="ms-3">

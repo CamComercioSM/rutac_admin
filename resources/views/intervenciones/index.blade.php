@@ -440,7 +440,6 @@
                 let modal = new bootstrap.Modal(document.getElementById('informeModal'));
                 modal.show();
             });
-
             // Al enviar el formulario de previsualización, copiar filtros al formulario y abrir en ruta real del servidor
             $('#formPreviewInforme').on('submit', function () {
                 var $filters = $('#filters');
