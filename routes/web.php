@@ -255,6 +255,8 @@ Route::as('admin.')
 
     Route::get('/reportes/list', [ReporteMensualController::class, 'index'])->name("reporteMensual");
     Route::get('/reportes/reportesMensuales', [ReporteMensualController::class, 'reportesMensuales'])->name("reportesMensuales");
+    Route::get('/reportes/supervision/{id?}', [ReporteMensualController::class, 'ReporteMensualSupervision'])->name("reporteMensual.supervision");
+    Route::resource('reportes/supervision', ReporteMensualController::class);
 
     Route::post('/intervenciones/import', [IntervencionesController::class, 'import']);
     Route::post('/intervenciones/informe/preview', [IntervencionesController::class, 'preview']);

@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                     render: (data, type, full) => {
                         // si luego haces join con usuarios, aquí imprimes el nombre real.
                         // mientras tanto, muestra el id del asesor.
-                        return `<span class="fw-medium text-heading">${full.asesor.name}</span>`;
+                        return `<a href="${baseUrl}reportes/supervision/${full.id}" class="fw-medium text-heading">${full.asesor.name}</a>`;
                     }
                 },
                 {
@@ -484,7 +484,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
                         else if (estado.includes('PENDIENTE_REVISION')) { badge = 'bg-label-info'; label = 'Por revisar'; }
                         else if (estado.includes('APROBADO')) { badge = 'bg-label-success'; label = 'Aprobado'; }
                         else if (estado.includes('RECHAZADO')) { badge = 'bg-label-danger'; label = 'Rechazado'; }
-
                         return `
                         <div class="d-flex align-items-center">
                             <span class="badge ${badge}">${label}</span>

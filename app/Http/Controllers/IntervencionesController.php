@@ -91,7 +91,7 @@ class IntervencionesController extends Controller
             'anio' => $request->input('anio'),
             'mes' => $request->input('mes'),
             'estado' => 'PENDIENTE_REVISION',
-            'informe_url' => "/informes/$nombre",
+            'informe_url' => "informes/$nombre",
             'usuario_actualizo' => Auth::id(),
         ]);
 
