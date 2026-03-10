@@ -348,6 +348,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
         tableTitle.innerHTML = 'Course you are taking';
 
         let dt_reporte = new DataTable(dt_reporte_mensual, {
+            processing: true,
+            serverSide: true,
             ajax: reportesUrl,
             columns: [
                 { data: 'id' }, // control (responsive)
@@ -355,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 { data: null },
                 { data: null },
                 { data: null },
-                { data: null },
+                { data: 'supervisor.name' },
                 { data: null },
                 { data: null }, // Meta (lo renderizamos)
                 { data: 'estado' }, // Estado (render)
@@ -391,22 +393,31 @@ document.addEventListener('DOMContentLoaded', function (e) {
                     targets: 2, // Gestor
                     responsivePriority: 2,
                     render: (data, type, full) => {
-                        // si luego haces join con usuarios, aquí imprimes el nombre real.
-                        // mientras tanto, muestra el id del asesor.
+                        if (full?.estado?.toUpperCase().includes('BORRADOR')) {
+                            return `<span class="fw-medium text-heading">${full.asesor.name}</span>`;
+                        }
                         return `<a href="${baseUrl}reportes/supervision/${full.id}" class="fw-medium text-heading">${full.asesor.name}</a>`;
                     }
                 },
                 {
-                    targets: 3, // Periodo
-                    responsivePriority: 3,
+                    data: null,
+                    targets: 3,
                     render: (data, type, full) => {
 
                         if (!full?.anio || !full?.mes) {
-                            return `<span class="text-nowrap">-</span>`;
+                            return '-';
                         }
 
                         const mes = String(full.mes).padStart(2, '0');
-                        return `<span class="text-nowrap">${full.anio}-${mes}</span>`;
+                        const periodo = `${full.anio}-${mes}`;
+
+                        // Para filtros y orden
+                        if (type === 'filter' || type === 'sort') {
+                            return periodo;
+                        }
+
+                        // Para mostrar en la tabla
+                        return `<span class="text-nowrap">${periodo}</span>`;
                     }
                 },
                 {
@@ -577,27 +588,89 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 }
             },
             initComplete: function () {
-                const estados = ["Pendiente", "En revisión", "Aprobado"];
-                const periodos = ["2024-01", "2024-02", "2024-03"];
-                const gestores = ["Juan Pérez", "María Gómez", "Carlos Ruiz"];
+                const api = this.api();
 
-                function crearSelect(clase, placeholder, datos) {
-                    let select = `<label class="form-label">${placeholder}</label>
-                  <select class="form-select">
-                    <option value="">Todos</option>`;
+                const filterRefs = {};
 
-                    datos.forEach(d => {
-                        select += `<option value="${d}">${d}</option>`;
+                const createFilter = (columnIndex, containerClass, selectId, defaultOptionText) => {
+                    const column = api.column(columnIndex);
+                    const container = document.querySelector(containerClass);
+
+                    if (!container) return;
+
+                    container.innerHTML = '';
+
+                    const label = document.createElement('label');
+                    label.className = 'form-label';
+                    label.setAttribute('for', selectId);
+                    label.textContent = defaultOptionText;
+
+                    const select = document.createElement('select');
+                    select.id = selectId;
+                    select.className = 'form-select text-capitalize';
+                    select.innerHTML = `<option value="">Todos</option>`;
+
+                    container.appendChild(label);
+                    container.appendChild(select);
+
+                    const uniqueData = Array.from(
+                        new Set(
+                            api
+                                .cells(null, columnIndex)
+                                .render('filter')
+                                .toArray()
+                                .filter(d => d !== null && d !== undefined && d !== '-')
+                        )
+                    ).sort();
+
+                    uniqueData.forEach(d => {
+                        const option = document.createElement('option');
+                        option.value = d;
+                        option.textContent = d;
+                        select.appendChild(option);
                     });
 
-                    select += `</select>`;
+                    // guardamos referencia, pero NO filtramos aquí
+                    filterRefs[columnIndex] = {
+                        column,
+                        select
+                    };
+                };
 
-                    $(clase).html(select);
+                createFilter(8, '.reporte_estado', 'ReporteEstado', 'Estados');
+                createFilter(3, '.reporte_periodo', 'ReportePeriodo', 'Periodos');
+                createFilter(5, '.reporte_gestor', 'ReporteSupervisor', 'Gestores');
+
+                const btnAplicar = document.getElementById('btnAplicarFiltros');
+                const btnLimpiar = document.getElementById('btnLimpiarFiltros');
+
+                if (btnAplicar) {
+                    btnAplicar.addEventListener('click', () => {
+                        Object.values(filterRefs).forEach(({ column, select }) => {
+                            column.search(select.value || '');
+                        });
+
+                        api.draw();
+                    });
                 }
 
-                crearSelect(".reporte_estado", "Estado", estados);
-                crearSelect(".reporte_periodo", "Periodo", periodos);
-                crearSelect(".reporte_gestor", "Gestor", gestores);
+                if (btnLimpiar) {
+                    btnLimpiar.addEventListener('click', () => {
+                        Object.values(filterRefs).forEach(({ column, select }) => {
+                            select.value = '';
+                            column.search('');
+                        });
+
+                        api.search(''); // limpia búsqueda global también
+
+                        const searchInput = document.querySelector('.dt-search input');
+                        if (searchInput) {
+                            searchInput.value = '';
+                        }
+
+                        api.draw();
+                    });
+                }
             }
         });
     }
@@ -624,4 +697,25 @@ document.addEventListener('DOMContentLoaded', function (e) {
             });
         });
     }, 100);
+
+    const btnExportarExcel = document.getElementById('btnExportarReporte');
+
+    if (btnExportarExcel) {
+        btnExportarExcel.addEventListener('click', exportTableToExcel);
+    }
 });
+
+function exportTableToExcel() {
+    Swal.fire({
+        title: '¿Deseas exportar los reportes mensuales?',
+        text: "Se descargará un archivo Excel con los datos de los reportes mensuales.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, exportar',
+        cancelButtonText: 'No, cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = baseUrl + 'reportes/export';
+        }
+    });
+}

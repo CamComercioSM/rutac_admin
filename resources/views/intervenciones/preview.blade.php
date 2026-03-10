@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Previsualización - Informe de Intervenciones</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
             margin: 0;
@@ -503,6 +504,32 @@
             $('#btnGuardarInforme').on('click', function() {
                 let modal = new bootstrap.Modal(document.getElementById('guardarInformeModal'));
                 modal.show();
+            });
+        });
+
+        $(document).on('submit', '#formSaveInforme', function(e) {
+            e.preventDefault();
+            let formData = $(this).serialize();
+            $.ajax({
+                url: $(this).attr('action'),
+                method: 'POST',
+                data: formData,
+                success: function(response) {
+                    swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: response.message,
+                    }).then(() => { 
+                    location.reload();
+                    });
+                },
+                error: function() {
+                    swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'El periodo ya fue registrado anteriormente. Por favor, elija otro año/mes.',
+                    });
+                }
             });
         });
     </script>

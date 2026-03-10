@@ -13,6 +13,7 @@
 
 @section('page-script')
     @vite(['resources/assets/js/modal-edit-user.js', 'resources/assets/js/app-ecommerce-customer-detail.js', 'resources/assets/js/app-ecommerce-customer-detail-overview.js'])
+    @vite(['resources/assets/js/admin-list-table.js'])
 @endsection
 
 @section('content')
@@ -23,9 +24,12 @@
             <p class="mb-0">Periodo: {{ $reporte->anio }} - {{ $reporte->mes }}</p>
         </div>
         <div>
-            <button type="button" id="delete-report" class="btn btn-outline-danger delete-report">Rechazar Reporte</button>
-            <button type="button" id="approve-report" class="btn btn-outline-success me-2 approve-report">Aprobar
-                Reporte</button>
+            @if ($reporte->estado !== 'APROBADO' && $reporte->estado !== 'RECHAZADO')
+                <button id="approve-report" class="btn btn-success me-2"><i
+                        class="icon-base ri ri-check-line me-1"></i>Aprobar</button>
+                <button id="delete-report" class="btn btn-danger"><i
+                        class="icon-base ri ri-close-line me-1"></i>Rechazar</button>
+            @endif
         </div>
     </div>
 
@@ -116,22 +120,16 @@
                 <div class="card-body">
                     <div class="card-info">
                         <h5 class="card-title mb-2">Observaciones</h5>
-                        
+
                         @if ($reporte->observaciones_supervisor)
                             <div class="form-floating form-floating-outline mb-6">
-                                <textarea
-                                    class="form-control h-px-100"
-                                    id="observacionesSupervisor"
-                                    name="observacionesSupervisor"
+                                <textarea class="form-control h-px-100" id="observacionesSupervisor" name="observacionesSupervisor" disabled
                                     placeholder="Comments here...">{{ $reporte->observaciones_supervisor }}</textarea>
                                 <label for="observacionesSupervisor">Escriba las observaciones</label>
                             </div>
                         @else
                             <div class="form-floating form-floating-outline mb-6">
-                                <textarea
-                                    class="form-control h-px-100"
-                                    id="observacionesSupervisor"
-                                    name="observacionesSupervisor"
+                                <textarea class="form-control h-px-100" id="observacionesSupervisor" name="observacionesSupervisor"
                                     placeholder="Comments here..."></textarea>
                                 <label for="observacionesSupervisor">Escriba las observaciones</label>
                             </div>
@@ -346,14 +344,18 @@
             // boton de aprobación
             document.getElementById('approve-report').addEventListener('click', function() {
                 if (reporte.estado === 'APROBADO') {
-                    Swal.fire('Reporte ya aprobado', 'Este reporte ya ha sido aprobado previamente.', 'info');
+                    Swal.fire('Reporte ya aprobado', 'Este reporte ya ha sido aprobado previamente.',
+                        'info');
                     return;
-                }else if (reporte.estado === 'RECHAZADO') {
-                    Swal.fire('Reporte rechazado', 'Este reporte ha sido rechazado previamente.', 'info');
+                } else if (reporte.estado === 'RECHAZADO') {
+                    Swal.fire('Reporte rechazado', 'Este reporte ha sido rechazado previamente.',
+                        'info');
                     return;
                 }
                 if (!document.getElementById('observacionesSupervisor').value.trim()) {
-                    Swal.fire('Observaciones requeridas', 'Por favor, ingresa tus observaciones antes de aprobar o rechazar el reporte.', 'warning');
+                    Swal.fire('Observaciones requeridas',
+                        'Por favor, ingresa tus observaciones antes de aprobar o rechazar el reporte.',
+                        'warning');
                     return;
                 }
 
@@ -368,19 +370,25 @@
                     if (result.isConfirmed) {
                         const formData = new FormData();
                         formData.append('reporte_id', reporte.id);
-                        formData.append('observacionesSupervisor', document.getElementById('observacionesSupervisor').value);
+                        formData.append('observacionesSupervisor', document.getElementById(
+                            'observacionesSupervisor').value);
                         formData.append('estado', 'APROBADO');
 
-                        peticionesAJAX(baseUrl + 'reportes/supervision', 'POST', formData).then(response => {
+                        peticionesAJAX(baseUrl + 'reportes/supervision', 'POST', formData).then(
+                            response => {
 
-                            if (response.success) {
-                                Swal.fire(response.message, '', 'success');
-                                window.location.reload();
-                            } else {
-                                Swal.fire('Error', 'No se pudo aprobar el reporte. Inténtalo de nuevo.', 'error');
-                            }
-                        }).catch(() => {
-                            Swal.fire('Error', 'No se pudo aprobar el reporte. Inténtalo de nuevo.', 'error');
+                                if (response.success) {
+                                    Swal.fire(response.message, '', 'success');
+                                    window.location.reload();
+                                } else {
+                                    Swal.fire('Error',
+                                        'No se pudo aprobar el reporte. Inténtalo de nuevo.',
+                                        'error');
+                                }
+                            }).catch(() => {
+                            Swal.fire('Error',
+                                'No se pudo aprobar el reporte. Inténtalo de nuevo.',
+                                'error');
                         });
                     }
                 });
@@ -388,14 +396,18 @@
             // boton de rechazo
             document.getElementById('delete-report').addEventListener('click', function() {
                 if (reporte.estado === 'APROBADO') {
-                    Swal.fire('Reporte ya aprobado', 'Este reporte ya ha sido aprobado previamente.', 'info');
+                    Swal.fire('Reporte ya aprobado', 'Este reporte ya ha sido aprobado previamente.',
+                        'info');
                     return;
-                }else if (reporte.estado === 'RECHAZADO') {
-                    Swal.fire('Reporte rechazado', 'Este reporte ha sido rechazado previamente.', 'info');
+                } else if (reporte.estado === 'RECHAZADO') {
+                    Swal.fire('Reporte rechazado', 'Este reporte ha sido rechazado previamente.',
+                        'info');
                     return;
                 }
                 if (!document.getElementById('observacionesSupervisor').value.trim()) {
-                    Swal.fire('Observaciones requeridas', 'Por favor, ingresa tus observaciones antes de aprobar o rechazar el reporte.', 'warning');
+                    Swal.fire('Observaciones requeridas',
+                        'Por favor, ingresa tus observaciones antes de aprobar o rechazar el reporte.',
+                        'warning');
                     return;
                 }
                 Swal.fire({
@@ -409,42 +421,51 @@
                     if (result.isConfirmed) {
                         const formData = new FormData();
                         formData.append('reporte_id', reporte.id);
-                        formData.append('observacionesSupervisor', document.getElementById('observacionesSupervisor').value);
+                        formData.append('observacionesSupervisor', document.getElementById(
+                            'observacionesSupervisor').value);
                         formData.append('estado', 'RECHAZADO');
-                        peticionesAJAX(baseUrl + 'reportes/supervision', 'POST', formData).then(response => {
-                            if (response.success) {
-                                Swal.fire(response.message, '', 'success');
-                                window.location.reload();
-                            } else {
-                                Swal.fire('Error', 'No se pudo rechazar el reporte. Inténtalo de nuevo.', 'error');
-                            }
-                        }).catch(() => {
-                            Swal.fire('Error', 'No se pudo rechazar el reporte. Inténtalo de nuevo.', 'error');
+                        peticionesAJAX(baseUrl + 'reportes/supervision', 'POST', formData).then(
+                            response => {
+                                if (response.success) {
+                                    Swal.fire(response.message, '', 'success');
+                                    window.location.reload();
+                                } else {
+                                    Swal.fire('Error',
+                                        'No se pudo rechazar el reporte. Inténtalo de nuevo.',
+                                        'error');
+                                }
+                            }).catch(() => {
+                            Swal.fire('Error',
+                                'No se pudo rechazar el reporte. Inténtalo de nuevo.',
+                                'error');
                         });
                     }
                 });
             });
 
-            function peticionesAJAX (url, method, data) {
+            function peticionesAJAX(url, method, data) {
                 return fetch(url, {
                     method: method,
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
                     },
                     body: data
                 }).then(response => response.json());
             }
 
-            function validacionesOperaciones(){
+            function validacionesOperaciones() {
                 if (reporte.estado === 'APROBADO') {
                     Swal.fire('Reporte ya aprobado', 'Este reporte ya ha sido aprobado previamente.', 'info');
                     return;
-                }else if (reporte.estado === 'RECHAZADO') {
+                } else if (reporte.estado === 'RECHAZADO') {
                     Swal.fire('Reporte rechazado', 'Este reporte ha sido rechazado previamente.', 'info');
                     return;
                 }
                 if (!document.getElementById('observacionesSupervisor').value.trim()) {
-                    Swal.fire('Observaciones requeridas', 'Por favor, ingresa tus observaciones antes de aprobar o rechazar el reporte.', 'warning');
+                    Swal.fire('Observaciones requeridas',
+                        'Por favor, ingresa tus observaciones antes de aprobar o rechazar el reporte.',
+                        'warning');
                     return;
                 }
             }

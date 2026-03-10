@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReporteMensualExport;
 use App\Models\ReporteMensual;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReporteMensualController extends Controller
 {
@@ -17,13 +19,76 @@ class ReporteMensualController extends Controller
         return view('reporteMensual.index');
     }
 
-    public function reportesMensuales(): JsonResponse
+    public function reportesMensuales(Request $request): JsonResponse
     {
-        $reportes = ReporteMensual::with(['asesor:id,name,identification', 'supervisor:id,name'])->get();
+        $draw = intval($request->input('draw'));
+        $start = intval($request->input('start', 0));
+        $length = intval($request->input('length', 10));
+
+        $query = ReporteMensual::with([
+            'asesor:id,name,identification',
+            'supervisor:id,name'
+        ]);
+
+        $totalData = ReporteMensual::count();
+
+        // filtro por estado desde DataTables
+        $estado = $request->input('columns.8.search.value');
+        $gestor = $request->input('columns.5.search.value');
+        $periodo = $request->input('columns.3.search.value');
+
+        if (!empty($estado)) {
+            $estado = preg_replace('/^\^|\$$/', '', $estado);
+            $query->where('estado', $estado);
+        }
+        if (!empty($gestor)) {
+            $gestor = preg_replace('/^\^|\$$/', '', $gestor);
+            $query->whereHas('supervisor', function ($q) use ($gestor) {
+                $q->where('name', 'like', "%{$gestor}%");
+            });
+        }
+        if (!empty($periodo)) {
+            $periodo = preg_replace('/^\^|\$$/', '', $periodo);
+
+            if (preg_match('/^(\d{4})-(\d{2})$/', $periodo, $matches)) {
+                $anio = $matches[1];
+                $mes = $matches[2];
+
+                $query->where('anio', $anio)
+                    ->where('mes', $mes);
+            }
+        }
+        // búsqueda global opcional
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhere('estado', 'like', "%{$search}%")
+                    ->orWhere('gestor', 'like', "%{$search}%")
+                    ->orWhere('anio', 'like', "%{$search}%")
+                    ->orWhere('mes', 'like', "%{$search}%");
+            });
+        }
+
+        $totalFiltered = (clone $query)->count();
+
+        $reportes = $query
+            ->skip($start)
+            ->take($length)
+            ->get();
 
         return response()->json([
-            'data' => $reportes
+            'draw' => $draw,
+            'recordsTotal' => $totalData,
+            'recordsFiltered' => $totalFiltered,
+            'data' => $reportes,
         ]);
+    }
+
+    public function export(Request $request)
+    {
+        $query = $this->getQuery($request);
+        return Excel::download(new ReporteMensualExport($query), 'reportes_mensuales.xlsx');    
     }
 
     public function ReporteMensualSupervision($id)
@@ -43,7 +108,7 @@ class ReporteMensualController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) : JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $msg = '';
 
@@ -100,5 +165,25 @@ class ReporteMensualController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+
+    private function getQuery(Request $request)
+    {
+        $query = ReporteMensual::query([])->select([
+            'id',
+            'asesor_id',
+            'anio',
+            'mes',
+            'total_intervenciones',
+            'total_unidades',
+            'estado',
+            'observaciones_supervisor',
+            'supervisor_id',
+            'fecha_creacion',
+            'fecha_revision',
+            'informe_url',    
+        ]);
+        return $query;
     }
 }

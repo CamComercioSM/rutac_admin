@@ -1,13 +1,13 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Academy Dashboard - Apps')
+@section('title', 'Reportes Mensuales')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/apex-charts/apex-charts.scss'])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/apex-charts/apex-charts.scss','resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/apex-charts/apexcharts.js'])
+    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/apex-charts/apexcharts.js',  'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
 @section('page-script')
@@ -520,14 +520,14 @@
 
             <div class="row pb-2 gy-3 mt-4">
                 <div class="col-12 d-flex justify-content-end">
-                    <button type="button" class="btn btn-secondary me-2">Limpiar</button>
-                    <button type="button" class="btn btn-primary">Aplicar</button>
+                    <button type="button" id="btnLimpiarFiltros" class="btn btn-secondary me-2">Limpiar</button>
+                    <button type="button" id="btnAplicarFiltros" class="btn btn-primary">Aplicar</button>
                 </div>
             </div>
         </div>
         <div class="table-responsive mb-3">
             <div class="mb-2 mt-4 px-3">
-                <button type="button" class="btn btn-primary me-2">Exportar</button>
+                <button type="button"  id="btnExportarReporte" class="btn btn-primary me-2">Exportar</button>
                 <button type="button" class="btn btn-success">Revisar reporte</button>
             </div>
             <table class="table datatables-reporte-mensual">
