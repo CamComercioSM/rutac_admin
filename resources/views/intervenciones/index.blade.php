@@ -37,7 +37,263 @@
 @endsection
 
 @section('form-fields')
+    <!-- Modern Vertical Wizard -->
     <div class="row">
+        <div class="col-12">
+            <small class="fw-medium">Intervencion</small>
+            <div class="bs-stepper vertical wizard-modern wizard-modern-vertical mt-2">
+                <div class="bs-stepper-header gap-lg-2">
+                    <div class="step" data-target="#account-details-modern-vertical">
+                        <button type="button" class="step-trigger">
+                            <span class="bs-stepper-circle"><i class="icon-base ri ri-check-line"></i></span>
+                            <span class="bs-stepper-label">
+                                <span class="bs-stepper-number">01</span>
+                                <span class="d-flex flex-column gap-1 ms-2">
+                                    <span class="bs-stepper-title">Datos de la intervencion</span>
+                                    <span class="bs-stepper-subtitle">Programa, convocatoria ...</span>
+                                </span>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="line"></div>
+                    <div class="step" data-target="#avances-info-modern-vertical">
+                        <button type="button" class="step-trigger">
+                            <span class="bs-stepper-circle"><i class="icon-base ri ri-check-line"></i></span>
+                            <span class="bs-stepper-label">
+                                <span class="bs-stepper-number">02</span>
+                                <span class="d-flex flex-column gap-1 ms-2">
+                                    <span class="bs-stepper-title">Avances y resultados</span>
+                                    <span class="bs-stepper-subtitle">Resultados obtenidos</span>
+                                </span>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="line"></div>
+                    <div class="step" data-target="#personal-info-modern-vertical">
+                        <button type="button" class="step-trigger">
+                            <span class="bs-stepper-circle"><i class="icon-base ri ri-check-line"></i></span>
+                            <span class="bs-stepper-label">
+                                <span class="bs-stepper-number">03</span>
+                                <span class="d-flex flex-column gap-1 ms-2">
+                                    <span class="bs-stepper-title">Unidades intervenidas</span>
+                                    <span class="bs-stepper-subtitle">Información de las unidades</span>
+                                </span>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="line"></div>
+                    <div class="step" data-target="#social-links-modern-vertical">
+                        <button type="button" class="step-trigger">
+                            <span class="bs-stepper-circle"><i class="icon-base ri ri-check-line"></i></span>
+                            <span class="bs-stepper-label">
+                                <span class="bs-stepper-number">04</span>
+                                <span class="d-flex flex-column gap-1 ms-2">
+                                    <span class="bs-stepper-title">Soportes</span>
+                                    <span class="bs-stepper-subtitle">Evidencias y documentos</span>
+                                </span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bs-stepper-content">
+                    <form onSubmit="return false">
+                        <!-- informacion de intervencion -->
+                        <div id="account-details-modern-vertical" class="content">
+                            <div class="row">
+                                <div class="col-12 col-md-6 form-group mb-3">
+                                    <label class="form-label" for="programa_id">Programa</label>
+                                    <select class="form-select" name="programa_id" id="programa_id" required>
+                                        <option value="" selected>Seleccione una opción</option>
+                                        @foreach ($programas as $item)
+                                            <option value="{{ $item->programa_id }}">{{ $item->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-12 col-md-6 form-group mb-3">
+                                    <label class="form-label" for="convocatoria_id">Convocatoria</label>
+                                    <select class="form-select" name="convocatoria_id" id="convocatoria_id" required
+                                        disabled>
+                                        <option value="" selected>Seleccione primero un programa</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12 col-md-6 form-group mb-3">
+                                    <label class="form-label" for="categoria_id">Categoría</label>
+                                    <select class="form-select" name="categoria_id" id="categoria_id" required>
+                                        <option value="" selected>Seleccione una opción</option>
+                                        @foreach ($categorias as $item)
+                                            <option value="{{ $item->id }}">{{ $item->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-12 col-md-6 form-group mb-3">
+                                    <label class="form-label" for="tipo_id">Tipo</label>
+                                    <select class="form-select" name="tipo_id" id="tipo_id" required>
+                                        <option value="" selected>Seleccione una opción</option>
+                                        @foreach ($tipos as $item)
+                                            <option value="{{ $item->id }}">{{ $item->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-12 col-md-12 form-group mb-3 d-none" id="cont_referencia">
+                                    <label for="referencia_id" class="form-label"></label>
+                                    <select class="form-select w-75" name="referencia_id" id="referencia_id"></select>
+                                </div>
+
+                                <div class="col-12 col-md-4 form-group mb-3">
+                                    <label class="form-label" for="modalidad">Modalidad</label>
+                                    <select class="form-select" name="modalidad" id="modalidad" required>
+                                        <option value="" selected>Seleccione una opción</option>
+                                        @foreach ($modalidades as $index => $item)
+                                            <option value="{{ $index }}">{{ $item }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-12 col-md-4 form-group mb-3">
+                                    <label class="form-label" for="fecha_inicio">Fecha inicio</label>
+                                    <input type="datetime-local" class="form-control" name="fecha_inicio"
+                                        id="fecha_inicio" placeholder="Fecha inicio" required>
+                                </div>
+
+                                <div class="col-12 col-md-4 form-group mb-3">
+                                    <label class="form-label" for="fecha_fin">Fecha fin</label>
+                                    <input type="datetime-local" class="form-control" name="fecha_fin" id="fecha_fin"
+                                        placeholder="Fecha fin" required>
+                                </div>
+                                <div class="col-12 col-md-12 form-group mb-3">
+                                    <label class="form-label" for="descripcion">Descripción</label>
+                                    <div id="descripcion"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Avances -->
+                        <div id="avances-info-modern-vertical" class="content">
+                            <div class="col-12 col-md-12 form-group mb-3">
+                                <label class="form-label" for="conclusiones">Conclusiones</label>
+                                <div id="conclusiones"></div>
+                            </div>
+                            {{-- <div class="col-12">
+                                <div class="card-body pb-12">
+                                    <small class="fw-medium">Porcentaje de avance</small>
+                                    <div class="noUi-info mt-6 mb-12" id="slider-info"></div>
+                                </div>
+                            </div> --}}
+                        </div>
+                        <!-- Unidades productivas -->
+                        <div id="personal-info-modern-vertical" class="content">
+                            <div class="col-12 col-md-12 form-group mb-4">
+                                <h4 class="mb-0"> Unidades productivas intervenidas </h4>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="row">
+                                            <div class="row">
+                                                <div class="col-12 col-md-9 form-group mb-3">
+                                                    <label for="unidadAdd" class="form-label">Unidad productiva</label>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <select class="form-select w-75" name="unidadAdd" id="unidadAdd">
+                                                            <option value="" disabled selected>Seleccione una unidad
+                                                                para agregar
+                                                            </option>
+                                                            @foreach ($unidades as $item)
+                                                                <option value="{{ $item->id }}">{{ $item->nombre }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        <a href="/unidadesProductivas/list"
+                                                            class="btn btn-outline-primary btn-icon">
+                                                            <i class="icon-base ri ri-search-line"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12 col-md-3 form-group mb-3">
+                                                    <label for="participantes" class="form-label"># Participantes</label>
+                                                    <input class="form-control" type="number" id="participantes"
+                                                        name="participantes" placeholder="Cantidad de participantes">
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-md-3 form-group mb-3 pt-5">
+                                                <button type="button" class="btn btn-xl btn-primary py-1 mt-3"
+                                                    onclick="openAdd()">Agregar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Users List -->
+                                    <div class="col-md-6 mb-3 mt-3">
+                                        <div class="form-floating form-floating-outline">
+                                            <input id="TagifyUserList" name="TagifyUserList" class="form-control h-auto"
+                                                value="" />
+                                            <label for="TagifyUserList">Unidades productivas</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="row">
+                                            <div class="row">
+                                                <div class="col-12 col-md-9 form-group mb-3">
+                                                    <label for="otroParticipanteAdd" class="form-label">Otros
+                                                        participantes</label>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <select class="form-select w-75" name="otroParticipanteAdd"
+                                                            id="otroParticipanteAdd">
+                                                            <option value="" disabled selected>Selecciona otro
+                                                                Participante
+                                                            </option>
+                                                            @foreach ($leads as $item)
+                                                                <option value="{{ $item->id }}">{{ $item->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        <div class="">
+                                                            <button class="btn btn-outline-primary btn-icon">
+                                                                <i class="icon-base ri ri-add-line"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12 col-md-3 form-group mb-3">
+                                                    <label for="participantes_otros" class="form-label"># Participantes</label>
+                                                    <input class="form-control" type="number" id="participantes_otros"
+                                                        name="participantesOtros" placeholder="Cantidad de participantes">
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-md-3 form-group mb-3 pt-5">
+                                                <button type="button" class="btn btn-xl btn-primary py-1 mt-3"
+                                                    onclick="openAddOtroParticipante()">Agregar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Users List -->
+                                    <div class="col-md-6 mb-3 mt-3">
+                                        <div class="form-floating form-floating-outline">
+                                            <input id="TagifyOtrosParticipantes" name="TagifyOtrosParticipantes" class="form-control h-auto"
+                                                value="" />
+                                            <label for="TagifyOtrosParticipantes">Otros Participantes</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Soporte -->
+                        <div id="social-links-modern-vertical" class="content">
+                            <div class="col-12 col-md-12 form-group mb-3" id="contFormFile">
+                                <label for="formFile" class="form-label">Soporte (opcional)</label>
+                                <input class="form-control" type="file" id="formFile" name="formFile">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Modern Vertical Wizard -->
+    {{-- <div class="row">
 
         <div class="col-12 col-md-6 form-group mb-3">
             <label class="form-label" for="programa_id">Programa</label>
@@ -75,11 +331,11 @@
                 @endforeach
             </select>
         </div>
-        {{-- 
+
         <div class="col-12 col-md-12 form-group mb-3 d-none" id="cont_referencia">
             <label for="referencia_id" class="form-label"></label>
             <select class="form-select w-75" name="referencia_id" id="referencia_id"></select>
-        </div> --}}
+        </div>
 
         <div class="col-12 col-md-4 form-group mb-3">
             <label class="form-label" for="modalidad">Modalidad</label>
@@ -212,7 +468,7 @@
 
             <span class="switch-label" id="switchLabel">Borrador</span>
         </label>
-    </div>
+    </div> --}}
 @endsection
 
 @section('btns-actions')
@@ -312,9 +568,9 @@
 @endsection
 
 @section('script')
-    @vite(['resources/assets/vendor/libs/quill/typography.scss', 'resources/assets/vendor/libs/quill/editor.scss'])
+    @vite(['resources/assets/vendor/libs/quill/typography.scss', 'resources/assets/vendor/libs/quill/editor.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss'])
 
-    @vite(['resources/assets/vendor/libs/quill/katex.js', 'resources/assets/vendor/libs/quill/quill.js'])
+    @vite(['resources/assets/vendor/libs/quill/katex.js', 'resources/assets/vendor/libs/quill/quill.js', 'resources/assets/js/form-wizard-validation.js', 'resources/js/reporteMensual/intervenciones.js'])
 
     <script>
         const CONVOCATORIAS = @json($convocatorias);
@@ -496,9 +752,14 @@
                 text: text,
                 participantes: participantes
             });
+            window.addUnidadToTagify({
+                id: id,
+                text: text,
+                participantes: participantes
+            });
 
             $("#unidadAdd").val(null).trigger('change');
-            $("#participantess").val(null);
+            $("#participantes").val(null);
         }
         window.openAddOtroParticipante = function() {
             const id = $("#otroParticipanteAdd").val();
@@ -520,6 +781,12 @@
                 text: text,
                 participantes: participantes
             });
+
+            // window.addOtroParticipanteToTagify({
+            //     id: id,
+            //     text: text,
+            //     participantes: participantes
+            // });
 
             $("#otroParticipanteAdd").val(null).trigger('change');
             $("#participantes_otro").val(null);
@@ -544,6 +811,26 @@
 
             $("#table_opciones").append(item);
         }
+        window.addUnidadToTagify = function(row = {}) {
+            if (!window.tagifyUserList) return;
+
+            const yaExiste = window.tagifyUserList.value.some(tag => String(tag.value) === String(row.id));
+            if (yaExiste) return;
+
+            const tagData = {
+                value: row.id,
+                name: row.text,
+                email: `Participantes: ${row.participantes}`,
+                avatar: 'https://via.placeholder.com/40?text=UP'
+            };
+
+            // agregar al whitelist para que también quede disponible en búsquedas
+            window.tagifyUserList.settings.whitelist.push(tagData);
+
+            // agregar como tag visible
+            window.tagifyUserList.addTags([tagData]);
+        }
+
         window.itemOtroParticipante = function(row = {}) {
             const index = $("#table_otros_participantes tr").length;
             const item = `
@@ -563,9 +850,30 @@
             $("#table_otros_participantes").append(item);
         }
 
+        // window.addOtroParticipanteToTagify = function(row = {}) {
+        //     if (!window.tagifyUserList) return;
+
+        //     const yaExiste = window.tagifyUserList.value.some(tag => String(tag.value) === String(row.id));
+        //     if (yaExiste) return;
+
+        //     const tagData = {
+        //         value: row.id,
+        //         name: row.text,
+        //         email: `Participantes: ${row.participantes}`,
+        //         avatar: 'https://via.placeholder.com/40?text=UP'
+        //     };
+
+        //     // agregar al whitelist para que también quede disponible en búsquedas
+        //     window.tagifyUserList.settings.whitelist.push(tagData);
+
+        //     // agregar como tag visible
+        //     window.tagifyUserList.addTags([tagData]);
+        // };
+
         window.removeOption = function(btn) {
             $(btn).closest("tr").remove();
-        };
+        }
+
         window.removeOtroParticipante = function(btn) {
             $(btn).closest("tr").remove();
         }

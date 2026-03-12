@@ -3,16 +3,16 @@
 @section('title', 'Reporte mensual | Supervisión')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/bootstrap-select/bootstrap-select.scss', 'resources/assets/vendor/libs/nouislider/nouislider.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/vendor/libs/cleave-zen/cleave-zen.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/vendor/libs/cleave-zen/cleave-zen.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/bootstrap-select/bootstrap-select.js', 'resources/assets/vendor/libs/nouislider/nouislider.js'])
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/modal-edit-user.js', 'resources/assets/js/app-ecommerce-customer-detail.js', 'resources/assets/js/app-ecommerce-customer-detail-overview.js'])
+    @vite(['resources/assets/js/modal-edit-user.js', 'resources/assets/js/app-ecommerce-customer-detail.js', 'resources/assets/js/app-ecommerce-customer-detail-overview.js', 'resources/js/reporteMensual/intervenciones.js'])
     @vite(['resources/assets/js/admin-list-table.js'])
 @endsection
 
@@ -119,6 +119,12 @@
             <div class="card h-10">
                 <div class="card-body">
                     <div class="card-info">
+                        <div class="col-12">
+                            <div class="card-body pb-12">
+                                <small class="fw-medium">Porcentaje de avance</small>
+                                <div class="noUi-info mt-6 mb-12" id="slider-info"></div>
+                            </div>
+                        </div>
                         <h5 class="card-title mb-2">Observaciones</h5>
 
                         @if ($reporte->observaciones_supervisor)
