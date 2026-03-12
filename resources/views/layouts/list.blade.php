@@ -10,7 +10,8 @@
 'resources/assets/vendor/libs/select2/select2.scss',
 'resources/assets/vendor/libs/bootstrap-select/bootstrap-select.scss',
 'resources/assets/vendor/libs/nouislider/nouislider.scss',
-'resources/assets/vendor/libs/tagify/tagify.scss'])
+'resources/assets/vendor/libs/tagify/tagify.scss',
+'resources/assets/vendor/libs/dropzone/dropzone.scss'])
 @endsection
 
 <!-- Vendor Scripts -->
@@ -19,6 +20,7 @@
 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js',
 'resources/assets/vendor/libs/select2/select2.js',
 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js',
+'resources/assets/vendor/libs/dropzone/dropzone.js',
 'resources/assets/vendor/libs/bootstrap-select/bootstrap-select.js',
 'resources/assets/vendor/libs/nouislider/nouislider.js',
 'resources/assets/vendor/libs/tagify/tagify.js'])

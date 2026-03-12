@@ -227,7 +227,6 @@ $(document).ready(function () {
     document.getElementById('form').addEventListener('submit', async function (e) {
     
         e.preventDefault();
-
         const form = e.target;
 
         if (!form.checkValidity()) 
@@ -245,6 +244,7 @@ $(document).ready(function () {
     
         const formData = new FormData(form);
 
+
         if (window.TABLA && window.TABLA.initEditors) 
         {
             window.TABLA.initEditors.forEach(item => {
@@ -254,6 +254,8 @@ $(document).ready(function () {
 
         try {
             $('.cargando').removeClass('d-none');
+
+            console.log("Enviando datos:", Object.fromEntries(formData.entries()));
 
             await axios.post(TABLA.urlApi, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }

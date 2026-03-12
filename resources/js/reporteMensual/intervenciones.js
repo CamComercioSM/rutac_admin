@@ -3,11 +3,76 @@
 
     // Users List suggestion
     const tagifyUserListEl = document.querySelector('#TagifyUserList');
-    const tagifyOtrodParticipantesEl = document.querySelector('#TagifyOtrosParticipantes');
+    const tagifyOtrosParticipantesEl = document.getElementById('TagifyOtrosParticipantes');
     const wizardModernVertical = document.querySelector('.wizard-modern-vertical');
     const sliderInfo = document.getElementById('slider-info');
     window.tagifyUserList = null;
+    Dropzone.autoDiscover = false;
+    window.dropzoneFile = null;
+    window.myDropzone = null;
 
+    const previewTemplate = `
+        <div class="dz-preview dz-file-preview">
+        <div class="dz-details">
+         <div class="dz-thumbnail">
+            <img data-dz-thumbnail>
+            <span class="dz-nopreview">No preview</span>
+            <div class="dz-success-mark"></div>
+            <div class="dz-error-mark"></div>
+            <div class="dz-error-message"><span data-dz-errormessage></span></div>
+            <div class="progress">
+                <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuemin="0" aria-valuemax="100" data-dz-uploadprogress></div>
+                </div>
+            </div>
+            <div class="dz-filename" data-dz-name></div>
+            <div class="dz-size" data-dz-size></div>
+                </div>
+            </div>`
+        ;
+
+    const dropzoneBasic = document.querySelector('#dropzone-basic');
+
+    if (dropzoneBasic) {
+        window.myDropzone = new Dropzone(dropzoneBasic, {
+            url: "/upload",
+            autoProcessQueue: true,
+            previewTemplate: previewTemplate,
+            previewsContainer: dropzoneBasic,
+            parallelUploads: 1,
+            maxFilesize: 5,
+            acceptedFiles: '.jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx',
+            addRemoveLinks: true,
+            maxFiles: 1,
+            init: function () {
+                this.on('addedfile', function (file) {
+                    window.dropzoneFile = file;
+                });
+
+                this.on('removedfile', function () {
+                    window.dropzoneFile = null;
+                });
+
+                this.on('maxfilesexceeded', function (file) {
+                    this.removeAllFiles();
+                    this.addFile(file);
+                    window.dropzoneFile = file;
+                });
+            }
+        });
+    }
+
+    //   if (accountUserImage) {
+    //     const resetImage = accountUserImage.src;
+    //     fileInput.onchange = () => {
+    //       if (fileInput.files[0]) {
+    //         accountUserImage.src = window.URL.createObjectURL(fileInput.files[0]);
+    //       }
+    //     };
+    //     resetFileInput.onclick = () => {
+    //       fileInput.value = '';
+    //       accountUserImage.src = resetImage;
+    //     };
+    //   }
 
 
     if (wizardModernVertical) {
@@ -71,8 +136,8 @@
             window.tagifyUserList.setTagTextNode(tag, `${data.name} <${data.email}>`);
         }
     }
-    if (tagifyOtrodParticipantesEl) {
-        window.tagifyOtrosParticipantes = new Tagify(tagifyOtrodParticipantesEl, {
+    if (tagifyOtrosParticipantesEl) {
+        window.tagifyOtrosParticipantes = new Tagify(tagifyOtrosParticipantesEl, {
             tagTextProp: 'name',
             enforceWhitelist: true,
             skipInvalid: true,
@@ -94,7 +159,7 @@
         window.tagifyOtrosParticipantes.DOM.input.addEventListener('keydown', e => e.preventDefault());
         window.tagifyOtrosParticipantes.on('dropdown:select', onSelectSuggestion).on('edit:start',
             onEditStart);
-        
+
         function onSelectSuggestion(e) {
             if (e.detail.elm.classList.contains(
                 `${window.tagifyOtrosParticipantes.settings.classNames.dropdownItem}__addAll`)) {
