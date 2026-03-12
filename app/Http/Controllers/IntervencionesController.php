@@ -7,6 +7,9 @@ use App\Imports\UnidadProductivaIntervencionesImport;
 use App\Http\Controllers\Controller;
 use App\Models\Empresarios\UnidadProductivaIntervenciones;
 use App\Models\Empresarios\UnidadProductiva;
+use App\Models\Lead;
+use App\Models\Programas\Programa;
+use App\Models\Programas\ProgramaConvocatoria;
 use App\Models\ReporteMensual;
 use App\Models\User;
 use App\Models\Role;
@@ -28,18 +31,26 @@ class IntervencionesController extends Controller
     function list(Request $request)
     {
         $data = [
+            'programas' => Programa::get(),
+            'convocatorias' => ProgramaConvocatoria::get(),
             'categorias' => CategoriasIntervenciones::get(),
             'tipos' => TiposIntervenciones::get(),
             'modalidades' => UnidadProductivaIntervenciones::$modalidades,
             'asesores' => User::whereNotNull('rol_id')->get(),
             'esAsesor' => Auth::user()->rol_id == Role::ASESOR ?  1 : 0,
             'filtros' => $request->all(),
-            'unidades' => []
+            'unidades' => [],
+            'leads' => [],
         ];
 
         if ($unidad = $request->get('unidad')) {
             $data['unidades'] = UnidadProductiva::where('unidadproductiva_id', $unidad)->get();
         }
+
+        if ($lead = $request->get('otroParticipante')) {
+            $data['leads'] = Lead::where('id', $lead)->get();
+        }
+
 
         return View("intervenciones.index", $data);
     }

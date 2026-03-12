@@ -168,6 +168,7 @@ use App\Http\Controllers\LinkController;
 use App\Http\Controllers\CapsulasController;
 use App\Http\Controllers\ConvocatoriaController;
 use App\Http\Controllers\UnidadProductivaController;
+use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\CronController;
 use App\Http\Controllers\CronLogController;
@@ -267,6 +268,7 @@ Route::as('admin.')
     Route::post('/intervenciones/informe/payload-ia', [IntervencionesController::class, 'getPayloadAnalisisIA']);
 
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search'])->name("unidadProductiva.search");
+    Route::get('/lead/search', [LeadController::class, 'search'])->name("lead.search");
     Route::get('/convocatorias/search', [ConvocatoriaController::class, 'search'])->name("convocatorias.search");
 
     Route::resource('empresarios', EmpresariosController::class);
