@@ -14,58 +14,135 @@ class ReporteMensualController extends Controller {
      * Display a listing of the resource.
      */
     public function index() {
+        $anio = now()->year;
+
+        /*
+    |----------------------------------------
+    | Estadísticas generales
+    |----------------------------------------
+    */
+
+        $reportesTotal = ReporteMensual::where('anio', $anio)->count();
+
+        $reportesPendientes = ReporteMensual::where('anio', $anio)
+            ->where('estado', 'PENDIENTE_REVISION')
+            ->count();
+
+        $reportesAprobados = ReporteMensual::where('anio', $anio)
+            ->where('estado', 'APROBADO')
+            ->count();
+
+        $reportesRechazados = ReporteMensual::where('anio', $anio)
+            ->where('estado', 'RECHAZADO')
+            ->count();
+
+        $intervencionesTotal = UnidadProductivaIntervenciones::whereYear('fecha_inicio', $anio)->count();
+
+        /*
+    |----------------------------------------
+    | Intervenciones por mes
+    |----------------------------------------
+    */
+
+        $intervencionesMes = UnidadProductivaIntervenciones::select(
+            DB::raw('MONTH(fecha_inicio) as mes'),
+            DB::raw('COUNT(*) as total')
+        )
+            ->whereYear('fecha_inicio', $anio)
+            ->groupBy(DB::raw('MONTH(fecha_inicio)'))
+            ->orderBy('mes')
+            ->get()
+            ->keyBy('mes');
+
+        $meses = [];
+
+        for ($m = 1; $m <= 12; $m++) {
+            $meses[] = [
+                'mes' => $m,
+                'nombre' => \Carbon\Carbon::create()->month($m)->translatedFormat('F'),
+                'total' => $intervencionesMes[$m]->total ?? 0
+            ];
+        }
+
+        /*
+    |----------------------------------------
+    | Donut chart (mismos datos)
+    |----------------------------------------
+    */
+
+        $intervencionesDonut = collect($meses)
+            ->map(function ($m) {
+                return [
+                    'mes' => ucfirst($m['nombre']),
+                    'total' => $m['total']
+                ];
+            });
+
+        /*
+    |----------------------------------------
+    | Top asesores por intervenciones
+    |----------------------------------------
+    */
+
+        $topAsesores = UnidadProductivaIntervenciones::select(
+            'asesor_id',
+            DB::raw('COUNT(*) as intervenciones')
+        )
+            ->with('asesor:id,name')
+            ->whereYear('fecha_inicio', $anio)
+            ->groupBy('asesor_id')
+            ->orderByDesc('intervenciones')
+            ->limit(5)
+            ->get()
+            ->map(function ($item) {
+                return (object)[
+                    'nombre' => $item->asesor->name ?? 'Sin nombre',
+                    'intervenciones' => $item->intervenciones
+                ];
+            });
+
+        /*
+    |----------------------------------------
+    | Variación (ejemplo simple)
+    |----------------------------------------
+    */
+
+        $intervencionesMesActual = UnidadProductivaIntervenciones::whereYear('fecha_inicio', $anio)
+            ->whereMonth('fecha_inicio', now()->month)
+            ->count();
+
+        $intervencionesMesAnterior = UnidadProductivaIntervenciones::whereYear('fecha_inicio', $anio)
+            ->whereMonth('fecha_inicio', now()->subMonth()->month)
+            ->count();
+
+        $variacion = 0;
+
+        if ($intervencionesMesAnterior > 0) {
+            $variacion = (($intervencionesMesActual - $intervencionesMesAnterior) / $intervencionesMesAnterior) * 100;
+        }
+
+        /*
+    |----------------------------------------
+    | Enviar a la vista
+    |----------------------------------------
+    */
+
         return view('reporteMensual.index', [
 
             'stats' => [
-                'reportes_total' => 120,
-                'reportes_pendientes' => 25,
-                'reportes_aprobados' => 70,
-                'reportes_rechazados' => 25,
-                'intervenciones_total' => 560,
-
-                // NUEVO → variación para el badge
-                'intervenciones_variacion' => 18.4
+                'reportes_total' => $reportesTotal,
+                'reportes_pendientes' => $reportesPendientes,
+                'reportes_aprobados' => $reportesAprobados,
+                'reportes_rechazados' => $reportesRechazados,
+                'intervenciones_total' => $intervencionesTotal,
+                'intervenciones_variacion' => round($variacion, 1)
             ],
 
-            /* intervenciones por mes (para el gráfico horizontal) */
-            'meses' => [
-                ['mes' => 1, 'nombre' => 'Enero', 'total' => 45],
-                ['mes' => 2, 'nombre' => 'Febrero', 'total' => 38],
-                ['mes' => 3, 'nombre' => 'Marzo', 'total' => 52],
-                ['mes' => 4, 'nombre' => 'Abril', 'total' => 40],
-                ['mes' => 5, 'nombre' => 'Mayo', 'total' => 60],
-                ['mes' => 6, 'nombre' => 'Junio', 'total' => 48],
-            ],
+            'meses' => $meses,
 
-            /* datos para el donut */
-            'intervencionesDonut' => [
-                ['mes' => 'Enero', 'total' => 45],
-                ['mes' => 'Febrero', 'total' => 38],
-                ['mes' => 'Marzo', 'total' => 52],
-                ['mes' => 'Abril', 'total' => 40],
-                ['mes' => 'Mayo', 'total' => 60],
-                ['mes' => 'Junio', 'total' => 48],
-            ],
+            'intervencionesDonut' => $intervencionesDonut,
 
-            /* ranking de asesores */
-            'topAsesores' => [
-                (object)[
-                    'nombre' => 'Juan Perez',
-                    'intervenciones' => 34
-                ],
-                (object)[
-                    'nombre' => 'Maria Gomez',
-                    'intervenciones' => 28
-                ],
-                (object)[
-                    'nombre' => 'Carlos Ruiz',
-                    'intervenciones' => 21
-                ],
-                (object)[
-                    'nombre' => 'Laura Martinez',
-                    'intervenciones' => 19
-                ],
-            ],
+            'topAsesores' => $topAsesores
         ]);
     }
 
