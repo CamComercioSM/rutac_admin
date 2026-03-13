@@ -6,6 +6,8 @@
     const tagifyOtrosParticipantesEl = document.getElementById('TagifyOtrosParticipantes');
     const wizardModernVertical = document.querySelector('.wizard-modern-vertical');
     const sliderInfo = document.getElementById('slider-info');
+    const meta = sliderInfo.dataset.meta;
+    const inputAvanceMeta = document.getElementById('avanceMeta');
     window.tagifyUserList = null;
     //Dropzone.autoDiscover = false;
     window.dropzoneFile = null;
@@ -28,7 +30,7 @@
             <div class="dz-size" data-dz-size></div>
                 </div>
             </div>`
-        ;
+    ;
 
     const dropzoneBasic = document.querySelector('#dropzone-basic');
 
@@ -225,7 +227,7 @@
     }
 
     const colorOptions = {
-        start: [50],
+        start: [meta],
         connect: [true, false],
         behaviour: 'tap-drag',
         step: 10,
@@ -242,9 +244,10 @@
         direction: isRtl ? 'rtl' : 'ltr'
     };
     if (sliderInfo) {
-        console.log('sliderInfo', sliderInfo);
         noUiSlider.create(sliderInfo, colorOptions);
     }
-
+    sliderInfo.noUiSlider.on('update', function (values) {
+    inputAvanceMeta.value = Math.round(values[0]);
+});
 
 })();

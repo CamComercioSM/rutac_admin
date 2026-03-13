@@ -29,7 +29,9 @@ class ReporteMensual extends Model
         'fecha_eliminacion',
         'usuario_creo',
         'usuario_actualizo',
-        'usuario_elimino'
+        'usuario_elimino',
+        'meta_intervenciones',
+        'avance_meta'
     ];
 
     public function asesor()

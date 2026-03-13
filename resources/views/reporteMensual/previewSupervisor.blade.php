@@ -123,13 +123,26 @@
             <div class="card h-10">
                 <div class="card-body">
                     <div class="card-info">
-                        <div class="col-12">
-                            <div class="card-body pb-12">
-                                <small class="fw-medium">Porcentaje de avance</small>
-                                <div class="noUi-info mt-6 mb-12" id="slider-info"></div>
+                        <div class="row align-items-center">
+
+                            <!-- META -->
+                            <div class="col-md-4 mt-2">
+                                <small class="fw-medium">Meta</small>
+                                <input type="number" min="0" max="100" step="10" id="metaIntervenciones"
+                                    name="meta_intervenciones" value="{{ $reporte->meta_intervenciones }}"
+                                    class="form-control">
                             </div>
+
+                            <!-- SLIDER -->
+                            <div class="col-md-8">
+                                <small class="fw-medium">Porcentaje de avance</small>
+                                <div class="noUi-info mt-2" id="slider-info" data-meta="{{ $reporte->avance_meta }}">
+                                </div>
+                            </div>
+
                         </div>
-                        <h5 class="card-title mb-2">Observaciones</h5>
+                        <input type="hidden" name="avance_meta" id="avanceMeta">
+                        <h5 class="card-title mb-2 mt-3">Observaciones</h5>
 
                         @if ($reporte->observaciones_supervisor)
                             <div class="form-floating form-floating-outline mb-6">

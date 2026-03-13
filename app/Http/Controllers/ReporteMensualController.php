@@ -255,6 +255,8 @@ class ReporteMensualController extends Controller {
                 'usuario_actualizo' => Auth::id(),
                 'estado' => 'APROBADO',
                 'observaciones_supervisor' => $request->observacionesSupervisor,
+                'meta_intervenciones' => $request->meta_intervenciones,
+                'avance_meta' => $request->avance_meta
             ]);
             $msg = 'Reporte aprobado exitosamente';
         } else if ($request->estado === "RECHAZADO") {
@@ -264,6 +266,7 @@ class ReporteMensualController extends Controller {
                 'supervisor_id' => Auth::id(),
                 'usuario_actualizo' => Auth::id(),
                 'observaciones_supervisor' => $request->observacionesSupervisor,
+                'avance_meta' => $request->avanceMeta
             ]);
             $msg = 'Reporte rechazado exitosamente';
         }
