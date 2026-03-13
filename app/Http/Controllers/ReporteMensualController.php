@@ -9,18 +9,53 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
-class ReporteMensualController extends Controller
-{
+class ReporteMensualController extends Controller {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        return view('reporteMensual.index');
+    public function index() {
+        return view('reporteMensual.index', [
+            'stats' => [
+                'reportes_total' => 120,
+                'reportes_pendientes' => 25,
+                'reportes_aprobados' => 70,
+                'reportes_rechazados' => 25,
+                'intervenciones_total' => 560
+            ],
+
+            /* intervenciones por mes */
+            'meses' => [
+                ['mes' => 1, 'nombre' => 'Enero', 'total' => 45],
+                ['mes' => 2, 'nombre' => 'Febrero', 'total' => 38],
+                ['mes' => 3, 'nombre' => 'Marzo', 'total' => 52],
+                ['mes' => 4, 'nombre' => 'Abril', 'total' => 40],
+                ['mes' => 5, 'nombre' => 'Mayo', 'total' => 60],
+                ['mes' => 6, 'nombre' => 'Junio', 'total' => 48],
+            ],
+
+            /* ranking de asesores */
+            'topAsesores' => [
+                (object)[
+                    'nombre' => 'Juan Perez',
+                    'intervenciones' => 34
+                ],
+                (object)[
+                    'nombre' => 'Maria Gomez',
+                    'intervenciones' => 28
+                ],
+                (object)[
+                    'nombre' => 'Carlos Ruiz',
+                    'intervenciones' => 21
+                ],
+                (object)[
+                    'nombre' => 'Laura Martinez',
+                    'intervenciones' => 19
+                ],
+            ],
+        ]);
     }
 
-    public function reportesMensuales(Request $request): JsonResponse
-    {
+    public function reportesMensuales(Request $request): JsonResponse {
         $draw = intval($request->input('draw'));
         $start = intval($request->input('start', 0));
         $length = intval($request->input('length', 10));
@@ -85,14 +120,12 @@ class ReporteMensualController extends Controller
         ]);
     }
 
-    public function export(Request $request)
-    {
+    public function export(Request $request) {
         $query = $this->getQuery($request);
-        return Excel::download(new ReporteMensualExport($query), 'reportes_mensuales.xlsx');    
+        return Excel::download(new ReporteMensualExport($query), 'reportes_mensuales.xlsx');
     }
 
-    public function ReporteMensualSupervision($id)
-    {
+    public function ReporteMensualSupervision($id) {
         $reporte = ReporteMensual::with(['asesor:id,name,identification'])->findOrFail($id);
 
         return view('reporteMensual.previewSupervisor', compact('reporte'));
@@ -100,16 +133,14 @@ class ReporteMensualController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
+    public function create() {
         //
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): JsonResponse
-    {
+    public function store(Request $request): JsonResponse {
         $msg = '';
 
         if ($request->estado === "APROBADO") {
@@ -141,35 +172,32 @@ class ReporteMensualController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id) {}
+    public function show(string $id) {
+    }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
+    public function edit(string $id) {
         //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
+    public function update(Request $request, string $id) {
         //
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
+    public function destroy(string $id) {
         //
     }
 
 
-    private function getQuery(Request $request)
-    {
+    private function getQuery(Request $request) {
         $query = ReporteMensual::query([])->select([
             'id',
             'asesor_id',
@@ -182,7 +210,7 @@ class ReporteMensualController extends Controller
             'supervisor_id',
             'fecha_creacion',
             'fecha_revision',
-            'informe_url',    
+            'informe_url',
         ]);
         return $query;
     }

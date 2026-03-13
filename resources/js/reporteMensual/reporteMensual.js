@@ -140,6 +140,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
     }
 
     // datatbale bar chart
+    const mesesData = window.intervencionesPorMes || [];
+    const labelsMeses = mesesData.map(m => m.nombre);
+    const valoresMeses = mesesData.map(m => m.total);
 
     const horizontalBarChartEl = document.querySelector('#horizontalBarChart'),
         horizontalBarChartConfig = {
@@ -208,10 +211,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                     enabled: false
                 }
             },
-            labels: ['UI Design', 'UX Design', 'Music', 'Animation', 'React', 'SEO'],
+
+            labels: labelsMeses,
             series: [
                 {
-                    data: [35, 20, 14, 12, 10, 9]
+                    data: valoresMeses
                 }
             ],
 
@@ -235,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 }
             },
             yaxis: {
-                max: 35,
+                max: Math.max(...valoresMeses) + 5,
                 labels: {
                     style: {
                         colors: [labelColor],
@@ -354,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
             columns: [
                 { data: 'id' }, // control (responsive)
                 { data: 'id', orderable: false }, // checkbox
-                { data: null },
+                { data: null, orderable: true },
                 { data: null },
                 { data: null },
                 { data: 'supervisor.name' },
@@ -390,13 +394,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                     }
                 },
                 {
-                    targets: 2, // Gestor
-                    responsivePriority: 2,
+                    targets: 2, // creado
+                    responsivePriority: 3,
                     render: (data, type, full) => {
-                        if (full?.estado?.toUpperCase().includes('BORRADOR')) {
-                            return `<span class="fw-medium text-heading">${full.asesor.name}</span>`;
-                        }
-                        return `<a href="${baseUrl}reportes/supervision/${full.id}" class="fw-medium text-heading">${full.asesor.name}</a>`;
+                        let fecha = new Date(full.fecha_generacion);
+                        return `<span class="text-nowrap">${fecha.toLocaleDateString()}</span>`;
                     }
                 },
                 {
@@ -421,11 +423,13 @@ document.addEventListener('DOMContentLoaded', function (e) {
                     }
                 },
                 {
-                    targets: 4, // creado
-                    responsivePriority: 3,
+                    targets: 4, // Gestor
+                    responsivePriority: 2,
                     render: (data, type, full) => {
-                        let fecha = new Date(full.fecha_generacion);
-                        return `<span class="text-nowrap">${fecha.toLocaleDateString()}</span>`;
+                        if (full?.estado?.toUpperCase().includes('BORRADOR')) {
+                            return `<span class="fw-medium text-heading">${full.asesor.name}</span>`;
+                        }
+                        return `<a href="${baseUrl}reportes/supervision/${full.id}" class="fw-medium text-heading">${full.asesor.name}</a>`;
                     }
                 },
                 {
@@ -540,7 +544,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 },
                 bottomEnd: 'paging'
             },
-            lengthMenu: [5],
+            lengthMenu: [10, 25, 50, 100],
             language: {
                 paginate: {
                     next: '<i class="icon-base ri ri-arrow-right-s-line scaleX-n1-rtl icon-22px"></i>',
