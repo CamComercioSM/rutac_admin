@@ -451,7 +451,7 @@
         <div class="table-responsive mb-3">
             <div class="mb-2 mt-4 px-3">
                 <button type="button" id="btnExportarReporte" class="btn btn-primary me-2">Exportar</button>
-                <button type="button" class="btn btn-success">Revisar reporte</button>
+                <button type="button"  id="btnRevisarReporte"  class="btn btn-success">Revisar reporte</button>
             </div>
             <table class="table datatables-reporte-mensual">
                 <thead>

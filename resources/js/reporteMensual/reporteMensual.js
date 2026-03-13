@@ -726,6 +726,12 @@ document.addEventListener('DOMContentLoaded', function (e) {
     if (btnExportarExcel) {
         btnExportarExcel.addEventListener('click', exportTableToExcel);
     }
+
+    const btnRevisarReporte = document.getElementById('btnRevisarReporte');
+
+    if (btnRevisarReporte) {
+        btnRevisarReporte.addEventListener('click', revisarReporteMensual);
+    }
 });
 
 function exportTableToExcel() {
@@ -741,4 +747,32 @@ function exportTableToExcel() {
             window.location.href = baseUrl + 'reportes/export';
         }
     });
+}
+
+function revisarReporteMensual() {
+
+    const table = $('.datatables-reporte-mensual').DataTable();
+    const rows = table.rows({ selected: true }).data();
+
+    if (rows.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Selecciona un reporte',
+            text: 'Debes seleccionar un reporte para revisarlo.'
+        });
+        return;
+    }
+
+    if (rows.length > 1) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Selecciona solo uno',
+            text: 'Solo puedes revisar un reporte a la vez.'
+        });
+        return;
+    }
+
+    const id = rows[0].id;
+
+    window.location.href = baseUrl + 'reportes/supervision/' + id;
 }
