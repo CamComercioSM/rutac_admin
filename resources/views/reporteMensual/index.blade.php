@@ -106,7 +106,10 @@
                         </div>
                         <div class="time-spending-chart">
                             <h5 class="mb-2">{{ $stats['intervenciones_total'] ?? 0 }}</h5>
-                            <span class="badge bg-label-success rounded-pill">+18.4%</span>
+                            <span
+                                class="badge bg-label-{{ ($stats['intervenciones_variacion'] ?? 0) >= 0 ? 'success' : 'danger' }} rounded-pill">
+                                {{ ($stats['intervenciones_variacion'] ?? 0) > 0 ? '+' : '' }}{{ $stats['intervenciones_variacion'] ?? 0 }}%
+                            </span>
                         </div>
                     </div>
                     <div id="leadsReportChart"></div>
@@ -145,7 +148,7 @@
 
                         <div>
                             @foreach ($meses as $mes)
-                                <div class="d-flex mb-10 align-items-baseline">
+                                <div class="d-flex mb-1 align-items-baseline">
                                     <span class="text-primary me-2">
                                         <i class="icon-base ri ri-circle-fill icon-12px"></i>
                                     </span>
@@ -473,6 +476,7 @@
 
     <script>
         window.intervencionesPorMes = @json($meses);
+        window.intervencionesDonut = @json($intervencionesPorMes ?? []);
     </script>
 
 @endsection

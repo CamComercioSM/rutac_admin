@@ -15,15 +15,19 @@ class ReporteMensualController extends Controller {
      */
     public function index() {
         return view('reporteMensual.index', [
+
             'stats' => [
                 'reportes_total' => 120,
                 'reportes_pendientes' => 25,
                 'reportes_aprobados' => 70,
                 'reportes_rechazados' => 25,
-                'intervenciones_total' => 560
+                'intervenciones_total' => 560,
+
+                // NUEVO → variación para el badge
+                'intervenciones_variacion' => 18.4
             ],
 
-            /* intervenciones por mes */
+            /* intervenciones por mes (para el gráfico horizontal) */
             'meses' => [
                 ['mes' => 1, 'nombre' => 'Enero', 'total' => 45],
                 ['mes' => 2, 'nombre' => 'Febrero', 'total' => 38],
@@ -31,6 +35,16 @@ class ReporteMensualController extends Controller {
                 ['mes' => 4, 'nombre' => 'Abril', 'total' => 40],
                 ['mes' => 5, 'nombre' => 'Mayo', 'total' => 60],
                 ['mes' => 6, 'nombre' => 'Junio', 'total' => 48],
+            ],
+
+            /* datos para el donut */
+            'intervencionesDonut' => [
+                ['mes' => 'Enero', 'total' => 45],
+                ['mes' => 'Febrero', 'total' => 38],
+                ['mes' => 'Marzo', 'total' => 52],
+                ['mes' => 'Abril', 'total' => 40],
+                ['mes' => 'Mayo', 'total' => 60],
+                ['mes' => 'Junio', 'total' => 48],
             ],
 
             /* ranking de asesores */

@@ -61,6 +61,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
     };
 
     // Time Spendings Chart
+    const donutData = window.intervencionesDonut || [];
+    const donutLabels = donutData.map(d => d.mes);
+    const donutSeries = donutData.map(d => d.total);
     const leadsReportChartEl = document.querySelector('#leadsReportChart'),
         leadsReportChartConfig = {
             chart: {
@@ -70,8 +73,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 type: 'donut',
                 opacity: 1
             },
-            labels: ['36h', '56h', '16h', '32h', '56h', '16h'],
-            series: [23, 35, 10, 20, 35, 23],
+            labels: donutLabels,
+            series: donutSeries,
             colors: [
                 chartColors.donut2.series1,
                 chartColors.donut2.series2,
