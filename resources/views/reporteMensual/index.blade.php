@@ -534,10 +534,10 @@
                 <thead>
                     <tr>
                         <th></th>
-                        <th></th>
+                        <th></th>       
+                        <th>Creacion</th>                 
+                        <th>Periodo</th>                        
                         <th>Gestor</th>
-                        <th>Periodo</th>
-                        <th >Creacion</th>
                         <th>Supervisor</th>
                         <th>Revision</th>
                         <th class="w-25">Meta</th>
