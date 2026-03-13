@@ -368,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 { data: null },
                 { data: 'supervisor.name' },
                 { data: null },
-                { data: null }, // Meta (lo renderizamos)
+                { data: 'meta_intervenciones' }, // meta
                 { data: 'estado' }, // Estado (render)
                 { data: null }
             ],
@@ -463,31 +463,35 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 {
                     targets: 7,
                     render: (data, type, full) => {
-                        // genera un porcentaje simple SIN depender de campos de la plantilla
-                        const total = (full.total_intervenciones ?? 0);
-                        const unidades = (full.total_unidades ?? 0);
 
-                        // porcentaje "safe" (0..100). Ejemplo: si hay 0 unidades => 0%
-                        const pct = unidades > 0 ? Math.min(100, Math.round((total / unidades) * 100)) : 0;
+                        const total = full.total_intervenciones ?? 0;
+                        const meta = full.meta_intervenciones ?? 0;
 
-                        // estos 2 reemplazan status/number sin romper el markup
+                        let pct = 0;
+
+                        if (meta > 0) {
+                            pct = Math.min(100, Math.round((total / meta) * 100));
+                        }
+
                         const statusNumber = `${pct}%`;
-                        const averageNumber = `${total}/${unidades}`;
+                        const averageNumber = `${total}/${meta}`;
 
                         return `
-                            <div class="d-flex align-items-center gap-3">
-                                <p class="fw-medium mb-0 text-heading">${statusNumber}</p>
-                                <div class="progress bg-label-primary w-100" style="height: 8px;">
-                                <div
-                                    class="progress-bar"
-                                    style="width: ${statusNumber}"
-                                    aria-valuenow="${pct}"
-                                    aria-valuemin="0"
-                                    aria-valuemax="100">
+                                <div class="d-flex align-items-center gap-3">
+                                    <p class="fw-medium mb-0 text-heading">${statusNumber}</p>
+
+                                    <div class="progress bg-label-primary w-100" style="height: 8px;">
+                                        <div
+                                            class="progress-bar"
+                                            style="width:${pct}%"
+                                            aria-valuenow="${pct}"
+                                            aria-valuemin="0"
+                                            aria-valuemax="100">
+                                        </div>
+                                    </div>
+
+                                    <small>${averageNumber}</small>
                                 </div>
-                                </div>
-                                <small>${averageNumber}</small>
-                            </div>
                             `;
                     }
                 },
