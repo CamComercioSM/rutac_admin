@@ -7,7 +7,7 @@
     const wizardModernVertical = document.querySelector('.wizard-modern-vertical');
     const sliderInfo = document.getElementById('slider-info');
     window.tagifyUserList = null;
-    Dropzone.autoDiscover = false;
+    //Dropzone.autoDiscover = false;
     window.dropzoneFile = null;
     window.myDropzone = null;
 
@@ -242,6 +242,7 @@
         direction: isRtl ? 'rtl' : 'ltr'
     };
     if (sliderInfo) {
+        console.log('sliderInfo', sliderInfo);
         noUiSlider.create(sliderInfo, colorOptions);
     }
 

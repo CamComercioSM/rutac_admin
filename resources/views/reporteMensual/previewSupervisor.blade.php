@@ -24,6 +24,10 @@
             <p class="mb-0">Periodo: {{ $reporte->anio }} - {{ $reporte->mes }}</p>
         </div>
         <div>
+            <a href="/reportes/list" class="btn btn-secondary me-2">
+                <i class="icon-base ri ri-arrow-go-back-line me-2"></i>
+                Regresar
+            </a>
             @if ($reporte->estado !== 'APROBADO' && $reporte->estado !== 'RECHAZADO')
                 <button id="approve-report" class="btn btn-success me-2"><i
                         class="icon-base ri ri-check-line me-1"></i>Aprobar</button>
