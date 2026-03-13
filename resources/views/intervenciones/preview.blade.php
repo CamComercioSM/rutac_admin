@@ -518,9 +518,12 @@
                     swal.fire({
                         icon: 'success',
                         title: 'Éxito',
-                        text: response.message,
+                        text: 'El informe se ha guardado correctamente.',
                     }).then(() => { 
-                    location.reload();
+                    // Cerrar el modal
+                    let modalElement = document.getElementById('guardarInformeModal');
+                    let modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    modalInstance.hide();
                     });
                 },
                 error: function() {
