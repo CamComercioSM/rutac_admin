@@ -3,11 +3,11 @@
 @section('title', 'Reportes Mensuales')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/apex-charts/apex-charts.scss','resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/apex-charts/apex-charts.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/apex-charts/apexcharts.js',  'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/apex-charts/apexcharts.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
 @section('page-script')
@@ -44,8 +44,8 @@
                             </div>
                         </div>
                         <div class="content-right">
-                            <p class="mb-1 fw-medium">Hours Spent</p>
-                            <span class="text-primary mb-0 h5">34h</span>
+                            <p class="mb-1 fw-medium">Total Reportes</p>
+                            <span class="text-primary mb-0 h5">{{ $stats['reportes_total'] ?? 0 }}</span>
                         </div>
                     </div>
                     <div class="d-flex align-items-center gap-4">
@@ -67,8 +67,8 @@
                             </div>
                         </div>
                         <div class="content-right">
-                            <p class="mb-1 fw-medium">Test Results</p>
-                            <span class="text-info mb-0 h5">82%</span>
+                            <p class="mb-1 fw-medium">Reportes Pendientes</p>
+                            <span class="text-info mb-0 h5">{{ $stats['reportes_pendientes'] ?? 0 }}</span>
                         </div>
                     </div>
                     <div class="d-flex align-items-center gap-4">
@@ -91,8 +91,8 @@
                             </div>
                         </div>
                         <div class="content-right">
-                            <p class="mb-1 fw-medium">Course Completed</p>
-                            <span class="text-warning mb-0 h5">14</span>
+                            <p class="mb-1 fw-medium">Reportes Aprobados</p>
+                            <span class="text-warning mb-0 h5">{{ $stats['reportes_aprobados'] ?? 0 }}</span>
                         </div>
                     </div>
                 </div>
@@ -101,11 +101,11 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div>
-                            <h5 class="mb-1">Time Spendings</h5>
-                            <p class="mb-9">Weekly report</p>
+                            <h5 class="mb-1">Intervenciones Registradas</h5>
+                            <p class="mb-9">Total acumulado del año</p>
                         </div>
                         <div class="time-spending-chart">
-                            <h5 class="mb-2">231<span class="text-body">h</span> 14<span class="text-body">m</span></h5>
+                            <h5 class="mb-2">{{ $stats['intervenciones_total'] ?? 0 }}</h5>
                             <span class="badge bg-label-success rounded-pill">+18.4%</span>
                         </div>
                     </div>
@@ -121,15 +121,19 @@
         <div class="col-12 col-xxl-8">
             <div class="card h-100">
                 <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="card-title m-0 me-2">Topic you are interested in</h5>
+                    <h5 class="card-title m-0 me-2">Intervenciones por mes</h5>
                     <div class="dropdown">
                         <button class="btn text-body-secondary p-0" type="button" id="topic" data-bs-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
                             <i class="icon-base ri ri-more-2-line icon-24px"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="topic">
-                            <a class="dropdown-item" href="javascript:void(0);">Highest Views</a>
-                            <a class="dropdown-item" href="javascript:void(0);">See All</a>
+                            <a class="dropdown-item" href="{{ route('admin.reporteMensual') }}">Ver todos los reportes</a>
+                            <a class="dropdown-item"
+                                href="{{ route('admin.reporteMensual', ['estado' => 'aprobados']) }}">Reportes aprobados</a>
+                            <a class="dropdown-item"
+                                href="{{ route('admin.reporteMensual', ['estado' => 'pendientes']) }}">Pendientes de
+                                revisión</a>
                         </div>
                     </div>
                 </div>
@@ -138,58 +142,22 @@
                         <div id="horizontalBarChart"></div>
                     </div>
                     <div class="col-md-6 d-flex justify-content-around align-items-center">
-                        <div>
-                            <div class="d-flex mb-10 align-items-baseline">
-                                <span class="text-primary me-2"><i
-                                        class="icon-base ri ri-circle-fill icon-12px"></i></span>
-                                <div>
-                                    <p class="mb-0">UI Design</p>
-                                    <h5 class="mb-0">35%</h5>
-                                </div>
-                            </div>
-                            <div class="d-flex mb-10 align-items-baseline">
-                                <span class="text-success me-2"><i
-                                        class="icon-base ri ri-circle-fill icon-12px"></i></span>
-                                <div>
-                                    <p class="mb-0">Music</p>
-                                    <h5 class="mb-0">14%</h5>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-baseline">
-                                <span class="text-danger me-2"><i
-                                        class="icon-base ri ri-circle-fill icon-12px"></i></span>
-                                <div>
-                                    <p class="mb-0">React</p>
-                                    <h5 class="mb-0">10%</h5>
-                                </div>
-                            </div>
-                        </div>
 
                         <div>
-                            <div class="d-flex mb-10 align-items-baseline">
-                                <span class="text-info me-2"><i class="icon-base ri ri-circle-fill icon-12px"></i></span>
-                                <div>
-                                    <p class="mb-0">UX Design</p>
-                                    <h5 class="mb-0">20%</h5>
+                            @foreach ($meses as $mes)
+                                <div class="d-flex mb-10 align-items-baseline">
+                                    <span class="text-primary me-2">
+                                        <i class="icon-base ri ri-circle-fill icon-12px"></i>
+                                    </span>
+
+                                    <div>
+                                        <p class="mb-0">{{ $mes['nombre'] }}</p>
+                                        <h5 class="mb-0">{{ $mes['total'] }}</h5>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="d-flex mb-10 align-items-baseline">
-                                <span class="text-secondary me-2"><i
-                                        class="icon-base ri ri-circle-fill icon-12px"></i></span>
-                                <div>
-                                    <p class="mb-0">Animation</p>
-                                    <h5 class="mb-0">12%</h5>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-baseline">
-                                <span class="text-warning me-2"><i
-                                        class="icon-base ri ri-circle-fill icon-12px"></i></span>
-                                <div>
-                                    <p class="mb-0">SEO</p>
-                                    <h5 class="mb-0">9%</h5>
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -199,7 +167,7 @@
             <div class="card h-100">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="card-title mb-0">
-                        <h5 class="m-0 me-2">Popular Instructors</h5>
+                        <h5 class="m-0 me-2">Top asesores por intervenciones</h5>
                     </div>
                     <div class="dropdown">
                         <button class="btn text-body-secondary p-0" type="button" id="popularInstructors"
@@ -207,90 +175,41 @@
                             <i class="icon-base ri ri-more-2-line icon-24px"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="popularInstructors">
-                            <a class="dropdown-item" href="javascript:void(0);">Select All</a>
-                            <a class="dropdown-item" href="javascript:void(0);">Refresh</a>
-                            <a class="dropdown-item" href="javascript:void(0);">Share</a>
+                            <a class="dropdown-item" href="javascript:void(0);">Top del mes</a>
+                            <a class="dropdown-item" href="javascript:void(0);">Top del año</a>
+                            <a class="dropdown-item" href="javascript:void(0);">Actualizar ranking</a>
                         </div>
                     </div>
                 </div>
                 <div class="px-5 py-4 border border-start-0 border-end-0">
                     <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-heading text-uppercase">Instructors</small>
-                        <small class="text-heading text-uppercase">courses</small>
+                        <small class="text-heading text-uppercase">gestores</small>
+                        <small class="text-heading text-uppercase">acciones</small>
                     </div>
                 </div>
                 <div class="card-body pt-5">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar avatar me-4">
-                                <img src="{{ asset('assets/img/avatars/1.png') }}" alt="Avatar"
-                                    class="rounded-circle" />
-                            </div>
-                            <div>
+                    @foreach ($topAsesores as $asesor)
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar me-4">
+                                    <img src="{{ asset('assets/img/avatars/1.png') }}" class="rounded-circle" />
+                                </div>
                                 <div>
-                                    <h6 class="mb-1 text-truncate">Maven Analytics</h6>
-                                    <p class="mb-0 text-truncate">Business Intelligence</p>
+                                    <h6 class="mb-1 text-truncate">{{ $asesor->nombre }}</h6>
+                                    <p class="mb-0 text-truncate">Gestor</p>
                                 </div>
                             </div>
-                        </div>
-                        <div class="text-end">
-                            <h6 class="mb-0">33</h6>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar avatar me-4">
-                                <img src="{{ asset('assets/img/avatars/2.png') }}" alt="Avatar"
-                                    class="rounded-circle" />
-                            </div>
-                            <div>
-                                <div>
-                                    <h6 class="mb-1 text-truncate">Bentlee Emblin</h6>
-                                    <p class="mb-0 text-truncate">Digital Marketing</p>
-                                </div>
+                            <div class="text-end">
+                                <h6 class="mb-0">{{ $asesor->intervenciones }}</h6>
                             </div>
                         </div>
-                        <div class="text-end">
-                            <h6 class="mb-0">52</h6>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar avatar me-4">
-                                <img src="{{ asset('assets/img/avatars/3.png') }}" alt="Avatar"
-                                    class="rounded-circle" />
-                            </div>
-                            <div>
-                                <div>
-                                    <h6 class="mb-1 text-truncate">Benedetto Rossiter</h6>
-                                    <p class="mb-0 text-truncate">UI/UX Design</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <h6 class="mb-0">12</h6>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar avatar me-4">
-                                <img src="{{ asset('assets/img/avatars/4.png') }}" alt="Avatar"
-                                    class="rounded-circle" />
-                            </div>
-                            <div>
-                                <div>
-                                    <h6 class="mb-1 text-truncate">Beverlie Krabbe</h6>
-                                    <p class="mb-0 text-truncate">React Native</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <h6 class="mb-0">8</h6>
-                        </div>
-                    </div>
+                    @endforeach
+
                 </div>
             </div>
         </div>
+
+
 
         {{-- <div class="col-12 col-md-6 col-xxl-4">
       <div class="card h-100">
@@ -504,6 +423,7 @@
         </div>
       </div>
     </div> --}}
+
     </div>
     <!--  Topic and Instructors  End-->
 
@@ -527,16 +447,16 @@
         </div>
         <div class="table-responsive mb-3">
             <div class="mb-2 mt-4 px-3">
-                <button type="button"  id="btnExportarReporte" class="btn btn-primary me-2">Exportar</button>
+                <button type="button" id="btnExportarReporte" class="btn btn-primary me-2">Exportar</button>
                 <button type="button" class="btn btn-success">Revisar reporte</button>
             </div>
             <table class="table datatables-reporte-mensual">
                 <thead>
                     <tr>
                         <th></th>
-                        <th></th>       
-                        <th>Creacion</th>                 
-                        <th>Periodo</th>                        
+                        <th></th>
+                        <th>Creacion</th>
+                        <th>Periodo</th>
                         <th>Gestor</th>
                         <th>Supervisor</th>
                         <th>Revision</th>
@@ -550,4 +470,9 @@
     </div>
 
     <!-- Course datatable End -->
+
+    <script>
+        window.intervencionesPorMes = @json($meses);
+    </script>
+
 @endsection

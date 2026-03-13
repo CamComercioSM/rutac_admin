@@ -140,6 +140,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
     }
 
     // datatbale bar chart
+    const mesesData = window.intervencionesPorMes || [];
+    const labelsMeses = mesesData.map(m => m.nombre);
+    const valoresMeses = mesesData.map(m => m.total);
 
     const horizontalBarChartEl = document.querySelector('#horizontalBarChart'),
         horizontalBarChartConfig = {
@@ -208,10 +211,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                     enabled: false
                 }
             },
-            labels: ['UI Design', 'UX Design', 'Music', 'Animation', 'React', 'SEO'],
+
+            labels: labelsMeses,
             series: [
                 {
-                    data: [35, 20, 14, 12, 10, 9]
+                    data: valoresMeses
                 }
             ],
 
@@ -235,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 }
             },
             yaxis: {
-                max: 35,
+                max: Math.max(...valoresMeses) + 5,
                 labels: {
                     style: {
                         colors: [labelColor],
