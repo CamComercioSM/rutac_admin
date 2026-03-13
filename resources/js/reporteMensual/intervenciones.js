@@ -146,7 +146,7 @@
                 enabled: 1,
                 classname: 'users-list',
                 searchKeys: ['name',
-                    'email'
+                    'participantes'
                 ]
             },
             templates: {
@@ -172,13 +172,13 @@
                 data
             }
         }) {
-            window.tagifyOtrosParticipantes.setTagTextNode(tag, `${data.name} <${data.email}>`);
+            window.tagifyOtrosParticipantes.setTagTextNode(tag, `${data.name} <${data.participantes}>`);
         }
     }
 
     function tagTemplate(tagData) {
         return `
-                <tag title="${tagData.title || tagData.email}"
+                <tag title="${tagData.title || tagData.participantes}"
                 contenteditable='false'
                 spellcheck='false'
                 tabIndex="-1"
@@ -210,7 +210,7 @@
                 : ''
             }
                     <div class="fw-medium">${tagData.name}</div>
-                    <span>${tagData.email}</span>
+                    <span>${tagData.participantes}</span>
                     </div>
                 `;
     }

@@ -371,11 +371,33 @@ class IntervencionesController extends Controller
             $data['soporte'] = $path;
         }
 
-        foreach ($request->unidades as $item) {
-            $data['unidadproductiva_id'] = $item['unidadproductiva_id'];
-            $data['participantes'] = $item['participantes'];
-            $entity = UnidadProductivaIntervenciones::create($data);
+        $unidades = $request->unidades;
+
+        // Si viene como string JSON, lo convertimos a array
+        if (is_string($unidades)) {
+            $unidades = json_decode($unidades, true);
         }
+
+        if (!is_array($unidades)) {
+            return response()->json([
+                'message' => 'El campo unidades no tiene un formato válido'
+            ], 422);
+        }
+
+        foreach ($unidades as $item) {
+            $data['unidadproductiva_id'] = $item['value'] ?? null;
+
+            $participantesTexto = $item['participantes'] ?? '0';
+            $data['participantes'] = (int) filter_var($participantesTexto, FILTER_SANITIZE_NUMBER_INT);
+
+            UnidadProductivaIntervenciones::create($data);
+        }
+
+        // foreach ($request->unidades as $item) {
+        //     $data['unidadproductiva_id'] = $item['unidadproductiva_id'];
+        //     $data['participantes'] = $item['participantes'];
+        //     $entity = UnidadProductivaIntervenciones::create($data);
+        // }
 
         return response()->json(['message' => 'Stored'], 201);
     }
