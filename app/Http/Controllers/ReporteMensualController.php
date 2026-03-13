@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ReporteMensualExport;
+use App\Models\Empresarios\UnidadProductivaIntervenciones;
 use App\Models\ReporteMensual;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReporteMensualController extends Controller {
@@ -54,16 +56,27 @@ class ReporteMensualController extends Controller {
             ->get()
             ->keyBy('mes');
 
+        $mesActual = now()->month;
+
         $meses = [];
 
-        for ($m = 1; $m <= 12; $m++) {
+        for ($m = 1; $m <= $mesActual; $m++) {
+
+            $totalMes = $intervencionesMes[$m]->total ?? 0;
+
+            $porcentaje = 0;
+
+            if ($intervencionesTotal > 0) {
+                $porcentaje = round(($totalMes / $intervencionesTotal) * 100, 1);
+            }
+
             $meses[] = [
                 'mes' => $m,
                 'nombre' => \Carbon\Carbon::create()->month($m)->translatedFormat('F'),
-                'total' => $intervencionesMes[$m]->total ?? 0
+                'total' => $totalMes,
+                'porcentaje' => $porcentaje
             ];
         }
-
         /*
     |----------------------------------------
     | Donut chart (mismos datos)

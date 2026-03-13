@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
     // datatbale bar chart
     const mesesData = window.intervencionesPorMes || [];
     const labelsMeses = mesesData.map(m => m.nombre);
-    const valoresMeses = mesesData.map(m => m.total);
+    const valoresMeses = mesesData.map(m => m.porcentaje);
 
     const horizontalBarChartEl = document.querySelector('#horizontalBarChart'),
         horizontalBarChartConfig = {
