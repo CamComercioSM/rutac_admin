@@ -16,48 +16,36 @@ class ReporteMensualController extends Controller {
      * Display a listing of the resource.
      */
     public function index() {
-        $anio = now()->year;
+        $mesActual = now()->month;
 
         /*
-    |----------------------------------------
-    | Estadísticas generales
-    |----------------------------------------
+    |---------------------------------------------------------
+    | TOTAL INTERVENCIONES (histórico)
+    |---------------------------------------------------------
     */
+        $intervencionesTotal = \App\Models\Empresarios\UnidadProductivaIntervenciones::count();
 
-        $reportesTotal = ReporteMensual::where('anio', $anio)->count();
-
-        $reportesPendientes = ReporteMensual::where('anio', $anio)
-            ->where('estado', 'PENDIENTE_REVISION')
-            ->count();
-
-        $reportesAprobados = ReporteMensual::where('anio', $anio)
-            ->where('estado', 'APROBADO')
-            ->count();
-
-        $reportesRechazados = ReporteMensual::where('anio', $anio)
-            ->where('estado', 'RECHAZADO')
-            ->count();
-
-        $intervencionesTotal = UnidadProductivaIntervenciones::whereYear('fecha_inicio', $anio)->count();
 
         /*
-    |----------------------------------------
-    | Intervenciones por mes
-    |----------------------------------------
+    |---------------------------------------------------------
+    | INTERVENCIONES POR MES
+    |---------------------------------------------------------
     */
-
-        $intervencionesMes = UnidadProductivaIntervenciones::select(
+        $intervencionesMes = \App\Models\Empresarios\UnidadProductivaIntervenciones::select(
             DB::raw('MONTH(fecha_inicio) as mes'),
             DB::raw('COUNT(*) as total')
         )
-            ->whereYear('fecha_inicio', $anio)
             ->groupBy(DB::raw('MONTH(fecha_inicio)'))
             ->orderBy('mes')
             ->get()
             ->keyBy('mes');
 
-        $mesActual = now()->month;
 
+        /*
+    |---------------------------------------------------------
+    | CONSTRUIR ARRAY DE MESES
+    |---------------------------------------------------------
+    */
         $meses = [];
 
         for ($m = 1; $m <= $mesActual; $m++) {
@@ -77,32 +65,31 @@ class ReporteMensualController extends Controller {
                 'porcentaje' => $porcentaje
             ];
         }
-        /*
-    |----------------------------------------
-    | Donut chart (mismos datos)
-    |----------------------------------------
-    */
 
-        $intervencionesDonut = collect($meses)
-            ->map(function ($m) {
-                return [
-                    'mes' => ucfirst($m['nombre']),
-                    'total' => $m['total']
-                ];
-            });
 
         /*
-    |----------------------------------------
-    | Top asesores por intervenciones
-    |----------------------------------------
+    |---------------------------------------------------------
+    | DONUT CHART (usa los mismos datos de meses)
+    |---------------------------------------------------------
     */
+        $intervencionesDonut = collect($meses)->map(function ($m) {
+            return [
+                'mes' => ucfirst($m['nombre']),
+                'total' => $m['total']
+            ];
+        });
 
-        $topAsesores = UnidadProductivaIntervenciones::select(
+
+        /*
+    |---------------------------------------------------------
+    | TOP ASESORES POR INTERVENCIONES
+    |---------------------------------------------------------
+    */
+        $topAsesores = \App\Models\Empresarios\UnidadProductivaIntervenciones::select(
             'asesor_id',
             DB::raw('COUNT(*) as intervenciones')
         )
             ->with('asesor:id,name')
-            ->whereYear('fecha_inicio', $anio)
             ->groupBy('asesor_id')
             ->orderByDesc('intervenciones')
             ->limit(5)
@@ -114,19 +101,29 @@ class ReporteMensualController extends Controller {
                 ];
             });
 
+
         /*
-    |----------------------------------------
-    | Variación (ejemplo simple)
-    |----------------------------------------
+    |---------------------------------------------------------
+    | ESTADÍSTICAS DE REPORTES
+    |---------------------------------------------------------
     */
+        $reportesTotal = \App\Models\ReporteMensual::count();
 
-        $intervencionesMesActual = UnidadProductivaIntervenciones::whereYear('fecha_inicio', $anio)
-            ->whereMonth('fecha_inicio', now()->month)
-            ->count();
+        $reportesPendientes = \App\Models\ReporteMensual::where('estado', 'PENDIENTE_REVISION')->count();
 
-        $intervencionesMesAnterior = UnidadProductivaIntervenciones::whereYear('fecha_inicio', $anio)
-            ->whereMonth('fecha_inicio', now()->subMonth()->month)
-            ->count();
+        $reportesAprobados = \App\Models\ReporteMensual::where('estado', 'APROBADO')->count();
+
+        $reportesRechazados = \App\Models\ReporteMensual::where('estado', 'RECHAZADO')->count();
+
+
+        /*
+    |---------------------------------------------------------
+    | VARIACIÓN MES ACTUAL VS MES ANTERIOR
+    |---------------------------------------------------------
+    */
+        $intervencionesMesActual = \App\Models\Empresarios\UnidadProductivaIntervenciones::whereMonth('fecha_inicio', now()->month)->count();
+
+        $intervencionesMesAnterior = \App\Models\Empresarios\UnidadProductivaIntervenciones::whereMonth('fecha_inicio', now()->subMonth()->month)->count();
 
         $variacion = 0;
 
@@ -134,12 +131,12 @@ class ReporteMensualController extends Controller {
             $variacion = (($intervencionesMesActual - $intervencionesMesAnterior) / $intervencionesMesAnterior) * 100;
         }
 
-        /*
-    |----------------------------------------
-    | Enviar a la vista
-    |----------------------------------------
-    */
 
+        /*
+    |---------------------------------------------------------
+    | RETORNAR VISTA
+    |---------------------------------------------------------
+    */
         return view('reporteMensual.index', [
 
             'stats' => [
@@ -156,6 +153,7 @@ class ReporteMensualController extends Controller {
             'intervencionesDonut' => $intervencionesDonut,
 
             'topAsesores' => $topAsesores
+
         ]);
     }
 
@@ -212,6 +210,9 @@ class ReporteMensualController extends Controller {
         $totalFiltered = (clone $query)->count();
 
         $reportes = $query
+            ->orderBy('fecha_generacion', 'desc')
+            ->orderBy('anio', 'desc')
+            ->orderBy('mes', 'desc')
             ->skip($start)
             ->take($length)
             ->get();
