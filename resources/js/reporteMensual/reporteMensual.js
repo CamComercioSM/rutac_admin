@@ -476,11 +476,21 @@ document.addEventListener('DOMContentLoaded', function (e) {
                         const statusNumber = `${pct}%`;
                         const averageNumber = `${total}/${meta}`;
 
+
+
+                        let barColor = "bg-primary";
+
+                        if (pct >= 100) barColor = "bg-success";
+                        else if (pct >= 70) barColor = "bg-info";
+                        else if (pct >= 40) barColor = "bg-warning";
+                        else barColor = "bg-danger";
+
+
                         return `
                                 <div class="d-flex align-items-center gap-3">
                                     <p class="fw-medium mb-0 text-heading">${statusNumber}</p>
 
-                                    <div class="progress bg-label-primary w-100" style="height: 8px;">
+                                    <div class="progress ${barColor} w-100" style="height: 8px;">
                                         <div
                                             class="progress-bar"
                                             style="width:${pct}%"
