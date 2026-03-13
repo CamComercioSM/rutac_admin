@@ -472,11 +472,9 @@
         </div>
     </div>
 
-    <!-- Course datatable End -->
-
     <script>
         window.intervencionesPorMes = @json($meses);
-        window.intervencionesDonut = @json($intervencionesPorMes ?? []);
+        window.intervencionesDonut = @json($intervencionesPorMes ?? $meses);
     </script>
 
 @endsection
