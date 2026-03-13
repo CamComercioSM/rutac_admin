@@ -281,11 +281,12 @@
                     </div>
                     <!-- Soporte -->
                     <div id="social-links-modern-vertical" class="content">
-                        {{-- <div class="col-12 col-md-12 form-group mb-3" id="contFormFile">
-                                <label for="formFile" class="form-label">Soporte (opcional)</label>
-                                <input class="form-control" type="file" id="formFile" name="formFile">
-                            </div> --}}
+                        <div class="col-12 col-md-12 form-group mb-3" id="contFormFile">
+                            <label for="formFile" class="form-label">Soporte (opcional)</label>
+                            <input class="form-control" type="file" id="formFile" name="formFile">
+                        </div>
                         <!-- Media -->
+
                         <div class="card mb-6">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0 card-title">Cargar soporte</h5>
@@ -315,7 +316,7 @@
 
                                     <!-- Fallback opcional (si quieres mantenerlo) -->
                                     <div class="fallback mt-2">
-                                        <input name="formFile" id="formFile" type="file"
+                                        <input name="" id="" type="file"
                                             accept=".jpg,.jpeg,.png,.gif" />
                                     </div>
                                 </div>
@@ -847,6 +848,7 @@
 
             $("#table_opciones").append(item);
         }
+
         window.addUnidadToTagify = function(row = {}) {
             if (!window.tagifyUserList) return;
 
@@ -856,7 +858,7 @@
             const tagData = {
                 value: row.id,
                 name: row.text,
-                email: `Participantes: ${row.participantes}`,
+                participantes: `Participantes: ${row.participantes}`,
                 avatar: 'https://via.placeholder.com/40?text=UP'
             };
 
@@ -894,7 +896,7 @@
             const tagData = {
                 value: row.id,
                 name: row.text,
-                email: `Participantes: ${row.participantes}`,
+                participantes: `Participantes: ${row.participantes}`,
                 avatar: 'https://via.placeholder.com/40?text=UP'
             };
 
