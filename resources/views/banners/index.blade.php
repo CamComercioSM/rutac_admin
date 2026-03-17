@@ -9,7 +9,7 @@
         </div>
         <div class="col-12 col-md-12 form-group mb-3">
             <label class="form-label" for="title">Titulo</label>
-            <input type="text" class="form-control" name="title" id="title" placeholder="Titulo" required>
+            <input type="text" class="form-control" name="title" id="title" placeholder="Titulo">
         </div>
         <div class="col-12 col-md-12 form-group mb-3">
             <label class="form-label" for="description" >Descripción</label>
