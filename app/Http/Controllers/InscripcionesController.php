@@ -329,7 +329,16 @@ class InscripcionesController extends Controller
                 'vt.ventasAnualesNOMBRE as ventas',
                 'ie.inscripcionEstadoNOMBRE as estado',
                 'pc.convocatoria_id'
-            ])
+            ])            
+            ->selectRaw("(
+                        SELECT COUNT(DISTINCT cr.requisito_id) 
+                        FROM convocatorias_respuestas cr 
+                        LEFT JOIN convocatorias_requisitos crq2 
+                            ON crq2.requisito_id = cr.requisito_id
+                        WHERE cr.inscripcion_id = convocatorias_inscripciones.inscripcion_id
+                            AND crq2.convocatoria_id = pc.convocatoria_id 
+                    ) AS preguntasRespondidas
+            ")
             ->join('programas_convocatorias as pc', 'convocatorias_inscripciones.convocatoria_id', '=', 'pc.convocatoria_id')
             ->join('programas as p', 'pc.programa_id', '=', 'p.programa_id')
             ->join('unidadesproductivas as up', 'convocatorias_inscripciones.unidadproductiva_id', '=', 'up.unidadproductiva_id')
