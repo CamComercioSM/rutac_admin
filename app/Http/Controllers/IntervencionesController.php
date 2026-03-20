@@ -29,10 +29,8 @@ use Illuminate\Support\Facades\Storage;
 use PDF;
 use League\CommonMark\CommonMarkConverter;
 
-class IntervencionesController extends Controller
-{
-    function list(Request $request)
-    {
+class IntervencionesController extends Controller {
+    function list(Request $request) {
         $data = [
             'programas' => Programa::get(),
             'convocatorias' => ProgramaConvocatoria::get(),
@@ -59,8 +57,7 @@ class IntervencionesController extends Controller
         return View("intervenciones.index", $data);
     }
 
-    public function preview(Request $request)
-    {
+    public function preview(Request $request) {
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date',
@@ -84,8 +81,7 @@ class IntervencionesController extends Controller
         return view('intervenciones.preview', $data);
     }
 
-    public function saveInforme(Request $request)
-    {
+    public function saveInforme(Request $request) {
         $request->validate([
             'mes'          => 'required|string',
             'anio'         => 'required|string',
@@ -116,8 +112,7 @@ class IntervencionesController extends Controller
      * Endpoint que devuelve el payload para la API de análisis IA.
      * Útil para que el frontend pueda obtener los datos estructurados.
      */
-    public function getPayloadAnalisisIA(Request $request)
-    {
+    public function getPayloadAnalisisIA(Request $request) {
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date',
@@ -149,8 +144,7 @@ class IntervencionesController extends Controller
     //     return $pdf->stream('informe_intervenciones.pdf');
     // }
 
-    private function getInformeData(Request $request)
-    {
+    private function getInformeData(Request $request) {
         $fi = $request->input('fecha_inicio') ?? $request->get('fecha_inicio');
         $ff = $request->input('fecha_fin') ?? $request->get('fecha_fin');
 
@@ -225,8 +219,7 @@ class IntervencionesController extends Controller
      * Construye el payload para la API analizarIntervencionesIA.
      * Estructura: conclusiones (texto) y estadisticas (resto de campos).
      */
-    public static function buildPayloadInformeIntervenciones(Request $request, array $data): array
-    {
+    public static function buildPayloadInformeIntervenciones(Request $request, array $data): array {
         $fi = $request->input('fecha_inicio') ?? $request->get('fecha_inicio');
         $ff = $request->input('fecha_fin') ?? $request->get('fecha_fin');
 
@@ -270,8 +263,7 @@ class IntervencionesController extends Controller
     /**
      * Llama a la API analizarIntervencionesIA con el payload del informe y devuelve el MENSAJE para el reporte.
      */
-    private function llamarApiAnalizarIntervencionesIA(Request $request, array $data): ?string
-    {
+    private function llamarApiAnalizarIntervencionesIA(Request $request, array $data): ?string {
         $url = config('services.analizar_intervenciones_ia.api_url');
         if (empty($url)) {
             return null;
@@ -313,8 +305,7 @@ class IntervencionesController extends Controller
     /**
      * Convierte texto Markdown a HTML para renderizar correctamente negritas, listas, etc.
      */
-    private function markdownToHtml(string $markdown): string
-    {
+    private function markdownToHtml(string $markdown): string {
         try {
             $converter = new CommonMarkConverter([
                 'html_input' => 'strip',
@@ -331,8 +322,7 @@ class IntervencionesController extends Controller
     /**
      * Fallback básico para convertir Markdown simple si CommonMark falla.
      */
-    private function markdownToHtmlFallback(string $markdown): string
-    {
+    private function markdownToHtmlFallback(string $markdown): string {
         // Convertir **texto** a <strong>texto</strong>
         $html = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $markdown);
         // Convertir *texto* a <em>texto</em>
@@ -342,29 +332,25 @@ class IntervencionesController extends Controller
         return $html;
     }
 
-    function export(Request $request)
-    {
+    function export(Request $request) {
         $query = $this->getQuery($request);
         return Excel::download(new IntervencionesExport($query), 'Intervenciones.xlsx');
     }
 
-    public function import(Request $request)
-    {
+    public function import(Request $request) {
         Excel::import(new UnidadProductivaIntervencionesImport, $request->file('archivo'));
 
         return back()->with('ok', 'Datos cargados correctamente.');
     }
 
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
         $query = $this->getQuery($request);
         $data = $this->paginate($query, $request);
 
         return response()->json($data);
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $data = $request->all();
         $data['asesor_id'] = Auth::user()->id;
 
@@ -385,40 +371,57 @@ class IntervencionesController extends Controller
             $otrosParticipantes = json_decode($otrosParticipantes, true);
         }
 
-        // CASO A: Si hay unidades, creamos un registro por cada una
 
-        if (is_array($unidades) && count($unidades) === 0) {
-            $data['unidadproductiva_id'] = null;
-            $data['participantes'] = 0;
-            $intervencion = UnidadProductivaIntervenciones::create($data);
-        }
+        $intervenciones = [];
 
-
+        /*
+    |--------------------------------------------------------------------------
+    | CASO 1: UNIDADES PRODUCTIVAS (REGISTRADOS)
+    |--------------------------------------------------------------------------
+    */
         if (is_array($unidades) && count($unidades) > 0) {
 
-            if (count($unidades) === 1) {
-                $data['unidadproductiva_id'] = $unidades[0]['value'];
-                $data['participantes'] = $unidades[0]['participantes']  ?? '0';
-                $intervencion = UnidadProductivaIntervenciones::create($data);
-            }
-
             foreach ($unidades as $item) {
-                $participantesRaw = $item['participantes'] ?? '0';
 
+                $data['unidadproductiva_id'] = $item['value'] ?? null;
+                $data['lead_id'] = null;
+
+                $data['participantes'] = (int) preg_replace(
+                    '/[^0-9]/',
+                    '',
+                    $item['participantes'] ?? 0
+                );
+
+                $intervencion = UnidadProductivaIntervenciones::create($data);
+
+                // Mantener compatibilidad con tabla intermedia
                 IntervencionUnidad::create([
                     'intervencion_id'     => $intervencion->id,
-                    'unidadproductiva_id' => $item['value'] ?? null,
-                    'participantes'       => (int) preg_replace('/[^0-9]/', '', $participantesRaw),
+                    'unidadproductiva_id' => $data['unidadproductiva_id'],
+                    'participantes'       => $data['participantes'],
                 ]);
+
+                $intervenciones[] = $intervencion;
             }
         }
 
-        // CASO B: Si NO hay unidades, guardamos la intervención general (sin ID de unidad)
-        // --- PROCESO B: OTROS PARTICIPANTES (LEADS) ---
-        // Aquí el trato es diferente. Como no van ligados a una UP, 
-        // usamos el modelo IntervencionLead para registrarlos.
+        /*
+        |--------------------------------------------------------------------------
+        | CASO 2: LEADS (NO REGISTRADOS)
+        |--------------------------------------------------------------------------
+        */
         if (is_array($otrosParticipantes) && count($otrosParticipantes) > 0) {
+
             foreach ($otrosParticipantes as $l) {
+
+                $data['unidadproductiva_id'] = null;
+                $data['lead_id'] = $l['value'];
+
+                $data['participantes'] = 1; // o ajustable si luego lo necesitas
+
+                $intervencion = UnidadProductivaIntervenciones::create($data);
+
+                // Mantener compatibilidad con tabla intermedia
                 IntervencionLead::create([
                     'intervencion_id' => $intervencion->id,
                     'lead_id'         => $l['value'],
@@ -428,23 +431,62 @@ class IntervencionesController extends Controller
                     'fecha_fin'       => $data['fecha_fin'],
                     'descripcion'     => $data['descripcion'],
                 ]);
+
+                $intervenciones[] = $intervencion;
             }
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CASO 3: SIN PARTICIPANTES
+        |--------------------------------------------------------------------------
+        */
+        if (empty($intervenciones)) {
+
+            $data['unidadproductiva_id'] = null;
+            $data['lead_id'] = null;
+            $data['participantes'] = 0;
+
+            $intervencion = UnidadProductivaIntervenciones::create($data);
+            $intervenciones[] = $intervencion;
+        }
+
         return response()->json(['message' => 'Intervención guardada correctamente'], 201);
     }
 
-    private function getQuery(Request $request)
-    {
+    private function getQuery(Request $request) {
         $search = $request->get('search');
 
         $query = UnidadProductivaIntervenciones::query()
             ->select([
                 'unidadesproductivas_intervenciones.*',
                 DB::raw("CONCAT(users.name, ' ', users.lastname) as asesor"),
-                'unidadesproductivas.business_name as unidad',
+                DB::raw("
+                    CASE
+                        WHEN unidadesproductivas_intervenciones.unidadproductiva_id IS NOT NULL THEN 'REGISTRADO'
+                        WHEN unidadesproductivas_intervenciones.lead_id IS NOT NULL THEN 'NO REGISTRADO'
+                        ELSE 'SIN PARTICIPANTE'
+                    END as clasificacion
+                "),
+                DB::raw("
+                    CASE
+                        WHEN unidadesproductivas_intervenciones.unidadproductiva_id IS NOT NULL THEN unidadesproductivas.business_name
+                        WHEN unidadesproductivas_intervenciones.lead_id IS NOT NULL THEN leads.name
+                        ELSE NULL
+                    END as unidad
+                "),
                 'fases_programas.nombre as fase',
+                'pc.nombre_convocatoria as convocatoria',
+                'p.nombre as programa',
+
                 'categorias_intervenciones.nombre as categoria',
                 'tipos_intervenciones.nombre as tipo',
+
+                'unidadesproductivas.unidadproductiva_id as unidadproductiva_id_rel',
+                'unidadesproductivas.business_name as unidad_nombre',
+                'unidadesproductivas.nit as unidad_nit',
+                'unidadesproductivas.registration_email as unidad_email',
+                'unidadesproductivas.mobile as unidad_telefono',
 
                 'leads.id as lead_id',
                 'leads.name as lead_nombre',
@@ -454,14 +496,35 @@ class IntervencionesController extends Controller
 
             ])
             ->leftJoin('fases_programas', 'fases_programas.fase_id', '=', 'unidadesproductivas_intervenciones.fase_id')
+            ->leftJoin('programas_convocatorias as pc', 'pc.convocatoria_id', '=', 'unidadesproductivas_intervenciones.convocatoria_id')
+            ->leftJoin('programas as p', 'p.programa_id', '=', 'unidadesproductivas_intervenciones.programa_id')
             ->join('categorias_intervenciones', 'categorias_intervenciones.id', '=', 'unidadesproductivas_intervenciones.categoria_id')
             ->join('tipos_intervenciones', 'tipos_intervenciones.id', '=', 'unidadesproductivas_intervenciones.tipo_id')
             ->join('users', 'users.id', '=', 'unidadesproductivas_intervenciones.asesor_id')
-            ->leftJoin('unidadesproductivas', 'unidadesproductivas.unidadproductiva_id', '=', 'unidadesproductivas_intervenciones.unidadproductiva_id')
-            ->leftJoin('intervencion_unidades', 'intervencion_unidades.intervencion_id', '=', 'unidadesproductivas_intervenciones.id')
-            ->leftJoin('unidadesproductivas as up2', 'up2.unidadproductiva_id', '=', 'intervencion_unidades.unidadproductiva_id')
-            ->leftJoin('intervencion_leads', 'intervencion_leads.intervencion_id', '=', 'unidadesproductivas_intervenciones.id')
-            ->leftJoin('leads', 'leads.id', '=', 'intervencion_leads.lead_id');
+            ->leftJoin(
+                'unidadesproductivas',
+                'unidadesproductivas.unidadproductiva_id',
+                '=',
+                'unidadesproductivas_intervenciones.unidadproductiva_id'
+            )
+            ->leftJoin(
+                'intervencion_unidades',
+                'intervencion_unidades.intervencion_id',
+                '=',
+                'unidadesproductivas_intervenciones.id'
+            )
+            ->leftJoin(
+                'intervencion_leads',
+                'intervencion_leads.intervencion_id',
+                '=',
+                'unidadesproductivas_intervenciones.id'
+            )
+            ->leftJoin(
+                'leads',
+                'leads.id',
+                '=',
+                'unidadesproductivas_intervenciones.lead_id'
+            );
 
 
         $asesor = (Auth::user()->rol_id === Role::ASESOR) ? Auth::id() : $request->get('asesor');
@@ -474,24 +537,64 @@ class IntervencionesController extends Controller
         }
 
         if ($fechaInicio = $request->get('fecha_inicio')) {
-            $query->whereDate('fecha_inicio', '>=', $fechaInicio);
+            $query->whereDate('unidadesproductivas_intervenciones.fecha_inicio', '>=', $fechaInicio);
         }
 
         if ($fechaFin = $request->get('fecha_fin')) {
-            $query->whereDate('fecha_fin', '<=', $fechaFin);
+            $query->whereDate('unidadesproductivas_intervenciones.fecha_fin', '<=', $fechaFin);
         }
 
         if (!empty($search)) {
-            $filters = ['descripcion'];
-            $query->where(function ($q) use ($search, $filters) {
-                foreach ($filters as $field) {
-                    $q->orWhere($field, 'like', "%{$search}%");
-                }
+            $query->where(function ($q) use ($search) {
+                $q->orWhere('unidadesproductivas_intervenciones.descripcion', 'like', "%{$search}%")
+                    ->orWhere('p.nombre', 'like', "%{$search}%")
+                    ->orWhere('pc.nombre_convocatoria', 'like', "%{$search}%")
+                    ->orWhere('fases_programas.nombre', 'like', "%{$search}%");
             });
         }
 
-        $query->orderBy('unidadesproductivas_intervenciones.fecha_creacion', 'desc');
+        // Orden dinámico (DataTables + backend propio)
+        $sortName = $request->get('sortName');
+        $sortOrder = $request->get('sortOrder', 'desc');
 
+        // Mapeo seguro de columnas
+        $map = [
+            'fecha_creacion' => 'unidadesproductivas_intervenciones.fecha_creacion',
+            'id' => 'unidadesproductivas_intervenciones.id',
+            'titulo' => 'unidadesproductivas_intervenciones.titulo',
+            'fecha_inicio' => 'unidadesproductivas_intervenciones.fecha_inicio',
+            'fecha_fin' => 'unidadesproductivas_intervenciones.fecha_fin',
+            'asesor' => "CONCAT(users.name, ' ', users.lastname)",
+            'unidad' => "
+                CASE
+                    WHEN unidadesproductivas_intervenciones.unidadproductiva_id IS NOT NULL THEN unidadesproductivas.business_name
+                    WHEN unidadesproductivas_intervenciones.lead_id IS NOT NULL THEN leads.name
+                    ELSE NULL
+                END
+            ",
+            'clasificacion' => "
+                CASE
+                    WHEN unidadesproductivas_intervenciones.unidadproductiva_id IS NOT NULL THEN 'REGISTRADO'
+                    WHEN unidadesproductivas_intervenciones.lead_id IS NOT NULL THEN 'NO REGISTRADO'
+                    ELSE 'SIN PARTICIPANTE'
+                END
+            ",
+            'programa' => 'p.nombre',
+            'convocatoria' => 'pc.nombre_convocatoria',
+            'fase' => 'fases_programas.nombre',
+            'categoria' => 'categorias_intervenciones.nombre',
+            'tipo' => 'tipos_intervenciones.nombre',
+            'participantes' => 'unidadesproductivas_intervenciones.participantes',
+        ];
+
+        if ($sortName && isset($map[$sortName])) {
+            $column = $map[$sortName];
+
+            // Forzar RAW para evitar problemas con joins y alias
+            $query->orderByRaw($column . ' ' . $sortOrder);
+        } else {
+            $query->orderBy('unidadesproductivas_intervenciones.fecha_creacion', 'desc');
+        }
         return $query;
     }
 }

@@ -99,7 +99,7 @@
                     <!-- informacion de intervencion -->
                     <div id="account-details-modern-vertical" class="content">
                         <div class="row">
-                            <div class="col-12 col-md-6 form-group mb-3">
+                            <div class="col-12 col-md-7 form-group mb-3">
                                 <label class="form-label" for="programa_id">Programa</label>
                                 <select class="form-select" name="programa_id" id="programa_id" required>
                                     <option value="" selected>Seleccione una opción</option>
@@ -109,16 +109,16 @@
                                 </select>
                             </div>
 
-                            <div class="col-12 col-md-6 form-group mb-3">
+                            <div class="col-12 col-md-5 form-group mb-3">
                                 <label class="form-label" for="convocatoria_id">Ciclo</label>
-                                <select class="form-select" name="convocatoria_id" id="convocatoria_id"  disabled>
+                                <select class="form-select" name="convocatoria_id" id="convocatoria_id" disabled>
                                     <option value="" selected>Seleccione primero un programa</option>
                                 </select>
                             </div>
 
-                            <div class="col-12 col-md-6 form-group mb-3">
+                            <div class="col-12 col-md-3 form-group mb-3">
                                 <label class="form-label" for="fase_programa_id">Fase</label>
-                                <select class="form-select" name="fase_programa_id" id="fase_programa_id" required>
+                                <select class="form-select" name="fase_id" id="fase_programa_id" required>
                                     <option value="" selected>Seleccione una opción</option>
                                     @foreach ($fasesProgramas as $item)
                                         <option value="{{ $item->fase_id }}">
@@ -128,7 +128,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-12 col-md-6 form-group mb-3">
+                            <div class="col-12 col-md-4 form-group mb-3">
                                 <label class="form-label" for="categoria_id">Actividad</label>
                                 <select class="form-select" name="categoria_id" id="categoria_id" required>
                                     <option value="" selected>Seleccione una opción</option>
@@ -138,7 +138,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-12 col-md-6 form-group mb-3">
+                            <div class="col-12 col-md-5 form-group mb-3">
                                 <label class="form-label" for="tipo_id">Tarea</label>
                                 <select class="form-select" name="tipo_id" id="tipo_id" required>
                                     <option value="" selected>Seleccione una opción</option>
@@ -155,7 +155,7 @@
 
                             <div class="col-12 col-md-4 form-group mb-3">
                                 <label class="form-label" for="modalidad">Modalidad</label>
-                                <select class="form-select" name="modalidad" id="modalidad" >
+                                <select class="form-select" name="modalidad" id="modalidad">
                                     <option value="" selected>Seleccione una opción</option>
                                     @foreach ($modalidades as $index => $item)
                                         <option value="{{ $index }}">{{ $item }}</option>
@@ -189,111 +189,127 @@
                     </div>
                     <!-- Unidades productivas -->
                     <div id="personal-info-modern-vertical" class="content">
-                        <div class="col-12 col-md-12 form-group mb-4">
-                            <h4 class="mb-0"> Unidades productivas intervenidas </h4>
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="row">
+                        <div class="col-12">
+
+                            <h4 class="mb-4">Unidades productivas intervenidas</h4>
+
+                            <div class="row g-4">
+
+                                <!-- ================= UNIDADES PRODUCTIVAS ================= -->
+                                <div class="col-md-6">
+                                    <div class="card p-3">
+
+                                        <div class="mb-3">
+                                            <label for="unidadAdd" class="form-label">Unidad productiva</label>
+
+                                            <div class="d-flex align-items-center gap-2">
+
+                                                <!-- BOTÓN IZQUIERDA -->
+                                                <a href="/unidadesProductivas/list" target="_blank"
+                                                    class="btn btn-outline-primary btn-icon">
+                                                    <i class="ri ri-search-line"></i>
+                                                </a>
+
+                                                <select class="form-select" name="unidadAdd" id="unidadAdd">
+                                                    <option value="" disabled selected>Seleccione una unidad</option>
+                                                    @foreach ($unidades as $item)
+                                                        <option value="{{ $item->id }}">{{ $item->nombre }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
                                         <div class="row">
-                                            <div class="col-12 col-md-9 form-group mb-3">
-                                                <label for="unidadAdd" class="form-label">Unidad productiva</label>
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <select class="form-select w-75" name="unidadAdd" id="unidadAdd">
-                                                        <option value="" disabled selected>Seleccione una unidad
-                                                            para agregar
-                                                        </option>
-                                                        @foreach ($unidades as $item)
-                                                            <option value="{{ $item->id }}">{{ $item->nombre }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    <a href="/unidadesProductivas/list"
-                                                        class="btn btn-outline-primary btn-icon">
-                                                        <i class="icon-base ri ri-search-line"></i>
-                                                    </a>
-                                                </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label"># Participantes</label>
+                                                <input class="form-control" type="number" id="participantes">
                                             </div>
 
-                                            <div class="col-12 col-md-3 form-group mb-3">
-                                                <label for="participantes" class="form-label"># Participantes</label>
-                                                <input class="form-control" type="number" id="participantes"
-                                                    name="participantes" placeholder="Cantidad de participantes">
+                                            <div class="col-md-6 d-flex align-items-end">
+                                                <button type="button" class="btn btn-primary w-100" onclick="openAdd()">
+                                                    Agregar
+                                                </button>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-md-3 form-group mb-3 pt-5">
-                                            <button type="button" class="btn btn-xl btn-primary py-1 mt-3"
-                                                onclick="openAdd()">Agregar</button>
+
+                                    </div>
+                                </div>
+
+                                <!-- LISTADO -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input id="TagifyUserList" name="unidades" class="form-control h-auto">
+                                        <label>Unidades productivas</label>
+                                    </div>
+                                </div>
+
+                                <!-- ================= OTROS PARTICIPANTES ================= -->
+                                <div class="col-md-6">
+                                    <div class="card p-3">
+
+                                        <div class="mb-3">
+                                            <label for="otroParticipanteAdd" class="form-label">
+                                                Otros participantes
+                                            </label>
+
+                                            <div class="d-flex align-items-center gap-2">
+
+                                                <!-- BOTÓN + (CREAR NUEVO) -->
+                                                <button type="button" class="btn btn-outline-success btn-icon"
+                                                    data-bs-toggle="modal" data-bs-target="#modalNuevoParticipante">
+                                                    <i class="ri ri-add-line"></i>
+                                                </button>
+
+                                                <select class="form-select" id="otroParticipanteAdd">
+                                                    <option value="" disabled selected>Selecciona participante
+                                                    </option>
+                                                    @foreach ($leads as $item)
+                                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <!-- Users List -->
-                                <div class="col-md-6 mb-3 mt-3">
-                                    <div class="form-floating form-floating-outline">
-                                        <input id="TagifyUserList" name="unidades" class="form-control h-auto"
-                                            value="" />
-                                        <label for="TagifyUserList">Unidades productivas</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="row">
+
                                         <div class="row">
-                                            <div class="col-12 col-md-9 form-group mb-3">
-                                                <label for="otroParticipanteAdd" class="form-label">Otros
-                                                    participantes</label>
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <select class="form-select w-75" name="otroParticipanteAdd"
-                                                        id="otroParticipanteAdd">
-                                                        <option value="" disabled selected>Selecciona otro
-                                                            Participante
-                                                        </option>
-                                                        @foreach ($leads as $item)
-                                                            <option value="{{ $item->id }}">{{ $item->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    <div class="">
-                                                        <button class="btn btn-outline-primary btn-icon">
-                                                            <i class="icon-base ri ri-add-line"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label"># Participantes</label>
+                                                <input class="form-control" type="number" id="participantes_otros">
                                             </div>
 
-                                            <div class="col-12 col-md-3 form-group mb-3">
-                                                <label for="participantes_otros" class="form-label">#
-                                                    Participantes</label>
-                                                <input class="form-control" type="number" id="participantes_otros"
-                                                    name="participantesOtros" placeholder="Cantidad de participantes">
+                                            <div class="col-md-6 d-flex align-items-end">
+                                                <button type="button" class="btn btn-primary w-100"
+                                                    onclick="openAddOtroParticipante()">
+                                                    Agregar
+                                                </button>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-md-3 form-group mb-3 pt-5">
-                                            <button type="button" class="btn btn-xl btn-primary py-1 mt-3"
-                                                onclick="openAddOtroParticipante()">Agregar</button>
-                                        </div>
+
                                     </div>
                                 </div>
-                                <!-- Users List -->
-                                <div class="col-md-6 mb-3 mt-3">
-                                    <div class="form-floating form-floating-outline">
+
+                                <!-- LISTADO -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
                                         <input id="TagifyOtrosParticipantes" name="otrosParticipantes"
-                                            class="form-control h-auto" value="" />
-                                        <label for="TagifyOtrosParticipantes">Otros Participantes</label>
+                                            class="form-control h-auto">
+                                        <label>Otros Participantes</label>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
+
+
                     <!-- Soporte -->
                     <div id="social-links-modern-vertical" class="content">
                         <div class="col-12 col-md-12 form-group mb-3" id="contFormFile">
-                            <label for="formFile" class="form-label">Soporte (opcional)</label>
+                            <label for="formFile" class="form-label">Soporte</label>
                             <input class="form-control" type="file" id="formFile" name="formFile">
                         </div>
                         <!-- Media -->
 
-                        <div class="card mb-6">
+                        {{-- <div class="card mb-6">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0 card-title">Cargar soporte</h5>
                                 <a href="javascript:void(0);" class="fw-medium">Agregar url de la evidencia</a>
@@ -327,7 +343,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <!-- /Media -->
                     </div>
                 </div>
@@ -607,6 +623,80 @@
             </div>
         </div>
     </div>
+
+
+
+    <div class="modal fade" id="modalNuevoParticipante" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Nuevo participante</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row g-3">
+
+                        <!-- Tipo documento -->
+                        <div class="col-md-4">
+                            <label class="form-label">Tipo documento *</label>
+                            <select class="form-select" id="lead_type">
+                                <option value="1">Cédula</option>
+                                <option value="2">NIT</option>
+                                <option value="3">Cédula extranjería</option>
+                                <option value="4">Tarjeta de Identidad</option>
+                                <option value="5">Pasaporte</option>
+                            </select>
+                        </div>
+
+                        <!-- Documento -->
+                        <div class="col-md-4">
+                            <label class="form-label">Documento *</label>
+                            <input type="text" class="form-control" id="lead_document">
+                        </div>
+
+                        <!-- Teléfono -->
+                        <div class="col-md-4">
+                            <label class="form-label">Teléfono *</label>
+                            <input type="text" class="form-control" id="lead_phone">
+                        </div>
+
+                        <!-- Nombre -->
+                        <div class="col-md-12">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" id="lead_name">
+                        </div>
+
+                        <!-- Correo -->
+                        <div class="col-md-6">
+                            <label class="form-label">Correo</label>
+                            <input type="email" class="form-control" id="lead_email">
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div class="col-md-6">
+                            <label class="form-label">Observaciones</label>
+                            <input type="text" class="form-control" id="lead_description">
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-primary" onclick="guardarLead()">
+                        Guardar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('script')
@@ -662,31 +752,55 @@
 
         window.TABLA = {
             urlApi: '/intervenciones',
-            sortName: 'id',
+            sortName: 'fecha_creacion',
+            sortOrder: 'desc',
+            order: [
+                [0, 'desc']
+            ],
             accion_editar: false,
             columns: [{
-                    data: 'categoria',
-                    title: 'Categoría',
-                    orderable: true
-                },
-                {
-                    data: 'tipo',
-                    title: 'Tipo',
-                    orderable: true
-                },
-                {
-                    data: 'modalidad',
-                    title: 'Modalidad',
+                    data: 'fecha_creacion',
+                    title: 'Reportado',
                     orderable: true
                 },
                 {
                     data: 'fecha_inicio',
-                    title: 'F. inicio',
+                    title: 'inicio',
                     orderable: true
                 },
                 {
                     data: 'fecha_fin',
-                    title: 'F. fin',
+                    title: 'fin',
+                    orderable: true
+                },
+                {
+                    data: 'programa',
+                    title: 'Programa',
+                    orderable: true
+                },
+                {
+                    data: 'convocatoria',
+                    title: 'Ciclo',
+                    orderable: true
+                },
+                {
+                    data: 'fase',
+                    title: 'Etapa',
+                    orderable: true
+                },
+                {
+                    data: 'categoria',
+                    title: 'Actividad',
+                    orderable: true
+                },
+                {
+                    data: 'tipo',
+                    title: 'Tarea',
+                    orderable: true
+                },
+                {
+                    data: 'clasificacion',
+                    title: 'Clasificación',
                     orderable: true
                 },
                 {
@@ -703,22 +817,6 @@
                     data: 'asesor',
                     title: 'Asesor',
                     orderable: true
-                },
-                {
-                    data: 'descripcion',
-                    title: 'Descripción',
-                    orderable: false,
-                    render: function(data, type, row) {
-                        return window.limitarTexto(data || '', 150, 'Descripción');
-                    }
-                },
-                {
-                    data: 'conclusiones',
-                    title: 'Conclusiones',
-                    orderable: false,
-                    render: function(data, type, row) {
-                        return window.limitarTexto(data || '', 150, 'Conclusiones');
-                    }
                 },
                 {
                     data: 'soporte',
@@ -1102,5 +1200,66 @@
             });
 
         });
+    </script>
+
+    <script>
+        function guardarLead() {
+
+            const data = {
+                type: document.getElementById('lead_type').value,
+                document: document.getElementById('lead_document').value,
+                name: document.getElementById('lead_name').value,
+                phone: document.getElementById('lead_phone').value,
+                email: document.getElementById('lead_email').value,
+                description: document.getElementById('lead_description').value,
+            };
+
+            if (!data.name || !data.phone) {
+                alert('Nombre y teléfono son obligatorios');
+                return;
+            }
+
+            fetch("{{ route('leads.store') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(res => res.json())
+                .then(response => {
+
+                    if (response.success) {
+
+                        const select = document.getElementById('otroParticipanteAdd');
+
+                        // Crear opción nueva
+                        const option = new Option(response.data.text, response.data.id, true, true);
+                        select.appendChild(option);
+
+                        // Seleccionarlo
+                        select.value = response.data.id;
+
+                        // Cerrar modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevoParticipante'));
+                        modal.hide();
+
+                        // Limpiar campos
+                        document.getElementById('lead_name').value = '';
+                        document.getElementById('lead_document').value = '';
+                        document.getElementById('lead_phone').value = '';
+                        document.getElementById('lead_email').value = '';
+                        document.getElementById('lead_description').value = '';
+
+                    } else {
+                        alert('Error al guardar');
+                    }
+
+                })
+                .catch(() => {
+                    alert('Error en la petición');
+                });
+        }
     </script>
 @endsection

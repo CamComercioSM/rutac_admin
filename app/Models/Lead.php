@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Lead extends Model
-{
+class Lead extends Model {
+
+    use SoftDeletes;
     protected $table = 'leads';
 
     protected $fillable = [
-        'id',
         'type',
         'name',
         'document',
@@ -18,8 +19,6 @@ class Lead extends Model
         'description',
         'department',
         'municipality',
-        'dress',
-        'created_at',
-        'updated_at',
+        'address'
     ];
 }

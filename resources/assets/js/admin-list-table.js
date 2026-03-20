@@ -14,15 +14,15 @@ $(document).ready(function () {
     let tabla = null;
 
     const fullToolbar = [
-        [ { size: [] } ],
+        [{ size: [] }],
         ['bold', 'italic', 'underline', 'strike'],
-        [ { color: [] }, {  background: [] } ],
-        [ { header: '1' }, { header: '2' }, 'blockquote', 'code-block' ],
-        [ { list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' } ],
-        [ 'direction', { align: [] } ]
+        [{ color: [] }, { background: [] }],
+        [{ header: '1' }, { header: '2' }, 'blockquote', 'code-block'],
+        [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+        ['direction', { align: [] }]
     ];
 
-    window.ajaxCargarData = function(data, callback, settings) {
+    window.ajaxCargarData = function (data, callback, settings) {
 
         // Mostrar loader de DataTables
         $('#tabla').closest('.dataTables_wrapper').find('.dataTables_processing').show();
@@ -34,11 +34,26 @@ $(document).ready(function () {
         params.page = Math.floor(data.start / data.length) + 1;
         params.pageSize = data.length;
 
+        console.log(data.order);
         // Orden
-        if (data.order && data.order.length > 0) {
-            const dir = data.order[0].dir;
+        if (data.order && data.order.length > 0 && data.order[0].column !== undefined) {
+
+            const order = data.order[0];
+            const columnIndex = order.column;
+            const dir = order.dir;
+
+            const column = window.TABLA.columns[columnIndex];
+
+            if (column && column.data) {
+                params.sortName = column.data;
+                params.sortOrder = dir;
+            }
+
+        } else {
+
+            //ORDEN INICIAL
             params.sortName = window.TABLA.sortName ?? 'id';
-            params.sortOrder = dir;
+            params.sortOrder = window.TABLA.sortOrder ?? 'desc';
         }
 
         // Búsqueda
@@ -76,38 +91,34 @@ $(document).ready(function () {
             });
     };
 
-    if(window.TABLA && window.TABLA.initFiltros)
-    {
-        $.each(window.TABLA.initFiltros, function(key, value) {
-            const input = $('#'+key);
+    if (window.TABLA && window.TABLA.initFiltros) {
+        $.each(window.TABLA.initFiltros, function (key, value) {
+            const input = $('#' + key);
 
-            if(input.length)
+            if (input.length)
                 input.val(value).trigger('change');
         });
     }
 
-    if (window.TABLA && window.TABLA.initSelects) 
-    {
+    if (window.TABLA && window.TABLA.initSelects) {
         window.TABLA.initSelects.forEach(item => {
             item.setting = item.setting ?? {};
             item.setting.allowClear = true;
             item.setting.placeholder = item.setting.placeholder ?? "Seleccione una opción";
             $("#" + item.id).select2(item.setting);
-            if(typeof item.change === "function"){
+            if (typeof item.change === "function") {
                 $("#" + item.id).on("change", function (e) { item.change(e); });
             }
         });
     }
 
-    if(window.TABLA && window.TABLA.columns)
-    {
+    if (window.TABLA && window.TABLA.columns) {
         window.TABLA.seleccionados = new Map();
         window.TABLA.seleccionarTodo = false;
         let columnDefs = [];
         let select = null;
 
-        if(window.TABLA.checkboxes)
-        {
+        if (window.TABLA.checkboxes) {
             window.TABLA.columns.unshift({ data: 'id', orderable: false, className: 'check', render: DataTable.render.select() });
             columnDefs = [
                 {
@@ -131,6 +142,7 @@ $(document).ready(function () {
             serverSide: true,
             processing: true,
             ajax: ajaxCargarData,
+            order: [[0, 'desc']],
             columns: window.TABLA.columns,
             columnDefs: columnDefs,
             pageLength: 10,
@@ -153,23 +165,22 @@ $(document).ready(function () {
             select: select
         });
 
-        if(window.TABLA.checkboxes)
-        {
-            tabla.on('select', function(e, dt, type, indexes) {
+        if (window.TABLA.checkboxes) {
+            tabla.on('select', function (e, dt, type, indexes) {
                 const data = tabla.rows(indexes).data().toArray();
                 data.forEach(row => {
                     window.TABLA.seleccionados.set(row.id, row.business_name);
                 });
             });
 
-            tabla.on('deselect', function(e, dt, type, indexes) {
+            tabla.on('deselect', function (e, dt, type, indexes) {
                 const data = tabla.rows(indexes).data().toArray();
                 data.forEach(row => {
                     window.TABLA.seleccionados.delete(row.id);
                 });
             });
 
-            tabla.on('draw', function() {
+            tabla.on('draw', function () {
                 tabla.rows().every(function () {
                     const data = this.data();
                     if (window.TABLA.seleccionados.has(data.id)) {
@@ -178,7 +189,7 @@ $(document).ready(function () {
                 });
             });
 
-            window.eliminarSeleccionado = function(id = null) {
+            window.eliminarSeleccionado = function (id = null) {
                 if (window.TABLA.seleccionados.has(id)) {
 
                     window.TABLA.seleccionados.delete(id);
@@ -216,37 +227,35 @@ $(document).ready(function () {
         form.reset();
 
         form.querySelectorAll('input, textarea, select')
-        .forEach(input => {
-            $(input).val(null).trigger('change');
-        });
-        
+            .forEach(input => {
+                $(input).val(null).trigger('change');
+            });
+
         tabla.ajax.reload();
     });
-    
+
 
     document.getElementById('form').addEventListener('submit', async function (e) {
-    
+
         e.preventDefault();
         const form = e.target;
 
-        if (!form.checkValidity()) 
-        {
+        if (!form.checkValidity()) {
             e.stopPropagation();
             form.classList.add('was-validated');
             return;
         }
-    
+
         form.classList.add('was-validated');
 
-        if(typeof window.validarExtraForm === "function"){
-            if(!window.validarExtraForm()) return;
+        if (typeof window.validarExtraForm === "function") {
+            if (!window.validarExtraForm()) return;
         }
-    
+
         const formData = new FormData(form);
 
 
-        if (window.TABLA && window.TABLA.initEditors) 
-        {
+        if (window.TABLA && window.TABLA.initEditors) {
             window.TABLA.initEditors.forEach(item => {
                 formData.append(item.id, item.quill.root.innerHTML);
             });
@@ -265,14 +274,13 @@ $(document).ready(function () {
 
             tabla.ajax.reload();
             $('.cargando').addClass('d-none');
-        } 
+        }
         catch (error) {
             console.error('Error al guardar:', error);
         }
     });
 
-    if (window.TABLA && window.TABLA.initEditors) 
-    {
+    if (window.TABLA && window.TABLA.initEditors) {
         window.TABLA.initEditors.forEach(item => {
             item.quill = new Quill("#" + item.id, {
                 bounds: "#" + item.id,
@@ -283,13 +291,13 @@ $(document).ready(function () {
         });
     }
 
-    $('#btnCrear').on('click', function () { 
+    $('#btnCrear').on('click', function () {
         itemSelect = null;
-        CrearRegistro(); 
+        CrearRegistro();
     });
 
-    window.eliminarRegistro = function() {
-        
+    window.eliminarRegistro = function () {
+
         const id = itemSelect.id;
 
         Swal.fire({
@@ -314,72 +322,69 @@ $(document).ready(function () {
                 });
 
                 axios.delete(`${TABLA.urlApi}/${id}`)
-                .then(response => {
-                    Swal.fire({
-                        title: 'Eliminado',
-                        text: response.data.message || 'Registro eliminado correctamente.',
-                        icon: 'success',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
+                    .then(response => {
+                        Swal.fire({
+                            title: 'Eliminado',
+                            text: response.data.message || 'Registro eliminado correctamente.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
 
-                    // Recargar tabla
-                    if (typeof tabla !== 'undefined') {
-                        tabla.ajax.reload();
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    Swal.fire('Error', 'No se pudo eliminar el registro.', 'error');
-                });
+                        // Recargar tabla
+                        if (typeof tabla !== 'undefined') {
+                            tabla.ajax.reload();
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        Swal.fire('Error', 'No se pudo eliminar el registro.', 'error');
+                    });
             }
         });
 
     };
 
-    window.openEditar = function() {
+    window.openEditar = function () {
         dropdown.hide();
         CrearRegistro(itemSelect);
     };
 
-    window.CrearRegistro = function (data = null) 
-    {
+    window.CrearRegistro = function (data = null) {
         const form = document.getElementById('form');
         form.reset();
 
         form.querySelectorAll('input, textarea, select')
-        .forEach(input => { $(input).val(null).trigger('change'); });
+            .forEach(input => { $(input).val(null).trigger('change'); });
 
-        if(typeof TABLA.loadOptions === "function" ){  TABLA.loadOptions([]); }
+        if (typeof TABLA.loadOptions === "function") { TABLA.loadOptions([]); }
 
-        if(data == null) data = {};
+        if (data == null) data = {};
 
         for (let nb in data) {
             const input = form[nb];
-            if (input && input.type !== 'file' && data[nb] != null) 
-            {
-               if (input.type === 'date') {
+            if (input && input.type !== 'file' && data[nb] != null) {
+                if (input.type === 'date') {
                     data[nb] = formatDateForInput(data[nb]); // YYYY-MM-DD
-                } 
+                }
                 else if (input.type === 'datetime-local') {
                     data[nb] = formatDateTimeForInput(data[nb]); // YYYY-MM-DDTHH:mm
                 }
-                
-                $(input).val(data[nb]).trigger('change');       
+
+                $(input).val(data[nb]).trigger('change');
             }
-            else if((nb == 'opciones' || nb == 'requisitos_todos') && data[nb] != null && typeof TABLA.loadOptions === "function" ){
+            else if ((nb == 'opciones' || nb == 'requisitos_todos') && data[nb] != null && typeof TABLA.loadOptions === "function") {
                 TABLA.loadOptions(data[nb]);
             }
         }
 
-        if (window.TABLA && window.TABLA.initEditors) 
-        {
+        if (window.TABLA && window.TABLA.initEditors) {
             window.TABLA.initEditors.forEach(item => {
-                item.quill.clipboard.dangerouslyPasteHTML( data[item.id] ?? '' );
+                item.quill.clipboard.dangerouslyPasteHTML(data[item.id] ?? '');
             });
         }
 
-        $("#accionModal").text( (data.id ? 'Editar' : 'Crear') );
+        $("#accionModal").text((data.id ? 'Editar' : 'Crear'));
 
         AbrirModal();
     }
@@ -392,9 +397,8 @@ $(document).ready(function () {
         });
     }
 
-    function AbrirModal() 
-    {
-        if(typeof window.initAlAbrirModal === "function"){
+    function AbrirModal() {
+        if (typeof window.initAlAbrirModal === "function") {
             window.initAlAbrirModal();
         }
 
@@ -404,14 +408,12 @@ $(document).ready(function () {
     }
 
 
-    window.menuTabla = function(row, $element)
-    {
-        if(TABLA.menu_row)
-        {
+    window.menuTabla = function (row, $element) {
+        if (TABLA.menu_row) {
             itemSelect = row;
             let menu = TABLA.menu_row.replace(/ROWID/g, row.id);
             const rect = $element[0].getBoundingClientRect();
-            
+
             dropdown.html(menu);
             dropdown.css({
                 top: rect.bottom + window.scrollY - 10,
@@ -422,7 +424,7 @@ $(document).ready(function () {
             });
 
             $(document).off('mousedown.menuContext');
-            $(document).on('mousedown.menuContext', function(e) {
+            $(document).on('mousedown.menuContext', function (e) {
                 // Si el clic NO fue dentro del dropdown
                 if (!$(e.target).closest('#MenurowTable').length) {
                     dropdown.hide();
@@ -436,11 +438,11 @@ $(document).ready(function () {
         }
     }
 
-    window.formatearFecha = function(value) {
+    window.formatearFecha = function (value) {
         if (!value) return '';
         const fecha = new Date(value);
-        
-        return fecha.toLocaleString('es-CO', 
+
+        return fecha.toLocaleString('es-CO',
             { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }
         );
     }
