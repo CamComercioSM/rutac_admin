@@ -42,3 +42,4 @@ yarn-error.log
 
 # Except for 'template-customizer.js' inside 'resources/assets/vendor/js/'
 !/resources/assets/vendor/js/template-customizer.js
+/nbproject/private/
