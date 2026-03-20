@@ -386,183 +386,7 @@
             </div>
         </div>
     </div>
-    <!-- /Modern Vertical Wizard -->
-    {{-- <div class="row">
-
-        <div class="col-12 col-md-6 form-group mb-3">
-            <label class="form-label" for="programa_id">Programa</label>
-            <select class="form-select" name="programa_id" id="programa_id" required>
-                <option value="" selected>Seleccione una opción</option>
-                @foreach ($programas as $item)
-                    <option value="{{ $item->programa_id }}">{{ $item->nombre }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="col-12 col-md-6 form-group mb-3">
-            <label class="form-label" for="convocatoria_id">Convocatoria</label>
-            <select class="form-select" name="convocatoria_id" id="convocatoria_id" required disabled>
-                <option value="" selected>Seleccione primero un programa</option>
-            </select>
-        </div>
-
-        <div class="col-12 col-md-6 form-group mb-3">
-            <label class="form-label" for="categoria_id">Categoría</label>
-            <select class="form-select" name="categoria_id" id="categoria_id" required>
-                <option value="" selected>Seleccione una opción</option>
-                @foreach ($categorias as $item)
-                    <option value="{{ $item->id }}">{{ $item->nombre }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="col-12 col-md-6 form-group mb-3">
-            <label class="form-label" for="tipo_id">Tipo</label>
-            <select class="form-select" name="tipo_id" id="tipo_id" required>
-                <option value="" selected>Seleccione una opción</option>
-                @foreach ($tipos as $item)
-                    <option value="{{ $item->id }}">{{ $item->nombre }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="col-12 col-md-12 form-group mb-3 d-none" id="cont_referencia">
-            <label for="referencia_id" class="form-label"></label>
-            <select class="form-select w-75" name="referencia_id" id="referencia_id"></select>
-        </div>
-
-        <div class="col-12 col-md-4 form-group mb-3">
-            <label class="form-label" for="modalidad">Modalidad</label>
-            <select class="form-select" name="modalidad" id="modalidad" required>
-                <option value="" selected>Seleccione una opción</option>
-                @foreach ($modalidades as $index => $item)
-                    <option value="{{ $index }}">{{ $item }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="col-12 col-md-4 form-group mb-3">
-            <label class="form-label" for="fecha_inicio">Fecha inicio</label>
-            <input type="datetime-local" class="form-control" name="fecha_inicio" id="fecha_inicio"
-                placeholder="Fecha inicio" required>
-        </div>
-
-        <div class="col-12 col-md-4 form-group mb-3">
-            <label class="form-label" for="fecha_fin">Fecha fin</label>
-            <input type="datetime-local" class="form-control" name="fecha_fin" id="fecha_fin" placeholder="Fecha fin"
-                required>
-        </div>
-
-        <div class="col-12 col-md-12 form-group mb-3">
-            <label class="form-label" for="descripcion">Descripción</label>
-            <div id="descripcion"></div>
-        </div>
-
-        <div class="col-12 col-md-12 form-group mb-4">
-
-            <h4 class="mb-0"> Unidades productivas intervenidas </h4>
-            <div class="row">
-
-                <div class="col-12 col-md-6 form-group mb-3">
-                    <label for="unidadAdd" class="form-label">Unidad productiva</label>
-                    <div class="d-flex align-items-center gap-2">
-                        <select class="form-select w-75" name="unidadAdd" id="unidadAdd">
-                            <option value="" disabled selected>Seleccione una unidad para agregar</option>
-                            @foreach ($unidades as $item)
-                                <option value="{{ $item->id }}">{{ $item->nombre }}</option>
-                            @endforeach
-                        </select>
-                        <a href="/unidadesProductivas/list" class="btn btn-outline-primary btn-icon">
-                            <i class="icon-base ri ri-search-line"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-3 form-group mb-3">
-                    <label for="participantes" class="form-label">Cantidad de participantes</label>
-                    <input class="form-control" type="number" id="participantes" name="participantes"
-                        placeholder="Cantidad de participantes">
-                </div>
-
-                <div class="col-12 col-md-3 form-group mb-3 pt-5">
-                    <button type="button" class="btn btn-xl btn-primary py-1 mt-3" onclick="openAdd()">Agregar</button>
-                </div>
-            </div>
-            <table class="table table-sm table-border border">
-                <thead>
-                    <th> Nombre </th>
-                    <th> # paricipantes </th>
-                    <th></th>
-                </thead>
-                <tbody id="table_opciones"></tbody>
-            </table>
-
-            <div class="row">
-
-                <div class="col-12 col-md-6 form-group mb-3">
-                    <label for="otroParticipanteAdd" class="form-label">Otros participantes</label>
-                    <div class="d-flex align-items-center gap-2">
-                        <select class="form-select w-75" name="otroParticipanteAdd" id="otroParticipanteAdd">
-                            <option value="" disabled selected>Selecciona otro Participante</option>
-                            @foreach ($leads as $item)
-                                <option value="{{ $item->id }}">{{ $item->name }}</option>
-                            @endforeach
-                        </select>
-                        <div class="">
-                            <button class="btn btn-outline-primary btn-icon">
-                                <i class="icon-base ri ri-add-line"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-3 form-group mb-3">
-                    <label for="participantes_otros" class="form-label">Cantidad de participantes</label>
-                    <input class="form-control" type="number" id="participantes_otros" name="participantesOtros"
-                        placeholder="Cantidad de participantes">
-                </div>
-
-                <div class="col-12 col-md-3 form-group mb-3 pt-5">
-                    <button type="button" class="btn btn-xl btn-primary py-1 mt-3"
-                        onclick="openAddOtroParticipante()">Agregar</button>
-                </div>
-            </div>
-
-            <table class="table table-sm table-border border">
-                <thead>
-                    <th> Nombre </th>
-                    <th> # paricipantes </th>
-                    <th></th>
-                </thead>
-                <tbody id="table_otros_participantes"></tbody>
-            </table>
-        </div>
-
-        <div class="col-12 col-md-12 form-group mb-3">
-            <label class="form-label" for="conclusiones">Conclusiones</label>
-            <div id="conclusiones"></div>
-        </div>
-
-        <div class="col-12 col-md-12 form-group mb-3" id="contFormFile">
-            <label for="formFile" class="form-label">Soporte (opcional)</label>
-            <input class="form-control" type="file" id="formFile" name="formFile">
-        </div>
-
-        <label class="switch switch-lg mt-2">
-            <input type="checkbox" class="switch-input" id="switchBorrador" />
-
-            <span class="switch-toggle-slider">
-                <span class="switch-off">
-                    <i class="icon-base ri ri-draft-line"></i>
-                </span>
-                <span class="switch-on">
-                    <i class="icon-base ri ri-check-line"></i>
-                </span>
-            </span>
-
-            <span class="switch-label" id="switchLabel">Borrador</span>
-        </label>
-    </div> --}}
+    
 @endsection
 
 @section('btns-actions')
@@ -943,7 +767,6 @@
             });
 
             $("#unidadAdd").val(null).trigger('change');
-            $("#participantes").val(null);
         }
         window.openAddOtroParticipante = function() {
             const id = $("#otroParticipanteAdd").val();
@@ -973,7 +796,6 @@
             });
 
             $("#otroParticipanteAdd").val(null).trigger('change');
-            $("#participantes_otro").val(null);
         }
 
         window.itemOption = function(row = {}) {
