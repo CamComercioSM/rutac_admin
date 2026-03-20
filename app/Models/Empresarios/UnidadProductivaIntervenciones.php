@@ -56,6 +56,7 @@ class UnidadProductivaIntervenciones extends Model
     public static $modalidades = [
         'Presencial' => 'Presencial',
         'Virtual' => 'Virtual',
+        'Hibrida' => 'Hibrida',
     ];
 
     const CREATED_AT = 'fecha_creacion';

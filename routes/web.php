@@ -252,20 +252,20 @@ Route::as('admin.')
     Route::get('/historias/export', [HistoriaController::class, 'export']);
     Route::get('/links/export', [LinkController::class, 'export']); 
     Route::get('/settings/export', [SettingController::class, 'export']);
-    Route::get('/intervenciones/export', [IntervencionesController::class, 'export']);
+
+    Route::get('/intervenciones/export', [IntervencionesController::class, 'export']);    
+    Route::post('/intervenciones/import', [IntervencionesController::class, 'import']);
+    Route::post('/intervenciones/informe/preview', [IntervencionesController::class, 'preview']);
+    Route::post('/intervenciones/informe', [IntervencionesController::class, 'saveInforme']);    
+    Route::get('/intervenciones/informe', [IntervencionesController::class, 'informe']);
+    Route::post('/intervenciones/informe/payload-ia', [IntervencionesController::class, 'getPayloadAnalisisIA']);
+    Route::resource('intervenciones', IntervencionesController::class);
 
     Route::get('/reportes/list', [ReporteMensualController::class, 'index'])->name("reporteMensual");
     Route::get('/reportes/reportesMensuales', [ReporteMensualController::class, 'reportesMensuales'])->name("reportesMensuales");
     Route::get('/reportes/export', [ReporteMensualController::class, 'export']);
     Route::get('/reportes/supervision/{id?}', [ReporteMensualController::class, 'ReporteMensualSupervision'])->name("reporteMensual.supervision");
     Route::resource('reportes/supervision', ReporteMensualController::class);
-
-    Route::post('/intervenciones/import', [IntervencionesController::class, 'import']);
-    Route::post('/intervenciones/informe/preview', [IntervencionesController::class, 'preview']);
-    Route::post('/intervenciones/informe', [IntervencionesController::class, 'saveInforme']);
-    //Route::post('/intervenciones/informe', [IntervencionesController::class, 'informe']);
-    Route::get('/intervenciones/informe', [IntervencionesController::class, 'informe']);
-    Route::post('/intervenciones/informe/payload-ia', [IntervencionesController::class, 'getPayloadAnalisisIA']);
 
     Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search'])->name("unidadProductiva.search");
     Route::get('/lead/search', [LeadController::class, 'search'])->name("lead.search");
@@ -292,7 +292,6 @@ Route::as('admin.')
     Route::resource('links', LinkController::class);
     Route::resource('secciones', SeccionesController::class);
     Route::resource('settings', SettingController::class);
-    Route::resource('intervenciones', IntervencionesController::class);
     Route::resource('emailTemplates', EmailTemplateController::class);
     Route::resource('defaultEmailTemplates', DefaultEmailTemplateController::class);
 

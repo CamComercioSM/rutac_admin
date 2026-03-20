@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Empresarios\UnidadProductivaIntervenciones;
 use App\Models\Empresarios\UnidadProductiva;
 use App\Models\Lead;
+use App\Models\Programas\FasePrograma;
 use App\Models\Programas\Programa;
 use App\Models\Programas\ProgramaConvocatoria;
 use App\Models\ReporteMensual;
@@ -34,6 +35,7 @@ class IntervencionesController extends Controller
             'programas' => Programa::get(),
             'convocatorias' => ProgramaConvocatoria::get(),
             'categorias' => CategoriasIntervenciones::get(),
+            'fasesProgramas' => FasePrograma::get(),
             'tipos' => TiposIntervenciones::get(),
             'modalidades' => UnidadProductivaIntervenciones::$modalidades,
             'asesores' => User::whereNotNull('rol_id')->get(),

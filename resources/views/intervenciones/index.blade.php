@@ -30,7 +30,7 @@
     </div>
 
     <div class="col-12 col-md-3 form-group mb-3">
-        <label class="form-label" for="fecha_inicio">Fecha fin</label>
+        <label class="form-label" for="fecha_fin">Fecha fin</label>
         <input class="form-control" type="date" name="fecha_fin" id="fecha_fin">
     </div>
 
@@ -110,14 +110,26 @@
                             </div>
 
                             <div class="col-12 col-md-6 form-group mb-3">
-                                <label class="form-label" for="convocatoria_id">Convocatoria</label>
+                                <label class="form-label" for="convocatoria_id">Ciclo</label>
                                 <select class="form-select" name="convocatoria_id" id="convocatoria_id" required disabled>
                                     <option value="" selected>Seleccione primero un programa</option>
                                 </select>
                             </div>
 
                             <div class="col-12 col-md-6 form-group mb-3">
-                                <label class="form-label" for="categoria_id">Categoría</label>
+                                <label class="form-label" for="fase_programa_id">Fase</label>
+                                <select class="form-select" name="fase_programa_id" id="fase_programa_id" required>
+                                    <option value="" selected>Seleccione una opción</option>
+                                    @foreach ($fasesProgramas as $item)
+                                        <option value="{{ $item->fase_id }}">
+                                            {{ $item->fase_nombre }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6 form-group mb-3">
+                                <label class="form-label" for="categoria_id">Actividad</label>
                                 <select class="form-select" name="categoria_id" id="categoria_id" required>
                                     <option value="" selected>Seleccione una opción</option>
                                     @foreach ($categorias as $item)
@@ -127,7 +139,7 @@
                             </div>
 
                             <div class="col-12 col-md-6 form-group mb-3">
-                                <label class="form-label" for="tipo_id">Tipo</label>
+                                <label class="form-label" for="tipo_id">Tarea</label>
                                 <select class="form-select" name="tipo_id" id="tipo_id" required>
                                     <option value="" selected>Seleccione una opción</option>
                                     @foreach ($tipos as $item)
@@ -143,7 +155,7 @@
 
                             <div class="col-12 col-md-4 form-group mb-3">
                                 <label class="form-label" for="modalidad">Modalidad</label>
-                                <select class="form-select" name="modalidad" id="modalidad" required>
+                                <select class="form-select" name="modalidad" id="modalidad" >
                                     <option value="" selected>Seleccione una opción</option>
                                     @foreach ($modalidades as $index => $item)
                                         <option value="{{ $index }}">{{ $item }}</option>
@@ -174,12 +186,6 @@
                             <label class="form-label" for="conclusiones">Conclusiones</label>
                             <div id="conclusiones"></div>
                         </div>
-                        {{-- <div class="col-12">
-                                <div class="card-body pb-12">
-                                    <small class="fw-medium">Porcentaje de avance</small>
-                                    <div class="noUi-info mt-6 mb-12" id="slider-info"></div>
-                                </div>
-                            </div> --}}
                     </div>
                     <!-- Unidades productivas -->
                     <div id="personal-info-modern-vertical" class="content">
