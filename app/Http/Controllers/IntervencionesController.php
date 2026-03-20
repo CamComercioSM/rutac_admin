@@ -58,6 +58,11 @@ class IntervencionesController extends Controller {
     }
 
     public function preview(Request $request) {
+
+
+        dd($request->all());
+
+
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date',
@@ -532,9 +537,13 @@ class IntervencionesController extends Controller {
             $query->where('unidadesproductivas_intervenciones.asesor_id', $asesor);
         }
 
-        if ($unidad = $request->get('unidad')) {
-            $query->where('unidadesproductivas_intervenciones.unidadproductiva_id', $unidad);
-        }
+        // Filtros básicos
+        $this->applyFilter($query, $request, 'unidad', 'unidadesproductivas_intervenciones.unidadproductiva_id');
+        $this->applyFilter($query, $request, 'programa', 'unidadesproductivas_intervenciones.programa_id');
+        $this->applyFilter($query, $request, 'convocatoria', 'unidadesproductivas_intervenciones.convocatoria_id');
+        $this->applyFilter($query, $request, 'fase', 'unidadesproductivas_intervenciones.fase_id');
+        $this->applyFilter($query, $request, 'categoria', 'unidadesproductivas_intervenciones.categoria_id');
+        $this->applyFilter($query, $request, 'tipo', 'unidadesproductivas_intervenciones.tipo_id');
 
         if ($fechaInicio = $request->get('fecha_inicio')) {
             $query->whereDate('unidadesproductivas_intervenciones.fecha_inicio', '>=', $fechaInicio);
@@ -596,5 +605,14 @@ class IntervencionesController extends Controller {
             $query->orderBy('unidadesproductivas_intervenciones.fecha_creacion', 'desc');
         }
         return $query;
+    }
+
+
+    private function applyFilter($query, Request $request, $param, $column) {
+        $value = $request->get($param);
+
+        if (!is_null($value) && $value !== '') {
+            $query->where($column, $value);
+        }
     }
 }

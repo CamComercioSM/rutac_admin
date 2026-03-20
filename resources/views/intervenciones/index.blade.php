@@ -2,21 +2,23 @@
 
 @section('form-filters')
 
-    <div class="col-12 col-md-6 form-group mb-3">
-        <label class="form-label" for="unidad">Unidad productiva</label>
-        <select class="form-select" name="unidad" id="unidad">
-            <option value="" selected>Seleccione una opción</option>
+    <!-- Unidad -->
+    <div>
+        <label class="form-label mb-1">Unidad</label>
+        <select class="form-select form-select-sm" name="unidad" id="unidad">
+            <option value="">Todas</option>
             @foreach ($unidades as $item)
                 <option value="{{ $item->unidadproductiva_id }}">{{ $item->business_name }}</option>
             @endforeach
         </select>
     </div>
 
+    <!-- Usuario -->
     @if (!$esAsesor)
-        <div class="col-12 col-md-6 form-group mb-3">
-            <label class="form-label" for="asesor">Usuario</label>
-            <select class="form-select" name="asesor" id="asesor">
-                <option value="" selected>Seleccione una opción</option>
+        <div>
+            <label class="form-label mb-1">Usuario</label>
+            <select class="form-select form-select-sm" name="asesor" id="asesor">
+                <option value="">Todos</option>
                 @foreach ($asesores as $item)
                     <option value="{{ $item->id }}">{{ $item->name }} {{ $item->lastname }}</option>
                 @endforeach
@@ -24,14 +26,48 @@
         </div>
     @endif
 
-    <div class="col-12 col-md-3 form-group mb-3">
-        <label class="form-label" for="fecha_inicio">Fecha inicio</label>
-        <input class="form-control" type="date" name="fecha_inicio" id="fecha_inicio">
+    <!-- Programa -->
+    <div>
+        <label class="form-label mb-1">Programa</label>
+        <select class="form-select form-select-sm" name="programa" id="filtro_programa">
+            <option value="">Todos</option>
+            @foreach ($programas as $item)
+                <option value="{{ $item->programa_id }}">{{ $item->nombre }}</option>
+            @endforeach
+        </select>
     </div>
 
-    <div class="col-12 col-md-3 form-group mb-3">
-        <label class="form-label" for="fecha_fin">Fecha fin</label>
-        <input class="form-control" type="date" name="fecha_fin" id="fecha_fin">
+    <!-- Fase -->
+    <div>
+        <label class="form-label mb-1">Fase</label>
+        <select class="form-select form-select-sm" name="fase" id="filtro_fase">
+            <option value="">Todas</option>
+            @foreach ($fasesProgramas as $item)
+                <option value="{{ $item->fase_id }}">{{ $item->nombre }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <!-- Categoría -->
+    <div>
+        <label class="form-label mb-1">Categoría</label>
+        <select class="form-select form-select-sm" name="categoria" id="filtro_categoria">
+            <option value="">Todas</option>
+            @foreach ($categorias as $item)
+                <option value="{{ $item->id }}">{{ $item->nombre }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <!-- Fechas -->
+    <div>
+        <label class="form-label mb-1" for="fecha_inicio_filtros">Desde</label>
+        <input type="date" class="form-control form-control-sm" name="fecha_inicio" id="fecha_inicio_filtros">
+    </div>
+
+    <div>
+        <label class="form-label mb-1" for="fecha_fin_filtros">Hasta</label>
+        <input type="date" class="form-control form-control-sm" name="fecha_fin" id="fecha_fin_filtros">
     </div>
 
 @endsection
@@ -593,8 +629,10 @@
                     <div class="modal-body">
                         <div class="col-12 mb-3">
                             <label class="form-label" for="conclusionesI">Conclusiones</label>
-                            <textarea class="form-control" name="conclusiones" id="conclusionesI" rows="6"
-                                placeholder="Ingrese las conclusiones"></textarea>
+                            {{-- <textarea class="form-control" name="conclusiones" id="conclusionesI" rows="6" placeholder="Ingrese las conclusiones"></textarea> --}}
+
+                            <div id="conclusionesI"></div>
+                            <input type="hidden" name="conclusiones" id="conclusionesI_input">
                         </div>
                     </div>
 
@@ -828,10 +866,15 @@
                 },
             ],
             initEditors: [{
-                id: 'descripcion'
-            }, {
-                id: 'conclusiones'
-            }],
+                    id: 'descripcion'
+                },
+                {
+                    id: 'conclusiones'
+                },
+                {
+                    id: 'conclusionesI'
+                }
+            ],
             initSelects: [{
                     id: 'unidadAdd',
                     setting: {
@@ -1101,7 +1144,7 @@
 
             $('#btnInforme').on('click', function() {
 
-                if (!($("#fecha_inicio").val() && $("#fecha_fin").val())) {
+                if (!($("#fecha_inicio_filtros").val() && $("#fecha_fin_filtros").val())) {
                     Swal.fire({
                         title: "Seleccione un rango de fechas para el informe",
                         icon: "info"
@@ -1114,12 +1157,21 @@
             });
             // Al enviar el formulario de previsualización, copiar filtros al formulario y abrir en ruta real del servidor
             $('#formPreviewInforme').on('submit', function() {
+
+                if (window.editors && window.editors.conclusionesI) {
+                    $('#conclusionesI_input').val(
+                        window.editors.conclusionesI.root.innerHTML
+                    );
+                }
+
                 var $filters = $('#filters');
-                $('#preview_fecha_inicio').val($filters.find('input[name="fecha_inicio"]').val() || '');
-                $('#preview_fecha_fin').val($filters.find('input[name="fecha_fin"]').val() || '');
+                $('#preview_fecha_inicio').val($filters.find('input[id="fecha_inicio_filtros"]').val() || '');
+                $('#preview_fecha_fin').val($filters.find('input[id="fecha_fin_filtros"]').val() || '');
                 $('#preview_asesor').val($filters.find('select[name="asesor"]').val() || '');
                 $('#preview_unidad').val($filters.find('select[name="unidad"]').val() || '');
                 $('#informeModal').modal('hide');
+
+                console.log('conclusiones a enviar:', $('#conclusionesI_input').val());
             });
 
             $('#formImport').on('submit', function(e) {
