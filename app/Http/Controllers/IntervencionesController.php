@@ -27,10 +27,8 @@ use Illuminate\Support\Facades\Storage;
 use PDF;
 use League\CommonMark\CommonMarkConverter;
 
-class IntervencionesController extends Controller
-{
-    function list(Request $request)
-    {
+class IntervencionesController extends Controller {
+    function list(Request $request) {
         $data = [
             'programas' => Programa::get(),
             'convocatorias' => ProgramaConvocatoria::get(),
@@ -57,8 +55,7 @@ class IntervencionesController extends Controller
         return View("intervenciones.index", $data);
     }
 
-    public function preview(Request $request)
-    {
+    public function preview(Request $request) {
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date',
@@ -82,8 +79,7 @@ class IntervencionesController extends Controller
         return view('intervenciones.preview', $data);
     }
 
-    public function saveInforme(Request $request)
-    {
+    public function saveInforme(Request $request) {
         $request->validate([
             'mes'          => 'required|string',
             'anio'         => 'required|string',
@@ -114,8 +110,7 @@ class IntervencionesController extends Controller
      * Endpoint que devuelve el payload para la API de análisis IA.
      * Útil para que el frontend pueda obtener los datos estructurados.
      */
-    public function getPayloadAnalisisIA(Request $request)
-    {
+    public function getPayloadAnalisisIA(Request $request) {
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date',
@@ -147,8 +142,7 @@ class IntervencionesController extends Controller
     //     return $pdf->stream('informe_intervenciones.pdf');
     // }
 
-    private function getInformeData(Request $request)
-    {
+    private function getInformeData(Request $request) {
         $fi = $request->input('fecha_inicio') ?? $request->get('fecha_inicio');
         $ff = $request->input('fecha_fin') ?? $request->get('fecha_fin');
 
@@ -157,7 +151,8 @@ class IntervencionesController extends Controller
             'unidadProductiva',
             'asesor',
             'categoria',
-            'tipo'
+            'tipo',
+            'fase'
         ])
             ->whereBetween('fecha_inicio', [$fi, $ff])
             ->orderBy('fecha_inicio', 'ASC');
@@ -222,8 +217,7 @@ class IntervencionesController extends Controller
      * Construye el payload para la API analizarIntervencionesIA.
      * Estructura: conclusiones (texto) y estadisticas (resto de campos).
      */
-    public static function buildPayloadInformeIntervenciones(Request $request, array $data): array
-    {
+    public static function buildPayloadInformeIntervenciones(Request $request, array $data): array {
         $fi = $request->input('fecha_inicio') ?? $request->get('fecha_inicio');
         $ff = $request->input('fecha_fin') ?? $request->get('fecha_fin');
 
@@ -267,8 +261,7 @@ class IntervencionesController extends Controller
     /**
      * Llama a la API analizarIntervencionesIA con el payload del informe y devuelve el MENSAJE para el reporte.
      */
-    private function llamarApiAnalizarIntervencionesIA(Request $request, array $data): ?string
-    {
+    private function llamarApiAnalizarIntervencionesIA(Request $request, array $data): ?string {
         $url = config('services.analizar_intervenciones_ia.api_url');
         if (empty($url)) {
             return null;
@@ -310,8 +303,7 @@ class IntervencionesController extends Controller
     /**
      * Convierte texto Markdown a HTML para renderizar correctamente negritas, listas, etc.
      */
-    private function markdownToHtml(string $markdown): string
-    {
+    private function markdownToHtml(string $markdown): string {
         try {
             $converter = new CommonMarkConverter([
                 'html_input' => 'strip',
@@ -328,8 +320,7 @@ class IntervencionesController extends Controller
     /**
      * Fallback básico para convertir Markdown simple si CommonMark falla.
      */
-    private function markdownToHtmlFallback(string $markdown): string
-    {
+    private function markdownToHtmlFallback(string $markdown): string {
         // Convertir **texto** a <strong>texto</strong>
         $html = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $markdown);
         // Convertir *texto* a <em>texto</em>
@@ -339,29 +330,25 @@ class IntervencionesController extends Controller
         return $html;
     }
 
-    function export(Request $request)
-    {
+    function export(Request $request) {
         $query = $this->getQuery($request);
         return Excel::download(new IntervencionesExport($query), 'Intervenciones.xlsx');
     }
 
-    public function import(Request $request)
-    {
+    public function import(Request $request) {
         Excel::import(new UnidadProductivaIntervencionesImport, $request->file('archivo'));
 
         return back()->with('ok', 'Datos cargados correctamente.');
     }
 
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
         $query = $this->getQuery($request);
         $data = $this->paginate($query, $request);
 
         return response()->json($data);
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $data = $request->all();
 
         $data['asesor_id'] = Auth::user()->id;
@@ -403,8 +390,7 @@ class IntervencionesController extends Controller
         return response()->json(['message' => 'Stored'], 201);
     }
 
-    private function getQuery(Request $request)
-    {
+    private function getQuery(Request $request) {
         $search = $request->get('search');
 
         $query = UnidadProductivaIntervenciones::query()
@@ -412,9 +398,12 @@ class IntervencionesController extends Controller
                 'unidadesproductivas_intervenciones.*',
                 DB::raw("CONCAT(users.name, ' ', users.lastname) as asesor"),
                 'unidadesproductivas.business_name as unidad',
+                'fases_programas.nombre as fase',
                 'categorias_intervenciones.nombre as categoria',
                 'tipos_intervenciones.nombre as tipo',
+                
             ])
+            ->leftJoin('fases_programas', 'fases_programas.fase_id', '=', 'unidadesproductivas_intervenciones.fase_id')
             ->join('categorias_intervenciones', 'categorias_intervenciones.id', '=', 'unidadesproductivas_intervenciones.categoria_id')
             ->join('tipos_intervenciones', 'tipos_intervenciones.id', '=', 'unidadesproductivas_intervenciones.tipo_id')
             ->join('users', 'users.id', '=', 'unidadesproductivas_intervenciones.asesor_id')
