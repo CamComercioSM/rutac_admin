@@ -7,6 +7,8 @@ use App\Imports\UnidadProductivaIntervencionesImport;
 use App\Http\Controllers\Controller;
 use App\Models\Empresarios\UnidadProductivaIntervenciones;
 use App\Models\Empresarios\UnidadProductiva;
+use App\Models\Intervenciones\IntervencionLead;
+use App\Models\Intervenciones\IntervencionUnidad;
 use App\Models\Lead;
 use App\Models\Programas\FasePrograma;
 use App\Models\Programas\Programa;
@@ -27,8 +29,10 @@ use Illuminate\Support\Facades\Storage;
 use PDF;
 use League\CommonMark\CommonMarkConverter;
 
-class IntervencionesController extends Controller {
-    function list(Request $request) {
+class IntervencionesController extends Controller
+{
+    function list(Request $request)
+    {
         $data = [
             'programas' => Programa::get(),
             'convocatorias' => ProgramaConvocatoria::get(),
@@ -55,7 +59,8 @@ class IntervencionesController extends Controller {
         return View("intervenciones.index", $data);
     }
 
-    public function preview(Request $request) {
+    public function preview(Request $request)
+    {
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date',
@@ -79,7 +84,8 @@ class IntervencionesController extends Controller {
         return view('intervenciones.preview', $data);
     }
 
-    public function saveInforme(Request $request) {
+    public function saveInforme(Request $request)
+    {
         $request->validate([
             'mes'          => 'required|string',
             'anio'         => 'required|string',
@@ -110,7 +116,8 @@ class IntervencionesController extends Controller {
      * Endpoint que devuelve el payload para la API de análisis IA.
      * Útil para que el frontend pueda obtener los datos estructurados.
      */
-    public function getPayloadAnalisisIA(Request $request) {
+    public function getPayloadAnalisisIA(Request $request)
+    {
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date',
@@ -142,7 +149,8 @@ class IntervencionesController extends Controller {
     //     return $pdf->stream('informe_intervenciones.pdf');
     // }
 
-    private function getInformeData(Request $request) {
+    private function getInformeData(Request $request)
+    {
         $fi = $request->input('fecha_inicio') ?? $request->get('fecha_inicio');
         $ff = $request->input('fecha_fin') ?? $request->get('fecha_fin');
 
@@ -217,7 +225,8 @@ class IntervencionesController extends Controller {
      * Construye el payload para la API analizarIntervencionesIA.
      * Estructura: conclusiones (texto) y estadisticas (resto de campos).
      */
-    public static function buildPayloadInformeIntervenciones(Request $request, array $data): array {
+    public static function buildPayloadInformeIntervenciones(Request $request, array $data): array
+    {
         $fi = $request->input('fecha_inicio') ?? $request->get('fecha_inicio');
         $ff = $request->input('fecha_fin') ?? $request->get('fecha_fin');
 
@@ -261,7 +270,8 @@ class IntervencionesController extends Controller {
     /**
      * Llama a la API analizarIntervencionesIA con el payload del informe y devuelve el MENSAJE para el reporte.
      */
-    private function llamarApiAnalizarIntervencionesIA(Request $request, array $data): ?string {
+    private function llamarApiAnalizarIntervencionesIA(Request $request, array $data): ?string
+    {
         $url = config('services.analizar_intervenciones_ia.api_url');
         if (empty($url)) {
             return null;
@@ -303,7 +313,8 @@ class IntervencionesController extends Controller {
     /**
      * Convierte texto Markdown a HTML para renderizar correctamente negritas, listas, etc.
      */
-    private function markdownToHtml(string $markdown): string {
+    private function markdownToHtml(string $markdown): string
+    {
         try {
             $converter = new CommonMarkConverter([
                 'html_input' => 'strip',
@@ -320,7 +331,8 @@ class IntervencionesController extends Controller {
     /**
      * Fallback básico para convertir Markdown simple si CommonMark falla.
      */
-    private function markdownToHtmlFallback(string $markdown): string {
+    private function markdownToHtmlFallback(string $markdown): string
+    {
         // Convertir **texto** a <strong>texto</strong>
         $html = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $markdown);
         // Convertir *texto* a <em>texto</em>
@@ -330,67 +342,99 @@ class IntervencionesController extends Controller {
         return $html;
     }
 
-    function export(Request $request) {
+    function export(Request $request)
+    {
         $query = $this->getQuery($request);
         return Excel::download(new IntervencionesExport($query), 'Intervenciones.xlsx');
     }
 
-    public function import(Request $request) {
+    public function import(Request $request)
+    {
         Excel::import(new UnidadProductivaIntervencionesImport, $request->file('archivo'));
 
         return back()->with('ok', 'Datos cargados correctamente.');
     }
 
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         $query = $this->getQuery($request);
         $data = $this->paginate($query, $request);
 
         return response()->json($data);
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $data = $request->all();
-
         $data['asesor_id'] = Auth::user()->id;
 
+        // Manejo de archivo opcional
         if ($request->hasFile('formFile')) {
-            $path = $request->file('formFile')->store('storage/Intervenciones', 'public');
-            $path = config('app.archivos_url') . $path;
-            $data['soporte'] = $path;
+            $path = $request->file('formFile')->store('intervenciones', 'public');
+            $data['soporte'] = config('app.archivos_url') . $path;
         }
 
         $unidades = $request->unidades;
+        $otrosParticipantes = $request->otrosParticipantes;
 
-        // Si viene como string JSON, lo convertimos a array
-        if (is_string($unidades)) {
+        // Decodificar JSON de Tagify solo si tienen contenido
+        if (!empty($unidades) && is_string($unidades)) {
             $unidades = json_decode($unidades, true);
         }
-
-        if (!is_array($unidades)) {
-            return response()->json([
-                'message' => 'El campo unidades no tiene un formato válido'
-            ], 422);
+        if (!empty($otrosParticipantes) && is_string($otrosParticipantes)) {
+            $otrosParticipantes = json_decode($otrosParticipantes, true);
         }
 
-        foreach ($unidades as $item) {
-            $data['unidadproductiva_id'] = $item['value'] ?? null;
+        // CASO A: Si hay unidades, creamos un registro por cada una
 
-            $participantesTexto = $item['participantes'] ?? '0';
-            $data['participantes'] = (int) filter_var($participantesTexto, FILTER_SANITIZE_NUMBER_INT);
-
-            UnidadProductivaIntervenciones::create($data);
+        if (is_array($unidades) && count($unidades) === 0) {
+            $data['unidadproductiva_id'] = null;
+            $data['participantes'] = 0;
+            $intervencion = UnidadProductivaIntervenciones::create($data);
         }
 
-        // foreach ($request->unidades as $item) {
-        //     $data['unidadproductiva_id'] = $item['unidadproductiva_id'];
-        //     $data['participantes'] = $item['participantes'];
-        //     $entity = UnidadProductivaIntervenciones::create($data);
-        // }
 
-        return response()->json(['message' => 'Stored'], 201);
+        if (is_array($unidades) && count($unidades) > 0) {
+
+            if (count($unidades) === 1) {
+                $data['unidadproductiva_id'] = $unidades[0]['value'];
+                $data['participantes'] = $unidades[0]['participantes']  ?? '0';
+                $intervencion = UnidadProductivaIntervenciones::create($data);
+            }
+
+            foreach ($unidades as $item) {
+                $participantesRaw = $item['participantes'] ?? '0';
+
+                IntervencionUnidad::create([
+                    'intervencion_id'     => $intervencion->id,
+                    'unidadproductiva_id' => $item['value'] ?? null,
+                    'participantes'       => (int) preg_replace('/[^0-9]/', '', $participantesRaw),
+                ]);
+            }
+        }
+
+        // CASO B: Si NO hay unidades, guardamos la intervención general (sin ID de unidad)
+        // --- PROCESO B: OTROS PARTICIPANTES (LEADS) ---
+        // Aquí el trato es diferente. Como no van ligados a una UP, 
+        // usamos el modelo IntervencionLead para registrarlos.
+        if (is_array($otrosParticipantes) && count($otrosParticipantes) > 0) {
+            foreach ($otrosParticipantes as $l) {
+                IntervencionLead::create([
+                    'intervencion_id' => $intervencion->id,
+                    'lead_id'         => $l['value'],
+                    'asesor_id'       => $data['asesor_id'],
+                    'tipo_id'         => $data['tipo_id'],
+                    'fecha_inicio'    => $data['fecha_inicio'],
+                    'fecha_fin'       => $data['fecha_fin'],
+                    'descripcion'     => $data['descripcion'],
+                ]);
+            }
+        }
+        return response()->json(['message' => 'Intervención guardada correctamente'], 201);
     }
 
-    private function getQuery(Request $request) {
+    private function getQuery(Request $request)
+    {
         $search = $request->get('search');
 
         $query = UnidadProductivaIntervenciones::query()
@@ -401,13 +445,23 @@ class IntervencionesController extends Controller {
                 'fases_programas.nombre as fase',
                 'categorias_intervenciones.nombre as categoria',
                 'tipos_intervenciones.nombre as tipo',
-                
+
+                'leads.id as lead_id',
+                'leads.name as lead_nombre',
+                'leads.document as lead_documento',
+                'leads.email as lead_email',
+                'leads.phone as lead_telefono',
+
             ])
             ->leftJoin('fases_programas', 'fases_programas.fase_id', '=', 'unidadesproductivas_intervenciones.fase_id')
             ->join('categorias_intervenciones', 'categorias_intervenciones.id', '=', 'unidadesproductivas_intervenciones.categoria_id')
             ->join('tipos_intervenciones', 'tipos_intervenciones.id', '=', 'unidadesproductivas_intervenciones.tipo_id')
             ->join('users', 'users.id', '=', 'unidadesproductivas_intervenciones.asesor_id')
-            ->join('unidadesproductivas', 'unidadesproductivas.unidadproductiva_id', '=', 'unidadesproductivas_intervenciones.unidadproductiva_id');
+            ->leftJoin('unidadesproductivas', 'unidadesproductivas.unidadproductiva_id', '=', 'unidadesproductivas_intervenciones.unidadproductiva_id')
+            ->leftJoin('intervencion_unidades', 'intervencion_unidades.intervencion_id', '=', 'unidadesproductivas_intervenciones.id')
+            ->leftJoin('unidadesproductivas as up2', 'up2.unidadproductiva_id', '=', 'intervencion_unidades.unidadproductiva_id')
+            ->leftJoin('intervencion_leads', 'intervencion_leads.intervencion_id', '=', 'unidadesproductivas_intervenciones.id')
+            ->leftJoin('leads', 'leads.id', '=', 'intervencion_leads.lead_id');
 
 
         $asesor = (Auth::user()->rol_id === Role::ASESOR) ? Auth::id() : $request->get('asesor');
@@ -435,6 +489,8 @@ class IntervencionesController extends Controller {
                 }
             });
         }
+
+        $query->orderBy('unidadesproductivas_intervenciones.fecha_creacion', 'desc');
 
         return $query;
     }

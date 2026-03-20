@@ -2,6 +2,9 @@
 
 namespace App\Models\Empresarios;
 
+use App\Models\Intervenciones\IntervencionLead;
+use App\Models\Intervenciones\IntervencionUnidad;
+use App\Models\Lead;
 use App\Models\Programas\FasePrograma;
 use App\Models\User;
 use App\Models\Traits\UserTrait;
@@ -10,7 +13,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\TablasReferencias\CategoriasIntervenciones;
 use App\Models\TablasReferencias\TiposIntervenciones;
 
-class UnidadProductivaIntervenciones extends Model {
+class UnidadProductivaIntervenciones extends Model
+{
     use SoftDeletes, UserTrait;
 
     protected $table = 'unidadesproductivas_intervenciones';
@@ -33,24 +37,39 @@ class UnidadProductivaIntervenciones extends Model {
     ];
 
     // Relaciones
-    public function unidadProductiva() {
+    public function unidadProductiva()
+    {
         return $this->belongsTo(UnidadProductiva::class, 'unidadproductiva_id', 'unidadproductiva_id');
     }
 
-    public function asesor() {
+    public function asesor()
+    {
         return $this->belongsTo(User::class, 'asesor_id', 'id');
     }
 
-    public function categoria() {
+    public function categoria()
+    {
         return $this->belongsTo(CategoriasIntervenciones::class, 'categoria_id', 'id');
     }
 
-    public function tipo() {
+    public function tipo()
+    {
         return $this->belongsTo(TiposIntervenciones::class, 'tipo_id', 'id');
     }
 
-    public function fase() {
+    public function fase()
+    {
         return $this->belongsTo(FasePrograma::class, 'fase_id', 'fase_id');
+    }
+
+    public function unidades()
+    {
+        return $this->hasMany(IntervencionUnidad::class, 'intervencion_id', 'id');
+    }
+
+    public function leads()
+    {
+        return $this->hasMany(IntervencionLead::class, 'intervencion_id', 'id');
     }
 
     public static $modalidades = [

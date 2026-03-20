@@ -111,7 +111,7 @@
 
                             <div class="col-12 col-md-6 form-group mb-3">
                                 <label class="form-label" for="convocatoria_id">Ciclo</label>
-                                <select class="form-select" name="convocatoria_id" id="convocatoria_id" required disabled>
+                                <select class="form-select" name="convocatoria_id" id="convocatoria_id"  disabled>
                                     <option value="" selected>Seleccione primero un programa</option>
                                 </select>
                             </div>
@@ -122,7 +122,7 @@
                                     <option value="" selected>Seleccione una opción</option>
                                     @foreach ($fasesProgramas as $item)
                                         <option value="{{ $item->fase_id }}">
-                                            {{ $item->fase_nombre }}
+                                            {{ $item->nombre }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -864,8 +864,8 @@
             const tagData = {
                 value: row.id,
                 name: row.text,
-                participantes: `Participantes: ${row.participantes}`,
-                avatar: 'https://via.placeholder.com/40?text=UP'
+                participantes: `${row.participantes}`,
+                avatar: 'https://placehold.co/40x40?text=' + row.text
             };
 
             // agregar al whitelist para que también quede disponible en búsquedas
@@ -902,8 +902,8 @@
             const tagData = {
                 value: row.id,
                 name: row.text,
-                participantes: `Participantes: ${row.participantes}`,
-                avatar: 'https://via.placeholder.com/40?text=UP'
+                participantes: `${row.participantes}`,
+                avatar: 'https://placehold.co/40x40?text=' + row.text
             };
 
             // agregar al whitelist para que también quede disponible en búsquedas
