@@ -132,22 +132,20 @@ class IntervencionesController extends Controller {
         ]);
     }
 
-    // public function informe(Request $request)
-    // {
-    //     $request->validate([
-    //         'fecha_inicio' => 'required|date',
-    //         'fecha_fin'    => 'required|date',
-    //     ]);
+    public function informe(Request $request) {
+        $request->validate([
+            'fecha_inicio' => 'required|date',
+            'fecha_fin'    => 'required|date',
+        ]);
 
-    //     $data = $this->getInformeData($request);
-    //     $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
+        $data = $this->getInformeData($request);
+        $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
+        $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
+        $path = "storage/InformesIntervenciones/informe_" . time() . ".pdf";
+        $pdf->save(public_path($path));
 
-    //     $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
-    //     $path = "storage/InformesIntervenciones/informe_" . time() . ".pdf";
-    //     $pdf->save(public_path($path));
-
-    //     return $pdf->stream('informe_intervenciones.pdf');
-    // }
+        return $pdf->stream('informe_intervenciones.pdf');
+    }
 
     private function getInformeData(Request $request) {
         $fi = $request->input('fecha_inicio') ?? $request->get('fecha_inicio');
