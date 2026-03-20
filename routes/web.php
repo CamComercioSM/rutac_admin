@@ -255,9 +255,10 @@ Route::as('admin.')
 
     Route::get('/intervenciones/export', [IntervencionesController::class, 'export']);    
     Route::post('/intervenciones/import', [IntervencionesController::class, 'import']);
+
     Route::post('/intervenciones/informe/preview', [IntervencionesController::class, 'preview']);
+    Route::post('/intervenciones/informe/generar', [IntervencionesController::class, 'informe']);
     Route::post('/intervenciones/informe', [IntervencionesController::class, 'saveInforme']);    
-    Route::get('/intervenciones/informe', [IntervencionesController::class, 'informe']);
     Route::post('/intervenciones/informe/payload-ia', [IntervencionesController::class, 'getPayloadAnalisisIA']);
     Route::resource('intervenciones', IntervencionesController::class);
 

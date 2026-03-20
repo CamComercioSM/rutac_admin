@@ -5,8 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ReporteMensual extends Model
-{
+class ReporteMensual extends Model {
     use SoftDeletes;
 
     protected $table = 'reportes_mensuales';
@@ -18,6 +17,7 @@ class ReporteMensual extends Model
         'total_intervenciones',
         'total_unidades',
         'estado',
+        'conclusiones',
         'observaciones_supervisor',
         'supervisor_id',
         'fecha_generacion',
@@ -34,13 +34,11 @@ class ReporteMensual extends Model
         'avance_meta'
     ];
 
-    public function asesor()
-    {
+    public function asesor() {
         return $this->belongsTo(User::class, 'asesor_id');
     }
 
-    public function supervisor()
-    {
+    public function supervisor() {
         return $this->belongsTo(User::class, 'supervisor_id');
     }
 

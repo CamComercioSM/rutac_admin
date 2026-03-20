@@ -1155,47 +1155,31 @@
                 let modal = new bootstrap.Modal(document.getElementById('informeModal'));
                 modal.show();
             });
-
-
-
             // Al enviar el formulario de previsualización, copiar filtros al formulario y abrir en ruta real del servidor
             $('#formPreviewInforme').on('submit', function() {
 
-                console.log(
-                    window.editors.conclusionesI.root.innerHTML
-                );
+                const editor = window.TABLA.initEditors.find(item => item.id === 'conclusionesI');
 
-                const form = this;
-                const formData = new FormData(form);
+                if (editor && editor.quill) {
+                    let html = editor.quill.root.innerHTML;
 
-                // 👇 ESTA ES LA CLAVE
-                if (window.TABLA && window.TABLA.initEditors) {
-                    window.TABLA.initEditors.forEach(item => {
+                    if (html === '<p><br></p>') {
+                        html = '';
+                    }
 
-                        if (item.id === 'conclusionesI' && item.quill) {
-                            formData.set('conclusiones', item.quill.root.innerHTML);
-                        }
-
-                    });
+                    $('#conclusionesI_input').val(html);
+                    console.log('conclusiones a enviar:', html);
                 }
 
-                console.log("Enviando:", Object.fromEntries(formData.entries()));
-
-                // 👇 copiar filtros como ya haces
                 var $filters = $('#filters');
-                formData.set('fecha_inicio', $filters.find('#fecha_inicio_filtros').val() || '');
-                formData.set('fecha_fin', $filters.find('#fecha_fin_filtros').val() || '');
-                formData.set('asesor', $filters.find('select[name="asesor"]').val() || '');
-                formData.set('unidad', $filters.find('select[name="unidad"]').val() || '');
-
-                // 👇 enviar manual (IMPORTANTE)
-                axios.post($(form).attr('action'), formData)
-                    .then(() => {
-                        $('#informeModal').modal('hide');
-                    });
-
-                return false; // evita submit normal
+                $('#preview_fecha_inicio').val($filters.find('input[id="fecha_inicio_filtros"]').val() ||
+                    '');
+                $('#preview_fecha_fin').val($filters.find('input[id="fecha_fin_filtros"]').val() || '');
+                $('#preview_asesor').val($filters.find('select[name="asesor"]').val() || '');
+                $('#preview_unidad').val($filters.find('select[name="unidad"]').val() || '');
+                $('#informeModal').modal('hide');                
             });
+
 
 
 

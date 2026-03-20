@@ -124,6 +124,7 @@
             border-collapse: collapse;
             margin: 15px 0;
             background: white;
+            font-size: 13px;
         }
 
         th,
@@ -155,6 +156,19 @@
         .page-break {
             margin: 40px 0;
             border-top: 2px dashed #dee2e6;
+        }
+
+        .contenido-html {
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .contenido-html p {
+            margin-bottom: 10px;
+        }
+
+        .contenido-html ul {
+            margin-left: 20px;
         }
 
         .conclusiones-section {
@@ -238,7 +252,7 @@
     <div class="preview-container">
         <div class="preview-actions">
             <button type="button" class="btn btn-secondary" onclick="window.close()">Cerrar</button>
-            <form id="formGenerarPDF" method="POST" action="{{ url('/intervenciones/informe') }}"
+            <form id="formGenerarPDF" method="POST" action="{{ url('/intervenciones/informe/generar') }}"
                 style="display: inline;" target="_blank">
                 @csrf
                 <input type="hidden" name="fecha_inicio"
@@ -261,10 +275,38 @@
             <img src="https://cdnsicam.net/img/rutac/rutac-logo-con-ccsm.png" alt="Logo RUTAC">
             <h1>Informe de Intervenciones</h1>
             <small>Desde {{ $inicio }} hasta {{ $fin }}</small>
+            <p class="text-muted">
+                Reporte generado automáticamente con base en intervenciones registradas en el sistema RUTAC
+            </p>
         </div>
 
-        <div class="totals-box">
-            <strong>Total de intervenciones:</strong> {{ $totalGeneral }}
+        <div class="row text-center mb-4">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h6 class="text-muted">Intervenciones</h6>
+                        <h3 class="text-primary">{{ $totalGeneral }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h6 class="text-muted">Unidades</h6>
+                        <h3 class="text-success">{{ count($porUnidad) }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h6 class="text-muted">Categorías</h6>
+                        <h3 class="text-dark">{{ count($porCategoria) }}</h3>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- SECCIÓN 1: CATEGORÍAS -->
@@ -344,45 +386,148 @@
 
         <div class="page-break"></div>
 
+        @php
+            $intervencionesDetalladas = collect($intervenciones)->filter(function ($i) {
+                return !empty($i->unidadproductiva_id) || !empty($i->lead_id);
+            });
+
+            $actividadesTransversales = collect($intervenciones)->filter(function ($i) {
+                return empty($i->unidadproductiva_id) && empty($i->lead_id);
+            });
+        @endphp
+
+        <div class="row text-center mb-4">
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h6 class="text-muted">Actividades</h6>
+                        <h3 class="text-primary">{{ $totalGeneral }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h6 class="text-muted">Con intervenido</h6>
+                        <h3 class="text-success">{{ $intervencionesDetalladas->count() }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h6 class="text-muted">Transversales</h6>
+                        <h3 class="text-dark">{{ $actividadesTransversales->count() }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h6 class="text-muted">Unidades</h6>
+                        <h3 class="text-info">{{ count($porUnidad) }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- LISTADO DETALLADO -->
         <h2>Listado Detallado de Intervenciones</h2>
         <table>
             <thead>
                 <tr>
-                    <th>Fecha</th>
-                    <th>Unidad Productiva / Asesor</th>
-                    <th>Categoría</th>
+                    <th style="width: 100px;">Fecha</th>
+                    <th style="width: 260px;">Intervenido / Asesor</th>
+                    <th style="width: 120px;">Categoría / Tipo</th>
                     <th>Descripción</th>
+                    <th style="width: 180px;">Evidencia</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($intervenciones as $i)
+                @forelse($intervencionesDetalladas as $i)
+                    <tr>
+                        <td>{{ $i->fecha_inicio }}</td>
+                        <td>
+                            <div>
+                                <strong>
+                                    {{ $i->unidadProductiva?->business_name ?? ($i->lead?->name ?? 'N/A') }}
+                                </strong>
+                            </div>
+                            <small style="color: #666;">
+                                {{ $i->unidadProductiva?->business_name ? 'Unidad productiva' : 'Otro participante' }}
+                            </small>
+
+                            <div style="margin-top: 8px;">
+                                <small style="color: #666;">
+                                    <strong>Asesor:</strong> {{ $i->asesor?->name ?? 'N/A' }}
+                                </small>
+                            </div>
+                        </td>
+                        <td>
+                            <div><strong>{{ $i->categoria?->nombre ?? 'N/A' }}</strong></div>
+                            <small style="color: #666;">{{ $i->tipo?->nombre ?? 'N/A' }}</small>
+                        </td>
+                        <td>{!! $i->descripcion ?? '<span style="color:#666;">Sin descripción</span>' !!}</td>
+                        <td class="text-break">
+                            @if (!empty($i->soporte))
+                                <a href="{{ $i->soporte }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    Ver soporte - <span style="font-size: 50%;">{{ $i->soporte }}</span>
+                                </a>
+                            @else
+                                <span class="text-muted">Sin soporte</span>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #666;">
+                            No hay intervenciones con unidad productiva u otro participante en el rango seleccionado
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+
+        <h2>Actividades Transversales</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 100px;">Fecha</th>
+                    <th style="width: 220px;">Categoría / Tipo</th>
+                    <th>Descripción</th>
+                    <th style="width: 160px;">Soporte</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($actividadesTransversales as $i)
                     <tr>
                         <td>
                             {{ $i->fecha_inicio }}
                         </td>
                         <td>
-                            <strong>Unidad Productiva</strong><br>
-                            {{ $i->unidadProductiva?->business_name ?? 'N/A' }}
-
-                            <br><br>
-                            <strong>Asesor</strong><br>
-                            {{ $i->asesor?->name ?? 'N/A' }}
+                            <div><strong>{{ $i->categoria?->nombre ?? 'N/A' }}</strong></div>
+                            <small style="color: #666;">{{ $i->tipo?->nombre ?? 'N/A' }}</small>
                         </td>
-                        <td>
-                            <strong>Categoría</strong><br>
-                            {{ $i->categoria?->nombre ?? 'N/A' }}
-
-                            <br><br>
-                            <strong>Tipo</strong><br>
-                            {{ $i->tipo?->nombre ?? 'N/A' }}
+                        <td>{!! $i->descripcion ?? '<span style="color:#666;">Sin descripción</span>' !!}</td>
+                        <td class="text-break">
+                            @if (!empty($i->soporte))
+                                <a href="{{ $i->soporte }}" target="_blank" title="Ver soporte">
+                                    <i class="fas fa-paperclip"></i> <span
+                                        style="font-size: 50%;">{{ $i->soporte }}</span>
+                                </a>
+                            @else
+                                <span class="text-muted">—</span>
+                            @endif
                         </td>
-                        <td>{!! $i->descripcion ?? 'Sin descripción' !!}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" style="text-align: center; color: #666;">No hay intervenciones en el rango de
-                            fechas seleccionado</td>
+                        <td colspan="4" style="text-align: center; color: #666;">
+                            No hay actividades transversales en el rango seleccionado
+                        </td>
                     </tr>
                 @endforelse
             </tbody>
@@ -392,7 +537,9 @@
 
         <div class="conclusiones-section">
             <h2>Conclusiones</h2>
-            <p>{!! nl2br(e($conclusiones ?: 'No se han ingresado conclusiones.')) !!}</p>
+            <div class="contenido-html">
+                {!! $conclusiones ?: '<p>No se han ingresado conclusiones.</p>' !!}
+            </div>
         </div>
 
         @if (!empty($analisis_ia))
@@ -519,11 +666,11 @@
                         icon: 'success',
                         title: 'Éxito',
                         text: 'El informe se ha guardado correctamente.',
-                    }).then(() => { 
-                    // Cerrar el modal
-                    let modalElement = document.getElementById('guardarInformeModal');
-                    let modalInstance = bootstrap.Modal.getInstance(modalElement);
-                    modalInstance.hide();
+                    }).then(() => {
+                        // Cerrar el modal
+                        let modalElement = document.getElementById('guardarInformeModal');
+                        let modalInstance = bootstrap.Modal.getInstance(modalElement);
+                        modalInstance.hide();
                     });
                 },
                 error: function() {

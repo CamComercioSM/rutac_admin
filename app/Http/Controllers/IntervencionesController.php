@@ -58,11 +58,6 @@ class IntervencionesController extends Controller {
     }
 
     public function preview(Request $request) {
-
-
-        dd($request->all());
-
-
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date',
@@ -77,6 +72,7 @@ class IntervencionesController extends Controller {
             'fecha_generacion' => now(),
             'total_intervenciones' => $data['totalGeneral'] ?? 0,
             'total_unidades' => count($data['porUnidad'] ?? []),
+            'conclusiones' => $data['conclusiones'] ?? '',
             'usuario_creo'     => Auth::id(),
             'usuario_actualizo' => Auth::id(),
         ]);
@@ -84,6 +80,28 @@ class IntervencionesController extends Controller {
         $data['reporte_id'] = $reporte->id;
 
         return view('intervenciones.preview', $data);
+    }
+
+
+    public function informe(Request $request) {
+        $request->validate([
+            'fecha_inicio' => 'required|date',
+            'fecha_fin'    => 'required|date',
+        ]);
+
+        $data = $this->getInformeData($request);
+        $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
+
+        $carpeta = public_path('storage/InformesIntervenciones');
+        if (!file_exists($carpeta)) {
+            mkdir($carpeta, 0777, true);
+        }
+
+        $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
+        $path = $carpeta . '/informe_' . time() . '.pdf';
+        $pdf->save($path);
+
+        return $pdf->stream('informe_intervenciones.pdf');
     }
 
     public function saveInforme(Request $request) {
@@ -106,6 +124,7 @@ class IntervencionesController extends Controller {
         ReporteMensual::where('id', $request->input('reporte_id'))->update([
             'anio' => $request->input('anio'),
             'mes' => $request->input('mes'),
+            'conclusiones' => $data['conclusiones'] ?? '',
             'estado' => 'PENDIENTE_REVISION',
             'informe_url' => "informes/$nombre",
             'usuario_actualizo' => Auth::id(),
@@ -113,6 +132,8 @@ class IntervencionesController extends Controller {
 
         return response()->file($ruta);
     }
+
+
     /**
      * Endpoint que devuelve el payload para la API de análisis IA.
      * Útil para que el frontend pueda obtener los datos estructurados.
@@ -132,21 +153,6 @@ class IntervencionesController extends Controller {
         ]);
     }
 
-    public function informe(Request $request) {
-        $request->validate([
-            'fecha_inicio' => 'required|date',
-            'fecha_fin'    => 'required|date',
-        ]);
-
-        $data = $this->getInformeData($request);
-        $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
-        $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
-        $path = "storage/InformesIntervenciones/informe_" . time() . ".pdf";
-        $pdf->save(public_path($path));
-
-        return $pdf->stream('informe_intervenciones.pdf');
-    }
-
     private function getInformeData(Request $request) {
         $fi = $request->input('fecha_inicio') ?? $request->get('fecha_inicio');
         $ff = $request->input('fecha_fin') ?? $request->get('fecha_fin');
@@ -154,6 +160,7 @@ class IntervencionesController extends Controller {
         // ----- LISTADO DETALLADO -----
         $query = UnidadProductivaIntervenciones::with([
             'unidadProductiva',
+            'lead',
             'asesor',
             'categoria',
             'tipo',
