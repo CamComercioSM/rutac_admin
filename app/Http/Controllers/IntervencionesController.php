@@ -90,7 +90,7 @@ class IntervencionesController extends Controller {
         ]);
 
         $data = $this->getInformeData($request);
-        $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
+        $data['analisis_ia'] = null; //$this->llamarApiAnalizarIntervencionesIA($request, $data);
 
         $carpeta = public_path('storage/InformesIntervenciones');
         if (!file_exists($carpeta)) {
@@ -106,29 +106,69 @@ class IntervencionesController extends Controller {
 
     public function saveInforme(Request $request) {
         $request->validate([
-            'mes'          => 'required|string',
-            'anio'         => 'required|string',
+            'mes'  => 'required|integer',
+            'anio' => 'required|integer',
         ]);
-        $data = $this->getInformeData($request);
-        $data['analisis_ia'] = $this->llamarApiAnalizarIntervencionesIA($request, $data);
 
-        $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
+        $reporteId = $request->input('reporte_id');
+        $asesorId  = Auth::id(); // o $request->asesor si aplica
+
+        // 🔴 VALIDAR DUPLICADO ANTES DE GUARDAR
+        $existe = ReporteMensual::where('asesor_id', $asesorId)
+            ->where('anio', $request->anio)
+            ->where('mes', $request->mes)
+            ->whereNull('fecha_eliminacion')
+            ->when($reporteId, function ($q) use ($reporteId) {
+                $q->where('id', '!=', $reporteId); // 🔥 evitar conflicto consigo mismo
+            })
+            ->exists();
+
+        if ($existe) {
+            return response()->json([
+                'message' => 'Ya existe un informe para ese asesor, año y mes.'
+            ], 422);
+        }
+
+        // 🔹 GENERAR DATA
+        $data = $this->getInformeData($request);
+        $data['analisis_ia'] = null;
+
+        // 🔹 GENERAR PDF
+        $pdf = PDF::loadView('intervenciones.informe', $data)
+            ->setPaper('a4', 'portrait');
 
         $nombre = "informe_" . time() . ".pdf";
-        $ruta = public_path("informes/$nombre");
-        if (!file_exists(public_path('informes'))) {
-            mkdir(public_path('informes'), 0777, true);
+        $carpeta = public_path('informes');
+
+        if (!file_exists($carpeta)) {
+            mkdir($carpeta, 0777, true);
         }
+
+        $ruta = $carpeta . '/' . $nombre;
         $pdf->save($ruta);
 
-        ReporteMensual::where('id', $request->input('reporte_id'))->update([
-            'anio' => $request->input('anio'),
-            'mes' => $request->input('mes'),
-            'conclusiones' => $data['conclusiones'] ?? '',
-            'estado' => 'PENDIENTE_REVISION',
-            'informe_url' => "informes/$nombre",
-            'usuario_actualizo' => Auth::id(),
-        ]);
+        try {
+
+            // 🔹 ACTUALIZAR REPORTE
+            ReporteMensual::where('id', $reporteId)->update([
+                'anio' => $request->anio,
+                'mes' => $request->mes,
+                'conclusiones' => $data['conclusiones'] ?? '',
+                'estado' => 'PENDIENTE_REVISION',
+                'informe_url' => "informes/$nombre",
+                'usuario_actualizo' => $asesorId,
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+
+            // 🔥 SEGURIDAD EXTRA (por si falla la validación previa)
+            if ($e->errorInfo[1] == 1062) {
+                return response()->json([
+                    'message' => 'Ya existe un informe para ese periodo.'
+                ], 422);
+            }
+
+            throw $e;
+        }
 
         return response()->file($ruta);
     }
@@ -381,14 +421,12 @@ class IntervencionesController extends Controller {
             $otrosParticipantes = json_decode($otrosParticipantes, true);
         }
 
-
         $intervenciones = [];
-
         /*
-    |--------------------------------------------------------------------------
-    | CASO 1: UNIDADES PRODUCTIVAS (REGISTRADOS)
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | CASO 1: UNIDADES PRODUCTIVAS (REGISTRADOS)
+        |--------------------------------------------------------------------------
+        */
         if (is_array($unidades) && count($unidades) > 0) {
 
             foreach ($unidades as $item) {

@@ -1,246 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Informe de Actividades e intervenciones</title>
+    @include('intervenciones.partials.informe-styles')
+
     <style>
-        body { font-family: sans-serif; font-size: 12px; line-height: 1.4; }
-
-        @page {
-            margin-top: 130px;
-            margin-bottom: 50px;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #000;
+            background: #ffffff;
         }
 
-        header {
-            position: fixed;
-            top: -110px;
-            left: 0;
-            right: 0;
-            height: 110px;
+        .row {
+            display: table !important;
+            width: 100% !important;
+            table-layout: fixed;
+        }
+
+        .col-md-4 {
+            display: table-cell !important;
+            width: 33.33% !important;
+            vertical-align: top;
+        }
+
+        .col-md-3 {
+            display: table-cell !important;
+            width: 25% !important;
+        }
+
+        .card {
+            border: 1px solid #ddd !important;
+            box-shadow: none !important;
+        }
+
+        .card-body {
+            padding: 10px !important;
             text-align: center;
-            padding-bottom: 10px;
         }
 
-        footer {
-            position: fixed;
-            bottom: -20px;
-            left: 0;
-            right: 0;
-            height: 30px;
-            text-align: center;
-            font-size: 10px;
-            color: #666;
+        .card-body h6 {
+            margin-bottom: 5px;
+            font-size: 12px;
         }
 
-        h2{
-           margin-top: 20px !important;
-           text-align: left;
+        .card-body h3 {
+            margin: 0;
+            font-size: 18px;
+            line-height: 1.2;
         }
 
-        h1, h2, h3 { margin: 0; padding: 0; color: #0e188a; }
-        .section-title { background: #eee; padding: 6px; font-weight: bold; margin-top: 20px; }
 
         table {
-            width: 100%;
+            width: 100% !important;
             border-collapse: collapse;
-            margin-top: 10px;
+            table-layout: fixed;
         }
 
-        th, td {
-            border: 1px solid #444;
-            padding: 5px;
+        thead {
+            display: table-header-group;
         }
 
-        th {
-            background: #f5f5f5;
-            font-weight: bold;
-            padding: 10px 5px;
+        th,
+        td {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            font-size: 11px;
+            padding: 6px;
         }
 
-        strong {
-            font-weight: bold;
-            color: #0e188a;
+        a {
+            word-break: break-all;
+            font-size: 10px;
         }
 
-        em {
-            font-style: italic;
-        }
-
-        ul, ol {
-            margin: 10px 0;
-            padding-left: 25px;
-            line-height: 1.6;
-        }
-
-        li {
-            margin: 5px 0;
-        }
-
-        h3, h4 {
-            color: #0e188a;
-            margin-top: 15px;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-
-        p {
-            margin: 8px 0;
-            line-height: 1.6;
+        tr {
+            page-break-inside: avoid;
         }
 
         .page-break {
-            page-break-after: always;
-        }
-
-        .totals-box {
-            background: #fafafa;
-            padding: 10px;
-            border: 1px solid #ccc;
-            margin-top: 20px !important;
+            display: block;
+            width: 100%;
+            height: 1px;
+            page-break-before: always;
         }
     </style>
 </head>
 
 <body>
 
-<header>
-    <table>
-        <thead>
-            <tr>
-                <th style="padding: 5px;">
-                    <img src="https://cdnsicam.net/img/rutac/rutac-logo-con-ccsm.png" width="auto" height="80">
-                </th>
-                <th style="padding: 5px;">
-                    <h2 style="margin:0 !important; text-align: center;">Informe de Intervenciones</h2>
-                    <small>Desde {{ $inicio }} hasta {{ $fin }}</small>
-                </th>
-            </tr>
-        </thead>
-    </table>
-</header>
-
-<footer>
-    Intervenciones - Generado el {{ date('d/m/Y H:i') }}
-</footer>
+    {{-- contenido reutilizable --}}
+    @include('intervenciones.partials.informe-contenido', [
+        'mostrarIA' => false,
+    ])
 
 
-<div class="totals-box">
-    <strong>Total de intervenciones:</strong> {{ $totalGeneral }}
-</div>
-
-<!-- SECCIÓN 1: CATEGORÍAS -->
-<h2>Categorías de Intervención</h2>
-<table>
-    <thead>
-    <tr>
-        <th>Categorías de Intervención</th>
-        <th style="width: 100px" >Cantidad</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach($porCategoria as $c)
-        <tr>
-            <td>
-                <strong>{{ $c->categoria?->nombre ?? 'Sin categoría' }}</strong>
-            </td>
-            <td style="text-align: right">{{ $c->total }}</td>
-        </tr>
-    @endforeach
-    </tbody>
-</table>
-
-<!-- SECCIÓN 2: TIPOS -->
-<h2>Tipos de Intervención</h2>
-<table>
-    <thead>
-    <tr>
-        <th>Tipo</th>
-        <th style="width: 100px" >Cantidad</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach($porTipo as $t)
-        <tr>
-            <td>
-                <strong>{{ $t->tipo?->nombre ?? 'Sin tipo' }}</strong>
-            </td>
-            <td style="text-align: right">{{ $t->total }}</td>
-        </tr>
-    @endforeach
-    </tbody>
-</table>
-
-<!-- SECCIÓN 3: UNIDADES PRODUCTIVAS -->
-<h2>Unidades Productivas</h2>
-<table>
-    <thead>
-    <tr>
-        <th>Unidad Productiva</th>
-        <th style="width: 100px" >Cantidad</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach($porUnidad as $u)
-        <tr>
-            <td>
-                <strong>{{ $u->unidadProductiva?->business_name ?? 'Sin unidad productiva' }}</strong>
-            </td>
-            <td style="text-align: right">{{ $u->total }}</td>
-        </tr>
-    @endforeach
-    </tbody>
-</table>
-
-<div class="page-break"></div>
-
-<!-- LISTADO DETALLADO -->
-<h2>Listado Detallado de Intervenciones</h2>
-
-<table>
-    <thead>
-    <tr>
-        <th>Fecha</th>
-        <th>Unidad Productiva / Asesor</th>
-        <th>Categoría</th>
-        <th>Descripción</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach($intervenciones as $i)
-        <tr>
-            <td>
-                {{ $i->fecha_inicio }}
-            </td>
-            <td>
-                <strong>Unidad Productiva</strong><br>
-                {{ $i->unidadProductiva?->business_name ?? 'N/A' }}
-
-                <br><br>
-                <strong>Asesor</strong><br>
-                {{ $i->asesor?->name ?? 'N/A' }}
-            </td>
-            <td>
-                <strong>Categoría</strong><br>
-                {{ $i->categoria?->nombre ?? 'N/A' }}
-
-                <br><br>
-                <strong>Tipo</strong><br>
-                {{ $i->tipo?->nombre ?? 'N/A' }}
-            </td>
-            <td>{!! $i->descripcion ?? 'Sin descripción' !!}</td>
-        </tr>
-    @endforeach
-    </tbody>
-</table>
-
-<div class="page-break"></div>
-
-<h2>Conclusiones</h2>
-<p>{!! nl2br(e($conclusiones)) !!}</p>
-
-@if(!empty($analisis_ia))
-<div class="section-title" style="margin-top: 25px;">Análisis complementario (IA)</div>
-<div>{!! $analisis_ia !!}</div>
-@endif
 
 </body>
+
 </html>
