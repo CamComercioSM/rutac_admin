@@ -250,7 +250,7 @@ Route::as('admin.')
     Route::get('/banners/export', [BannerController::class, 'export']);
     Route::get('/empresarios/export', [EmpresariosController::class, 'export']);
     Route::get('/historias/export', [HistoriaController::class, 'export']);
-    Route::get('/links/export', [LinkController::class, 'export']);
+    Route::get('/links/export', [LinkController::class, 'export']); 
     Route::get('/settings/export', [SettingController::class, 'export']);
     Route::get('/intervenciones/export', [IntervencionesController::class, 'export']);
 
