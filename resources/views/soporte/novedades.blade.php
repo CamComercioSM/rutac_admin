@@ -31,7 +31,7 @@
                     <hr class="my-2">
 
                     <p class="mb-0 text-dark">
-                        {{ $novedad->descripcion }}
+                        {!! $novedad->descripcion !!}
                     </p>
 
                     {{-- Botón de cierre nativo con nuestra lógica JS --}}

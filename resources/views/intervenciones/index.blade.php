@@ -1,4 +1,4 @@
-@extends('layouts.list', ['titulo' => 'Intervenciones', 'tituloModal' => 'intervención'])
+@extends('layouts.list', ['titulo' => 'Actividades y Tareas', 'tituloModal' => 'Actividad'])
 
 @section('form-filters')
 
@@ -76,317 +76,46 @@
     <!-- Modern Vertical Wizard -->
     <div class="row">
         <div class="col-12">
-            <small class="fw-medium">Intervencion</small>
+            <small class="fw-medium">Actividad</small>
             <div class="bs-stepper vertical wizard-modern wizard-modern-vertical mt-2">
                 <div class="bs-stepper-header gap-lg-2">
-                    <div class="step" data-target="#account-details-modern-vertical">
-                        <button type="button" class="step-trigger">
-                            <span class="bs-stepper-circle"><i class="icon-base ri ri-check-line"></i></span>
-                            <span class="bs-stepper-label">
-                                <span class="bs-stepper-number">01</span>
-                                <span class="d-flex flex-column gap-1 ms-2">
-                                    <span class="bs-stepper-title">Datos de la intervencion</span>
-                                    <span class="bs-stepper-subtitle">Programa, convocatoria ...</span>
-                                </span>
-                            </span>
-                        </button>
-                    </div>
-                    <div class="line"></div>
-                    <div class="step" data-target="#avances-info-modern-vertical">
-                        <button type="button" class="step-trigger">
-                            <span class="bs-stepper-circle"><i class="icon-base ri ri-check-line"></i></span>
-                            <span class="bs-stepper-label">
-                                <span class="bs-stepper-number">02</span>
-                                <span class="d-flex flex-column gap-1 ms-2">
-                                    <span class="bs-stepper-title">Avances y resultados</span>
-                                    <span class="bs-stepper-subtitle">Resultados obtenidos</span>
-                                </span>
-                            </span>
-                        </button>
-                    </div>
-                    <div class="line"></div>
-                    <div class="step" data-target="#personal-info-modern-vertical">
-                        <button type="button" class="step-trigger">
-                            <span class="bs-stepper-circle"><i class="icon-base ri ri-check-line"></i></span>
-                            <span class="bs-stepper-label">
-                                <span class="bs-stepper-number">03</span>
-                                <span class="d-flex flex-column gap-1 ms-2">
-                                    <span class="bs-stepper-title">Unidades intervenidas</span>
-                                    <span class="bs-stepper-subtitle">Información de las unidades</span>
-                                </span>
-                            </span>
-                        </button>
-                    </div>
-                    <div class="line"></div>
-                    <div class="step" data-target="#social-links-modern-vertical">
-                        <button type="button" class="step-trigger">
-                            <span class="bs-stepper-circle"><i class="icon-base ri ri-check-line"></i></span>
-                            <span class="bs-stepper-label">
-                                <span class="bs-stepper-number">04</span>
-                                <span class="d-flex flex-column gap-1 ms-2">
-                                    <span class="bs-stepper-title">Soportes</span>
-                                    <span class="bs-stepper-subtitle">Evidencias y documentos</span>
-                                </span>
-                            </span>
-                        </button>
-                    </div>
+                    @include('intervenciones.partials.stepper-header')
                 </div>
                 <div class="bs-stepper-content">
                     <!-- informacion de intervencion -->
                     <div id="account-details-modern-vertical" class="content">
-                        <div class="row">
-                            <div class="col-12 col-md-7 form-group mb-3">
-                                <label class="form-label" for="programa_id">Programa</label>
-                                <select class="form-select" name="programa_id" id="programa_id" required>
-                                    <option value="" selected>Seleccione una opción</option>
-                                    @foreach ($programas as $item)
-                                        <option value="{{ $item->programa_id }}">{{ $item->nombre }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-12 col-md-5 form-group mb-3">
-                                <label class="form-label" for="convocatoria_id">Ciclo</label>
-                                <select class="form-select" name="convocatoria_id" id="convocatoria_id" disabled>
-                                    <option value="" selected>Seleccione primero un programa</option>
-                                </select>
-                            </div>
-
-                            <div class="col-12 col-md-3 form-group mb-3">
-                                <label class="form-label" for="fase_programa_id">Fase</label>
-                                <select class="form-select" name="fase_id" id="fase_programa_id" required>
-                                    <option value="" selected>Seleccione una opción</option>
-                                    @foreach ($fasesProgramas as $item)
-                                        <option value="{{ $item->fase_id }}">
-                                            {{ $item->nombre }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-12 col-md-4 form-group mb-3">
-                                <label class="form-label" for="categoria_id">Actividad</label>
-                                <select class="form-select" name="categoria_id" id="categoria_id" required>
-                                    <option value="" selected>Seleccione una opción</option>
-                                    @foreach ($categorias as $item)
-                                        <option value="{{ $item->id }}">{{ $item->nombre }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-12 col-md-5 form-group mb-3">
-                                <label class="form-label" for="tipo_id">Tarea</label>
-                                <select class="form-select" name="tipo_id" id="tipo_id" required>
-                                    <option value="" selected>Seleccione una opción</option>
-                                    @foreach ($tipos as $item)
-                                        <option value="{{ $item->id }}">{{ $item->nombre }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-12 col-md-12 form-group mb-3 d-none" id="cont_referencia">
-                                <label for="referencia_id" class="form-label"></label>
-                                <select class="form-select w-75" name="referencia_id" id="referencia_id"></select>
-                            </div>
-
-                            <div class="col-12 col-md-4 form-group mb-3">
-                                <label class="form-label" for="modalidad">Modalidad</label>
-                                <select class="form-select" name="modalidad" id="modalidad">
-                                    <option value="" selected>Seleccione una opción</option>
-                                    @foreach ($modalidades as $index => $item)
-                                        <option value="{{ $index }}">{{ $item }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-12 col-md-4 form-group mb-3">
-                                <label class="form-label" for="fecha_inicio">Fecha inicio</label>
-                                <input type="datetime-local" class="form-control" name="fecha_inicio" id="fecha_inicio"
-                                    placeholder="Fecha inicio" required>
-                            </div>
-
-                            <div class="col-12 col-md-4 form-group mb-3">
-                                <label class="form-label" for="fecha_fin">Fecha fin</label>
-                                <input type="datetime-local" class="form-control" name="fecha_fin" id="fecha_fin"
-                                    placeholder="Fecha fin" required>
-                            </div>
-                            <div class="col-12 col-md-12 form-group mb-3">
-                                <label class="form-label" for="descripcion">Descripción</label>
-                                <div id="descripcion"></div>
-                            </div>
-                        </div>
+                        @include('intervenciones.partials.step1-datos')
                     </div>
                     <!-- Avances -->
                     <div id="avances-info-modern-vertical" class="content">
-                        <div class="col-12 col-md-12 form-group mb-3">
-                            <label class="form-label" for="conclusiones">Conclusiones</label>
-                            <div id="conclusiones"></div>
-                        </div>
+                        @include('intervenciones.partials.step2-avances')
                     </div>
                     <!-- Unidades productivas -->
                     <div id="personal-info-modern-vertical" class="content">
-                        <div class="col-12">
-
-                            <h4 class="mb-4">Unidades productivas intervenidas</h4>
-
-                            <div class="row g-4">
-
-                                <!-- ================= UNIDADES PRODUCTIVAS ================= -->
-                                <div class="col-md-6">
-                                    <div class="card p-3">
-
-                                        <div class="mb-3">
-                                            <label for="unidadAdd" class="form-label">Unidad productiva</label>
-
-                                            <div class="d-flex align-items-center gap-2">
-
-                                                <!-- BOTÓN IZQUIERDA -->
-                                                <a href="/unidadesProductivas/list" target="_blank"
-                                                    class="btn btn-outline-primary btn-icon">
-                                                    <i class="ri ri-search-line"></i>
-                                                </a>
-
-                                                <select class="form-select" name="unidadAdd" id="unidadAdd">
-                                                    <option value="" disabled selected>Seleccione una unidad</option>
-                                                    @foreach ($unidades as $item)
-                                                        <option value="{{ $item->id }}">{{ $item->nombre }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label class="form-label"># Participantes</label>
-                                                <input class="form-control" type="number" id="participantes">
-                                            </div>
-
-                                            <div class="col-md-6 d-flex align-items-end">
-                                                <button type="button" class="btn btn-primary w-100" onclick="openAdd()">
-                                                    Agregar
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                <!-- LISTADO -->
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input id="TagifyUserList" name="unidades" class="form-control h-auto">
-                                        <label>Unidades productivas</label>
-                                    </div>
-                                </div>
-
-                                <!-- ================= OTROS PARTICIPANTES ================= -->
-                                <div class="col-md-6">
-                                    <div class="card p-3">
-
-                                        <div class="mb-3">
-                                            <label for="otroParticipanteAdd" class="form-label">
-                                                Otros participantes
-                                            </label>
-
-                                            <div class="d-flex align-items-center gap-2">
-
-                                                <!-- BOTÓN + (CREAR NUEVO) -->
-                                                <button type="button" class="btn btn-outline-success btn-icon"
-                                                    data-bs-toggle="modal" data-bs-target="#modalNuevoParticipante">
-                                                    <i class="ri ri-add-line"></i>
-                                                </button>
-
-                                                <select class="form-select" id="otroParticipanteAdd">
-                                                    <option value="" disabled selected>Selecciona participante
-                                                    </option>
-                                                    @foreach ($leads as $item)
-                                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label class="form-label"># Participantes</label>
-                                                <input class="form-control" type="number" id="participantes_otros">
-                                            </div>
-
-                                            <div class="col-md-6 d-flex align-items-end">
-                                                <button type="button" class="btn btn-primary w-100"
-                                                    onclick="openAddOtroParticipante()">
-                                                    Agregar
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                <!-- LISTADO -->
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input id="TagifyOtrosParticipantes" name="otrosParticipantes"
-                                            class="form-control h-auto">
-                                        <label>Otros Participantes</label>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
+                        @include('intervenciones.partials.step3-unidades')
                     </div>
-
-
                     <!-- Soporte -->
                     <div id="social-links-modern-vertical" class="content">
-                        <div class="col-12 col-md-12 form-group mb-3" id="contFormFile">
-                            <label for="formFile" class="form-label">Soporte</label>
-                            <input class="form-control" type="file" id="formFile" name="formFile">
-                        </div>
-                        <!-- Media -->
-
-                        {{-- <div class="card mb-6">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0 card-title">Cargar soporte</h5>
-                                <a href="javascript:void(0);" class="fw-medium">Agregar url de la evidencia</a>
-                            </div>
-                            <div class="card-body">
-                                <!-- Dropzone container -->
-                                <div class="dropzone needsclick" id="dropzone-basic" data-url="/upload">
-                                    <div class="dz-message needsclick">
-                                        <div class="d-flex justify-content-center">
-                                            <div class="avatar avatar-md">
-                                                <span class="avatar-initial rounded bg-label-secondary">
-                                                    <i class="icon-base ri ri-upload-2-line icon-24px"></i>
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <p class="h4 needsclick my-2">Arrastre los archivos aquí</p>
-                                        <button type="button" class="needsclick btn btn-sm btn-outline-primary d-inline"
-                                            id="btnBrowse">
-                                            Explorar
-                                        </button>
-                                    </div>
-
-                                    <!-- Aquí se renderiza el preview -->
-                                    <div class="dz-preview-container mt-3"></div>
-
-                                    <!-- Fallback opcional (si quieres mantenerlo) -->
-                                    <div class="fallback mt-2">
-                                        <input name="" id="" type="file"
-                                            accept=".jpg,.jpeg,.png,.gif" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div> --}}
-                        <!-- /Media -->
+                        @include('intervenciones.partials.step4-soportes')
                     </div>
+
+
+                    {{-- BOTONES DE NAVEGACIÓN PROPIOS (Siguiente/Anterior) --}}
+                    <div class="d-flex justify-content-between mt-4 border-top pt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-prev">
+                            <i class="ri-arrow-left-line"></i> Anterior
+                        </button>
+                        <button type="button" class="btn btn-primary btn-next" id="wizard-next-btn">
+                            Siguiente <i class="ri-arrow-right-line"></i>
+                        </button>
+                    </div>
+                    {{-- Input oculto para el estado --}}
+                    <input type="hidden" name="estado_guardado" id="estado_guardado" value="firme">
+
                 </div>
             </div>
         </div>
     </div>
-    
 @endsection
 
 @section('btns-actions')
@@ -567,6 +296,86 @@
     @vite(['resources/assets/vendor/libs/quill/katex.js', 'resources/assets/vendor/libs/quill/quill.js', 'resources/assets/js/form-wizard-validation.js', 'resources/js/reporteMensual/intervenciones.js'])
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const stepperEl = document.querySelector('.bs-stepper');
+            const btnNext = document.getElementById('wizard-next-btn');
+            const btnPrev = document.querySelector('.btn-prev');
+
+            // Referencias a los botones GLOBALES del layout
+            const btnGuardarFirme = document.querySelector('#Modal button[type="submit"]'); // El verde del layout
+            const btnResetLimpiar = document.querySelector('#Modal button[type="reset"]'); // El verde del layout
+            const btnCancelarLayout = document.querySelector('#form .btn-cancelar');
+            const footerModal = btnGuardarFirme.parentNode; // El div text-center my-4
+
+            // 1. Inicializar el botón de "Borrador" dinámicamente al lado del de Guardar
+            const btnBorrador = document.createElement('button');
+            btnBorrador.type = 'button';
+            btnBorrador.className = 'btn btn-info me-2 d-none'; // Oculto al inicio
+            btnBorrador.innerHTML = '<i class="ri-save-line me-2"></i> Guardar Borrador';
+            btnBorrador.onclick = () => submitForm('borrador');
+            footerModal.insertBefore(btnBorrador, btnGuardarFirme);
+
+            // 2. Ajustar el botón de Guardar Firme original
+            btnGuardarFirme.classList.add('d-none'); // Lo ocultamos al inicio
+            btnGuardarFirme.innerHTML = '<i class="ri-check-double-line me-2"></i> Guardar en Firme';
+            btnResetLimpiar.classList.add('d-none'); // Lo ocultamos al inicio
+            btnCancelarLayout.classList.add('d-none'); // Lo ocultamos al inicio
+
+            const stepper = new Stepper(stepperEl, {
+                linear: false
+            });
+
+            // Escuchar el cambio de paso
+            stepperEl.addEventListener('show.bs-stepper', function(event) {
+                const index = event.detail.indexStep; // 0, 1, 2, 3
+                const totalSteps = 3; // El índice del último paso (paso 4)
+
+                if (index === totalSteps) {
+                    // ESTAMOS AL FINAL: Mostrar botones de guardado, ocultar "Siguiente"
+                    btnCancelarLayout.classList.remove('d-none');
+                    btnGuardarFirme.classList.remove('d-none');
+                    btnBorrador.classList.remove('d-none');
+                    // BLOQUEAR botón Siguiente
+                    btnNext.disabled = true;
+                } else {
+                    // NO ES EL FINAL: Ocultar botones de guardado, mostrar "Siguiente"
+                    btnCancelarLayout.classList.add('d-none');
+                    btnGuardarFirme.classList.add('d-none');
+                    btnBorrador.classList.add('d-none');
+                    // ACTIVAR botón Siguiente
+                    btnNext.disabled = false;
+                }
+
+                // Control de botón "Anterior"
+                btnPrev.disabled = (index === 0);
+            });
+
+            // Eventos de los botones de navegación
+            btnNext.addEventListener('click', () => stepper.next());
+            btnPrev.addEventListener('click', () => stepper.previous());
+        });
+
+        function submitForm(tipo) {
+            document.getElementById('estado_guardado').value = tipo;
+            const form = document.getElementById('form');
+
+            if (tipo === 'firme') {
+                Swal.fire({
+                    title: '¿Guardar en Firme?',
+                    text: "No podrás editar la intervención después.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, finalizar'
+                }).then((result) => {
+                    if (result.isConfirmed) form.requestSubmit();
+                });
+            } else {
+                form.requestSubmit();
+            }
+        }
+    </script>
+
+    <script>
         const CONVOCATORIAS = @json($convocatorias);
 
         // Función para limitar texto y agregar botón "ver más"
@@ -619,7 +428,19 @@
             order: [
                 [0, 'desc']
             ],
+
             accion_editar: false,
+            mensajeEliminar: '¿Estás seguro de que deseas eliminar esta intervención? Esta acción no se puede deshacer.',
+            menu_row: `
+                <a class="dropdown-item" href="javascript:void(0);" onclick="Helpers.notificarEnConstruccion('La edición de registros');">
+                    <i class="ri-pencil-line me-1"></i> Editar
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="window.eliminarRegistro()">
+                    <i class="ri-delete-bin-line me-1"></i> Eliminar
+                </a>
+            `,
+
             columns: [{
                     data: 'fecha_creacion',
                     title: 'Reportado',
@@ -999,7 +820,7 @@
                 $('#preview_fecha_fin').val($filters.find('input[id="fecha_fin_filtros"]').val() || '');
                 $('#preview_asesor').val($filters.find('select[name="asesor"]').val() || '');
                 $('#preview_unidad').val($filters.find('select[name="unidad"]').val() || '');
-                $('#informeModal').modal('hide');                
+                $('#informeModal').modal('hide');
             });
 
 

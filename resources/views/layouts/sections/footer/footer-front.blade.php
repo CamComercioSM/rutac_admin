@@ -1,4 +1,4 @@
-<!-- Footer: Start -->
+<!-- - FRONT -  Footer: Start -->
 <footer class="landing-footer">
   <div class="footer-top position-relative overflow-hidden">
     <img src="{{ asset('assets/img/front-pages/backgrounds/footer-bg.png') }}" alt="footer bg"

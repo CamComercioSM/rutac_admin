@@ -1,18 +1,37 @@
+import axios from 'axios';
+
+// Configuración global de Axios para Laravel
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+const token = document.head.querySelector('meta[name="csrf-token"]');
+if (token) {
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+}
+
 $(document).ready(function () {
-
     let allMenus = [];
+    const $loadingIndicator = $('.cargando');
 
+    /**
+     * Carga los menús desde el servidor
+     */
     function loadMenus() {
+        $loadingIndicator.removeClass('d-none');
+
         axios.get("/menu")
             .then(response => {
                 allMenus = response.data;
                 const tree = buildTree(allMenus);
-                document.getElementById("menuList").innerHTML = renderMenu(tree);
-                $('.cargando').addClass('d-none');
+                const menuList = document.getElementById("menuList");
+
+                if (menuList) {
+                    menuList.innerHTML = renderMenu(tree);
+                }
             })
             .catch(error => {
                 console.error("Error al cargar menús:", error);
-                $('.cargando').addClass('d-none');
+            })
+            .finally(() => {
+                $loadingIndicator.addClass('d-none');
             });
     }
 
@@ -111,9 +130,9 @@ $(document).ready(function () {
 
     document.getElementById("menuForm").addEventListener("submit", function (e) {
         e.preventDefault();
-        
+
         $('.cargando').removeClass('d-none');
-        
+
         const form = e.target;
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());

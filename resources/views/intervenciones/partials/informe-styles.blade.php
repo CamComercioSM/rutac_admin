@@ -71,7 +71,7 @@
 
         .btn-primary {
             background: #0e188a;
-            color: white;
+            color: white; 
         }
 
         .btn-primary:hover {

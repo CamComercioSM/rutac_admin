@@ -4,7 +4,7 @@
   // Get primary color - first from cookie, then from config
   $primaryColor = isset($_COOKIE['front-primaryColor']) ? $_COOKIE['front-primaryColor'] : $configData['color'] ?? null;
 @endphp
-<!-- laravel style -->
+<!-- - FRONT - laravel style -->
 @vite(['resources/assets/vendor/js/helpers.js'])
 <!-- beautify ignore:start -->
 @if ($configData['hasCustomizer'])

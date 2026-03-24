@@ -6,7 +6,7 @@ return [
   'tema_base' => [
     'colores' => [
       'principal' => '#0B1890',
-      'segundario' => '#F9B517',
+      'secundario' => '#F9B517',
       'terciario' => '#48BD8F',
       'suave' => '#E8E9EF',
     ],

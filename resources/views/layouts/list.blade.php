@@ -37,7 +37,7 @@
                             </button>
                             <button class="btn btn-sm btn-warning mx-1" id="btnFiltrar" type="button">
                                 <i class="icon-base ri ri-filter-line me-2"></i> Filtrar
-                            </button> 
+                            </button>
                         </div>
 
                     </div>
@@ -80,11 +80,14 @@
                 @yield('form-fields')
 
                 <div class="text-center my-4">
-                    <button type="button" class="btn btn-secondary cancelar">
+                    <button type="button" class="btn btn-secondary cancelar btn-cancelar">
                         <i class="icon-base ri ri-arrow-go-back-line me-2"></i> Cancelar
                     </button>
                     <button type="submit" class="btn btn-success">
                         <i class="icon-base ri ri-send-plane-line me-2"></i> Guardar
+                    </button>
+                    <button type="reset" class="btn btn-warning">
+                        <i class="icon-base ri ri-refresh-line me-2"></i> Limpiar
                     </button>
                 </div>
             </form>

@@ -1385,7 +1385,75 @@ const Helpers = {
       infoElement.classList.remove('label-success')
       infoElement.classList.add('label-danger')
     }
-  }
+  },
+
+  // Bloquear TODA la pantalla usando el módulo Loading de la plantilla
+  bloquearPantalla(mensaje = 'Procesando...') {
+    console.log("Intentando bloquear pantalla con mensaje:", mensaje);
+
+    // Intentamos detectar la librería de varias formas según la versión
+    const loader = window.Notiflix ? window.Notiflix.Loading : (window.Loading ? window.Loading : null);
+
+    if (loader) {
+      loader.standard(mensaje, {
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        messageColor: '#fff',
+        svgColor: '#fff',
+        zIndex: 90001, // Un nivel por encima de tu spinner manual
+      });
+    } else {
+      console.error("No se encontró la librería Notiflix/Loading. Asegúrate de que el JS esté cargado.");
+      // Opcional: Si no hay Notiflix, podrías usar tu spinner manual como respaldo:
+      document.querySelectorAll('.cargando').forEach(el => el.classList.remove('d-none'));
+    }
+  },
+
+  desbloquearPantalla() {
+    const loader = window.Notiflix ? window.Notiflix.Loading : (window.Loading ? window.Loading : null);
+
+    if (loader) {
+      loader.remove();
+    } else {
+      // Respaldo manual
+      document.querySelectorAll('.cargando').forEach(el => el.classList.add('d-none'));
+    }
+  },
+
+  // En helpers.js
+  bloquearElemento(selector, mensaje = '') {
+    if (typeof Block !== 'undefined') {
+      Block.standard(selector, mensaje, {
+        backgroundColor: 'rgba(255,255,255,0.7)',
+        svgColor: '#7367f0' // El color primario de tu plantilla
+      });
+    }
+  },
+
+  desbloquearElemento(selector) {
+    if (typeof Block !== 'undefined') {
+      Block.remove(selector);
+    }
+  },
+
+  notificarEnConstruccion(accion = 'Esta funcionalidad') {
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: 'Módulo en desarrollo',
+        text: `${accion} actualmente está en construcción y estará disponible próximamente.`,
+        icon: 'info',
+        confirmButtonText: 'Entendido',
+        customClass: {
+          confirmButton: 'btn btn-primary'
+        },
+        buttonsStyling: false
+      });
+    } else {
+      // Fallback si SweetAlert no está cargado
+      alert(`${accion} está en construcción.`);
+    }
+  },
+
+
 }
 
 // *******************************************************************************

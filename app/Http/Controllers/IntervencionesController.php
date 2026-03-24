@@ -658,4 +658,33 @@ class IntervencionesController extends Controller {
             $query->where($column, $value);
         }
     }
+
+    // Eliminar una intervención y sus relaciones (unidades y leads asociados)
+
+    public function destroy($id) {
+        try {
+            DB::beginTransaction();
+
+            $intervencion = UnidadProductivaIntervenciones::findOrFail($id);
+
+            // Al eliminar la intervención principal, SoftDeletes se encarga si está configurado,
+            // pero es buena práctica eliminar las relaciones relacionadas si no son en cascada a nivel DB.
+            $intervencion->unidades()->delete(); // Borrado lógico de intervencion_unidades
+            $intervencion->leads()->delete();    // Borrado lógico de intervencion_leads
+            $intervencion->delete();             // Borrado lógico de la intervención
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'La registro ha sido eliminada correctamente.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al intentar eliminar: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

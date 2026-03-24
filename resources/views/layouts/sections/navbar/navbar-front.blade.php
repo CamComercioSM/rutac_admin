@@ -9,7 +9,7 @@
     @vite(['resources/assets/vendor/js/dropdown-hover.js', 'resources/assets/vendor/js/mega-dropdown.js'])
 @endsection
 
-<!-- Navbar: Start -->
+<!-- - FRONT -  Navbar: Start -->
 <nav class="layout-navbar shadow-none py-0">
     <div class="container">
         <div class="navbar navbar-expand-lg landing-navbar px-3 px-md-8">

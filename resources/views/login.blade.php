@@ -68,6 +68,35 @@
             font-weight: 500 !important;
             padding: 12px 24px !important;
         }
+
+
+        .renovacion-promo {
+            max-width: 200px;
+            animation: balanceoSuave 6s ease-in-out infinite;
+            transform-origin: center center;
+        }
+
+        @keyframes balanceoSuave {
+            0% {
+                transform: rotate(-15deg);
+            }
+
+            25% {
+                transform: rotate(30deg);
+            }
+
+            50% {
+                transform: rotate(15deg);
+            }
+
+            75% {
+                transform: rotate(20deg);
+            }
+
+            100% {
+                transform: rotate(-15deg);
+            }
+        }
     </style>
 @endsection
 
@@ -173,10 +202,10 @@
                 </div>
                 <!-- /Login -->
                 <img src="{{ asset('https://cdnsicam.net/img/logo-2026-activa-tu-crecimiento.png') }}" alt="auth-tree"
-                    class="authentication-image-object-left d-none d-lg-block">
-                <img src="{{ asset('img/img-fondo-sierra-m-min.png') }}"
-                    class="authentication-image d-none d-lg-block" height="100%" alt="triangle-bg" style="height: auto;" >
-                <img src="{{ asset('img/mariac-saludando.png') }}" alt="auth-tree" style="height: 35vh;" 
+                    class="authentication-image-object-left d-none d-lg-block renovacion-promo" >
+                <img src="{{ asset('img/img-fondo-sierra-m-min.png') }}" class="authentication-image d-none d-lg-block"
+                    height="100%" alt="triangle-bg" style="height: auto;">
+                <img src="{{ asset('img/mariac-saludando.png') }}" alt="auth-tree" style="height: 35vh;"
                     class="authentication-image-object-right d-none d-lg-block">
             </div>
         </div>
@@ -247,11 +276,11 @@
                         })
                         .then(async response => {
                             console.log('Response status:', response.status);
-                            
+
                             // Intentar parsear el JSON incluso si hay error
                             const contentType = response.headers.get("content-type");
                             let data = {};
-                            
+
                             if (contentType && contentType.includes("application/json")) {
                                 try {
                                     data = await response.json();
@@ -259,7 +288,7 @@
                                     console.error('Error parsing JSON:', e);
                                 }
                             }
-                            
+
                             // Si la respuesta no es ok, lanzar el error con los datos
                             if (!response.ok) {
                                 const error = new Error(`HTTP error! status: ${response.status}`);
@@ -267,7 +296,7 @@
                                 error.status = response.status;
                                 throw error;
                             }
-                            
+
                             return data;
                         })
                         .then(data => {
@@ -372,8 +401,8 @@
                                     <strong>${errorMessage}</strong>
                                 </p>
                                 ${errorDetails ? `<p style="font-size: 12px; color: #999;">
-                                    Error: ${errorDetails}
-                                </p>` : ''}
+                                        Error: ${errorDetails}
+                                    </p>` : ''}
                             </div>
                         `,
                                     confirmButtonText: 'Intentar de Nuevo',
