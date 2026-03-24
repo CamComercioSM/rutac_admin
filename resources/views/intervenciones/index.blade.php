@@ -81,7 +81,18 @@
                 <div class="bs-stepper-header gap-lg-2">
                     @include('intervenciones.partials.stepper-header')
                 </div>
-                <div class="bs-stepper-content">
+                <div class="bs-stepper-content">                    
+
+                    {{-- BOTONES DE NAVEGACIÓN PROPIOS (Siguiente/Anterior) --}}
+                    <div class="d-flex justify-content-between mb-4 pb-3 border-bottom">
+                        <button type="button" class="btn btn-outline-secondary btn-prev">
+                            <i class="ri-arrow-left-line"></i> Anterior
+                        </button>
+                        <button type="button" class="btn btn-primary btn-next" id="wizard-next-btn">
+                            Siguiente <i class="ri-arrow-right-line"></i>
+                        </button>
+                    </div>
+
                     <!-- informacion de intervencion -->
                     <div id="account-details-modern-vertical" class="content">
                         @include('intervenciones.partials.step1-datos')
@@ -99,16 +110,6 @@
                         @include('intervenciones.partials.step4-soportes')
                     </div>
 
-
-                    {{-- BOTONES DE NAVEGACIÓN PROPIOS (Siguiente/Anterior) --}}
-                    <div class="d-flex justify-content-between mt-4 border-top pt-3">
-                        <button type="button" class="btn btn-outline-secondary btn-prev">
-                            <i class="ri-arrow-left-line"></i> Anterior
-                        </button>
-                        <button type="button" class="btn btn-primary btn-next" id="wizard-next-btn">
-                            Siguiente <i class="ri-arrow-right-line"></i>
-                        </button>
-                    </div>
                     {{-- Input oculto para el estado --}}
                     <input type="hidden" name="estado_guardado" id="estado_guardado" value="firme">
 

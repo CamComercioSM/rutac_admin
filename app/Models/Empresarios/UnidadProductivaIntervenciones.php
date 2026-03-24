@@ -27,15 +27,14 @@ class UnidadProductivaIntervenciones extends Model {
         'categoria_id',
         'tipo_id',
 
-
-        'unidadproductiva_id',
-        'lead_id',
-
         'fecha_inicio',
         'fecha_fin',
 
         'referencia_id',
         'modalidad',
+
+        'cant_unidades', // Antes unidadproductiva_id
+        'cant_leads',    // Antes lead_id
         'participantes',
 
         'descripcion',

@@ -401,105 +401,89 @@ class IntervencionesController extends Controller {
     }
 
     public function store(Request $request) {
-        $data = $request->all();
-        $data['asesor_id'] = Auth::user()->id;
+        try {
+            DB::beginTransaction();
 
-        // Manejo de archivo opcional
-        if ($request->hasFile('formFile')) {
-            $path = $request->file('formFile')->store('intervenciones', 'public');
-            $data['soporte'] = config('app.archivos_url') . $path;
-        }
+            $data = $request->all();
+            $data['asesor_id'] = Auth::id(); //
 
-        $unidades = $request->unidades;
-        $otrosParticipantes = $request->otrosParticipantes;
-
-        // Decodificar JSON de Tagify solo si tienen contenido
-        if (!empty($unidades) && is_string($unidades)) {
-            $unidades = json_decode($unidades, true);
-        }
-        if (!empty($otrosParticipantes) && is_string($otrosParticipantes)) {
-            $otrosParticipantes = json_decode($otrosParticipantes, true);
-        }
-
-        $intervenciones = [];
-        /*
-        |--------------------------------------------------------------------------
-        | CASO 1: UNIDADES PRODUCTIVAS (REGISTRADOS)
-        |--------------------------------------------------------------------------
-        */
-        if (is_array($unidades) && count($unidades) > 0) {
-
-            foreach ($unidades as $item) {
-
-                $data['unidadproductiva_id'] = $item['value'] ?? null;
-                $data['lead_id'] = null;
-
-                $data['participantes'] = (int) preg_replace(
-                    '/[^0-9]/',
-                    '',
-                    $item['participantes'] ?? 0
-                );
-
-                $intervencion = UnidadProductivaIntervenciones::create($data);
-
-                // Mantener compatibilidad con tabla intermedia
-                IntervencionUnidad::create([
-                    'intervencion_id'     => $intervencion->id,
-                    'unidadproductiva_id' => $data['unidadproductiva_id'],
-                    'participantes'       => $data['participantes'],
-                ]);
-
-                $intervenciones[] = $intervencion;
+            // Manejo de archivo de soporte único
+            if ($request->hasFile('formFile')) {
+                $path = $request->file('formFile')->store('intervenciones', 'public');
+                $data['soporte'] = config('app.archivos_url') . $path;
             }
-        }
 
-        /*
-        |--------------------------------------------------------------------------
-        | CASO 2: LEADS (NO REGISTRADOS)
-        |--------------------------------------------------------------------------
-        */
-        if (is_array($otrosParticipantes) && count($otrosParticipantes) > 0) {
+            // 1. CREAR EL REGISTRO PADRE (LA ACTIVIDAD)
+            $intervencionPadre = UnidadProductivaIntervenciones::create([
+                'asesor_id'       => $data['asesor_id'],
+                'programa_id'     => $data['programa_id'] ?? null,
+                'convocatoria_id' => $data['convocatoria_id'] ?? null,
+                'fase_id'         => $data['fase_id'] ?? null,
+                'categoria_id'    => $data['categoria_id'],
+                'tipo_id'         => $data['tipo_id'],
+                'fecha_inicio'    => $data['fecha_inicio'],
+                'fecha_fin'       => $data['fecha_fin'],
+                'modalidad'       => $data['modalidad'] ?? null,
+                'descripcion'     => $data['descripcion'] ?? null,
+                'conclusiones'    => $data['conclusiones'] ?? null,
+                'soporte'         => $data['soporte'] ?? null,
+                'participantes'   => 0, // Se calculará dinámicamente
+            ]);
 
-            foreach ($otrosParticipantes as $l) {
+            // Decodificación de participantes desde Tagify/Frontend
+            $unidades = is_string($request->unidades) ? json_decode($request->unidades, true) : $request->unidades;
+            $otrosParticipantes = is_string($request->otrosParticipantes) ? json_decode($request->otrosParticipantes, true) : $request->otrosParticipantes;
 
-                $data['unidadproductiva_id'] = null;
-                $data['lead_id'] = $l['value'];
+            // Inicializar contadores
+            $totalCantUnidades = 0;
+            $totalCantLeads = 0;
+            $totalGeneralAsistentes = 0;
 
-                $data['participantes'] = 1; // o ajustable si luego lo necesitas
+            // 2. PROCESAR UNIDADES PRODUCTIVAS
+            if (!empty($unidades) && is_array($unidades)) {
+                foreach ($unidades as $item) {
+                    $cantU = (int) preg_replace('/[^0-9]/', '', $item['participantes'] ?? 0);
 
-                $intervencion = UnidadProductivaIntervenciones::create($data);
-
-                // Mantener compatibilidad con tabla intermedia
-                IntervencionLead::create([
-                    'intervencion_id' => $intervencion->id,
-                    'lead_id'         => $l['value'],
-                    'asesor_id'       => $data['asesor_id'],
-                    'tipo_id'         => $data['tipo_id'],
-                    'fecha_inicio'    => $data['fecha_inicio'],
-                    'fecha_fin'       => $data['fecha_fin'],
-                    'descripcion'     => $data['descripcion'],
-                ]);
-
-                $intervenciones[] = $intervencion;
+                    IntervencionUnidad::create([
+                        'intervencion_id'     => $intervencionPadre->id,
+                        'unidadproductiva_id' => $item['value'],
+                        'participantes'       => $cantU,
+                    ]);
+                    $totalCantUnidades++; // Contador de entidades UP
+                    $totalGeneralAsistentes += $cantU;
+                }
             }
+
+            // 3. PROCESAR LEADS (AHORA CON CONTEO INDIVIDUAL)
+            if (!empty($otrosParticipantes) && is_array($otrosParticipantes)) {
+                foreach ($otrosParticipantes as $l) {
+                    // Extraer participantes del lead (ej. desde un input en el tag de Tagify)
+                    $cantL = (int) preg_replace('/[^0-9]/', '', $l['participantes'] ?? 1);
+
+                    IntervencionLead::create([
+                        'intervencion_id' => $intervencionPadre->id,
+                        'lead_id'         => $l['value'],
+                        'participantes'   => $cantL, // Asegúrate de tener este campo en la tabla 'intervencion_leads'
+                    ]);
+
+                    $totalCantLeads++; // Contador de entidades Lead
+                    $totalGeneralAsistentes += $cantL;
+                }
+            }
+
+            // 4. ACTUALIZACIÓN FINAL DEL TOTAL EN EL PADRE
+            $intervencionPadre->update([
+                'cant_unidades' => $totalCantUnidades,    // Cuántas UPs hubo
+                'cant_leads'    => $totalCantLeads,       // Cuántos Leads hubo
+                'participantes' => $totalGeneralAsistentes
+            ]);
+
+            DB::commit();
+            return response()->json(['message' => 'Actividad guardada con un total de ' . $totalGeneralAsistentes . ' asistentes.'], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Error al guardar: ' . $e->getMessage()], 500);
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | CASO 3: SIN PARTICIPANTES
-        |--------------------------------------------------------------------------
-        */
-        if (empty($intervenciones)) {
-
-            $data['unidadproductiva_id'] = null;
-            $data['lead_id'] = null;
-            $data['participantes'] = 0;
-
-            $intervencion = UnidadProductivaIntervenciones::create($data);
-            $intervenciones[] = $intervencion;
-        }
-
-        return response()->json(['message' => 'Intervención guardada correctamente'], 201);
     }
 
     private function getQuery(Request $request) {
@@ -510,18 +494,21 @@ class IntervencionesController extends Controller {
                 'unidadesproductivas_intervenciones.*',
                 DB::raw("CONCAT(users.name, ' ', users.lastname) as asesor"),
                 DB::raw("
-                    CASE
-                        WHEN unidadesproductivas_intervenciones.unidadproductiva_id IS NOT NULL THEN 'REGISTRADO'
-                        WHEN unidadesproductivas_intervenciones.lead_id IS NOT NULL THEN 'NO REGISTRADO'
-                        ELSE 'SIN PARTICIPANTE'
-                    END as clasificacion
+                CASE 
+                    WHEN unidadesproductivas_intervenciones.cant_unidades > 0 AND unidadesproductivas_intervenciones.cant_leads > 0 THEN 'MIXTO'
+                    WHEN unidadesproductivas_intervenciones.cant_unidades > 0 THEN 'REGISTRADO'
+                    WHEN unidadesproductivas_intervenciones.cant_leads > 0 THEN 'NO REGISTRADO'
+                    ELSE 'SIN PARTICIPANTES'
+                END as clasificacion
                 "),
                 DB::raw("
-                    CASE
-                        WHEN unidadesproductivas_intervenciones.unidadproductiva_id IS NOT NULL THEN unidadesproductivas.business_name
-                        WHEN unidadesproductivas_intervenciones.lead_id IS NOT NULL THEN leads.name
-                        ELSE NULL
-                    END as unidad
+                CASE 
+                    WHEN (unidadesproductivas_intervenciones.cant_unidades + unidadesproductivas_intervenciones.cant_leads) > 1 
+                        THEN CONCAT(unidadesproductivas_intervenciones.cant_unidades, ' UP / ', unidadesproductivas_intervenciones.cant_leads, ' Leads')
+                    WHEN unidadesproductivas_intervenciones.cant_unidades = 1 THEN '1 Unidad Productiva'
+                    WHEN unidadesproductivas_intervenciones.cant_leads = 1 THEN '1 Lead / Ciudadano'
+                    ELSE 'N/A'
+                END as unidad
                 "),
                 'fases_programas.nombre as fase',
                 'pc.nombre_convocatoria as convocatoria',
@@ -530,17 +517,6 @@ class IntervencionesController extends Controller {
                 'categorias_intervenciones.nombre as categoria',
                 'tipos_intervenciones.nombre as tipo',
 
-                'unidadesproductivas.unidadproductiva_id as unidadproductiva_id_rel',
-                'unidadesproductivas.business_name as unidad_nombre',
-                'unidadesproductivas.nit as unidad_nit',
-                'unidadesproductivas.registration_email as unidad_email',
-                'unidadesproductivas.mobile as unidad_telefono',
-
-                'leads.id as lead_id',
-                'leads.name as lead_nombre',
-                'leads.document as lead_documento',
-                'leads.email as lead_email',
-                'leads.phone as lead_telefono',
 
             ])
             ->leftJoin('fases_programas', 'fases_programas.fase_id', '=', 'unidadesproductivas_intervenciones.fase_id')
@@ -548,31 +524,7 @@ class IntervencionesController extends Controller {
             ->leftJoin('programas as p', 'p.programa_id', '=', 'unidadesproductivas_intervenciones.programa_id')
             ->join('categorias_intervenciones', 'categorias_intervenciones.id', '=', 'unidadesproductivas_intervenciones.categoria_id')
             ->join('tipos_intervenciones', 'tipos_intervenciones.id', '=', 'unidadesproductivas_intervenciones.tipo_id')
-            ->join('users', 'users.id', '=', 'unidadesproductivas_intervenciones.asesor_id')
-            ->leftJoin(
-                'unidadesproductivas',
-                'unidadesproductivas.unidadproductiva_id',
-                '=',
-                'unidadesproductivas_intervenciones.unidadproductiva_id'
-            )
-            ->leftJoin(
-                'intervencion_unidades',
-                'intervencion_unidades.intervencion_id',
-                '=',
-                'unidadesproductivas_intervenciones.id'
-            )
-            ->leftJoin(
-                'intervencion_leads',
-                'intervencion_leads.intervencion_id',
-                '=',
-                'unidadesproductivas_intervenciones.id'
-            )
-            ->leftJoin(
-                'leads',
-                'leads.id',
-                '=',
-                'unidadesproductivas_intervenciones.lead_id'
-            );
+            ->join('users', 'users.id', '=', 'unidadesproductivas_intervenciones.asesor_id');
 
 
         $asesor = (Auth::user()->rol_id === Role::ASESOR) ? Auth::id() : $request->get('asesor');
@@ -581,7 +533,6 @@ class IntervencionesController extends Controller {
         }
 
         // Filtros básicos
-        $this->applyFilter($query, $request, 'unidad', 'unidadesproductivas_intervenciones.unidadproductiva_id');
         $this->applyFilter($query, $request, 'programa', 'unidadesproductivas_intervenciones.programa_id');
         $this->applyFilter($query, $request, 'convocatoria', 'unidadesproductivas_intervenciones.convocatoria_id');
         $this->applyFilter($query, $request, 'fase', 'unidadesproductivas_intervenciones.fase_id');
@@ -591,7 +542,6 @@ class IntervencionesController extends Controller {
         if ($fechaInicio = $request->get('fecha_inicio')) {
             $query->whereDate('unidadesproductivas_intervenciones.fecha_inicio', '>=', $fechaInicio);
         }
-
         if ($fechaFin = $request->get('fecha_fin')) {
             $query->whereDate('unidadesproductivas_intervenciones.fecha_fin', '<=', $fechaFin);
         }
@@ -601,7 +551,20 @@ class IntervencionesController extends Controller {
                 $q->orWhere('unidadesproductivas_intervenciones.descripcion', 'like', "%{$search}%")
                     ->orWhere('p.nombre', 'like', "%{$search}%")
                     ->orWhere('pc.nombre_convocatoria', 'like', "%{$search}%")
-                    ->orWhere('fases_programas.nombre', 'like', "%{$search}%");
+                    ->orWhere('fases_programas.nombre', 'like', "%{$search}%")
+                    ->orWhere('users.name', 'like', "%{$search}%")
+                    ->orWhere('users.lastname', 'like', "%{$search}%");
+                // Búsqueda en HIJOS (Unidades) sin duplicar filas del padre
+                $q->orWhereHas('unidades.unidadProductiva', function ($sub) use ($search) {
+                    $sub->where('business_name', 'like', "%{$search}%")
+                        ->orWhere('nit', 'like', "%{$search}%");
+                });
+
+                // Búsqueda en HIJOS (Leads)
+                $q->orWhereHas('leads', function ($sub) use ($search) {
+                    $sub->where('name', 'like', "%{$search}%")
+                        ->orWhere('document', 'like', "%{$search}%");
+                });
             });
         }
 
@@ -617,26 +580,16 @@ class IntervencionesController extends Controller {
             'fecha_inicio' => 'unidadesproductivas_intervenciones.fecha_inicio',
             'fecha_fin' => 'unidadesproductivas_intervenciones.fecha_fin',
             'asesor' => "CONCAT(users.name, ' ', users.lastname)",
-            'unidad' => "
-                CASE
-                    WHEN unidadesproductivas_intervenciones.unidadproductiva_id IS NOT NULL THEN unidadesproductivas.business_name
-                    WHEN unidadesproductivas_intervenciones.lead_id IS NOT NULL THEN leads.name
-                    ELSE NULL
-                END
-            ",
-            'clasificacion' => "
-                CASE
-                    WHEN unidadesproductivas_intervenciones.unidadproductiva_id IS NOT NULL THEN 'REGISTRADO'
-                    WHEN unidadesproductivas_intervenciones.lead_id IS NOT NULL THEN 'NO REGISTRADO'
-                    ELSE 'SIN PARTICIPANTE'
-                END
-            ",
+
             'programa' => 'p.nombre',
             'convocatoria' => 'pc.nombre_convocatoria',
             'fase' => 'fases_programas.nombre',
             'categoria' => 'categorias_intervenciones.nombre',
             'tipo' => 'tipos_intervenciones.nombre',
-            'participantes' => 'unidadesproductivas_intervenciones.participantes',
+
+            'participantes'  => 'unidadesproductivas_intervenciones.participantes',
+            'cant_unidades'  => 'unidadesproductivas_intervenciones.cant_unidades',
+            'cant_leads'     => 'unidadesproductivas_intervenciones.cant_leads',
         ];
 
         if ($sortName && isset($map[$sortName])) {
