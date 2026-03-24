@@ -492,5 +492,42 @@
                     return;
                 }
             }
+
+
+            const slider = document.getElementById('slider-info');
+            const inputHidden = document.getElementById('avanceMeta');
+
+            console.log('slider:', slider);
+            console.log('noUiSlider:', typeof noUiSlider);
+
+            if (!slider) {
+                console.warn('No existe #slider-info');
+                return;
+            }
+
+            if (typeof noUiSlider === 'undefined') {
+                console.error('noUiSlider no está cargado');
+                return;
+            }
+
+            const valorInicial = parseInt(slider.dataset.meta) || 0;
+
+            noUiSlider.create(slider, {
+                start: valorInicial,
+                connect: [true, false],
+                step: 1,
+                range: {
+                    min: 0,
+                    max: 100
+                }
+            });
+
+            slider.noUiSlider.on('update', function(values, handle) {
+                const val = Math.round(values[handle]);
+                inputHidden.value = val;
+            });
+
+
+
         });
     </script>

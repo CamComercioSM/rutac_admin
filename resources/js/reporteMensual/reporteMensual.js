@@ -732,6 +732,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
     if (btnRevisarReporte) {
         btnRevisarReporte.addEventListener('click', revisarReporteMensual);
     }
+    
 });
 
 function exportTableToExcel() {
