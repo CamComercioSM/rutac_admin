@@ -191,6 +191,7 @@ use App\Http\Controllers\Whatsapp\WhatsappTemplateController;
 use App\Http\Controllers\Whatsapp\WhatsappTestSendController;
 use App\Http\Controllers\Whatsapp\WhatsappLogController;
 use App\Http\Middleware\ValidateUserMenuAccess;
+use App\Http\Controllers\Soporte\SoporteNovedadController;
 
 
 Route::get('/', [AuthController::class, 'index']);
@@ -198,127 +199,134 @@ Route::get('/login', [AuthController::class, 'index']);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
-Route::as('admin.')
-->middleware('auth')
-->group(function () {
-    Route::get('/dashboard', [AdminViewController::class, 'dashboard'])->name("dashboard");
-    Route::get('/perfil', [AdminViewController::class, 'perfil'])->name("perfil");
-    Route::post('/editarPassword', [AdminViewController::class, 'editarPassword'])->name("editarPassword");
 
-    Route::middleware(ValidateUserMenuAccess::class)
-    ->group(function () {
 
-        Route::get('/empresarios/list', [EmpresariosController::class, 'list']);
-        Route::get('/unidadesProductivas/list', [UnidadProductivaController::class, 'list']);
-        Route::get('/inscripciones/list', [InscripcionesController::class, 'list']);
-        Route::get('/diagnosticosResultados/list', [DiagnosticosResultadosController::class, 'list']);
-        Route::get('/convocatorias/list', [ConvocatoriaController::class, 'list']);
-        Route::get('/programas/list', [ProgramaController::class, 'list']);
-
-        Route::get('/users/list', [UserController::class, 'list']);
-        Route::get('/menu/list', [MenuController::class, 'list']);
-        Route::get('/crons/list', [CronController::class, 'list']);
-        Route::get('/cronLog/list', [CronLogController::class, 'list']);
-
-        Route::get('/diagnosticos/list', [DiagnosticosController::class, 'list']);
-        Route::get('/diagnosticosPreguntas/list/{id?}', [DiagnosticosPreguntasController::class, 'list']);
-        Route::get('/convocatoriasRequisitos/list', [InscripcionesRequisitosController::class, 'list']);
-        Route::get('/capsulas/list', [CapsulasController::class, 'list']);
-        Route::get('/banners/list', [BannerController::class, 'list']);
-        Route::get('/historias/list', [HistoriaController::class, 'list']);
-        Route::get('/links/list', [LinkController::class, 'list']);
-        Route::get('/settings/list', [SettingController::class, 'list']);
-        Route::get('/intervenciones/list', [IntervencionesController::class, 'list']);
-        Route::get('/secciones', [SeccionesController::class, 'index']);
-    });
-
-    Route::get('/users/export', [UserController::class, 'export']);
-    Route::get('/menu/export', [MenuController::class, 'export']);
-    Route::get('/inscripciones/export', [InscripcionesController::class, 'export']);
-    Route::get('/inscripciones/exportRespuestas', [InscripcionesController::class, 'exportRespuestas']);
-    Route::get('/crons/export', [CronController::class, 'export']);
-    Route::get('/cronLog/export', [CronLogController::class, 'export']);
-    Route::get('/diagnosticosResultados/export', [DiagnosticosResultadosController::class, 'export']);
-    Route::get('/diagnosticosResultados/exportRespuestas', [DiagnosticosResultadosController::class, 'exportRespuestas']);
-    Route::get('/unidadesProductivas/export', [UnidadProductivaController::class, 'export']);
-    Route::get('/programas/export', [ProgramaController::class, 'export']);
-    Route::get('/convocatorias/export', [ConvocatoriaController::class, 'export']);
-    Route::get('/diagnosticos/export', [DiagnosticosController::class, 'export']);
-    Route::get('/diagnosticosPreguntas/export', [DiagnosticosPreguntasController::class, 'export']);
-    Route::get('/convocatoriasRequisitos/export', [InscripcionesRequisitosController::class, 'export']);
-    Route::get('/capsulas/export', [CapsulasController::class, 'export']);
-    Route::get('/banners/export', [BannerController::class, 'export']);
-    Route::get('/empresarios/export', [EmpresariosController::class, 'export']);
-    Route::get('/historias/export', [HistoriaController::class, 'export']);
-    Route::get('/links/export', [LinkController::class, 'export']); 
-    Route::get('/settings/export', [SettingController::class, 'export']);
-
-    Route::get('/intervenciones/export', [IntervencionesController::class, 'export']);    
-    Route::post('/intervenciones/import', [IntervencionesController::class, 'import']);
-
-    Route::post('/intervenciones/informe/preview', [IntervencionesController::class, 'preview']);
-    Route::post('/intervenciones/informe/generar', [IntervencionesController::class, 'informe']);
-    Route::post('/intervenciones/informe', [IntervencionesController::class, 'saveInforme']);    
-    Route::post('/intervenciones/informe/payload-ia', [IntervencionesController::class, 'getPayloadAnalisisIA']);
-    Route::resource('intervenciones', IntervencionesController::class);
-
-    Route::get('/reportes/list', [ReporteMensualController::class, 'index'])->name("reporteMensual");
-    Route::get('/reportes/reportesMensuales', [ReporteMensualController::class, 'reportesMensuales'])->name("reportesMensuales");
-    Route::get('/reportes/export', [ReporteMensualController::class, 'export']);
-    Route::get('/reportes/supervision/{id?}', [ReporteMensualController::class, 'ReporteMensualSupervision'])->name("reporteMensual.supervision");
-    Route::resource('reportes/supervision', ReporteMensualController::class);
-
-    Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search'])->name("unidadProductiva.search");
-    Route::get('/lead/search', [LeadController::class, 'search'])->name("lead.search");
-    Route::get('/convocatorias/search', [ConvocatoriaController::class, 'search'])->name("convocatorias.search");
-
-    Route::resource('empresarios', EmpresariosController::class);
-    Route::post('/empresarios/{id}/send-password-reset', [EmpresariosController::class, 'sendPasswordResetEmail'])->name('empresarios.send-password-reset');
-    Route::resource('users', UserController::class);
-    Route::resource('menu', MenuController::class);
-    Route::resource('inscripciones', InscripcionesController::class);
-    Route::resource('crons', CronController::class);
-    Route::resource('cronLog', CronLogController::class);
-    Route::resource('diagnosticosResultados', DiagnosticosResultadosController::class);
-    Route::post('/unidadesProductivas/{id}/enviar-whatsapp', [UnidadProductivaController::class, 'enviarWhatsApp']);
-    Route::resource('unidadesProductivas', UnidadProductivaController::class);
-    Route::resource('programas', ProgramaController::class);
-    Route::resource('convocatorias', ConvocatoriaController::class);
-    Route::resource('diagnosticos', DiagnosticosController::class);
-    Route::resource('diagnosticosPreguntas', DiagnosticosPreguntasController::class);
-    Route::resource('convocatoriasRequisitos', InscripcionesRequisitosController::class);
-    Route::resource('capsulas', CapsulasController::class);
-    Route::resource('banners', BannerController::class);
-    Route::resource('historias', HistoriaController::class);
-    Route::resource('links', LinkController::class);
-    Route::resource('secciones', SeccionesController::class);
-    Route::resource('settings', SettingController::class);
-    Route::resource('emailTemplates', EmailTemplateController::class);
-    Route::resource('defaultEmailTemplates', DefaultEmailTemplateController::class);
-
-    Route::post('/inscripciones/updateRespuesta', [InscripcionesController::class, 'updateRespuesta']);
-    Route::post('/inscripciones/test-email', [InscripcionesController::class, 'testInscripcionEmail'])->name("inscripciones.test-email");
-    
-    // Endpoint de verificación aislado para evitar colisión con resource
-    Route::get('/unidadesProductivas/check/matricula', [UnidadProductivaController::class, 'checkRegistrationNumber']);
-    Route::post('/unidadesProductivas/{id}/permitir-nuevo-diagnostico', [UnidadProductivaController::class, 'allowNewDiagnostic'])->name('unidadesProductivas.permitir-nuevo-diagnostico');
-    Route::get('/unidadesProductivas/{id}/{transformar}', [UnidadProductivaController::class, 'edit']);
-    
-    Route::post('/emailTemplates/toggle-status/{id}', [EmailTemplateController::class, 'toggleStatus'])->name("emailTemplates.toggle-status");
-    Route::post('/emailTemplates/send-test', [EmailTemplateController::class, 'sendTestEmail'])->name("emailTemplates.send-test");
-
-    // WhatsApp: plantillas, categorías, prueba de envío y logs
-    Route::prefix('admin/whatsapp')->name('whatsapp.')->group(function () {
-        Route::resource('categories', WhatsappCategoryController::class)->names('categories');
-        Route::post('categories/{category}/toggle-status', [WhatsappCategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
-        Route::resource('templates', WhatsappTemplateController::class)->names('templates');
-        Route::get('test-send', [WhatsappTestSendController::class, 'index'])->name('test-send.index');
-        Route::post('send-test', [WhatsappTestSendController::class, 'sendTest'])->name('send-test');
-        Route::get('templates-by-category', [WhatsappTestSendController::class, 'templatesByCategory'])->name('templates-by-category');
-        Route::get('logs', [WhatsappLogController::class, 'index'])->name('logs.index');
-        Route::get('logs/{log}', [WhatsappLogController::class, 'show'])->name('logs.show');
-    });
+Route::middleware(['auth'])->prefix('soporte')->group(function () {
+    Route::get('/novedades', [SoporteNovedadController::class, 'index'])->name('soporte.index');
+    Route::post('/novedades/guardar', [SoporteNovedadController::class, 'guardar'])->name('soporte.guardar');
 });
+
+Route::as('admin.')
+    ->middleware('auth')
+    ->group(function () {
+        Route::get('/dashboard', [AdminViewController::class, 'dashboard'])->name("dashboard");
+        Route::get('/perfil', [AdminViewController::class, 'perfil'])->name("perfil");
+        Route::post('/editarPassword', [AdminViewController::class, 'editarPassword'])->name("editarPassword");
+
+        Route::middleware(ValidateUserMenuAccess::class)
+            ->group(function () {
+
+                Route::get('/empresarios/list', [EmpresariosController::class, 'list']);
+                Route::get('/unidadesProductivas/list', [UnidadProductivaController::class, 'list']);
+                Route::get('/inscripciones/list', [InscripcionesController::class, 'list']);
+                Route::get('/diagnosticosResultados/list', [DiagnosticosResultadosController::class, 'list']);
+                Route::get('/convocatorias/list', [ConvocatoriaController::class, 'list']);
+                Route::get('/programas/list', [ProgramaController::class, 'list']);
+
+                Route::get('/users/list', [UserController::class, 'list']);
+                Route::get('/menu/list', [MenuController::class, 'list']);
+                Route::get('/crons/list', [CronController::class, 'list']);
+                Route::get('/cronLog/list', [CronLogController::class, 'list']);
+
+                Route::get('/diagnosticos/list', [DiagnosticosController::class, 'list']);
+                Route::get('/diagnosticosPreguntas/list/{id?}', [DiagnosticosPreguntasController::class, 'list']);
+                Route::get('/convocatoriasRequisitos/list', [InscripcionesRequisitosController::class, 'list']);
+                Route::get('/capsulas/list', [CapsulasController::class, 'list']);
+                Route::get('/banners/list', [BannerController::class, 'list']);
+                Route::get('/historias/list', [HistoriaController::class, 'list']);
+                Route::get('/links/list', [LinkController::class, 'list']);
+                Route::get('/settings/list', [SettingController::class, 'list']);
+                Route::get('/intervenciones/list', [IntervencionesController::class, 'list']);
+                Route::get('/secciones', [SeccionesController::class, 'index']);
+            });
+
+        Route::get('/users/export', [UserController::class, 'export']);
+        Route::get('/menu/export', [MenuController::class, 'export']);
+        Route::get('/inscripciones/export', [InscripcionesController::class, 'export']);
+        Route::get('/inscripciones/exportRespuestas', [InscripcionesController::class, 'exportRespuestas']);
+        Route::get('/crons/export', [CronController::class, 'export']);
+        Route::get('/cronLog/export', [CronLogController::class, 'export']);
+        Route::get('/diagnosticosResultados/export', [DiagnosticosResultadosController::class, 'export']);
+        Route::get('/diagnosticosResultados/exportRespuestas', [DiagnosticosResultadosController::class, 'exportRespuestas']);
+        Route::get('/unidadesProductivas/export', [UnidadProductivaController::class, 'export']);
+        Route::get('/programas/export', [ProgramaController::class, 'export']);
+        Route::get('/convocatorias/export', [ConvocatoriaController::class, 'export']);
+        Route::get('/diagnosticos/export', [DiagnosticosController::class, 'export']);
+        Route::get('/diagnosticosPreguntas/export', [DiagnosticosPreguntasController::class, 'export']);
+        Route::get('/convocatoriasRequisitos/export', [InscripcionesRequisitosController::class, 'export']);
+        Route::get('/capsulas/export', [CapsulasController::class, 'export']);
+        Route::get('/banners/export', [BannerController::class, 'export']);
+        Route::get('/empresarios/export', [EmpresariosController::class, 'export']);
+        Route::get('/historias/export', [HistoriaController::class, 'export']);
+        Route::get('/links/export', [LinkController::class, 'export']);
+        Route::get('/settings/export', [SettingController::class, 'export']);
+
+        Route::get('/intervenciones/export', [IntervencionesController::class, 'export']);
+        Route::post('/intervenciones/import', [IntervencionesController::class, 'import']);
+
+        Route::post('/intervenciones/informe/preview', [IntervencionesController::class, 'preview']);
+        Route::post('/intervenciones/informe/generar', [IntervencionesController::class, 'informe']);
+        Route::post('/intervenciones/informe', [IntervencionesController::class, 'saveInforme']);
+        Route::post('/intervenciones/informe/payload-ia', [IntervencionesController::class, 'getPayloadAnalisisIA']);
+        Route::resource('intervenciones', IntervencionesController::class);
+
+        Route::get('/reportes/list', [ReporteMensualController::class, 'index'])->name("reporteMensual");
+        Route::get('/reportes/reportesMensuales', [ReporteMensualController::class, 'reportesMensuales'])->name("reportesMensuales");
+        Route::get('/reportes/export', [ReporteMensualController::class, 'export']);
+        Route::get('/reportes/supervision/{id?}', [ReporteMensualController::class, 'ReporteMensualSupervision'])->name("reporteMensual.supervision");
+        Route::resource('reportes/supervision', ReporteMensualController::class);
+
+        Route::get('/unidadProductiva/search', [UnidadProductivaController::class, 'search'])->name("unidadProductiva.search");
+        Route::get('/lead/search', [LeadController::class, 'search'])->name("lead.search");
+        Route::get('/convocatorias/search', [ConvocatoriaController::class, 'search'])->name("convocatorias.search");
+
+        Route::resource('empresarios', EmpresariosController::class);
+        Route::post('/empresarios/{id}/send-password-reset', [EmpresariosController::class, 'sendPasswordResetEmail'])->name('empresarios.send-password-reset');
+        Route::resource('users', UserController::class);
+        Route::resource('menu', MenuController::class);
+        Route::resource('inscripciones', InscripcionesController::class);
+        Route::resource('crons', CronController::class);
+        Route::resource('cronLog', CronLogController::class);
+        Route::resource('diagnosticosResultados', DiagnosticosResultadosController::class);
+        Route::post('/unidadesProductivas/{id}/enviar-whatsapp', [UnidadProductivaController::class, 'enviarWhatsApp']);
+        Route::resource('unidadesProductivas', UnidadProductivaController::class);
+        Route::resource('programas', ProgramaController::class);
+        Route::resource('convocatorias', ConvocatoriaController::class);
+        Route::resource('diagnosticos', DiagnosticosController::class);
+        Route::resource('diagnosticosPreguntas', DiagnosticosPreguntasController::class);
+        Route::resource('convocatoriasRequisitos', InscripcionesRequisitosController::class);
+        Route::resource('capsulas', CapsulasController::class);
+        Route::resource('banners', BannerController::class);
+        Route::resource('historias', HistoriaController::class);
+        Route::resource('links', LinkController::class);
+        Route::resource('secciones', SeccionesController::class);
+        Route::resource('settings', SettingController::class);
+        Route::resource('emailTemplates', EmailTemplateController::class);
+        Route::resource('defaultEmailTemplates', DefaultEmailTemplateController::class);
+
+        Route::post('/inscripciones/updateRespuesta', [InscripcionesController::class, 'updateRespuesta']);
+        Route::post('/inscripciones/test-email', [InscripcionesController::class, 'testInscripcionEmail'])->name("inscripciones.test-email");
+
+        // Endpoint de verificación aislado para evitar colisión con resource
+        Route::get('/unidadesProductivas/check/matricula', [UnidadProductivaController::class, 'checkRegistrationNumber']);
+        Route::post('/unidadesProductivas/{id}/permitir-nuevo-diagnostico', [UnidadProductivaController::class, 'allowNewDiagnostic'])->name('unidadesProductivas.permitir-nuevo-diagnostico');
+        Route::get('/unidadesProductivas/{id}/{transformar}', [UnidadProductivaController::class, 'edit']);
+
+        Route::post('/emailTemplates/toggle-status/{id}', [EmailTemplateController::class, 'toggleStatus'])->name("emailTemplates.toggle-status");
+        Route::post('/emailTemplates/send-test', [EmailTemplateController::class, 'sendTestEmail'])->name("emailTemplates.send-test");
+
+        // WhatsApp: plantillas, categorías, prueba de envío y logs
+        Route::prefix('admin/whatsapp')->name('whatsapp.')->group(function () {
+            Route::resource('categories', WhatsappCategoryController::class)->names('categories');
+            Route::post('categories/{category}/toggle-status', [WhatsappCategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
+            Route::resource('templates', WhatsappTemplateController::class)->names('templates');
+            Route::get('test-send', [WhatsappTestSendController::class, 'index'])->name('test-send.index');
+            Route::post('send-test', [WhatsappTestSendController::class, 'sendTest'])->name('send-test');
+            Route::get('templates-by-category', [WhatsappTestSendController::class, 'templatesByCategory'])->name('templates-by-category');
+            Route::get('logs', [WhatsappLogController::class, 'index'])->name('logs.index');
+            Route::get('logs/{log}', [WhatsappLogController::class, 'show'])->name('logs.show');
+        });
+    });
 
 Route::post('/leads/store', [LeadController::class, 'store'])->name('leads.store');
 

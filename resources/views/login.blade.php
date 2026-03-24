@@ -172,7 +172,7 @@
                     </div>
                 </div>
                 <!-- /Login -->
-                <img src="{{ asset('assets/img/illustrations/tree-3.png') }}" alt="auth-tree"
+                <img src="{{ asset('https://cdnsicam.net/img/logo-2026-activa-tu-crecimiento.png') }}" alt="auth-tree"
                     class="authentication-image-object-left d-none d-lg-block">
                 <img src="{{ asset('img/img-fondo-sierra-m-min.png') }}"
                     class="authentication-image d-none d-lg-block" height="100%" alt="triangle-bg" style="height: auto;" >
