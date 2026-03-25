@@ -16,6 +16,18 @@ use App\Models\TablasReferencias\TiposIntervenciones;
 class UnidadProductivaIntervenciones extends Model {
     use SoftDeletes, UserTrait;
 
+    // Constantes de Categorías
+    const CATEGORIA_GESTION_PROGRAMAS = 1;
+    const CATEGORIA_GESTION_CAMPANA = 2;
+    const CATEGORIA_SOCIALIZACION = 3;
+    const CATEGORIA_VINCULACION = 4;
+
+    // Constantes de Tipos
+    const TIPO_GESTION_INSCRIPCIONES = 1;
+    const TIPO_WHATSAPP = 2;
+    const TIPO_LLAMADA = 3;
+    const TIPO_CORREO = 4;
+
     protected $table = 'unidadesproductivas_intervenciones';
     protected $primaryKey = 'id';
 
@@ -79,6 +91,37 @@ class UnidadProductivaIntervenciones extends Model {
         return $this->belongsTo(Lead::class, 'lead_id', 'id');
     }
 
+    /**
+     * Registra una intervención y la vincula a una unidad productiva en un solo paso.
+     */
+    public static function registrarParaUnidad($unidadId, array $datos)
+    {
+        return \DB::transaction(function () use ($unidadId, $datos) {
+            $now = now();
+            
+            $intervencion = self::create([
+                'asesor_id'     => $datos['asesor_id'] ?? \Auth::id(),
+                'categoria_id'  => $datos['categoria_id'] ?? self::CATEGORIA_GESTION_PROGRAMAS,
+                'tipo_id'       => $datos['tipo_id'] ?? self::TIPO_WHATSAPP,
+                'descripcion'   => $datos['descripcion'],
+                'fecha_inicio'  => $datos['fecha_inicio'] ?? $now,
+                'fecha_fin'     => $datos['fecha_fin'] ?? $now,
+                'modalidad'     => $datos['modalidad'] ?? 'Virtual',
+                'cant_unidades' => 1,
+                'participantes' => $datos['participantes'] ?? 1,
+            ]);
+
+            \App\Models\Intervenciones\IntervencionUnidad::create([
+                'intervencion_id'     => $intervencion->id,
+                'unidadproductiva_id' => $unidadId,
+                'participantes'       => $datos['participantes'] ?? 1,
+            ]);
+
+            return $intervencion;
+        });
+    }
+
+    
     public static $modalidades = [
         'Presencial' => 'Presencial',
         'Virtual' => 'Virtual',

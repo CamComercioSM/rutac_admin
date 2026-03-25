@@ -483,13 +483,8 @@
                     orderable: true
                 },
                 {
-                    data: 'clasificacion',
-                    title: 'Clasificación',
-                    orderable: true
-                },
-                {
                     data: 'unidad',
-                    title: 'Unidad productiva',
+                    title: 'Intervenidos',
                     orderable: true
                 },
                 {
@@ -511,6 +506,7 @@
                     }
                 },
             ],
+
             initEditors: [{
                     id: 'descripcion'
                 },
@@ -521,6 +517,7 @@
                     id: 'conclusionesI'
                 }
             ],
+
             initSelects: [{
                     id: 'unidadAdd',
                     setting: {
@@ -558,6 +555,7 @@
                     id: 'asesor'
                 },
             ],
+
             initFiltros: @json($filtros)
         };
 

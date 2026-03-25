@@ -30,57 +30,51 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
 
-class UnidadProductivaController extends Controller
-{
-    function list()
-    { 
+class UnidadProductivaController extends Controller {
+    function list() {
         $data = [
-            'etapas'=> Etapa::get(),
-            'sectores'=> Sector::get(),
-            'tamanos'=> UnidadProductivaTamano::get(),
-            'tipoPersona'=> UnidadProductivaPersona::get(),
-            'unidades'=> [],
-            'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0
+            'etapas' => Etapa::get(),
+            'sectores' => Sector::get(),
+            'tamanos' => UnidadProductivaTamano::get(),
+            'tipoPersona' => UnidadProductivaPersona::get(),
+            'unidades' => [],
+            'esAsesor' => Auth::user()->rol_id == Role::ASESOR ?  1 : 0
         ];
-        
+
         return View("unidadesProductivas.index", $data);
     }
 
-    function edit($id, $transformar = null)
-    { 
+    function edit($id, $transformar = null) {
         $data = [
-            'cargos'=> SICAM32::listadoViculosCargos(),
-            'SectorSecciones'=> SectorSecciones::with('actividades')->get(),
-            'sectores'=> Sector::get(),
-            'tamanos'=> UnidadProductivaTamano::get(),
-            'tipoPersona'=> UnidadProductivaPersona::get(),
-            'tipoUnidad'=> UnidadProductivaTipo::get(),
-            'departamentos'=> Departamento::get(),
-            'municipios'=> Municipio::get(),
-            "elemento"=> UnidadProductiva::find($id),
-            "api"=> "/unidadesProductivas" . ($transformar != null ? "/$id" : ''),
-            "accion"=> $transformar != null ? "Transformar" : 'Editar'
+            'cargos' => SICAM32::listadoViculosCargos(),
+            'SectorSecciones' => SectorSecciones::with('actividades')->get(),
+            'sectores' => Sector::get(),
+            'tamanos' => UnidadProductivaTamano::get(),
+            'tipoPersona' => UnidadProductivaPersona::get(),
+            'tipoUnidad' => UnidadProductivaTipo::get(),
+            'departamentos' => Departamento::get(),
+            'municipios' => Municipio::get(),
+            "elemento" => UnidadProductiva::find($id),
+            "api" => "/unidadesProductivas" . ($transformar != null ? "/$id" : ''),
+            "accion" => $transformar != null ? "Transformar" : 'Editar'
         ];
-        
+
         return View("unidadesProductivas.edit", $data);
     }
 
-    function export(Request $request)
-    { 
+    function export(Request $request) {
         $query = $this->getQuery($request);
         return Excel::download(new UnidadProductivaExport($query), 'unidadesProductivas.xlsx');
     }
 
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
         $query = $this->getQuery($request);
         $data = $this->paginate($query, $request);
 
-        return response()->json( $data );
+        return response()->json($data);
     }
 
-    public function show($id)
-    {
+    public function show($id) {
         // Si es una petición AJAX, devolver JSON
         if (request()->wantsJson() || request()->ajax()) {
             $unidadProductiva = UnidadProductiva::findOrFail($id);
@@ -106,11 +100,11 @@ class UnidadProductivaController extends Controller
         ])->findOrFail($id);
 
         $diagnostico = $unidadProductiva->diagnosticos->last();
-        
+
         // Inicializar arrays vacíos por defecto
         $dimensiones = [];
         $resultados = [];
-        
+
         // Solo procesar resultados si existe un diagnóstico
         if ($diagnostico && $diagnostico->resultado_id) {
             $rows = DB::table('resultados_diagnosticos')
@@ -119,7 +113,9 @@ class UnidadProductivaController extends Controller
 
             if ($rows->isNotEmpty()) {
                 $dimensiones = $rows->pluck('dimension')->values()->toArray();
-                $resultados = $rows->pluck('valor')->map(function($v){ return round((float)$v, 3); })->values()->toArray();
+                $resultados = $rows->pluck('valor')->map(function ($v) {
+                    return round((float)$v, 3);
+                })->values()->toArray();
             } else {
                 // Fallback: reconstruir desde respuestas si no hay resultados precomputados
                 $reconstruidos = DB::table('diagnosticos_respuestas as dr')
@@ -134,17 +130,21 @@ class UnidadProductivaController extends Controller
                     ])->get();
 
                 $dimensiones = $reconstruidos->pluck('dimension')->values()->toArray();
-                $resultados = $reconstruidos->pluck('valor')->map(function($v){ return round((float)$v, 3); })->values()->toArray();
+                $resultados = $reconstruidos->pluck('valor')->map(function ($v) {
+                    return round((float)$v, 3);
+                })->values()->toArray();
             }
         }
-                
-        return view('unidadesProductivas.detail',
-         [
-            'detalle' => $unidadProductiva,
-            'dimensions'=> $dimensiones,
-            'results'=> $resultados,
-            'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0
-         ]);
+
+        return view(
+            'unidadesProductivas.detail',
+            [
+                'detalle' => $unidadProductiva,
+                'dimensions' => $dimensiones,
+                'results' => $resultados,
+                'esAsesor' => Auth::user()->rol_id == Role::ASESOR ?  1 : 0
+            ]
+        );
     }
 
     /**
@@ -152,8 +152,7 @@ class UnidadProductivaController extends Controller
      * Solo pone complete_diagnostic = 0; la nueva fila en diagnosticos_resultados
      * se crea cuando el usuario complete el diagnóstico en el portal.
      */
-    public function allowNewDiagnostic($id)
-    {
+    public function allowNewDiagnostic($id) {
         $unidad = UnidadProductiva::findOrFail($id);
         $unidad->complete_diagnostic = 0;
         $unidad->save();
@@ -169,16 +168,14 @@ class UnidadProductivaController extends Controller
             ->with('success', 'Se permitió un nuevo diagnóstico para esta unidad. Los diagnósticos anteriores se mantienen.');
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $entity = UnidadProductiva::findOrFail($request->unidadproductiva_id);
-        $entity->update( $request->all() );
+        $entity->update($request->all());
 
-        return response()->json([ 'message' => 'Stored' ], 201);
+        return response()->json(['message' => 'Stored'], 201);
     }
 
-    public function update($id, Request $request)
-    {
+    public function update($id, Request $request) {
         $current = UnidadProductiva::findOrFail($id);
 
         // Validación: número de matrícula único al transformar (creación de nueva unidad)
@@ -217,11 +214,10 @@ class UnidadProductivaController extends Controller
         $current->transformada_en = $entity->unidadproductiva_id;
         $current->save();
 
-        return response()->json([ 'message' => 'Stored' ], 201);
+        return response()->json(['message' => 'Stored'], 201);
     }
 
-    private function getQuery(Request $request)
-    {
+    private function getQuery(Request $request) {
         $search = $request->get('search');
         $tipopersona = $request->get('tipopersona');
         $sector = $request->get('sector');
@@ -231,20 +227,20 @@ class UnidadProductivaController extends Controller
         $fecha_fin = $request->get('fecha_fin');
 
         $query = UnidadProductiva::select([
-                'unidadesproductivas.unidadproductiva_id AS id',
-                'unidadesproductivas.fecha_creacion',
-                'unidadesproductivas.tipo_registro_rutac',
-                'unidadesproductivas.business_name',
-                'unidadesproductivas.nit',
-                'unidadesproductivas.name_legal_representative',
-                'unidadesproductivas.registration_email',
-                'tp.tipoPersonaNOMBRE as tipo_persona',
-                'st.sectorNOMBRE as sector',
-                'tm.tamanoNOMBRE as tamano',
-                'dp.departamentonombre as departamento',
-                'mp.municipionombreoficial as municipio',
-                'etapas.name as etapa',
-            ])
+            'unidadesproductivas.unidadproductiva_id AS id',
+            'unidadesproductivas.fecha_creacion',
+            'unidadesproductivas.tipo_registro_rutac',
+            'unidadesproductivas.business_name',
+            'unidadesproductivas.nit',
+            'unidadesproductivas.name_legal_representative',
+            'unidadesproductivas.registration_email',
+            'tp.tipoPersonaNOMBRE as tipo_persona',
+            'st.sectorNOMBRE as sector',
+            'tm.tamanoNOMBRE as tamano',
+            'dp.departamentonombre as departamento',
+            'mp.municipionombreoficial as municipio',
+            'etapas.name as etapa',
+        ])
             ->leftJoin('etapas', 'unidadesproductivas.etapa_id', '=', 'etapas.etapa_id')
             ->leftJoin('unidadesproductivas_personas as tp', 'unidadesproductivas.tipopersona_id', '=', 'tp.tipopersona_id')
             ->leftJoin('ciiu_macrosectores as st', 'unidadesproductivas.sector_id', '=', 'st.sector_id')
@@ -252,8 +248,7 @@ class UnidadProductivaController extends Controller
             ->leftJoin('departamentos as dp', 'unidadesproductivas.department_id', '=', 'dp.departamento_id')
             ->leftJoin('municipios as mp', 'unidadesproductivas.municipality_id', '=', 'mp.municipio_id');
 
-        if(!empty($search))
-        {
+        if (!empty($search)) {
             $filterts = ['unidadesproductivas.nit', 'unidadesproductivas.business_name', 'unidadesproductivas.name_legal_representative'];
             $query->where(function ($q) use ($search, $filterts) {
                 foreach ($filterts as $field) {
@@ -262,19 +257,19 @@ class UnidadProductivaController extends Controller
             });
         }
 
-        if(!empty($tipopersona)){
+        if (!empty($tipopersona)) {
             $query->where('tp.tipopersona_id', $tipopersona);
         }
 
-        if(!empty($sector)){
+        if (!empty($sector)) {
             $query->where('st.sector_id', $sector);
         }
 
-        if(!empty($tamano)){
+        if (!empty($tamano)) {
             $query->where('tm.tamano_id', $tamano);
         }
 
-        if(!empty($etapa)){
+        if (!empty($etapa)) {
             $query->where('etapas.etapa_id', $etapa);
         }
 
@@ -289,8 +284,7 @@ class UnidadProductivaController extends Controller
         return $query;
     }
 
-    function search(Request $request)
-    { 
+    function search(Request $request) {
         $busqueda = $request->term;
 
         $items = UnidadProductiva::where('nit', 'like', "%{$busqueda}%")
@@ -304,8 +298,7 @@ class UnidadProductivaController extends Controller
         return response()->json(['results' => $items]);
     }
 
-    public function checkRegistrationNumber(Request $request)
-    {
+    public function checkRegistrationNumber(Request $request) {
         $registrationNumber = trim((string) $request->get('registration_number'));
         $ignoreId = $request->get('ignore_id');
 
@@ -321,8 +314,7 @@ class UnidadProductivaController extends Controller
         return response()->json(['exists' => $query->exists()]);
     }
 
-    public function enviarWhatsApp($id, Request $request)
-    {
+    public function enviarWhatsApp($id, Request $request) {
         $request->validate([
             'telefono' => 'required|string',
             'phone_type' => 'nullable|string|in:mobile,telephone,contact_phone',
@@ -490,17 +482,11 @@ class UnidadProductivaController extends Controller
 
         if ($resultado['success']) {
             // Registrar como intervención (categoría 1, tipo 4)
-            $now = now();
-            UnidadProductivaIntervenciones::create([
-                'asesor_id' => Auth::id(),
-                'unidadproductiva_id' => $unidadProductiva->unidadproductiva_id,
-                'categoria_id' => 1,
-                'tipo_id' => 4,
-                'descripcion' => 'Mensaje enviado vía WhatsApp: ' . $request->mensaje,
-                'fecha_inicio' => $now,
-                'fecha_fin' => $now,
-                'modalidad' => 'Virtual',
-                'participantes' => 1,
+            // Registro usando constantes para mayor claridad
+            UnidadProductivaIntervenciones::registrarParaUnidad($unidadProductiva->unidadproductiva_id, [
+                'categoria_id' => UnidadProductivaIntervenciones::CATEGORIA_GESTION_PROGRAMAS,
+                'tipo_id'      => UnidadProductivaIntervenciones::TIPO_WHATSAPP,
+                'descripcion'  => 'Mensaje enviado vía WhatsApp: ' . $request->mensaje,
             ]);
 
             Log::info('WhatsApp enviado', [
@@ -527,5 +513,4 @@ class UnidadProductivaController extends Controller
             ], 400);
         }
     }
-
 }
