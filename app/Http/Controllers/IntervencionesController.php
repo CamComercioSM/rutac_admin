@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\TablasReferencias\CategoriasIntervenciones;
 use App\Models\TablasReferencias\TiposIntervenciones;
+use App\Services\IntervencionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -29,8 +30,10 @@ use Illuminate\Support\Facades\Storage;
 use PDF;
 use League\CommonMark\CommonMarkConverter;
 
-class IntervencionesController extends Controller {
-    function list(Request $request) {
+class IntervencionesController extends Controller
+{
+    function list(Request $request)
+    {
         $data = [
             'programas' => Programa::get(),
             'convocatorias' => ProgramaConvocatoria::get(),
@@ -57,7 +60,8 @@ class IntervencionesController extends Controller {
         return View("intervenciones.index", $data);
     }
 
-    public function preview(Request $request) {
+    public function preview(Request $request)
+    {
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date',
@@ -83,7 +87,8 @@ class IntervencionesController extends Controller {
     }
 
 
-    public function informe(Request $request) {
+    public function informe(Request $request)
+    {
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date',
@@ -104,7 +109,8 @@ class IntervencionesController extends Controller {
         return $pdf->stream('informe_intervenciones.pdf');
     }
 
-    public function saveInforme(Request $request) {
+    public function saveInforme(Request $request)
+    {
         $request->validate([
             'mes'  => 'required|integer',
             'anio' => 'required|integer',
@@ -178,7 +184,8 @@ class IntervencionesController extends Controller {
      * Endpoint que devuelve el payload para la API de análisis IA.
      * Útil para que el frontend pueda obtener los datos estructurados.
      */
-    public function getPayloadAnalisisIA(Request $request) {
+    public function getPayloadAnalisisIA(Request $request)
+    {
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date',
@@ -193,7 +200,8 @@ class IntervencionesController extends Controller {
         ]);
     }
 
-    private function getInformeData(Request $request) {
+    private function getInformeData(Request $request)
+    {
         $fi = $request->input('fecha_inicio') ?? $request->get('fecha_inicio');
         $ff = $request->input('fecha_fin') ?? $request->get('fecha_fin');
 
@@ -269,7 +277,8 @@ class IntervencionesController extends Controller {
      * Construye el payload para la API analizarIntervencionesIA.
      * Estructura: conclusiones (texto) y estadisticas (resto de campos).
      */
-    public static function buildPayloadInformeIntervenciones(Request $request, array $data): array {
+    public static function buildPayloadInformeIntervenciones(Request $request, array $data): array
+    {
         $fi = $request->input('fecha_inicio') ?? $request->get('fecha_inicio');
         $ff = $request->input('fecha_fin') ?? $request->get('fecha_fin');
 
@@ -313,7 +322,8 @@ class IntervencionesController extends Controller {
     /**
      * Llama a la API analizarIntervencionesIA con el payload del informe y devuelve el MENSAJE para el reporte.
      */
-    private function llamarApiAnalizarIntervencionesIA(Request $request, array $data): ?string {
+    private function llamarApiAnalizarIntervencionesIA(Request $request, array $data): ?string
+    {
         $url = config('services.analizar_intervenciones_ia.api_url');
         if (empty($url)) {
             return null;
@@ -355,7 +365,8 @@ class IntervencionesController extends Controller {
     /**
      * Convierte texto Markdown a HTML para renderizar correctamente negritas, listas, etc.
      */
-    private function markdownToHtml(string $markdown): string {
+    private function markdownToHtml(string $markdown): string
+    {
         try {
             $converter = new CommonMarkConverter([
                 'html_input' => 'strip',
@@ -372,7 +383,8 @@ class IntervencionesController extends Controller {
     /**
      * Fallback básico para convertir Markdown simple si CommonMark falla.
      */
-    private function markdownToHtmlFallback(string $markdown): string {
+    private function markdownToHtmlFallback(string $markdown): string
+    {
         // Convertir **texto** a <strong>texto</strong>
         $html = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $markdown);
         // Convertir *texto* a <em>texto</em>
@@ -382,111 +394,54 @@ class IntervencionesController extends Controller {
         return $html;
     }
 
-    function export(Request $request) {
+    function export(Request $request)
+    {
         $query = $this->getQuery($request);
         return Excel::download(new IntervencionesExport($query), 'Intervenciones.xlsx');
     }
 
-    public function import(Request $request) {
+    public function import(Request $request)
+    {
         Excel::import(new UnidadProductivaIntervencionesImport, $request->file('archivo'));
 
         return back()->with('ok', 'Datos cargados correctamente.');
     }
 
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         $query = $this->getQuery($request);
         $data = $this->paginate($query, $request);
 
         return response()->json($data);
     }
 
-    public function store(Request $request) {
+
+    public function store(Request $request, IntervencionService $service)
+    {
         try {
-            DB::beginTransaction();
+            $data = $request->only(['programa_id', 'convocatoria_id', 'fase_id', 'categoria_id', 'tipo_id', 'fecha_inicio', 'fecha_fin', 'modalidad', 'descripcion', 'conclusiones']);
+            $data['asesor_id'] = Auth::id();
 
-            $data = $request->all();
-            $data['asesor_id'] = Auth::id(); //
-
-            // Manejo de archivo de soporte único
             if ($request->hasFile('formFile')) {
                 $path = $request->file('formFile')->store('intervenciones', 'public');
                 $data['soporte'] = config('app.archivos_url') . $path;
             }
 
-            // 1. CREAR EL REGISTRO PADRE (LA ACTIVIDAD)
-            $intervencionPadre = UnidadProductivaIntervenciones::create([
-                'asesor_id'       => $data['asesor_id'],
-                'programa_id'     => $data['programa_id'] ?? null,
-                'convocatoria_id' => $data['convocatoria_id'] ?? null,
-                'fase_id'         => $data['fase_id'] ?? null,
-                'categoria_id'    => $data['categoria_id'],
-                'tipo_id'         => $data['tipo_id'],
-                'fecha_inicio'    => $data['fecha_inicio'],
-                'fecha_fin'       => $data['fecha_fin'],
-                'modalidad'       => $data['modalidad'] ?? null,
-                'descripcion'     => $data['descripcion'] ?? null,
-                'conclusiones'    => $data['conclusiones'] ?? null,
-                'soporte'         => $data['soporte'] ?? null,
-                'participantes'   => 0, // Se calculará dinámicamente
-            ]);
+            $unidades = is_string($request->unidades) ? json_decode($request->unidades, true) : ($request->unidades ?? []);
+            $leads = is_string($request->otrosParticipantes) ? json_decode($request->otrosParticipantes, true) : ($request->otrosParticipantes ?? []);
 
-            // Decodificación de participantes desde Tagify/Frontend
-            $unidades = is_string($request->unidades) ? json_decode($request->unidades, true) : $request->unidades;
-            $otrosParticipantes = is_string($request->otrosParticipantes) ? json_decode($request->otrosParticipantes, true) : $request->otrosParticipantes;
+            $intervencion = $service->storeIntervencion($data, $unidades, $leads);
 
-            // Inicializar contadores
-            $totalCantUnidades = 0;
-            $totalCantLeads = 0;
-            $totalGeneralAsistentes = 0;
-
-            // 2. PROCESAR UNIDADES PRODUCTIVAS
-            if (!empty($unidades) && is_array($unidades)) {
-                foreach ($unidades as $item) {
-                    $cantU = (int) preg_replace('/[^0-9]/', '', $item['participantes'] ?? 0);
-
-                    IntervencionUnidad::create([
-                        'intervencion_id'     => $intervencionPadre->id,
-                        'unidadproductiva_id' => $item['value'],
-                        'participantes'       => $cantU,
-                    ]);
-                    $totalCantUnidades++; // Contador de entidades UP
-                    $totalGeneralAsistentes += $cantU;
-                }
-            }
-
-            // 3. PROCESAR LEADS (AHORA CON CONTEO INDIVIDUAL)
-            if (!empty($otrosParticipantes) && is_array($otrosParticipantes)) {
-                foreach ($otrosParticipantes as $l) {
-                    // Extraer participantes del lead (ej. desde un input en el tag de Tagify)
-                    $cantL = (int) preg_replace('/[^0-9]/', '', $l['participantes'] ?? 1);
-
-                    IntervencionLead::create([
-                        'intervencion_id' => $intervencionPadre->id,
-                        'lead_id'         => $l['value'],
-                        'participantes'   => $cantL, // Asegúrate de tener este campo en la tabla 'intervencion_leads'
-                    ]);
-
-                    $totalCantLeads++; // Contador de entidades Lead
-                    $totalGeneralAsistentes += $cantL;
-                }
-            }
-
-            // 4. ACTUALIZACIÓN FINAL DEL TOTAL EN EL PADRE
-            $intervencionPadre->update([
-                'cant_unidades' => $totalCantUnidades,    // Cuántas UPs hubo
-                'cant_leads'    => $totalCantLeads,       // Cuántos Leads hubo
-                'participantes' => $totalGeneralAsistentes
-            ]);
-
-            DB::commit();
-            return response()->json(['message' => 'Actividad guardada con un total de ' . $totalGeneralAsistentes . ' asistentes.'], 201);
+            return response()->json(['message' => "Guardado con {$intervencion->participantes} asistentes."], 201);
         } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Error al guardar: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 
-    private function getQuery(Request $request) {
+
+
+    private function getQuery(Request $request)
+    {
         $search = $request->get('search');
 
         $query = UnidadProductivaIntervenciones::query()
@@ -604,7 +559,8 @@ class IntervencionesController extends Controller {
     }
 
 
-    private function applyFilter($query, Request $request, $param, $column) {
+    private function applyFilter($query, Request $request, $param, $column)
+    {
         $value = $request->get($param);
 
         if (!is_null($value) && $value !== '') {
@@ -614,7 +570,8 @@ class IntervencionesController extends Controller {
 
     // Eliminar una intervención y sus relaciones (unidades y leads asociados)
 
-    public function destroy($id) {
+    public function destroy($id)
+    {
         try {
             DB::beginTransaction();
 
