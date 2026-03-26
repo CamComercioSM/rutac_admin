@@ -481,8 +481,7 @@ class UnidadProductivaController extends Controller {
         ]);
 
         if ($resultado['success']) {
-            // Registrar como intervención (categoría 1, tipo 4)
-            // Registro usando constantes para mayor claridad
+            // Registrar como intervención 
             UnidadProductivaIntervenciones::registrarParaUnidad($unidadProductiva->unidadproductiva_id, [
                 'categoria_id' => UnidadProductivaIntervenciones::CATEGORIA_GESTION_PROGRAMAS,
                 'tipo_id'      => UnidadProductivaIntervenciones::TIPO_WHATSAPP,
