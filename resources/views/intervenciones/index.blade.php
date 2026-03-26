@@ -297,6 +297,42 @@
     @vite(['resources/assets/vendor/libs/quill/katex.js', 'resources/assets/vendor/libs/quill/quill.js', 'resources/assets/js/form-wizard-validation.js', 'resources/js/reporteMensual/intervenciones.js'])
 
     <script>
+        // --- 3. VALIDACIÓN GLOBAL DE PASOS ---
+        window.obtenerCamposFaltantes = function() {
+            let faltantes = [];
+
+            // Paso 1: Datos Básicos
+            if (!document.getElementById('programa_id').value) faltantes.push("Programa (Paso 1)");
+            if (!document.getElementById('fase_id')?.value && !document.getElementById('fase_programa_id')
+                ?.value) faltantes.push("Fase (Paso 1)");
+            if (!document.getElementById('categoria_id').value) faltantes.push(
+                "Actividad/Categoría (Paso 1)");
+            if (!fInicio.value) faltantes.push("Fecha Inicio (Paso 1)");
+            if (!fFin.value) faltantes.push("Fecha Fin (Paso 1)");
+
+            // Paso 2: Avances (Validar Quill editor si existe)
+            // Asumiendo que el contenido de Quill se sincroniza a un input o div
+            const conclusionesHTML = document.querySelector('#conclusiones .ql-editor')?.innerHTML || "";
+            if (conclusionesHTML === "<p><br></p>" || conclusionesHTML === "") {
+                faltantes.push("Conclusiones/Resultados (Paso 2)");
+            }
+
+            // Paso 3: Unidades o Leads (OBLIGATORIO al menos uno)
+            const totalUnidades = document.querySelectorAll('#table_opciones tr').length;
+            const totalLeads = document.querySelectorAll('#table_otros_participantes tr').length;
+            if (totalUnidades === 0 && totalLeads === 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Sin participantes',
+                    text: 'No has agregado ninguna unidad productiva ni participante. Puedes continuar, pero se recomienda agregar al menos uno.',
+                    confirmButtonText: 'Entendido'
+                });
+            }
+            return faltantes;
+        };
+
+
+
         document.addEventListener('DOMContentLoaded', function() {
 
 
@@ -332,33 +368,6 @@
 
             fInicio.addEventListener('change', validarFechas);
             fFin.addEventListener('change', validarFechas);
-
-            // --- 3. VALIDACIÓN GLOBAL DE PASOS ---
-            window.obtenerCamposFaltantes = function() {
-                let faltantes = [];
-
-                // Paso 1: Datos Básicos
-                if (!document.getElementById('programa_id').value) faltantes.push("Programa (Paso 1)");
-                if (!document.getElementById('fase_id')?.value && !document.getElementById('fase_programa_id')
-                    ?.value) faltantes.push("Fase (Paso 1)");
-                if (!document.getElementById('categoria_id').value) faltantes.push(
-                    "Actividad/Categoría (Paso 1)");
-                if (!fInicio.value) faltantes.push("Fecha Inicio (Paso 1)");
-                if (!fFin.value) faltantes.push("Fecha Fin (Paso 1)");
-
-                // Paso 2: Avances (Validar Quill editor si existe)
-                // Asumiendo que el contenido de Quill se sincroniza a un input o div
-                const conclusionesHTML = document.querySelector('#conclusiones .ql-editor')?.innerHTML || "";
-                if (conclusionesHTML === "<p><br></p>" || conclusionesHTML === "") {
-                    faltantes.push("Conclusiones/Resultados (Paso 2)");
-                }
-
-                // Paso 3: Unidades (Validar si hay items agregados - basado en la lógica de Tagify/Listado)
-                // Si usas un input oculto para las unidades, valídalo aquí.
-
-                return faltantes;
-            };
-
 
 
             const stepperEl = document.querySelector('.bs-stepper');
