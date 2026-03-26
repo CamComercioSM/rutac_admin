@@ -34,7 +34,6 @@ $(document).ready(function () {
         params.page = Math.floor(data.start / data.length) + 1;
         params.pageSize = data.length;
 
-        console.log(data.order);
         // Orden
         if (data.order && data.order.length > 0 && data.order[0].column !== undefined) {
 

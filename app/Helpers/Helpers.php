@@ -2,8 +2,12 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
+use League\CommonMark\CommonMarkConverter;
+
+use function Illuminate\Log\log;
 
 class Helpers
 {
@@ -299,13 +303,51 @@ class Helpers
     $contrastColor = ($yiq >= 150) ? '#000' : '#fff';
 
     return <<<CSS
-:root, [data-bs-theme=light], [data-bs-theme=dark] {
-  --bs-primary: {$color};
-  --bs-primary-rgb: {$r}, {$g}, {$b};
-  --bs-primary-bg-subtle: rgba({$r}, {$g}, {$b}, 0.1);
-  --bs-primary-border-subtle: rgba({$r}, {$g}, {$b}, 0.3);
-  --bs-primary-contrast: {$contrastColor};
-}
-CSS;
+        :root, [data-bs-theme=light], [data-bs-theme=dark] {
+          --bs-primary: {$color};
+          --bs-primary-rgb: {$r}, {$g}, {$b};
+          --bs-primary-bg-subtle: rgba({$r}, {$g}, {$b}, 0.1);
+          --bs-primary-border-subtle: rgba({$r}, {$g}, {$b}, 0.3);
+          --bs-primary-contrast: {$contrastColor};
+        }
+    CSS;
   }
+
+  /**
+   * Convierte texto Markdown a HTML para renderizar correctamente negritas, listas, etc.
+   */
+  public function markdownToHtml(string $markdown): string
+  {
+    try {
+      $converter = new CommonMarkConverter([
+        'html_input' => 'strip',
+        'allow_unsafe_links' => false,
+      ]);
+      return $converter->convert($markdown)->getContent();
+    } catch (\Throwable $e) {
+      log::warning('Error al convertir Markdown a HTML', ['message' => $e->getMessage()]);
+      // Fallback: convertir solo negritas básicas si falla CommonMark
+      return $this->markdownToHtmlFallback($markdown);
+    }
+  }
+
+  /**
+   * Fallback básico para convertir Markdown simple si CommonMark falla.
+   */
+  public function markdownToHtmlFallback(string $markdown): string
+  {
+    // Convertir **texto** a <strong>texto</strong>
+    $html = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $markdown);
+    // Convertir *texto* a <em>texto</em>
+    $html = preg_replace('/\*(.+?)\*/', '<em>$1</em>', $html);
+    // Convertir saltos de línea a <br>
+    $html = nl2br($html);
+    return $html;
+  }
+
+
+  
+
+
+  //////
 }

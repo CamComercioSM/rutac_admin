@@ -81,7 +81,7 @@
                 <div class="bs-stepper-header gap-lg-2">
                     @include('intervenciones.partials.stepper-header')
                 </div>
-                <div class="bs-stepper-content">                    
+                <div class="bs-stepper-content">
 
                     {{-- BOTONES DE NAVEGACIÓN PROPIOS (Siguiente/Anterior) --}}
                     <div class="d-flex justify-content-between mb-4 pb-3 border-bottom">
@@ -298,6 +298,69 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+
+            const fInicio = document.getElementById('fecha_inicio');
+            const fFin = document.getElementById('fecha_fin');
+
+            // --- 1. SETEAR FECHAS POR DEFECTO ---
+            const ahora = new Date();
+            const offset = ahora.getTimezoneOffset() * 60000;
+
+            // Fecha Inicio (Actual)
+            const localInicio = new Date(ahora - offset).toISOString().slice(0, 16);
+            fInicio.value = localInicio;
+
+            // Fecha Fin (+30 minutos)
+            const treintaMinutosDespues = new Date(ahora.getTime() + 30 * 60000);
+            const localFin = new Date(treintaMinutosDespues - offset).toISOString().slice(0, 16);
+            fFin.value = localFin;
+
+            // --- 2. VALIDACIÓN DE FECHA FIN > INICIO ---
+            const validarFechas = () => {
+                if (fInicio.value && fFin.value) {
+                    if (new Date(fFin.value) <= new Date(fInicio.value)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Rango de tiempo inválido',
+                            text: 'La fecha de fin debe ser posterior a la de inicio.'
+                        });
+                        fFin.value = ''; // Limpiar campo inválido
+                    }
+                }
+            };
+
+            fInicio.addEventListener('change', validarFechas);
+            fFin.addEventListener('change', validarFechas);
+
+            // --- 3. VALIDACIÓN GLOBAL DE PASOS ---
+            window.obtenerCamposFaltantes = function() {
+                let faltantes = [];
+
+                // Paso 1: Datos Básicos
+                if (!document.getElementById('programa_id').value) faltantes.push("Programa (Paso 1)");
+                if (!document.getElementById('fase_id')?.value && !document.getElementById('fase_programa_id')
+                    ?.value) faltantes.push("Fase (Paso 1)");
+                if (!document.getElementById('categoria_id').value) faltantes.push(
+                    "Actividad/Categoría (Paso 1)");
+                if (!fInicio.value) faltantes.push("Fecha Inicio (Paso 1)");
+                if (!fFin.value) faltantes.push("Fecha Fin (Paso 1)");
+
+                // Paso 2: Avances (Validar Quill editor si existe)
+                // Asumiendo que el contenido de Quill se sincroniza a un input o div
+                const conclusionesHTML = document.querySelector('#conclusiones .ql-editor')?.innerHTML || "";
+                if (conclusionesHTML === "<p><br></p>" || conclusionesHTML === "") {
+                    faltantes.push("Conclusiones/Resultados (Paso 2)");
+                }
+
+                // Paso 3: Unidades (Validar si hay items agregados - basado en la lógica de Tagify/Listado)
+                // Si usas un input oculto para las unidades, valídalo aquí.
+
+                return faltantes;
+            };
+
+
+
             const stepperEl = document.querySelector('.bs-stepper');
             const btnNext = document.getElementById('wizard-next-btn');
             const btnPrev = document.querySelector('.btn-prev');
@@ -332,6 +395,19 @@
                 const totalSteps = 3; // El índice del último paso (paso 4)
 
                 if (index === totalSteps) {
+                    const faltantes = obtenerCamposFaltantes();
+                    if (faltantes.length > 0) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Atención: Datos incompletos',
+                            html: `<p>Aún faltan datos importantes en pasos anteriores:</p>
+                           <ul class="text-start">
+                             ${faltantes.map(f => `<li>${f}</li>`).join('')}
+                           </ul>
+                           <p>Recuerda completarlos antes de Guardar en Firme.</p>`,
+                            confirmButtonText: 'Entendido'
+                        });
+                    }
                     // ESTAMOS AL FINAL: Mostrar botones de guardado, ocultar "Siguiente"
                     btnCancelarLayout.classList.remove('d-none');
                     btnGuardarFirme.classList.remove('d-none');
@@ -361,14 +437,32 @@
             const form = document.getElementById('form');
 
             if (tipo === 'firme') {
+                const faltantes = obtenerCamposFaltantes();
+
+                if (faltantes.length > 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No se puede guardar',
+                        html: `<p>Para guardar en firme, debes completar:</p>
+                       <ul class="text-start">
+                         ${faltantes.map(f => `<li>${f}</li>`).join('')}
+                       </ul>`,
+                        confirmButtonText: 'Ir a completar'
+                    });
+                    return; // Bloquear envío
+                }
+
                 Swal.fire({
                     title: '¿Guardar en Firme?',
-                    text: "No podrás editar la intervención después.",
+                    text: "No podrás editar la intervención después de esta acción.",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Sí, finalizar'
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, finalizar',
+                    cancelButtonText: 'Revisar'
                 }).then((result) => {
-                    if (result.isConfirmed) form.requestSubmit();
+                    if (result.isConfirmed) form.submit(); // O form.requestSubmit() según tu entorno
                 });
             } else {
                 form.requestSubmit();
