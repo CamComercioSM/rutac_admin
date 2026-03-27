@@ -36,9 +36,8 @@ $configData = Helper::appClasses();
          data-app-dark-img="illustrations/misc-mask-dark.png" />
 
     <div class="d-flex flex-column align-items-center">
-      <img src="{{ asset('assets/img/illustrations/misc-under-maintenance.png') }}"
-           class="img-fluid z-1"
-           width="780" />
+      <img src="{{ asset('https://cdnsicam.net/ia/marIAc/trabajando.png') }}"
+           class="img-fluid z-1" style="height: 50vh;" />
 
       <div>
         <a href="{{ url('/') }}" class="btn btn-primary text-center my-12">
