@@ -849,6 +849,9 @@
             }
 
             $('#btnImport').on('click', function() {
+                
+                return Helpers.notificarEnConstruccion();        
+                
                 let modal = new bootstrap.Modal(document.getElementById('importModal'));
                 modal.show();
             });
@@ -862,6 +865,9 @@
             });
 
             $('#btnInforme').on('click', function() {
+
+                return Helpers.notificarEnConstruccion();                
+
                 sincronizarFechasModal();
 
                 // Otros filtros
