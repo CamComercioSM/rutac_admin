@@ -46,12 +46,14 @@ class UnidadProductivaIntervenciones extends Model {
         'modalidad',
 
         'cant_unidades', // Antes unidadproductiva_id
-        'cant_leads',    // Antes lead_id
         'participantes',
+        'cant_leads',    // Antes lead_id
+        'participantes_otros',
 
         'descripcion',
         'conclusiones',
         'soporte',
+        'estado',
     ];
 
     protected $casts = [

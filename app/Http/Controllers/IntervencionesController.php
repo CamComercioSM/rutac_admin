@@ -67,9 +67,22 @@ class IntervencionesController extends Controller
      */
     public function index(Request $request, IntervencionService $service)
     {
-        $query = $service->getListQuery($request->all(), Auth::user() ?? null );
-        $data = $query->paginate($request->get('perPage', 15));
-        return response()->json($data);
+        $filters = $request->all();
+
+        $query = $service->getListQuery($filters, auth()->user());
+
+        $total = $query->count();
+
+        $data = $query
+            ->skip(($filters['page'] - 1) * $filters['pageSize'])
+            ->take($filters['pageSize'])
+            ->get();
+
+        return response()->json([
+            'data' => $data,
+            'recordsTotal' => $total,
+            'recordsFiltered' => $total
+        ]);
     }
 
     /**
@@ -127,8 +140,44 @@ class IntervencionesController extends Controller
 
             $data['asesor_id'] = Auth::id();
 
-            // Archivo
+
+            $estadoInput = strtoupper($request->estado_guardado ?? 'BORRADOR');
+            $data['estado'] = match ($estadoInput) {
+                'FIRME' => 'REPORTADO',
+                default => 'BORRADOR'
+            };
+
+            // ELIMINAR Archivo
+            if ($request->eliminarSoporte == '1') {
+
+                // eliminar archivo físico si existe
+                if (!empty($request->soporteActual)) {
+
+                    $ruta = str_replace(config('app.archivos_url'), '', $request->soporteActual);
+                    $rutaFisica = storage_path('app/public/' . $ruta);
+
+                    if (file_exists($rutaFisica)) {
+                        unlink($rutaFisica); // ⚠️ cuidado permisos
+                    }
+                }
+
+                $data['soporte'] = null;
+            }
+
+            // 2. NUEVO ARCHIVO
             if ($request->hasFile('formFile')) {
+
+                // eliminar anterior si existe (reemplazo)
+                if (!empty($request->soporteActual)) {
+
+                    $ruta = str_replace(config('app.archivos_url'), '', $request->soporteActual);
+                    $rutaFisica = storage_path('app/public/' . $ruta);
+
+                    if (file_exists($rutaFisica)) {
+                        unlink($rutaFisica);
+                    }
+                }
+
                 $path = $request->file('formFile')->store('intervenciones', 'public');
                 $data['soporte'] = config('app.archivos_url') . $path;
             }
@@ -142,14 +191,24 @@ class IntervencionesController extends Controller
                 ? json_decode($request->otrosParticipantes, true)
                 : ($request->otrosParticipantes ?? []);
 
-            $intervencion = $service->storeIntervencion($data, $unidades, $leads);
+            if ($request->id) {
+                $intervencion = UnidadProductivaIntervenciones::findOrFail($request->id);
+                $intervencion->update($data);
+                $service->syncParticipantes($intervencion, $unidades, $leads);
+                DB::commit();
 
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => "Guardado con {$intervencion->participantes} asistentes."
-            ], 201);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Actualizado correctamente'
+                ]);
+            } else {
+                $intervencion = $service->storeIntervencion($data, $unidades, $leads);
+                DB::commit();
+                return response()->json([
+                    'success' => true,
+                    'message' => "Guardado con {$intervencion->participantes} asistentes."
+                ], 201);
+            }
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -215,44 +274,6 @@ class IntervencionesController extends Controller
         return view('intervenciones.edit', $data);
     }
 
-    public function update(Request $request, $id, IntervencionService $service)
-    {
-        try {
-            DB::beginTransaction();
-
-            $intervencion = UnidadProductivaIntervenciones::findOrFail($id);
-
-            $data = $request->only(['programa_id', 'convocatoria_id', 'fase_id', 'categoria_id', 'tipo_id', 'fecha_inicio', 'fecha_fin', 'modalidad', 'descripcion', 'conclusiones']);
-
-            if ($request->hasFile('formFile')) {
-                $path = $request->file('formFile')->store('intervenciones', 'public');
-                $data['soporte'] = config('app.archivos_url') . $path;
-            }
-
-            // Delegamos la lógica compleja de actualizar participantes al servicio
-            // Actualizar datos base
-            $intervencion->update($data);
-
-            // Participantes
-            $unidades = is_string($request->unidades)
-                ? json_decode($request->unidades, true)
-                : ($request->unidades ?? []);
-
-            $leads = is_string($request->otrosParticipantes)
-                ? json_decode($request->otrosParticipantes, true)
-                : ($request->otrosParticipantes ?? []);
-
-            // actualizamos
-            $service->syncParticipantes($intervencion, $unidades, $leads);
-
-            DB::commit();
-            return response()->json(['message' => 'Actualizado correctamente']);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['message' => $e->getMessage()], 500);
-        }
-    }
-
 
 
     /**
@@ -266,7 +287,7 @@ class IntervencionesController extends Controller
         ]);
 
         // Obtenemos la data procesada desde el servicio
-        $data = $service->getInformeData($request->all());
+        $data = $service->getInformeData($request->all(), Auth::user());
 
         // Análisis de IA (Lógica externa o privada del controlador)
         $data['analisis_ia'] = $iaService->analizarInforme($request, $data);
@@ -297,7 +318,7 @@ class IntervencionesController extends Controller
             'fecha_fin'    => 'required|date',
         ]);
 
-        $data = $service->getInformeData($request->all());
+        $data = $service->getInformeData($request->all(), Auth::user());
         $data['analisis_ia'] = null; // Opcional en el PDF según tu lógica
 
         // Asegurar que la carpeta de almacenamiento existe
@@ -308,7 +329,7 @@ class IntervencionesController extends Controller
 
         $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
 
-        return $pdf->stream('informe_intervenciones.pdf');
+        return $pdf->stream('informe_intervenciones_'.uniqid().'.pdf');
     }
 
     /**

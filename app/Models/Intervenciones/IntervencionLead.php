@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Traits\UserTrait;
 
-class IntervencionLead extends Model {
+class IntervencionLead extends Model
+{
     use SoftDeletes, UserTrait;
 
     protected $table = 'intervencion_leads';
@@ -19,8 +20,14 @@ class IntervencionLead extends Model {
         'participantes',
     ];
 
-    public function intervencion() {
+    public function intervencion()
+    {
         return $this->belongsTo(UnidadProductivaIntervenciones::class, 'intervencion_id', 'id');
+    }
+
+    public function lead()
+    {
+        return $this->belongsTo(\App\Models\Lead::class, 'lead_id', 'id');
     }
 
     const CREATED_AT = 'fecha_creacion';

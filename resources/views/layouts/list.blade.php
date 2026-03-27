@@ -79,7 +79,7 @@
 
                 @yield('form-fields')
 
-                <div class="text-center my-4">
+                <div id="form-botones" class="text-center my-4">
                     <button type="button" class="btn btn-secondary cancelar btn-cancelar">
                         <i class="icon-base ri ri-arrow-go-back-line me-2"></i> Cancelar
                     </button>

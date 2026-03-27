@@ -1,6 +1,57 @@
+<!-- ===================== SOPORTE ===================== -->
 <div class="col-12 col-md-12 form-group mb-3" id="contFormFile">
-    <label for="formFile" class="form-label">Soporte</label>
+
+    <label class="form-label">Soporte</label>
+
+    <!-- SOPORTE EXISTENTE -->
+    <div id="soporteActualContainer" class="mb-2 d-none">
+        <div class="alert alert-info">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+                <!-- INFO -->
+                <div class="w-100">
+                    <i class="ri-attachment-line"></i>
+                    <strong>Soporte cargado:</strong>
+
+                    <!-- 🔥 RUTA VISIBLE -->
+                    <div class="mt-1">
+                        <small id="textoRutaSoporte" class="text-break"></small>
+                    </div>
+                </div>
+
+                <!-- ACCIONES -->
+                <div class="d-flex gap-2">
+
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="copiarRutaSoporte()">
+                        <i class="ri-file-copy-line"></i> Copiar
+                    </button>
+
+                    <a href="#" target="_blank" id="linkSoporteActual" class="btn btn-sm btn-primary">
+                        <i class="ri-eye-line"></i> Ver
+                    </a>
+
+                    <button type="button" class="btn btn-sm btn-danger" onclick="eliminarSoporteActual()">
+                        <i class="ri-delete-bin-line"></i> Quitar
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- INPUT FILE -->
     <input class="form-control" type="file" id="formFile" name="formFile">
+
+    <!-- INPUT OCULTO -->
+    <input type="hidden" id="soporteActual" name="soporteActual">
+
+    <small class="text-muted">
+        Si no cargas un nuevo archivo, se mantendrá el actual.
+    </small>
+
 </div>
 <!-- Media -->
 

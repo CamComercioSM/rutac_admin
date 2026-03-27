@@ -31,7 +31,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <label class="form-label"># Participantes</label>
-                        <input class="form-control" type="number" id="participantes">
+                        <input class="form-control" type="number" id="participantes"  value="1" min="1" step="1">
                     </div>
 
                     <div class="col-md-6 d-flex align-items-end">
@@ -82,7 +82,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <label class="form-label"># Participantes</label>
-                        <input class="form-control" type="number" id="participantes_otros">
+                        <input class="form-control" type="number" id="participantes_otros" value="1" min="1" step="1" >
                     </div>
 
                     <div class="col-md-6 d-flex align-items-end">

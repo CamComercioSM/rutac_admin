@@ -28,7 +28,11 @@ class IntervencionUnidad extends Model
 
     public function unidadProductiva()
     {
-        return $this->belongsTo(UnidadProductiva::class, 'unidadproductiva_id', 'unidadproductiva_id');
+        return $this->belongsTo(
+            \App\Models\Empresarios\UnidadProductiva::class,
+            'unidadproductiva_id',
+            'unidadproductiva_id'
+        );
     }
 
     const CREATED_AT = 'fecha_creacion';

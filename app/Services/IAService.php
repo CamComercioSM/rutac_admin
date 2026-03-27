@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use League\CommonMark\CommonMarkConverter;
+use Illuminate\Support\Collection;
 
 class IAService
 {
@@ -140,42 +141,44 @@ class IAService
         ];
     }
 
-    /**
-     * ==============================
-     * MAPPERS (OPTIMIZADOS)
-     * ==============================
-     */
-
-    private function mapCategorias(array $items): array
+    private function mapCategorias($items): array
     {
-        return array_map(fn($c) => [
-            'categoria' => $c->categoria->nombre ?? 'Sin categoría',
-            'cantidad'  => (int) $c->total,
-        ], $items);
+        return collect($items)->map(function ($c) {
+            return [
+                'categoria' => $c->categoria->nombre ?? 'Sin categoría',
+                'cantidad'  => (int) $c->total,
+            ];
+        })->values()->toArray();
     }
 
-    private function mapTipos(array $items): array
+    private function mapTipos($items): array
     {
-        return array_map(fn($t) => [
-            'tipo'     => $t->tipo->nombre ?? 'Sin tipo',
-            'cantidad' => (int) $t->total,
-        ], $items);
+        return collect($items)->map(function ($t) {
+            return [
+                'tipo'     => $t->tipo->nombre ?? 'Sin tipo',
+                'cantidad' => (int) $t->total,
+            ];
+        })->values()->toArray();
     }
 
-    private function mapUnidades(array $items): array
+    private function mapUnidades($items): array
     {
-        return array_map(fn($u) => [
-            'unidad_productiva' => $u->unidadProductiva?->business_name ?? 'Sin unidad productiva',
-            'cantidad'          => (int) $u->total,
-        ], $items);
+        return collect($items)->map(function ($u) {
+            return [
+                'unidad_productiva' => $u->unidadProductiva?->business_name ?? 'Sin unidad productiva',
+                'cantidad'          => (int) $u->total,
+            ];
+        })->values()->toArray();
     }
 
-    private function mapCategoriasSimple(array $items): array
+    private function mapCategoriasSimple($items): array
     {
-        return array_map(fn($c) => [
-            'nombre' => $c->categoria->nombre ?? 'N/A',
-            'total'  => (int) $c->total,
-        ], $items);
+        return collect($items)->map(function ($c) {
+            return [
+                'nombre' => $c->categoria->nombre ?? 'N/A',
+                'total'  => (int) $c->total,
+            ];
+        })->values()->toArray();
     }
 
     /**

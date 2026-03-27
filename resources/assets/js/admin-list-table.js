@@ -7,11 +7,15 @@ if (!window.axios) {
     window.axios = axios;
 }
 
+
+var itemSelect = null;
+var tabla = null;
+
 $(document).ready(function () {
 
+    window.itemSelect = itemSelect;
+
     const dropdown = $('#MenurowTable');
-    let itemSelect = null;
-    let tabla = null;
 
     const fullToolbar = [
         [{ size: [] }],
@@ -346,7 +350,7 @@ $(document).ready(function () {
 
     window.openEditar = function () {
         dropdown.hide();
-        CrearRegistro(itemSelect);
+        return CrearRegistro(itemSelect);
     };
 
     window.CrearRegistro = function (data = null) {
@@ -384,8 +388,8 @@ $(document).ready(function () {
         }
 
         $("#accionModal").text((data.id ? 'Editar' : 'Crear'));
-
         AbrirModal();
+        return data;
     }
 
     $('#Modal .cancelar').on('click', function () { CerrarModal(); });
@@ -409,7 +413,7 @@ $(document).ready(function () {
 
     window.menuTabla = function (row, $element) {
         if (TABLA.menu_row) {
-            itemSelect = row;
+            window.itemSelect =  itemSelect = row;
             let menu = TABLA.menu_row.replace(/ROWID/g, row.id);
             const rect = $element[0].getBoundingClientRect();
 

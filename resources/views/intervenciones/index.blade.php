@@ -117,13 +117,15 @@
             </div>
         </div>
     </div>
+    <input type="hidden" name="soporteActual" id="soporteActual">
+    <input type="hidden" name="eliminarSoporte" id="eliminarSoporte" value="0">
 @endsection
 
 @section('btns-actions')
     <button id="btnImport" class="btn btn-success me-3">
         <i class="icon-base ri ri-file-excel-2-line me-2"></i> Importar
     </button>
-    <button id="btnInforme" class="btn btn-info me-3">
+    <button id="btnInforme" class="btn btn-primary me-3">
         <i class="icon-base ri ri-file-pdf-2-line me-2"></i> Informe
     </button>
 @endsection
@@ -164,16 +166,17 @@
         </div>
     </div>
 
+    {{-- ========================= MODAL INFORME AJUSTADO ========================= --}}
     <div class="modal fade" id="informeModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg"> {{-- tamaño más adecuado Materio --}}
             <div class="modal-content">
                 <form id="formPreviewInforme" action="{{ url('/intervenciones/informe/preview') }}" method="POST"
                     target="_blank">
                     @csrf
-                    <input type="hidden" name="fecha_inicio" id="preview_fecha_inicio" value="">
-                    <input type="hidden" name="fecha_fin" id="preview_fecha_fin" value="">
-                    <input type="hidden" name="asesor" id="preview_asesor" value="">
-                    <input type="hidden" name="unidad" id="preview_unidad" value="">
+
+                    {{-- Campos ocultos que se envían --}}
+                    <input type="hidden" name="asesor" id="preview_asesor">
+                    <input type="hidden" name="unidad" id="preview_unidad">
 
                     <div class="modal-header">
                         <h5 class="modal-title">Informe Intervenciones</h5>
@@ -181,19 +184,43 @@
                     </div>
 
                     <div class="modal-body">
-                        <div class="col-12 mb-3">
-                            <label class="form-label" for="conclusionesI">Conclusiones</label>
-                            {{-- <textarea class="form-control" name="conclusiones" id="conclusionesI" rows="6" placeholder="Ingrese las conclusiones"></textarea> --}}
 
-                            <div id="conclusionesI"></div>
-                            <input type="hidden" name="conclusiones" id="conclusionesI_input">
+                        <div class="row g-3">
+
+                            {{-- FECHA INICIO --}}
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha Inicio</label>
+                                <input type="date" class="form-control" id="fecha_inicio_informe" name="fecha_inicio"
+                                    required>
+                            </div>
+
+                            {{-- FECHA FIN --}}
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha Fin</label>
+                                <input type="date" class="form-control" id="fecha_fin_informe" name="fecha_fin"
+                                    required>
+                            </div>
+
+                            {{-- CONCLUSIONES --}}
+                            <div class="col-12">
+                                <label class="form-label">Conclusiones</label>
+                                <div id="conclusionesI"></div>
+                                <input type="hidden" name="conclusiones" id="conclusionesI_input">
+                            </div>
+
                         </div>
+
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success" id="btnExportInforme">Generar</button>
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="btnExportInforme">
+                            Generar Informe
+                        </button>
                     </div>
+
                 </form>
             </div>
         </div>
@@ -215,8 +242,6 @@
             </div>
         </div>
     </div>
-
-
 
     <div class="modal fade" id="modalNuevoParticipante" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -297,233 +322,7 @@
     @vite(['resources/assets/vendor/libs/quill/katex.js', 'resources/assets/vendor/libs/quill/quill.js', 'resources/assets/js/form-wizard-validation.js', 'resources/js/reporteMensual/intervenciones.js'])
 
     <script>
-        // --- 3. VALIDACIÓN GLOBAL DE PASOS ---
-        window.obtenerCamposFaltantes = function() {
-            let faltantes = [];
-
-            // Paso 1: Datos Básicos
-            if (!document.getElementById('programa_id').value) faltantes.push("Programa (Paso 1)");
-            if (!document.getElementById('fase_id')?.value && !document.getElementById('fase_programa_id')
-                ?.value) faltantes.push("Fase (Paso 1)");
-            if (!document.getElementById('categoria_id').value) faltantes.push(
-                "Actividad/Categoría (Paso 1)");
-            if (!fInicio.value) faltantes.push("Fecha Inicio (Paso 1)");
-            if (!fFin.value) faltantes.push("Fecha Fin (Paso 1)");
-
-            // Paso 2: Avances (Validar Quill editor si existe)
-            // Asumiendo que el contenido de Quill se sincroniza a un input o div
-            const conclusionesHTML = document.querySelector('#conclusiones .ql-editor')?.innerHTML || "";
-            if (conclusionesHTML === "<p><br></p>" || conclusionesHTML === "") {
-                faltantes.push("Conclusiones/Resultados (Paso 2)");
-            }
-
-            // Paso 3: Unidades o Leads (OBLIGATORIO al menos uno)
-            const totalUnidades = document.querySelectorAll('#table_opciones tr').length;
-            const totalLeads = document.querySelectorAll('#table_otros_participantes tr').length;
-            if (totalUnidades === 0 && totalLeads === 0) {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Sin participantes',
-                    text: 'No has agregado ninguna unidad productiva ni participante. Puedes continuar, pero se recomienda agregar al menos uno.',
-                    confirmButtonText: 'Entendido'
-                });
-            }
-            return faltantes;
-        };
-
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-
-
-            const fInicio = document.getElementById('fecha_inicio');
-            const fFin = document.getElementById('fecha_fin');
-
-            // --- 1. SETEAR FECHAS POR DEFECTO ---
-            const ahora = new Date();
-            const offset = ahora.getTimezoneOffset() * 60000;
-
-            // Fecha Inicio (Actual)
-            const localInicio = new Date(ahora - offset).toISOString().slice(0, 16);
-            fInicio.value = localInicio;
-
-            // Fecha Fin (+30 minutos)
-            const treintaMinutosDespues = new Date(ahora.getTime() + 30 * 60000);
-            const localFin = new Date(treintaMinutosDespues - offset).toISOString().slice(0, 16);
-            fFin.value = localFin;
-
-            // --- 2. VALIDACIÓN DE FECHA FIN > INICIO ---
-            const validarFechas = () => {
-                if (fInicio.value && fFin.value) {
-                    if (new Date(fFin.value) <= new Date(fInicio.value)) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Rango de tiempo inválido',
-                            text: 'La fecha de fin debe ser posterior a la de inicio.'
-                        });
-                        fFin.value = ''; // Limpiar campo inválido
-                    }
-                }
-            };
-
-            fInicio.addEventListener('change', validarFechas);
-            fFin.addEventListener('change', validarFechas);
-
-
-            const stepperEl = document.querySelector('.bs-stepper');
-            const btnNext = document.getElementById('wizard-next-btn');
-            const btnPrev = document.querySelector('.btn-prev');
-
-            // Referencias a los botones GLOBALES del layout
-            const btnGuardarFirme = document.querySelector('#Modal button[type="submit"]'); // El verde del layout
-            const btnResetLimpiar = document.querySelector('#Modal button[type="reset"]'); // El verde del layout
-            const btnCancelarLayout = document.querySelector('#form .btn-cancelar');
-            const footerModal = btnGuardarFirme.parentNode; // El div text-center my-4
-
-            // 1. Inicializar el botón de "Borrador" dinámicamente al lado del de Guardar
-            const btnBorrador = document.createElement('button');
-            btnBorrador.type = 'button';
-            btnBorrador.className = 'btn btn-info me-2 d-none'; // Oculto al inicio
-            btnBorrador.innerHTML = '<i class="ri-save-line me-2"></i> Guardar Borrador';
-            btnBorrador.onclick = () => submitForm('borrador');
-            footerModal.insertBefore(btnBorrador, btnGuardarFirme);
-
-            // 2. Ajustar el botón de Guardar Firme original
-            btnGuardarFirme.classList.add('d-none'); // Lo ocultamos al inicio
-            btnGuardarFirme.innerHTML = '<i class="ri-check-double-line me-2"></i> Guardar en Firme';
-            btnResetLimpiar.classList.add('d-none'); // Lo ocultamos al inicio
-            btnCancelarLayout.classList.add('d-none'); // Lo ocultamos al inicio
-
-            const stepper = new Stepper(stepperEl, {
-                linear: false
-            });
-
-            // Escuchar el cambio de paso
-            stepperEl.addEventListener('show.bs-stepper', function(event) {
-                const index = event.detail.indexStep; // 0, 1, 2, 3
-                const totalSteps = 3; // El índice del último paso (paso 4)
-
-                if (index === totalSteps) {
-                    const faltantes = obtenerCamposFaltantes();
-                    if (faltantes.length > 0) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Atención: Datos incompletos',
-                            html: `<p>Aún faltan datos importantes en pasos anteriores:</p>
-                           <ul class="text-start">
-                             ${faltantes.map(f => `<li>${f}</li>`).join('')}
-                           </ul>
-                           <p>Recuerda completarlos antes de Guardar en Firme.</p>`,
-                            confirmButtonText: 'Entendido'
-                        });
-                    }
-                    // ESTAMOS AL FINAL: Mostrar botones de guardado, ocultar "Siguiente"
-                    btnCancelarLayout.classList.remove('d-none');
-                    btnGuardarFirme.classList.remove('d-none');
-                    btnBorrador.classList.remove('d-none');
-                    // BLOQUEAR botón Siguiente
-                    btnNext.disabled = true;
-                } else {
-                    // NO ES EL FINAL: Ocultar botones de guardado, mostrar "Siguiente"
-                    btnCancelarLayout.classList.add('d-none');
-                    btnGuardarFirme.classList.add('d-none');
-                    btnBorrador.classList.add('d-none');
-                    // ACTIVAR botón Siguiente
-                    btnNext.disabled = false;
-                }
-
-                // Control de botón "Anterior"
-                btnPrev.disabled = (index === 0);
-            });
-
-            // Eventos de los botones de navegación
-            btnNext.addEventListener('click', () => stepper.next());
-            btnPrev.addEventListener('click', () => stepper.previous());
-        });
-
-        function submitForm(tipo) {
-            document.getElementById('estado_guardado').value = tipo;
-            const form = document.getElementById('form');
-
-            if (tipo === 'firme') {
-                const faltantes = obtenerCamposFaltantes();
-
-                if (faltantes.length > 0) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'No se puede guardar',
-                        html: `<p>Para guardar en firme, debes completar:</p>
-                       <ul class="text-start">
-                         ${faltantes.map(f => `<li>${f}</li>`).join('')}
-                       </ul>`,
-                        confirmButtonText: 'Ir a completar'
-                    });
-                    return; // Bloquear envío
-                }
-
-                Swal.fire({
-                    title: '¿Guardar en Firme?',
-                    text: "No podrás editar la intervención después de esta acción.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#28a745',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Sí, finalizar',
-                    cancelButtonText: 'Revisar'
-                }).then((result) => {
-                    if (result.isConfirmed) form.submit(); // O form.requestSubmit() según tu entorno
-                });
-            } else {
-                form.requestSubmit();
-            }
-        }
-    </script>
-
-    <script>
         const CONVOCATORIAS = @json($convocatorias);
-
-        // Función para limitar texto y agregar botón "ver más"
-        window.limitarTexto = function(texto, maxLength = 150, titulo = '') {
-            if (!texto) return '';
-
-            // Remover etiquetas HTML para contar caracteres
-            const textoLimpio = texto.replace(/<[^>]*>/g, '');
-
-            if (textoLimpio.length <= maxLength) {
-                return texto;
-            }
-
-            // Crear un elemento temporal para trabajar con el HTML
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = texto;
-
-            // Obtener solo el texto sin HTML
-            const textoPlano = tempDiv.textContent || tempDiv.innerText || '';
-
-            // Truncar el texto plano
-            const textoTruncado = textoPlano.substring(0, maxLength);
-
-            const idUnico = 'texto_' + Math.random().toString(36).substr(2, 9);
-
-            // Almacenar el texto completo y el título en un objeto global
-            if (!window.textosCompletos) {
-                window.textosCompletos = {};
-            }
-            window.textosCompletos[idUnico] = {
-                texto: texto,
-                titulo: titulo
-            };
-
-            return `${textoTruncado}... <a href="#" class="text-primary ver-mas-link" data-id="${idUnico}" style="cursor: pointer; text-decoration: underline;">ver más</a>`;
-        };
-
-        // Función para renderizar soporte como hipervínculo
-        window.renderSoporte = function(url) {
-            if (!url) return '';
-            // Escapar la URL para evitar problemas de seguridad
-            const urlEscapada = url.replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
-            return `<a href="${urlEscapada}" target="_blank" class="text-primary" style="text-decoration: underline;">Ver adjunto</a>`;
-        };
 
         window.TABLA = {
             urlApi: '/intervenciones',
@@ -532,11 +331,10 @@
             order: [
                 [0, 'desc']
             ],
-
             accion_editar: false,
             mensajeEliminar: '¿Estás seguro de que deseas eliminar esta intervención? Esta acción no se puede deshacer.',
             menu_row: `
-                <a class="dropdown-item" href="javascript:void(0);" onclick="Helpers.notificarEnConstruccion('La edición de registros');">
+                <a class="dropdown-item  btn-editar" href="javascript:void(0);" >
                     <i class="ri-pencil-line me-1"></i> Editar
                 </a>
                 <div class="dropdown-divider"></div>
@@ -550,6 +348,30 @@
                     title: 'Reportado',
                     orderable: true
                 },
+
+                {
+                    data: 'estado',
+                    title: 'Estado',
+                    orderable: true,
+                    render: function(data) {
+                        let color = 'secondary';
+                        let text = data || 'N/A';
+
+                        if (data === 'BORRADOR') {
+                            color = 'warning';
+                            text = 'Borrador';
+                        } else if (data === 'REPORTADO') {
+                            color = 'info';
+                            text = 'Reportado';
+                        } else if (data === 'VALIDADO') {
+                            color = 'success';
+                            text = 'Validado';
+                        }
+
+                        return `<span class="badge bg-${color}">${text}</span>`;
+                    }
+                },
+
                 {
                     data: 'fecha_inicio',
                     title: 'inicio',
@@ -591,7 +413,7 @@
                     orderable: true
                 },
                 {
-                    data: 'participantes',
+                    data: 'participantes_total',
                     title: 'Participantes',
                     orderable: true
                 },
@@ -662,353 +484,237 @@
             initFiltros: @json($filtros)
         };
 
-        window.openAdd = function() {
-            const id = $("#unidadAdd").val();
-            const text = $("#unidadAdd option:selected").text();
-            const participantes = $("#participantes").val();
+        // --- 3. VALIDACIÓN GLOBAL DE PASOS ---
+        window.obtenerCamposFaltantes = function() {
+            let faltantes = [];
+            const fInicio = document.getElementById('fecha_inicio');
+            const fFin = document.getElementById('fecha_fin');
 
-            if (!(id && text && participantes)) return;
+            // Paso 1: Datos Básicos
+            if (!document.getElementById('programa_id').value) faltantes.push("Programa (Paso 1)");
+            if (!document.getElementById('fase_id')?.value && !document.getElementById('fase_programa_id')
+                ?.value) faltantes.push("Fase (Paso 1)");
+            if (!document.getElementById('categoria_id').value) faltantes.push(
+                "Actividad/Categoría (Paso 1)");
+            if (!fInicio.value) faltantes.push("Fecha Inicio (Paso 1)");
+            if (!fFin.value) faltantes.push("Fecha Fin (Paso 1)");
 
-            let existe = $("#table_opciones tr[data-id='" + id + "']").length > 0;
-            if (existe) {
-                Swal.fire({
-                    title: "Elemento ya existe",
-                    icon: "info"
-                });
-                return;
+            // Paso 2: Avances (Validar Quill editor si existe)
+            // Asumiendo que el contenido de Quill se sincroniza a un input o div
+            const conclusionesHTML = document.querySelector('#conclusiones .ql-editor')?.innerHTML || "";
+            if (conclusionesHTML === "<p><br></p>" || conclusionesHTML === "") {
+                faltantes.push("Conclusiones/Resultados (Paso 2)");
             }
 
-            window.itemOption({
-                id: id,
-                text: text,
-                participantes: participantes
-            });
-            window.addUnidadToTagify({
-                id: id,
-                text: text,
-                participantes: participantes
-            });
-
-            $("#unidadAdd").val(null).trigger('change');
-        }
-        window.openAddOtroParticipante = function() {
-            const id = $("#otroParticipanteAdd").val();
-            const text = $("#otroParticipanteAdd option:selected").text();
-            const participantes = $("#participantes_otros").val();
-            if (!(id && text && participantes)) return;
-
-            let existe = $("#table_otros_participantes tr[data-id='" + id + "']").length > 0;
-            if (existe) {
-                Swal.fire({
-                    title: "Elemento ya existe",
-                    icon: "info"
-                });
-                return;
-            }
-
-            window.itemOtroParticipante({
-                id: id,
-                text: text,
-                participantes: participantes
-            });
-
-            window.addOtroParticipanteToTagify({
-                id: id,
-                text: text,
-                participantes: participantes
-            });
-
-            $("#otroParticipanteAdd").val(null).trigger('change');
-        }
-
-        window.itemOption = function(row = {}) {
-            const index = $("#table_opciones tr").length;
-
-            const item = `
-                <tr data-id="${row.id}" >
-                    <td> ${row.text} </td>        
-                    <td> ${row.participantes} </td>                    
-                    <td style="width: 80px;" >
-                        <input type="hidden" name="unidades[${index}][unidadproductiva_id]" value="${row.id}" />
-                        <input type="hidden" name="unidades[${index}][participantes]" value="${row.participantes}" />
-                        
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)" >
-                            <i class="icon-base ri ri-delete-bin-line"></i>
-                        </button>
-                    </td>
-                </tr>`;
-
-            $("#table_opciones").append(item);
-        }
-
-        window.addUnidadToTagify = function(row = {}) {
-            if (!window.tagifyUserList) return;
-
-            const yaExiste = window.tagifyUserList.value.some(tag => String(tag.value) === String(row.id));
-            if (yaExiste) return;
-
-            const tagData = {
-                value: row.id,
-                name: row.text,
-                participantes: `${row.participantes}`,
-                avatar: 'https://placehold.co/40x40?text=' + row.text
-            };
-
-            // agregar al whitelist para que también quede disponible en búsquedas
-            window.tagifyUserList.settings.whitelist.push(tagData);
-
-            // agregar como tag visible
-            window.tagifyUserList.addTags([tagData]);
-        }
-
-        window.itemOtroParticipante = function(row = {}) {
-            const index = $("#table_otros_participantes tr").length;
-            const item = `
-            <tr data-id="${row.id}">
-            <td>${row.text}</td>
-            <td>${row.participantes}</td>
-            <td style="width: 80px;">
-                <input type="hidden" name="otros_participantes[${index}][lead_id]" value="${row.id}" />
-                <input type="hidden" name="otros_participantes[${index}][participantes]" value="${row.participantes}" />
-
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeOtroParticipante(this)">
-                    <i class="icon-base ri ri-delete-bin-line"></i>
-                </button>
-            </td>
-            </tr>`;
-
-            $("#table_otros_participantes").append(item);
-        }
-
-        window.addOtroParticipanteToTagify = function(row = {}) {
-            if (!window.tagifyOtrosParticipantes) return;
-            const yaExiste = window.tagifyOtrosParticipantes.value.some(tag => String(tag.value) === String(row.id));
-            if (yaExiste) return;
-
-            const tagData = {
-                value: row.id,
-                name: row.text,
-                participantes: `${row.participantes}`,
-                avatar: 'https://placehold.co/40x40?text=' + row.text
-            };
-
-            // agregar al whitelist para que también quede disponible en búsquedas
-            window.tagifyOtrosParticipantes.settings.whitelist.push(tagData);
-
-            // agregar como tag visible
-            window.tagifyOtrosParticipantes.addTags([tagData]);
+            // Paso 3: Unidades o Leads (OBLIGATORIO al menos uno)
+            // const totalUnidades = document.querySelectorAll('#table_opciones tr').length;
+            // const totalLeads = document.querySelectorAll('#table_otros_participantes tr').length;
+            // if (totalUnidades === 0 && totalLeads === 0) {
+            //     Swal.fire({
+            //         icon: 'info',
+            //         title: 'Sin participantes',
+            //         text: 'No has agregado ninguna unidad productiva ni participante. Puedes continuar, pero se recomienda agregar al menos uno.',
+            //         confirmButtonText: 'Entendido'
+            //     });
+            // }
+            return faltantes;
         };
 
-        window.removeOption = function(btn) {
-            $(btn).closest("tr").remove();
-        }
-
-        window.removeOtroParticipante = function(btn) {
-            $(btn).closest("tr").remove();
-        }
-
-        window.validarExtraForm = function() {
-            // if ($("#table_opciones tr").length == 0) {
-            //     Swal.fire({
-            //         title: "Agregar por lo menos una unidad productiva",
-            //         icon: "info"
-            //     });
-            //     return false;
-            // }
-            return true;
-        }
 
         document.addEventListener('DOMContentLoaded', function() {
-            function cargarConvocatorias(programaId) {
-                let $convocatoria = $('#convocatoria_id');
 
-                $convocatoria.empty();
-
-                if (!programaId) {
-                    $convocatoria
-                        .append('<option value="" selected>Seleccione primero un programa</option>')
-                        .prop('disabled', true);
-                    return;
-                }
-
-                let filtradas = CONVOCATORIAS.filter(function(item) {
-                    return String(item.programa_id) === String(programaId);
-                });
-
-                if (filtradas.length === 0) {
-                    $convocatoria
-                        .append('<option value="" selected>No hay convocatorias para este programa</option>')
-                        .prop('disabled', true);
-                    return;
-                }
-
-                $convocatoria.append('<option value="" selected>Seleccione una opción</option>');
-
-                $.each(filtradas, function(index, item) {
-                    $convocatoria.append(
-                        `<option value="${item.convocatoria_id}">${item.nombre_convocatoria}</option>`
-                    );
-                });
-
-                $convocatoria.prop('disabled', false);
-            }
-
-            $('#programa_id').on('change', function() {
-                let programaId = $(this).val();
-                cargarConvocatorias(programaId);
-            });
-
-            if ($('#programa_id').val()) {
-                cargarConvocatorias($('#programa_id').val());
-            }
-
-            // $("#categoria_id").on("change", function() {
-            //     let categoria_id = $(this).val();
-            //     $("#cont_referencia").addClass('d-none');
-
-            //     if (categoria_id == 1) {
-            //         $("#cont_referencia label").text('Convocatoria (Seleccione una opción)');
-
-            //         $("#cont_referencia select").select2({
-            //             ajax: {
-            //                 url: '/convocatorias/search',
-            //                 delay: 300
-            //             },
-            //             minimumInputLength: 3,
-            //         });
-
-            //         $("#cont_referencia").removeClass('d-none');
-            //     }
-
-            // });
-
-            $('#btnImport').on('click', function() {
-                let modal = new bootstrap.Modal(document.getElementById('importModal'));
-                modal.show();
-            });
-
-            $('#btnInforme').on('click', function() {
-
-                if (!($("#fecha_inicio_filtros").val() && $("#fecha_fin_filtros").val())) {
-                    Swal.fire({
-                        title: "Seleccione un rango de fechas para el informe",
-                        icon: "info"
-                    });
-                    return;
-                }
-
-                let modal = new bootstrap.Modal(document.getElementById('informeModal'));
-                modal.show();
-            });
-            // Al enviar el formulario de previsualización, copiar filtros al formulario y abrir en ruta real del servidor
-            $('#formPreviewInforme').on('submit', function() {
-
-                const editor = window.TABLA.initEditors.find(item => item.id === 'conclusionesI');
-
-                if (editor && editor.quill) {
-                    let html = editor.quill.root.innerHTML;
-
-                    if (html === '<p><br></p>') {
-                        html = '';
+            const fInicio = document.getElementById('fecha_inicio');
+            const fFin = document.getElementById('fecha_fin');
+            // ---VALIDACIÓN DE FECHA FIN > INICIO ---
+            const validarFechas = () => {
+                if (fInicio.value && fFin.value) {
+                    if (new Date(fFin.value) <= new Date(fInicio.value)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Rango de tiempo inválido',
+                            text: 'La fecha de fin debe ser posterior a la de inicio.'
+                        });
+                        fFin.value = ''; // Limpiar campo inválido
                     }
-
-                    $('#conclusionesI_input').val(html);
-                    console.log('conclusiones a enviar:', html);
                 }
+            };
+            fInicio.addEventListener('change', validarFechas);
+            fFin.addEventListener('change', validarFechas);
 
-                var $filters = $('#filters');
-                $('#preview_fecha_inicio').val($filters.find('input[id="fecha_inicio_filtros"]').val() ||
-                    '');
-                $('#preview_fecha_fin').val($filters.find('input[id="fecha_fin_filtros"]').val() || '');
-                $('#preview_asesor').val($filters.find('select[name="asesor"]').val() || '');
-                $('#preview_unidad').val($filters.find('select[name="unidad"]').val() || '');
-                $('#informeModal').modal('hide');
+
+            const stepperEl = document.querySelector('.bs-stepper');
+            const btnNext = document.getElementById('wizard-next-btn');
+            const btnPrev = document.querySelector('.btn-prev');
+
+            // Referencias a los botones GLOBALES del layout
+            const btnResetLimpiar = document.querySelector('#Modal button[type="reset"]'); // El verde del layout
+            btnResetLimpiar.classList.add('d-none'); // Lo ocultamos al inicio
+            const btnCancelarLayout = document.querySelector('#form .btn-cancelar');
+            btnCancelarLayout.classList.add('d-none'); // Lo ocultamos al inicio            
+            const btnGuardarLayout = document.querySelector('#Modal button[type="submit"]'); // El verde del layout
+            btnGuardarLayout.classList.add('d-none'); // Lo ocultamos al inicio
+
+            // 1. Inicializar el botón de "Borrador" dinámicamente al lado del de Guardar
+            const btnBorrador = document.createElement('button');
+            btnBorrador.type = 'button';
+            btnBorrador.className = 'btn btn-info me-2 d-none'; // Oculto al inicio
+            btnBorrador.innerHTML = '<i class="ri-save-line me-2"></i> Guardar Borrador';
+            btnBorrador.onclick = () => submitForm('BORRADOR');
+
+            // 2. Ajustar el botón de Guardar Firme original
+            const btnGuardarFirme = document.createElement('button');
+            btnGuardarFirme.type = 'button';
+            btnGuardarFirme.className = 'btn btn-success me-2  d-none'; // Oculto al inicio
+            btnGuardarFirme.innerHTML = '<i class="ri-check-double-line me-2"></i> Guardar en Firme';
+            btnGuardarFirme.onclick = () => submitForm('FIRME');
+
+            const footerModal = document.querySelector('#Modal #form-botones');; // El div text-center my-4
+            footerModal.appendChild(btnGuardarFirme);
+            footerModal.insertBefore(btnBorrador, btnGuardarFirme);
+
+            const stepper = new Stepper(stepperEl, {
+                linear: false
             });
 
+            // Escuchar el cambio de paso
+            stepperEl.addEventListener('show.bs-stepper', function(event) {
+                const index = event.detail.indexStep; // 0, 1, 2, 3
+                const totalSteps = 3; // El índice del último paso (paso 4)
 
-
-
-            $('#formImport').on('submit', function(e) {
-                e.preventDefault();
-
-                $(".cargando").removeClass("d-none");
-                let formData = new FormData(this);
-
-                $("#btnUpload").prop("disabled", true).text("Importando...");
-
-                $.ajax({
-                    url: "/intervenciones/import",
-                    type: "POST",
-                    data: formData,
-                    processData: false, // Necesario para FormData
-                    contentType: false, // Necesario para FormData
-                    success: function(response) {
-
-                        if (response.ok) {
-                            // Éxito
-                            alert("Importación completada: " + response.importados +
-                                " registros");
-                            $("#importModal").modal("hide");
-                        } else {
-                            // Errores de validación del import
-                            mostrarErrores(response.errores);
-                        }
-
-                        $("#btnUpload").prop("disabled", false).text("Importar");
-                        $(".cargando").addClass("d-none");
-                    },
-                    error: function(xhr) {
-                        mostrarErrores(["Error interno, verifique el archivo"]);
-                        $("#btnUpload").prop("disabled", false).text("Importar");
-                        $(".cargando").addClass("d-none");
+                if (index === totalSteps) {
+                    const faltantes = obtenerCamposFaltantes();
+                    if (faltantes.length > 0) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Atención: Datos incompletos',
+                            html: `<p>Aún faltan datos importantes en pasos anteriores:</p>
+                                    <ul class="text-start">
+                                        ${faltantes.map(f => `<li>${f}</li>`).join('')}
+                                    </ul>
+                                   <p>Recuerda completarlos antes de Guardar en Firme.</p>`,
+                            confirmButtonText: 'Entendido'
+                        });
                     }
-                });
-            });
-
-            function mostrarErrores(errores) {
-                let div = $("#importErrors");
-                div.removeClass("d-none").empty();
-
-                errores.forEach(err => {
-                    div.append("<div>• " + err + "</div>");
-                });
-            }
-
-            // Manejar clics en "ver más" para abrir modal
-            $(document).on('click', '.ver-mas-link', function(e) {
-                e.preventDefault();
-                const id = $(this).data('id');
-
-                // Obtener el texto completo y el título del objeto global
-                const datos = window.textosCompletos && window.textosCompletos[id] ? window.textosCompletos[
-                    id] : null;
-
-                if (datos) {
-                    // Establecer el título del modal
-                    $('#textoCompletoModalTitle').text(datos.titulo || 'Texto completo');
-
-                    // Establecer el contenido del modal
-                    $('#textoCompletoModalContent').html(datos.texto || '');
-
-                    // Mostrar el modal
-                    const modal = new bootstrap.Modal(document.getElementById('textoCompletoModal'));
-                    modal.show();
-                }
-            });
-            $(document).on('change', '#switchBorrador', function() {
-
-                if ($(this).is(':checked')) {
-                    $('#switchLabel').text('Crear');
+                    // ESTAMOS AL FINAL: Mostrar botones de guardado, ocultar "Siguiente"
+                    btnCancelarLayout.classList.remove('d-none');
+                    btnGuardarFirme.classList.remove('d-none');
+                    btnBorrador.classList.remove('d-none');
+                    // BLOQUEAR botón Siguiente
+                    btnNext.disabled = true;
                 } else {
-                    $('#switchLabel').text('Borrador');
+                    // NO ES EL FINAL: Ocultar botones de guardado, mostrar "Siguiente"
+                    btnCancelarLayout.classList.add('d-none');
+                    btnGuardarFirme.classList.add('d-none');
+                    btnBorrador.classList.add('d-none');
+                    // ACTIVAR botón Siguiente
+                    btnNext.disabled = false;
                 }
 
+                // Control de botón "Anterior"
+                btnPrev.disabled = (index === 0);
             });
 
+            // Eventos de los botones de navegación
+            btnNext.addEventListener('click', () => stepper.next());
+            btnPrev.addEventListener('click', () => stepper.previous());
         });
-    </script>
 
-    <script>
+
+        function submitForm(tipo) {
+            document.getElementById('estado_guardado').value = tipo;
+            const form = document.getElementById('form');
+
+            if (tipo === 'FIRME') {
+                const faltantes = obtenerCamposFaltantes();
+
+                if (faltantes.length > 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No se puede guardar',
+                        html: `<p>Para guardar en FIRME, debes completar:</p>
+                       <ul class="text-start">
+                         ${faltantes.map(f => `<li>${f}</li>`).join('')}
+                       </ul>`,
+                        confirmButtonText: 'Ir a completar'
+                    });
+                    return; // Bloquear envío
+                }
+
+                Swal.fire({
+                    title: '¿Guardar en FIRME?',
+                    text: "No podrás editar la intervención después de esta acción.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, finalizar',
+                    cancelButtonText: 'Revisar'
+                }).then((result) => {
+                    if (result.isConfirmed)
+                        form.requestSubmit();
+                });
+            } else {
+                form.requestSubmit();
+            }
+        }
+
+        function cargarEditar(id) {
+
+            Helpers.bloquearPantalla();
+
+            $.get(`/intervenciones/${id}`, function(res) {
+
+                // 🔹 limpiar
+                window.tagifyUserList?.removeAllTags();
+                window.tagifyOtrosParticipantes?.removeAllTags();
+
+                $("#table_opciones").empty(); // 🔥 limpiar tabla
+                $("#table_otros_participantes").empty(); // 🔥 limpiar tabla
+
+                // =========================
+                // 🔹 UNIDADES (USANDO TU FLUJO REAL)
+                // =========================
+                if (res.unidades) {
+                    res.unidades.forEach(item => {
+
+                        const row = {
+                            id: item.unidadproductiva_id,
+                            text: item.unidad_productiva?.nombre ?? item.unidad_productiva
+                                ?.business_name,
+                            participantes: item.participantes
+                        };
+
+                        // 🔥 MISMAS funciones que usas al agregar manual
+                        window.itemOption(row);
+                        window.addUnidadToTagify(row);
+                    });
+                }
+
+                // =========================
+                // 🔹 LEADS (USANDO TU FLUJO REAL)
+                // =========================
+                if (res.leads) {
+                    res.leads.forEach(item => {
+
+                        const row = {
+                            id: item.lead_id,
+                            text: item.lead?.name,
+                            participantes: item.participantes
+                        };
+
+                        // 🔥 MISMAS funciones que usas al agregar manual
+                        window.itemOtroParticipante(row);
+                        window.addOtroParticipanteToTagify(row);
+                    });
+                }
+
+                window.cargarSoporteEnFormulario(res.soporte);
+                openEditar();
+                Helpers.desbloquearPantalla();
+            });
+
+        }
+
         function guardarLead() {
 
             const data = {
@@ -1067,5 +773,264 @@
                     alert('Error en la petición');
                 });
         }
+
+        function obtenerPeriodoActual() {
+            const hoy = new Date();
+
+            const inicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            const fin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+
+            const format = (fecha) => fecha.toISOString().split('T')[0];
+
+            return {
+                inicio: format(inicio),
+                fin: format(fin)
+            };
+        }
+
+        // Helper: sincroniza filtros → modal
+        function sincronizarFechasModal() {
+            const fInicioFiltro = document.getElementById('fecha_inicio_filtros')?.value;
+            const fFinFiltro = document.getElementById('fecha_fin_filtros')?.value;
+
+            const {
+                inicio,
+                fin
+            } = obtenerPeriodoActual();
+
+            // Si no hay filtros, usar periodo actual
+            document.getElementById('fecha_inicio_informe').value = fInicioFiltro || inicio;
+            document.getElementById('fecha_fin_informe').value = fFinFiltro || fin;
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            function cargarConvocatorias(programaId) {
+                let $convocatoria = $('#convocatoria_id');
+
+                $convocatoria.empty();
+
+                if (!programaId) {
+                    $convocatoria
+                        .append('<option value="" selected>Seleccione primero un programa</option>')
+                        .prop('disabled', true);
+                    return;
+                }
+
+                let filtradas = CONVOCATORIAS.filter(function(item) {
+                    return String(item.programa_id) === String(programaId);
+                });
+
+                if (filtradas.length === 0) {
+                    $convocatoria
+                        .append('<option value="" selected>No hay convocatorias para este programa</option>')
+                        .prop('disabled', true);
+                    return;
+                }
+
+                $convocatoria.append('<option value="" selected>Seleccione una opción</option>');
+
+                $.each(filtradas, function(index, item) {
+                    $convocatoria.append(
+                        `<option value="${item.convocatoria_id}">${item.nombre_convocatoria}</option>`
+                    );
+                });
+
+                $convocatoria.prop('disabled', false);
+            }
+
+            $('#programa_id').on('change', function() {
+                let programaId = $(this).val();
+                cargarConvocatorias(programaId);
+            });
+
+            if ($('#programa_id').val()) {
+                cargarConvocatorias($('#programa_id').val());
+            }
+
+            $('#btnImport').on('click', function() {
+                let modal = new bootstrap.Modal(document.getElementById('importModal'));
+                modal.show();
+            });
+
+
+            ['fecha_inicio_filtros', 'fecha_fin_filtros'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('change', sincronizarFechasModal);
+                }
+            });
+
+            $('#btnInforme').on('click', function() {
+                sincronizarFechasModal();
+
+                // Otros filtros
+                document.getElementById('preview_asesor').value =
+                    document.getElementById('asesor')?.value || '';
+
+                document.getElementById('preview_unidad').value =
+                    document.getElementById('unidad')?.value || '';
+
+                // Mostrar modal
+                const modal = new bootstrap.Modal(document.getElementById('informeModal'));
+                modal.show();
+            });
+            // Al enviar el formulario de previsualización, copiar filtros al formulario y abrir en ruta real del servidor
+            $('#formPreviewInforme').on('submit', function() {
+                const fInicio = document.getElementById('fecha_inicio_informe').value;
+                const fFin = document.getElementById('fecha_fin_informe').value;
+
+                if (!fInicio || !fFin) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Fechas requeridas',
+                        text: 'Debe seleccionar el rango de fechas para generar el informe.'
+                    });
+                    return;
+                }
+
+                if (new Date(fFin) < new Date(fInicio)) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Rango inválido',
+                        text: 'La fecha fin debe ser mayor o igual a la fecha inicio.'
+                    });
+                    return;
+                }
+
+                const editor = window.TABLA.initEditors.find(item => item.id === 'conclusionesI');
+                if (editor && editor.quill) {
+                    let html = editor.quill.root.innerHTML;
+
+                    if (html === '<p><br></p>') {
+                        html = '';
+                    }
+
+                    $('#conclusionesI_input').val(html);
+                    console.log('conclusiones a enviar:', html);
+                }
+
+                $('#informeModal').modal('hide');
+            });
+
+            $('#formImport').on('submit', function(e) {
+                e.preventDefault();
+
+                $(".cargando").removeClass("d-none");
+                let formData = new FormData(this);
+
+                $("#btnUpload").prop("disabled", true).text("Importando...");
+
+                $.ajax({
+                    url: "/intervenciones/import",
+                    type: "POST",
+                    data: formData,
+                    processData: false, // Necesario para FormData
+                    contentType: false, // Necesario para FormData
+                    success: function(response) {
+
+                        if (response.ok) {
+                            // Éxito
+                            alert("Importación completada: " + response.importados +
+                                " registros");
+                            $("#importModal").modal("hide");
+                        } else {
+                            // Errores de validación del import
+                            mostrarErrores(response.errores);
+                        }
+
+                        $("#btnUpload").prop("disabled", false).text("Importar");
+                        $(".cargando").addClass("d-none");
+                    },
+                    error: function(xhr) {
+                        mostrarErrores(["Error interno, verifique el archivo"]);
+                        $("#btnUpload").prop("disabled", false).text("Importar");
+                        $(".cargando").addClass("d-none");
+                    }
+                });
+            });
+
+            function mostrarErrores(errores) {
+                let div = $("#importErrors");
+                div.removeClass("d-none").empty();
+
+                errores.forEach(err => {
+                    div.append("<div>• " + err + "</div>");
+                });
+            }
+
+
+
+            // Manejar clics en "ver más" para abrir modal
+            $(document).on('click', '.ver-mas-link', function(e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+
+                // Obtener el texto completo y el título del objeto global
+                const datos = window.textosCompletos && window.textosCompletos[id] ? window.textosCompletos[
+                    id] : null;
+
+                if (datos) {
+                    // Establecer el título del modal
+                    $('#textoCompletoModalTitle').text(datos.titulo || 'Texto completo');
+
+                    // Establecer el contenido del modal
+                    $('#textoCompletoModalContent').html(datos.texto || '');
+
+                    // Mostrar el modal
+                    const modal = new bootstrap.Modal(document.getElementById('textoCompletoModal'));
+                    modal.show();
+                }
+            });
+
+            $(document).on('change', '#switchBorrador', function() {
+
+                if ($(this).is(':checked')) {
+                    $('#switchLabel').text('Crear');
+                } else {
+                    $('#switchLabel').text('Borrador');
+                }
+
+            });
+
+            $(document).on('click', '.btn-editar', function() {
+
+                const row = window.itemSelect;
+                if (!row) return;
+                if (row.estado !== 'BORRADOR') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No permitido',
+                        text: 'Solo se pueden editar intervenciones en estado BORRADOR'
+                    });
+                    return;
+                }
+
+
+                cargarEditar(row.id);
+
+            });
+
+
+
+            const {
+                inicio,
+                fin
+            } = obtenerPeriodoActual();
+
+            const fInicioFiltro = document.getElementById('fecha_inicio_filtros');
+            const fFinFiltro = document.getElementById('fecha_fin_filtros');
+
+            if (fInicioFiltro && !fInicioFiltro.value) {
+                fInicioFiltro.value = inicio;
+            }
+
+            if (fFinFiltro && !fFinFiltro.value) {
+                fFinFiltro.value = fin;
+            }
+
+        });
     </script>
 @endsection

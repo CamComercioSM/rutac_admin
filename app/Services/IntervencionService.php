@@ -26,6 +26,7 @@ class IntervencionService
         $query = UnidadProductivaIntervenciones::query()
             ->select([
                 'unidadesproductivas_intervenciones.*',
+                DB::raw('(unidadesproductivas_intervenciones.participantes + unidadesproductivas_intervenciones.participantes_otros) AS participantes_total'),
                 DB::raw("CONCAT(users.name, ' ', users.lastname) as asesor"),
                 DB::raw("CASE 
                     WHEN unidadesproductivas_intervenciones.cant_unidades > 0 AND unidadesproductivas_intervenciones.cant_leads > 0 THEN 'MIXTO'
@@ -108,6 +109,7 @@ class IntervencionService
             'categoria' => 'categorias_intervenciones.nombre',
             'tipo' => 'tipos_intervenciones.nombre',
             'participantes' => 'unidadesproductivas_intervenciones.participantes',
+            'participantes_otros' => 'unidadesproductivas_intervenciones.participantes_otros',
             'cant_unidades' => 'unidadesproductivas_intervenciones.cant_unidades',
             'cant_leads' => 'unidadesproductivas_intervenciones.cant_leads',
         ];
@@ -143,47 +145,79 @@ class IntervencionService
     }
 
     public function syncParticipantes($intervencion, array $unidades, array $leads)
-    {
-        // Limpiar actuales
+    { // Limpiar actuales
         $intervencion->unidades()->delete();
         $intervencion->leads()->delete();
 
+        $unidadesIds = [];
+        $leadsIds = [];
+
         // Insertar unidades
+        $totalParticipantes = 0;
         foreach ($unidades as $item) {
-            $id = $item['unidadproductiva_id'] ?? $item['id'] ?? null;
+            $id = $item['unidadproductiva_id'] ?? $item['value'] ?? null;
 
             if ($id) {
-                IntervencionUnidad::create([
+                $participantes = (int) ($item['participantes'] ?? 0);
+
+                $registro = IntervencionUnidad::create([
                     'intervencion_id' => $intervencion->id,
                     'unidadproductiva_id' => $id,
+                    'participantes' => $participantes
                 ]);
+
+                $unidadesIds[] = $registro->id;
+
+                $totalParticipantes += $participantes;
             }
         }
 
         // Insertar leads
+        $participantes_otros = 0;
         foreach ($leads as $item) {
-            $id = $item['lead_id'] ?? $item['id'] ?? null;
+            $id = $item['lead_id'] ?? $item['value'] ?? null;
 
             if ($id) {
-                IntervencionLead::create([
+                $participantes = (int) ($item['participantes'] ?? 0);
+
+                $registro = IntervencionLead::create([
                     'intervencion_id' => $intervencion->id,
                     'lead_id' => $id,
+                    'participantes' => $participantes
                 ]);
+
+                $leadsIds[] = $registro->id;
+
+                $participantes_otros += $participantes;
             }
         }
 
         // Actualizar contadores
         $intervencion->update([
-            'cant_unidades' => count($unidades),
-            'cant_leads'    => count($leads),
-            'participantes' => count($unidades) + count($leads),
+            'cant_unidades' => count($unidadesIds), // contar solo insertados válidos
+            'cant_leads'    => count($leadsIds),
+            'participantes' => $totalParticipantes,
+            'participantes_otros' => $participantes_otros,
         ]);
+
+        return [
+            'unidades' => $unidadesIds,
+            'leads'    => $leadsIds,
+            'participantes' => $totalParticipantes,
+        ];
     }
 
 
 
     /**
      * Obtiene y agrupa la data para informes (Original).
+     */
+    /**
+     * ========================= FUNCIÓN COMPLETA CORREGIDA =========================
+     * Corrige:
+     * - Filtro por unidad (whereHas)
+     * - Agrupación por unidad (JOIN)
+     * - Agrupación por leads (JOIN)
      */
     public function getInformeData(array $params, $user): array
     {
@@ -193,32 +227,70 @@ class IntervencionService
         if (!$fi || !$ff) {
             throw new \Exception("Fechas requeridas para generar informe");
         }
+
         $asesorReq = $params['asesor'] ?? null;
         $unidadReq = $params['unidad'] ?? null;
 
         $asesor = ($user->rol_id === Role::ASESOR) ? $user->id : $asesorReq;
 
+        // ========================= QUERY BASE =========================
         $baseQuery = UnidadProductivaIntervenciones::whereBetween('fecha_inicio', [$fi, $ff])
+            ->whereNull('fecha_eliminacion') //
+            ->where('estado', 'REPORTADO')   //
             ->when($asesor, fn($q) => $q->where('asesor_id', $asesor))
-            ->when($unidadReq, fn($q) => $q->where('unidadproductiva_id', $unidadReq));
+            ->when($unidadReq, function ($q) use ($unidadReq) {
+                // ✅ filtro correcto por relación hija
+                $q->whereHas('unidades', function ($sub) use ($unidadReq) {
+                    $sub->where('unidadproductiva_id', $unidadReq);
+                });
+            });
 
+        // ========================= DATA DETALLE =========================
         $intervenciones = (clone $baseQuery)
             ->with(['unidadProductiva', 'lead', 'asesor', 'categoria', 'tipo', 'fase'])
             ->orderBy('fecha_inicio', 'ASC')
             ->get();
 
-
+        // ========================= RESPUESTA =========================
         return [
             'inicio'         => Carbon::parse($fi)->translatedFormat('Y-m-d H:i'),
             'fin'            => Carbon::parse($ff)->translatedFormat('Y-m-d H:i'),
             'conclusiones'   => $params['conclusiones'] ?? '',
             'intervenciones' => $intervenciones,
-            'totalGeneral' => (clone $baseQuery)->count(),
+            'totalGeneral'   => (clone $baseQuery)->count(),
+
+            // ========================= AGRUPACIONES =========================
 
             'porCategoria' => QueryHelper::agrupar($baseQuery, 'categoria_id', 'categoria'),
             'porTipo'      => QueryHelper::agrupar($baseQuery, 'tipo_id', 'tipo'),
-            'porUnidad'    => QueryHelper::agrupar($baseQuery, 'unidadproductiva_id', 'unidadProductiva'),
 
+            // ========================= POR UNIDAD =========================
+            'porUnidad' => DB::table('unidadesproductivas_intervenciones as i')
+                ->join('intervencion_unidades as iu', 'iu.intervencion_id', '=', 'i.id') // ⚠️ relación real
+                ->select(
+                    'iu.unidadproductiva_id',
+                    DB::raw('COUNT(*) as total')
+                )
+                ->whereBetween('i.fecha_inicio', [$fi, $ff])
+                ->whereNull('i.fecha_eliminacion')
+                ->where('i.estado', 'REPORTADO')
+                ->when($asesor, fn($q) => $q->where('i.asesor_id', $asesor))
+                ->groupBy('iu.unidadproductiva_id')
+                ->get(),
+
+            // ========================= POR LEADS =========================
+            'porLeads' => DB::table('unidadesproductivas_intervenciones as i')
+                ->join('intervencion_leads as il', 'il.intervencion_id', '=', 'i.id') // ⚠️ relación real
+                ->select(
+                    'il.lead_id',
+                    DB::raw('COUNT(*) as total')
+                )
+                ->whereBetween('i.fecha_inicio', [$fi, $ff])
+                ->whereNull('i.fecha_eliminacion') 
+                ->where('i.estado', 'REPORTADO')  
+                ->when($asesor, fn($q) => $q->where('i.asesor_id', $asesor))
+                ->groupBy('il.lead_id')
+                ->get(),
         ];
     }
 
