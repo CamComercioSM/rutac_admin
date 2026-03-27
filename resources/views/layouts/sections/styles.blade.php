@@ -18,6 +18,10 @@
 <!-- Core CSS -->
 @vite(['resources/assets/vendor/scss/core.scss', 'resources/assets/css/demo.css', 'resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.scss', 'resources/assets/vendor/libs/notiflix/notiflix.scss'])
 
+@if(isset($configData['theme']) && $configData['theme'] === 'ruta-c')
+@vite(['resources/assets/css/ruta-c-theme.css'])
+@endif
+
 <!-- Vendor Styles -->
 @vite(['resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.scss', 'resources/assets/vendor/libs/typeahead-js/typeahead.scss'])
 @yield('vendor-style')

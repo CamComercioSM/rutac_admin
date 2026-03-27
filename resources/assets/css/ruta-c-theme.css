@@ -1,0 +1,43 @@
+/* Tema personalizado para Ruta C */
+/* Colores principales */
+:root {
+  --ruta-c-primary: #007bff; /* Azul personalizado */
+  --ruta-c-secondary: #6c757d;
+  --ruta-c-success: #28a745;
+  --ruta-c-danger: #dc3545;
+  --ruta-c-warning: #ffc107;
+  --ruta-c-info: #17a2b8;
+  --ruta-c-light: #f8f9fa;
+  --ruta-c-dark: #343a40;
+}
+
+/* Aplicar colores a elementos específicos */
+.layout-wrapper {
+  background-color: var(--ruta-c-light);
+}
+
+.navbar {
+  background-color: var(--ruta-c-primary) !important;
+}
+
+.btn-primary {
+  background-color: var(--ruta-c-primary) !important;
+  border-color: var(--ruta-c-primary) !important;
+}
+
+.btn-primary:hover {
+  background-color: darken(var(--ruta-c-primary), 10%) !important;
+  border-color: darken(var(--ruta-c-primary), 10%) !important;
+}
+
+/* Personalizaciones adicionales para Ruta C */
+.card {
+  border: 1px solid var(--ruta-c-primary);
+}
+
+.table thead th {
+  background-color: var(--ruta-c-primary);
+  color: white;
+}
+
+/* Más estilos personalizados aquí */

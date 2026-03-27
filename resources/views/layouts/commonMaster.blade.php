@@ -22,6 +22,10 @@
   $isAdminLayout = !Str::contains($configData['layout'] ?? '', 'front');
   $skinName = $isAdminLayout ? $configData['skinName'] ?? 'default' : 'default';
 
+  // Determinar si usar tema Ruta C basado en la URL o configuración
+  $isRutaC = Str::contains(request()->path(), 'ruta-c') || (isset($configData['theme']) && $configData['theme'] === 'ruta-c');
+  $configData['theme'] = $isRutaC ? 'ruta-c' : ($configData['theme'] ?? 'default');
+
   // Get semiDark value from configData - only applies to admin layouts
   $semiDarkEnabled = $isAdminLayout && filter_var($configData['semiDark'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
