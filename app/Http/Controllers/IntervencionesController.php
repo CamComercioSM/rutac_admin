@@ -69,7 +69,7 @@ class IntervencionesController extends Controller
     {
         $filters = $request->all();
 
-        $query = $service->getListQuery($filters, auth()->user());
+        $query = $service->getListQuery($filters, Auth::user());
 
         $total = $query->count();
 
@@ -357,7 +357,7 @@ class IntervencionesController extends Controller
                 ], 422);
             }
 
-            $data = $service->getInformeData($request->all());
+            $data = $service->getInformeData($request->all(), Auth::user());
             $nombreArchivo = "informe_" . time() . ".pdf";
             $rutaPublica = "informes/{$nombreArchivo}";
 

@@ -14,33 +14,31 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
-class IntervencionService
-{
+class IntervencionService {
 
     /**
      * Construye la consulta base para el listado con todos los Joins, 
      * clasificaciones, filtros y ORDENAMIENTO original.
      */
-    public function getListQuery(array $filters, $user)
-    {
-        $query = UnidadProductivaIntervenciones::query()
+    public function getListQuery(array $filters, $user) {
+        $query = UnidadProductivaIntervenciones::query() 
             ->select([
                 'unidadesproductivas_intervenciones.*',
-                DB::raw('(unidadesproductivas_intervenciones.participantes + unidadesproductivas_intervenciones.participantes_otros) AS participantes_total'),
+                DB::raw('(COALESCE(unidadesproductivas_intervenciones.participantes, 0) + COALESCE(unidadesproductivas_intervenciones.participantes_otros, 0)) AS participantes_total'),
                 DB::raw("CONCAT(users.name, ' ', users.lastname) as asesor"),
                 DB::raw("CASE 
-                    WHEN unidadesproductivas_intervenciones.cant_unidades > 0 AND unidadesproductivas_intervenciones.cant_leads > 0 THEN 'MIXTO'
-                    WHEN unidadesproductivas_intervenciones.cant_unidades > 0 THEN 'REGISTRADO'
-                    WHEN unidadesproductivas_intervenciones.cant_leads > 0 THEN 'NO REGISTRADO'
-                    ELSE 'SIN PARTICIPANTES'
-                END as clasificacion"),
+                            WHEN COALESCE(unidadesproductivas_intervenciones.cant_unidades, 0) > 0 AND COALESCE(unidadesproductivas_intervenciones.cant_leads, 0) > 0 THEN 'MIXTO'
+                            WHEN COALESCE(unidadesproductivas_intervenciones.cant_unidades, 0) > 0 THEN 'REGISTRADO'
+                            WHEN COALESCE(unidadesproductivas_intervenciones.cant_leads, 0) > 0 THEN 'NO REGISTRADO'
+                            ELSE 'SIN PARTICIPANTES'
+                        END as clasificacion"),
                 DB::raw("CASE 
-                    WHEN (unidadesproductivas_intervenciones.cant_unidades + unidadesproductivas_intervenciones.cant_leads) > 1 
-                        THEN CONCAT(unidadesproductivas_intervenciones.cant_unidades, ' UP / ', unidadesproductivas_intervenciones.cant_leads, ' Leads')
-                    WHEN unidadesproductivas_intervenciones.cant_unidades = 1 THEN '1 Unidad Productiva'
-                    WHEN unidadesproductivas_intervenciones.cant_leads = 1 THEN '1 Lead / Ciudadano'
-                    ELSE 'N/A'
-                END as unidad"),
+                        WHEN (COALESCE(unidadesproductivas_intervenciones.cant_unidades, 0) + COALESCE(unidadesproductivas_intervenciones.cant_leads, 0)) > 1 
+                            THEN CONCAT(COALESCE(unidadesproductivas_intervenciones.cant_unidades, 0), ' UP / ', COALESCE(unidadesproductivas_intervenciones.cant_leads, 0), ' Leads')
+                        WHEN COALESCE(unidadesproductivas_intervenciones.cant_unidades, 0) = 1 THEN '1 Unidad Productiva'
+                        WHEN COALESCE(unidadesproductivas_intervenciones.cant_leads, 0) = 1 THEN '1 Lead / Ciudadano'
+                        ELSE 'N/A'
+                    END as unidad"),
                 'fases_programas.nombre as fase',
                 'pc.nombre_convocatoria as convocatoria',
                 'p.nombre as programa',
@@ -126,8 +124,7 @@ class IntervencionService
     /**
      * Lógica de filtrado interna.
      */
-    private function applyFilter($query, array $filters, $param, $column)
-    {
+    private function applyFilter($query, array $filters, $param, $column) {
         $value = $filters[$param] ?? null;
         if (!is_null($value) && $value !== '') {
             $query->where($column, $value);
@@ -137,15 +134,13 @@ class IntervencionService
     /**
      * Procesa el guardado (Original).
      */
-    public function storeIntervencion(array $data, array $unidades, array $leads)
-    {
+    public function storeIntervencion(array $data, array $unidades, array $leads) {
         $intervencion = UnidadProductivaIntervenciones::create($data);
         $this->syncParticipantes($intervencion, $unidades, $leads);
         return $intervencion;
     }
 
-    public function syncParticipantes($intervencion, array $unidades, array $leads)
-    { // Limpiar actuales
+    public function syncParticipantes($intervencion, array $unidades, array $leads) { // Limpiar actuales
         $intervencion->unidades()->delete();
         $intervencion->leads()->delete();
 
@@ -219,8 +214,7 @@ class IntervencionService
      * - Agrupación por unidad (JOIN)
      * - Agrupación por leads (JOIN)
      */
-    public function getInformeData(array $params, $user): array
-    {
+    public function getInformeData(array $params, $user): array {
         $fi = $params['fecha_inicio'] ?? null;
         $ff = $params['fecha_fin'] ?? null;
 
@@ -286,8 +280,8 @@ class IntervencionService
                     DB::raw('COUNT(*) as total')
                 )
                 ->whereBetween('i.fecha_inicio', [$fi, $ff])
-                ->whereNull('i.fecha_eliminacion') 
-                ->where('i.estado', 'REPORTADO')  
+                ->whereNull('i.fecha_eliminacion')
+                ->where('i.estado', 'REPORTADO')
                 ->when($asesor, fn($q) => $q->where('i.asesor_id', $asesor))
                 ->groupBy('il.lead_id')
                 ->get(),
@@ -297,8 +291,7 @@ class IntervencionService
     /**
      * Valida si ya existe un reporte mensual para evitar duplicados (Original).
      */
-    public function validarReporteDuplicado(int $asesorId, int $anio, int $mes, ?int $reporteId = null): bool
-    {
+    public function validarReporteDuplicado(int $asesorId, int $anio, int $mes, ?int $reporteId = null): bool {
         return ReporteMensual::where('asesor_id', $asesorId)
             ->where('anio', $anio)
             ->where('mes', $mes)
@@ -307,8 +300,7 @@ class IntervencionService
             ->exists();
     }
 
-    public function generarInformePDF(array $data, string $rutaPublica): string
-    {
+    public function generarInformePDF(array $data, string $rutaPublica): string {
         $pdf = Pdf::loadView('intervenciones.informe', $data)
             ->setPaper('a4', 'portrait');
 
