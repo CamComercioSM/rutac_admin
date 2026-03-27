@@ -210,7 +210,7 @@ class InscripcionesController extends Controller {
                 // Recargar la inscripción con las relaciones actualizadas para obtener el nuevo estado
                 $entity->refresh();
                 $entity->load(['unidadProductiva', 'estado', 'convocatoria.programa']);
-                $this->enviarCorreoCambioEstado($entity);
+                //$this->enviarCorreoCambioEstado($entity);
             }
 
             $this->intervencion($entity);
@@ -392,35 +392,35 @@ class InscripcionesController extends Controller {
     }
 
     public function intervencion($inscripcion) {
-        // Definimos los estados permitidos: Admitido (3) o No Admitido (4)
         $estadosPermitidos = [3, 4];
+        if (!in_array($inscripcion->inscripcionestado_id, $estadosPermitidos)) {
+            return;
+        }
 
-        if (in_array($inscripcion->inscripcionestado_id, $estadosPermitidos)) {
-            // Si no tienes la relación, puedes usar un pequeño mapeo manual
+        $convocatoria = $inscripcion->convocatoria;
+        $programa = $convocatoria ? $convocatoria->programa : null;
         $nombreEstado = $inscripcion->estado->nombre ?? ($inscripcion->inscripcionestado_id == 3 ? 'Admitido' : 'No Admitido');
 
-            // Obtenemos la fecha de creación del historial para marcar el inicio
-            $fecha_inicio = ConvocatoriaInscripcionHistorial::where('inscripcion_id', $inscripcion->inscripcion_id)
-                ->where('inscripcionestado_id', $inscripcion->inscripcionestado_id)
-                ->orderBy('fecha_creacion', 'desc')
-                ->value('fecha_creacion');
+        $fecha_inicio = ConvocatoriaInscripcionHistorial::where('inscripcion_id', $inscripcion->inscripcion_id)
+            ->where('inscripcionestado_id', $inscripcion->inscripcionestado_id)
+            ->orderBy('fecha_creacion', 'desc')
+            ->value('fecha_creacion');
 
-            $data = [
-                'asesor_id'     => Auth::user()->id,
-                'descripcion'   => "Cambio de estado a {$nombreEstado}. Intervención generada automáticamente tras cambio de estado de inscripción.",
-                'fecha_inicio'  => $fecha_inicio,
-                'fecha_fin'     => Carbon::now(),
-                'categoria_id'  => UnidadProductivaIntervenciones::CATEGORIA_GESTION_PROGRAMAS,
-                'tipo_id'       => UnidadProductivaIntervenciones::TIPO_GESTION_INSCRIPCIONES,
-                'modalidad'     => 'Virtual',
-                'participantes' => 1,
-                'conclusiones' => ($inscripcion->comentarios ?? 'Sin observaciones en el cambio de estado.')
-                    . 'Intervención generada automáticamente tras cambio de estado de inscripción.',
-                // si es necesario, asegúrate de agregarlo al modelo.
-            ];
+        $data = [
+            'asesor_id'      => Auth::id(),
+            // PASAMOS LOS IDS EXPLÍCITOS PARA LA TABLA
+            'programa_id'    => $programa->programa_id ?? null,
+            'convocatoria_id' => $convocatoria->convocatoria_id ?? null,
+            'descripcion'    => "Gestión de Inscripción: Cambio de estado a {$nombreEstado}.",
+            'fecha_inicio'   => $fecha_inicio ?? now(),
+            'fecha_fin'      => now(),
+            'categoria_id'   => UnidadProductivaIntervenciones::CATEGORIA_GESTION_PROGRAMAS,
+            'tipo_id'        => UnidadProductivaIntervenciones::TIPO_GESTION_INSCRIPCIONES,
+            'modalidad'      => 'Virtual',
+            'participantes'  => 1,
+            'conclusiones'   => $inscripcion->comentarios ?? 'Sin observaciones.',
+        ];
 
-            // Usamos el nuevo método estático para registrar e impactar la relación
-            UnidadProductivaIntervenciones::registrarParaUnidad($inscripcion->unidadproductiva_id, $data);
-        }
+        UnidadProductivaIntervenciones::registrarParaUnidad($inscripcion->unidadproductiva_id, $data);
     }
 }

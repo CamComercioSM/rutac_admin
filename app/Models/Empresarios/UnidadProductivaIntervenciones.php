@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\TablasReferencias\CategoriasIntervenciones;
 use App\Models\TablasReferencias\TiposIntervenciones;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UnidadProductivaIntervenciones extends Model {
     use SoftDeletes, UserTrait;
@@ -96,21 +98,24 @@ class UnidadProductivaIntervenciones extends Model {
     /**
      * Registra una intervención y la vincula a una unidad productiva en un solo paso.
      */
-    public static function registrarParaUnidad($unidadId, array $datos)
-    {
-        return \DB::transaction(function () use ($unidadId, $datos) {
+    public static function registrarParaUnidad($unidadId, array $datos) {
+        return DB::transaction(function () use ($unidadId, $datos) {
             $now = now();
-            
+
             $intervencion = self::create([
-                'asesor_id'     => $datos['asesor_id'] ?? \Auth::id(),
-                'categoria_id'  => $datos['categoria_id'] ?? self::CATEGORIA_GESTION_PROGRAMAS,
-                'tipo_id'       => $datos['tipo_id'] ?? self::TIPO_WHATSAPP,
-                'descripcion'   => $datos['descripcion'],
-                'fecha_inicio'  => $datos['fecha_inicio'] ?? $now,
-                'fecha_fin'     => $datos['fecha_fin'] ?? $now,
-                'modalidad'     => $datos['modalidad'] ?? 'Virtual',
-                'cant_unidades' => 1,
-                'participantes' => $datos['participantes'] ?? 1,
+                'asesor_id'      => $datos['asesor_id'] ?? Auth::id(),
+                // AGREGAMOS ESTOS CAMPOS:
+                'programa_id'    => $datos['programa_id'] ?? null,
+                'convocatoria_id' => $datos['convocatoria_id'] ?? null,
+                'categoria_id'   => $datos['categoria_id'] ?? self::CATEGORIA_GESTION_PROGRAMAS,
+                'tipo_id'        => $datos['tipo_id'] ?? self::TIPO_WHATSAPP,
+                'descripcion'    => $datos['descripcion'],
+                'fecha_inicio'   => $datos['fecha_inicio'] ?? $now,
+                'fecha_fin'      => $datos['fecha_fin'] ?? $now,
+                'modalidad'      => $datos['modalidad'] ?? 'Virtual',
+                'cant_unidades'  => 1,
+                'participantes'  => $datos['participantes'] ?? 1,
+                'conclusiones'   => $datos['conclusiones'] ?? null, // IMPORTANTE
             ]);
 
             \App\Models\Intervenciones\IntervencionUnidad::create([
@@ -123,7 +128,7 @@ class UnidadProductivaIntervenciones extends Model {
         });
     }
 
-    
+
     public static $modalidades = [
         'Presencial' => 'Presencial',
         'Virtual' => 'Virtual',
