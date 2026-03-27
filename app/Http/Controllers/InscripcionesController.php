@@ -210,7 +210,7 @@ class InscripcionesController extends Controller {
                 // Recargar la inscripción con las relaciones actualizadas para obtener el nuevo estado
                 $entity->refresh();
                 $entity->load(['unidadProductiva', 'estado', 'convocatoria.programa']);
-                //$this->enviarCorreoCambioEstado($entity);
+                $this->enviarCorreoCambioEstado($entity);
             }
 
             $this->intervencion($entity);
