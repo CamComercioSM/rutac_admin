@@ -26,41 +26,40 @@ use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 
 
-class InscripcionesController extends Controller
-{
+class InscripcionesController extends Controller {
     protected $mailService;
 
-    public function __construct(MailService $mailService)
-    {
+    public function __construct(MailService $mailService) {
         $this->mailService = $mailService;
     }
 
-    function list(Request $request)
-    { 
+    function list(Request $request) {
         $programas = [];
         $convocatorias = [];
 
-        if(Auth::user()->rol_id == Role::ASESOR)
-        {
+        if (Auth::user()->rol_id == Role::ASESOR) {
             $userId = Auth::id();
             $convocatorias = ProgramaConvocatoria::whereHas('asesores', fn($q) => $q->where('user_id', $userId))->get();
             $pgms = $convocatorias->pluck('programa_id');
             $programas = Programa::whereIn('programa_id', $pgms)->get();
 
-            if (!$request->convocatoria) 
-            {
-                $convocatoria = ProgramaConvocatoria::whereHas('asesores', fn($q) =>
-                        $q->where('user_id', $userId)
-                    )
+            if (!$request->convocatoria) {
+                $convocatoria = ProgramaConvocatoria::whereHas(
+                    'asesores',
+                    fn($q) =>
+                    $q->where('user_id', $userId)
+                )
                     ->whereDate('fecha_cierre_convocatoria', '>=', Carbon::today())
                     ->orderBy('fecha_cierre_convocatoria', 'asc')
                     ->first();
 
                 if (!$convocatoria) {
-                    $convocatoria = ProgramaConvocatoria::whereHas('asesores', fn($q) =>
-                            $q->where('user_id', $userId)
-                        )
-                        ->orderBy('fecha_cierre_convocatoria', 'desc') 
+                    $convocatoria = ProgramaConvocatoria::whereHas(
+                        'asesores',
+                        fn($q) =>
+                        $q->where('user_id', $userId)
+                    )
+                        ->orderBy('fecha_cierre_convocatoria', 'desc')
                         ->first();
                 }
 
@@ -71,54 +70,45 @@ class InscripcionesController extends Controller
                     ]);
                 }
             }
-        }
-        else{
+        } else {
             $convocatorias = ProgramaConvocatoria::all();
             $programas = Programa::all();
         }
 
-        if(!$request->programa && $request->convocatoria)
-        {
+        if (!$request->programa && $request->convocatoria) {
             $convocatoria = ProgramaConvocatoria::select('programa_id')->find($request->convocatoria);
             $request->merge(['programa' => $convocatoria->programa_id]);
         }
-        
+
         $data = [
-            'estados'=> InscripcionEstado::get(),
-            'programas'=> $programas,
-            'convocatorias'=> $convocatorias,
-            'unidades'=> [],
-            'filtros'=> $request->all(),
-            'esAsesor'=> Auth::user()->rol_id == Role::ASESOR ?  1 : 0
+            'estados' => InscripcionEstado::get(),
+            'programas' => $programas,
+            'convocatorias' => $convocatorias,
+            'unidades' => [],
+            'filtros' => $request->all(),
+            'esAsesor' => Auth::user()->rol_id == Role::ASESOR ?  1 : 0
         ];
 
         if ($unidad = $request->get('unidad')) {
             $data['unidades'] = UnidadProductiva::where('unidadproductiva_id', $unidad)->get();
         }
-        
+
         return View("inscripciones.index", $data);
     }
 
-    function export(Request $request)
-    { 
+    function export(Request $request) {
         $query = $this->getQuery($request);
         return Excel::download(new InscripcionesExport($query), 'inscripciones.xlsx');
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $convocatoria = $request->input('convocatoriaAdd');
         $asesor = Auth::user();
 
-        foreach($request->input('unidades') as $u)
-        {
-            $existe = ConvocatoriaInscripcion::
-                where('convocatoria_id', $convocatoria)->
-                where('unidadproductiva_id', $u)->
-                exists();
+        foreach ($request->input('unidades') as $u) {
+            $existe = ConvocatoriaInscripcion::where('convocatoria_id', $convocatoria)->where('unidadproductiva_id', $u)->exists();
 
-            if(!$existe)
-            {
+            if (!$existe) {
                 $entity = new ConvocatoriaInscripcion();
                 $entity->convocatoria_id = $convocatoria;
                 $entity->unidadproductiva_id = $u;
@@ -143,22 +133,22 @@ class InscripcionesController extends Controller
             }
         }
 
-        return response()->json([ 'message' => 'Stored' ], 201);
+        return response()->json(['message' => 'Stored'], 201);
     }
 
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
         $query = $this->getQuery($request);
         $data = $this->paginate($query, $request);
 
-        return response()->json( $data );
+        return response()->json($data);
     }
 
-    public function show($id)
-    {
+    public function show($id) {
         $result = ConvocatoriaInscripcion::with([
             'convocatoria',
-            'unidadProductiva'=> function ($q) { $q->with(['etapa', 'sectorUnidad', 'ventaAnual']); },
+            'unidadProductiva' => function ($q) {
+                $q->with(['etapa', 'sectorUnidad', 'ventaAnual']);
+            },
             'estado',
             'historial',
             'respuestas'
@@ -169,8 +159,7 @@ class InscripcionesController extends Controller
         return view('inscripciones.detail', ['detalle' => $result, 'estados' => $estados]);
     }
 
-    public function update($id, Request $request)
-    {
+    public function update($id, Request $request) {
         // Validar que se haya seleccionado un estado válido
         $validator = Validator::make($request->all(), [
             'inscripcionestado_id' => [
@@ -194,22 +183,20 @@ class InscripcionesController extends Controller
 
         $path = null;
 
-        if($request->hasFile('archivo')) 
-        {
+        if ($request->hasFile('archivo')) {
             $path = $request->file('archivo')->store('storage/aplications', 'archivos');
             $path = Storage::disk('archivos')->url($path);
         }
 
-        foreach($request->inscripciones as $ins_id)
-        {
+        foreach ($request->inscripciones as $ins_id) {
             $entity = ConvocatoriaInscripcion::with(['unidadProductiva', 'estado', 'convocatoria.programa'])
                 ->findOrFail($ins_id);
-            
+
             // Guardar valores anteriores para comparar
             $estadoAnterior = $entity->inscripcionestado_id;
             $activarPreguntasAnterior = $entity->activarPreguntas;
-            
-            $entity->archivo = $path;            
+
+            $entity->archivo = $path;
             $entity->inscripcionestado_id = $request->input('inscripcionestado_id');
             $entity->comentarios = $request->input('comentarios');
             $entity->activarPreguntas = $request->input('activarPreguntas') == 1;
@@ -218,7 +205,7 @@ class InscripcionesController extends Controller
             // Enviar correo si el estado cambió O si activarPreguntas cambió
             $cambioEstado = ($estadoAnterior != $entity->inscripcionestado_id);
             $cambioActivarPreguntas = ($activarPreguntasAnterior != $entity->activarPreguntas);
-            
+
             if ($cambioEstado || $cambioActivarPreguntas) {
                 // Recargar la inscripción con las relaciones actualizadas para obtener el nuevo estado
                 $entity->refresh();
@@ -229,17 +216,16 @@ class InscripcionesController extends Controller
             $this->intervencion($entity);
         }
 
-        return response()->json([ 'message' => 'Stored' ], 201);
+        return response()->json(['message' => 'Stored'], 201);
     }
 
     /**
      * Enviar correo de bienvenida por inscripción a programa
      */
-    private function enviarCorreoInscripcion(ConvocatoriaInscripcion $inscripcion, $asesor)
-    {
+    private function enviarCorreoInscripcion(ConvocatoriaInscripcion $inscripcion, $asesor) {
         try {
             $this->mailService->sendInscripcionPrograma($inscripcion, $asesor);
-            
+
             Log::info('Correo de inscripción enviado exitosamente', [
                 'inscripcion_id' => $inscripcion->inscripcion_id,
                 'unidad_productiva_id' => $inscripcion->unidadproductiva_id,
@@ -258,8 +244,7 @@ class InscripcionesController extends Controller
     /**
      * Enviar correo de notificación de cambio de estado
      */
-    private function enviarCorreoCambioEstado(ConvocatoriaInscripcion $inscripcion)
-    {
+    private function enviarCorreoCambioEstado(ConvocatoriaInscripcion $inscripcion) {
         try {
             // Email principal: registration_email; CC: contact_email
             $to = $inscripcion->unidadProductiva->registration_email;
@@ -288,7 +273,6 @@ class InscripcionesController extends Controller
                 'cc' => $cc,
                 'estado' => $inscripcion->estado->inscripcionEstadoNOMBRE ?? 'No especificado'
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error al enviar correo de cambio de estado', [
                 'inscripcion_id' => $inscripcion->inscripcion_id,
@@ -298,17 +282,15 @@ class InscripcionesController extends Controller
         }
     }
 
-    public function updateRespuesta(Request $request)
-    {
+    public function updateRespuesta(Request $request) {
         $entity = ConvocatoriaRespuesta::findOrFail($request->respuestaId);
         $entity->value = $request->valorPregunta;
         $entity->save();
 
-        return response()->json([ 'message' => 'Stored' ], 201);
+        return response()->json(['message' => 'Stored'], 201);
     }
 
-    private function getQuery(Request $request)
-    {
+    private function getQuery(Request $request) {
         $search = $request->get('search');
         $programa = $request->get('programa');
         $convocatoria = $request->get('convocatoria');
@@ -318,18 +300,18 @@ class InscripcionesController extends Controller
         $fecha_fin = $request->get('fecha_fin');
 
         $query = ConvocatoriaInscripcion::select([
-                'inscripcion_id AS id',
-                'convocatorias_inscripciones.fecha_creacion',
-                'pc.nombre_convocatoria',
-                'p.nombre as nombre_programa',
-                'up.nit',
-                'up.business_name',
-                'up.mobile',
-                'st.sectorNOMBRE as sector',
-                'vt.ventasAnualesNOMBRE as ventas',
-                'ie.inscripcionEstadoNOMBRE as estado',
-                'pc.convocatoria_id'
-            ])            
+            'inscripcion_id AS id',
+            'convocatorias_inscripciones.fecha_creacion',
+            'pc.nombre_convocatoria',
+            'p.nombre as nombre_programa',
+            'up.nit',
+            'up.business_name',
+            'up.mobile',
+            'st.sectorNOMBRE as sector',
+            'vt.ventasAnualesNOMBRE as ventas',
+            'ie.inscripcionEstadoNOMBRE as estado',
+            'pc.convocatoria_id'
+        ])
             ->selectRaw("(
                         SELECT COUNT(DISTINCT cr.requisito_id) 
                         FROM convocatorias_respuestas cr 
@@ -346,9 +328,8 @@ class InscripcionesController extends Controller
             ->leftJoin('ventasanuales as vt', 'up.ventaanual_id', '=', 'vt.ventasAnualesID')
             ->join('inscripciones_estados as ie', 'convocatorias_inscripciones.inscripcionestado_id', '=', 'ie.inscripcionestado_id');
 
-        if(!empty($search))
-        {
-            $filterts = ['pc.nombre_convocatoria','p.nombre','up.nit','up.business_name'];
+        if (!empty($search)) {
+            $filterts = ['pc.nombre_convocatoria', 'p.nombre', 'up.nit', 'up.business_name'];
             $query->where(function ($q) use ($search, $filterts) {
                 foreach ($filterts as $field) {
                     $q->orWhere($field, 'like', "%{$search}%");
@@ -356,19 +337,19 @@ class InscripcionesController extends Controller
             });
         }
 
-        if(!empty($programa)){
+        if (!empty($programa)) {
             $query->where('p.programa_id', $programa);
         }
 
-        if(!empty($convocatoria)){
+        if (!empty($convocatoria)) {
             $query->where('pc.convocatoria_id', $convocatoria);
         }
 
-        if(!empty($estado)){
+        if (!empty($estado)) {
             $query->where('ie.inscripcionestado_id', $estado);
         }
 
-        if(!empty($unidad)){
+        if (!empty($unidad)) {
             $query->where('up.unidadproductiva_id', $unidad);
         }
 
@@ -383,7 +364,9 @@ class InscripcionesController extends Controller
         if (Auth::user()->rol_id === Role::ASESOR) {
             $userId = Auth::id();
 
-            $convocatoriaIds = ProgramaConvocatoria::whereHas('asesores', fn($q) => 
+            $convocatoriaIds = ProgramaConvocatoria::whereHas(
+                'asesores',
+                fn($q) =>
                 $q->where('user_id', $userId)
             )->pluck('convocatoria_id');
 
@@ -393,48 +376,51 @@ class InscripcionesController extends Controller
         return $query;
     }
 
-    function exportRespuestas(Request $request)
-    { 
+    function exportRespuestas(Request $request) {
         $query = ConvocatoriaRespuesta::select([
-                'convocatorias_respuestas.inscripcion_id',
-                'convocatorias_respuestas.convocatoriarespuesta_id',
-                'convocatorias_respuestas.fecha_creacion',
-                'p.requisito_titulo',
-                'convocatorias_respuestas.value',
-            ])
-        ->join('inscripciones_requisitos as p', 'convocatorias_respuestas.requisito_id', '=', 'p.requisito_id');
+            'convocatorias_respuestas.inscripcion_id',
+            'convocatorias_respuestas.convocatoriarespuesta_id',
+            'convocatorias_respuestas.fecha_creacion',
+            'p.requisito_titulo',
+            'convocatorias_respuestas.value',
+        ])
+            ->join('inscripciones_requisitos as p', 'convocatorias_respuestas.requisito_id', '=', 'p.requisito_id');
 
         $query = $query->where('inscripcion_id', $request->id);
 
         return Excel::download(new InscripcionesRespuestasExport($query), 'respuestasInscripcion.xlsx');
     }
 
-    public function intervencion($inscripcion)
-    {
-        // Crear intervención solo si el estado es Admitido (3) o No Admitido (4)
-        if($inscripcion->inscripcionestado_id == 3 || $inscripcion->inscripcionestado_id == 4)
-        {
-            $fecha_fin = ConvocatoriaInscripcionHistorial::where('inscripcion_id', $inscripcion->inscripcion_id)
+    public function intervencion($inscripcion) {
+        // Definimos los estados permitidos: Admitido (3) o No Admitido (4)
+        $estadosPermitidos = [3, 4];
+
+        if (in_array($inscripcion->inscripcionestado_id, $estadosPermitidos)) {
+            // Si no tienes la relación, puedes usar un pequeño mapeo manual
+        $nombreEstado = $inscripcion->estado->nombre ?? ($inscripcion->inscripcionestado_id == 3 ? 'Admitido' : 'No Admitido');
+
+            // Obtenemos la fecha de creación del historial para marcar el inicio
+            $fecha_inicio = ConvocatoriaInscripcionHistorial::where('inscripcion_id', $inscripcion->inscripcion_id)
                 ->where('inscripcionestado_id', $inscripcion->inscripcionestado_id)
                 ->orderBy('fecha_creacion', 'desc')
                 ->value('fecha_creacion');
 
             $data = [
-                'asesor_id' => Auth::user()->id,
-                'unidadproductiva_id' => $inscripcion->unidadproductiva_id,
-                'descripcion' => 'Intervención generada automáticamente tras cambio de estado de inscripción.',
-                'fecha_inicio' => $fecha_fin,
-                'fecha_fin' => Carbon::now(),
-                'categoria_id' => 1,
-                'tipo_id' => 1,
-                'referencia_id' => $inscripcion->convocatoria_id,
-                'modalidad' => 'Virtual',
+                'asesor_id'     => Auth::user()->id,
+                'descripcion'   => "Cambio de estado a {$nombreEstado}. Intervención generada automáticamente tras cambio de estado de inscripción.",
+                'fecha_inicio'  => $fecha_inicio,
+                'fecha_fin'     => Carbon::now(),
+                'categoria_id'  => UnidadProductivaIntervenciones::CATEGORIA_GESTION_PROGRAMAS,
+                'tipo_id'       => UnidadProductivaIntervenciones::TIPO_GESTION_INSCRIPCIONES,
+                'modalidad'     => 'Virtual',
                 'participantes' => 1,
-                'conclusiones' => 'Intervención generada automáticamente tras cambio de estado de inscripción.',
+                'conclusiones' => ($inscripcion->comentarios ?? 'Sin observaciones en el cambio de estado.')
+                    . 'Intervención generada automáticamente tras cambio de estado de inscripción.',
+                // si es necesario, asegúrate de agregarlo al modelo.
             ];
 
-            UnidadProductivaIntervenciones::create($data);
+            // Usamos el nuevo método estático para registrar e impactar la relación
+            UnidadProductivaIntervenciones::registrarParaUnidad($inscripcion->unidadproductiva_id, $data);
         }
     }
-
 }
