@@ -186,6 +186,7 @@ use App\Http\Controllers\SeccionesController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\IntervencionesController;
 use App\Http\Controllers\ReporteMensualController;
+use App\Http\Controllers\Soporte\PaginasSoporte;
 use App\Http\Controllers\Whatsapp\WhatsappCategoryController;
 use App\Http\Controllers\Whatsapp\WhatsappTemplateController;
 use App\Http\Controllers\Whatsapp\WhatsappTestSendController;
@@ -199,6 +200,8 @@ Route::get('/login', [AuthController::class, 'index']);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
+
+Route::get('/en-construccion', [PaginasSoporte::class, 'construccion'])->name('soporte.construccion');
 
 
 Route::middleware(['auth'])->prefix('soporte')->group(function () {
