@@ -25,7 +25,7 @@
         <li class="menu-item mt-7">
             <a class="menu-link" href="/dashboard">
                 <i class="menu-icon icon-base ri ri-dashboard-fill me-1"></i>
-                <div>Dashboard</div>
+                <div>Panel de Inicio</div>
             </a>
         </li>
 
@@ -46,7 +46,7 @@
                 $menuUrl = $menu->url ?? '';
             @endphp
 
-            @if ($menu->icon == null && $menu->url == null)
+            @if ($menu->url == null)
                 <li class="menu-header mt-5">
                     <span class="menu-header-text">{{ $menu->label }}</span>
                 </li>
