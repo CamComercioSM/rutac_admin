@@ -1,6 +1,5 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu">
 
-    <!-- ! Hide app brand if navbar-full -->
     <div class="app-brand demo">
         <a href="{{ url('/') }}" class="app-brand-link">
             <span class="app-brand-logo demo me-1">
@@ -22,38 +21,44 @@
 
     <ul class="menu-inner py-1 mb-5">
 
-        <li class="menu-item mt-7">
-            <a class="menu-link" href="/dashboard">
+        <li class="menu-item mt-7 {{ $currentRoute === '/dashboard' ? 'active' : '' }}">
+            <a class="menu-link" href="{{ url('/dashboard') }}">
                 <i class="menu-icon icon-base ri ri-dashboard-fill me-1"></i>
                 <div>Panel de Inicio</div>
             </a>
         </li>
 
         @foreach (session('user_menu', []) as $menu)
-
             @php
+                $menuUrl = $menu->url ?? '';
                 $isParentActive = false;
 
-                if ($menu->submenus && $menu->submenus->isNotEmpty()) {
+                // Determinar si algún hijo está activo para abrir el menú desplegable
+                if (isset($menu->submenus) && $menu->submenus->isNotEmpty()) {
                     foreach ($menu->submenus as $submenu) {
-                        if ($currentRoute === $submenu->url) {
+                        if ($currentRoute === ($submenu->url ?? '')) {
                             $isParentActive = true;
                             break;
                         }
                     }
                 }
-                // Pre-procesar la URL del menú padre para evitar el objeto UrlGenerator
-                $menuUrl = $menu->url ?? '';
             @endphp
 
-            @if ($menu->icon == null && $menu->url == null)
+            {{-- CASO 1: ES UN ENCABEZADO / SEPARADOR --}}
+            @if ($menu->type === 'HEADER')
                 <li class="menu-header mt-5">
+                    @isset($menu->icon)
+                        <i class="menu-icon icon-base ri {{ $menu->icon }} me-1"></i>
+                    @endisset
                     <span class="menu-header-text">{{ $menu->label }}</span>
                 </li>
+
+            {{-- CASO 2: ES UN ENLACE (CON O SIN SUBMENÚS) --}}
             @else
-                <li
-                    class="menu-item {{ $currentRoute === $menu->url ? 'active' : '' }} {{ $isParentActive ? 'open' : '' }}">
+                <li class="menu-item {{ $currentRoute === $menuUrl ? 'active' : '' }} {{ $isParentActive ? 'open' : '' }}">
+                    
                     @if (isset($menu->submenus) && $menu->submenus->isNotEmpty())
+                        {{-- Menu con Submenús (Dropdown) --}}
                         <a href="javascript:void(0);" class="menu-link menu-toggle">
                             @isset($menu->icon)
                                 <i class="menu-icon icon-base ri {{ $menu->icon }} me-1"></i>
@@ -63,11 +68,9 @@
 
                         <ul class="menu-sub">
                             @foreach ($menu->submenus as $submenu)
-                                @php $submenuUrl = $submenu->url ?? ''; @endphp
-                                <li class="menu-item {{ $currentRoute === $submenuUrl ? 'active' : '' }}">
-                                    {{-- Solución al error: validamos que url() reciba un string --}}
-                                    <a href="{{ !empty($submenuUrl) ? url($submenuUrl) : 'javascript:void(0);' }}"
-                                        class="menu-link">
+                                @php $subUrl = $submenu->url ?? ''; @endphp
+                                <li class="menu-item {{ $currentRoute === $subUrl ? 'active' : '' }}">
+                                    <a href="{{ !empty($subUrl) ? url($subUrl) : 'javascript:void(0);' }}" class="menu-link">
                                         @isset($submenu->icon)
                                             <i class="menu-icon icon-base ri {{ $submenu->icon }} me-1"></i>
                                         @endisset
@@ -77,6 +80,7 @@
                             @endforeach
                         </ul>
                     @else
+                        {{-- Enlace simple sin submenús --}}
                         <a href="{{ !empty($menuUrl) ? url($menuUrl) : 'javascript:void(0);' }}" class="menu-link">
                             @isset($menu->icon)
                                 <i class="menu-icon icon-base ri {{ $menu->icon }} me-1"></i>
@@ -88,7 +92,5 @@
             @endif
 
         @endforeach
-
     </ul>
-
 </aside>

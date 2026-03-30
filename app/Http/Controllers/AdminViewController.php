@@ -74,6 +74,8 @@ class AdminViewController extends Controller {
                 'novedadesSoporte' => \App\Models\Soporte\SoporteNovedad::activas()->get(),
             ];
 
+            
+
         return view("dashboard", $data);
     }
 
