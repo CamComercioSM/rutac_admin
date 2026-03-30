@@ -46,7 +46,7 @@
                 $menuUrl = $menu->url ?? '';
             @endphp
 
-            @if ($menu->url == null)
+            @if ($menu->icon == null && $menu->url == null)
                 <li class="menu-header mt-5">
                     <span class="menu-header-text">{{ $menu->label }}</span>
                 </li>
