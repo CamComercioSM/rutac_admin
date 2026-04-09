@@ -103,57 +103,73 @@
   @include('_partials.consultaExpedienteMercantil')
 
 <a href="https://chat.whatsapp.com/Ft4XIbgDtjkKR33gKzBLCK" 
-   class="whatsapp-float" 
-   target="_blank">
+   class="btn btn-primary toggle-btn waves-effect waves-light whatsapp-float" 
+   target="_blank" rel="noopener noreferrer">
     <i class="icon-base ri ri-whatsapp-line"></i>
-    <span class="wsp-text">Soporte</span>
+    <span class="btn-text">Soporte</span>
 </a>
 
 <style>
 .whatsapp-float {
     position: fixed;
-    right: 5px;
-    top: 85vh;
-    transform: translateY(-50%);
-
-    background-color: #25D366;
-    color: white;
-    padding: 12px 18px;
-    border-radius: 50px;
-    text-decoration: none;
-    font-size: 18px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    right: 0;
+    bottom: 25%;
+    top: auto;
+    transform: none;
+    border-radius: 25px 0 0 25px;
+    padding: 8px;
+    transition: all 0.3s ease;
     z-index: 9999;
-    transition: all 0.25s ease;
+    white-space: nowrap;
+    background-color: #128C7E;
+    border-color: #0f7b66;
+}
+
+.whatsapp-float .btn-text {
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
 }
 
 .whatsapp-float:hover {
-    background-color: #1ebe5d;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    padding-left: 12px;
+    padding-right: 18px;
 }
 
-/* Icono */
+.whatsapp-float:hover .btn-text {
+    max-width: 220px;
+    opacity: 1;
+    padding-left: 5px;
+}
+
 .whatsapp-float i {
     font-size: 24px;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
 }
 
-/* 📱 En celulares: ocultar texto y hacer botón circular */
 @media (max-width: 768px) {
     .whatsapp-float {
-        padding: 14px;
-        border-radius: 50%;
+        top: auto;
+        bottom: 20px;
+        right: 20px;
         width: 55px;
         height: 55px;
+        padding: 0;
+        border-radius: 50%;
         justify-content: center;
-        gap: 0;
+        display: inline-flex;
     }
 
-    .wsp-text {
+    .whatsapp-float:hover {
+        width: 55px;
+        padding: 0;
+        border-radius: 50%;
+    }
+
+    .whatsapp-float .btn-text {
         display: none;
     }
 }

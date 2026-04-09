@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Previsualización - Informe de Intervenciones</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @include('intervenciones.partials.informe-styles')
+    @include('intervenciones.partials.informe.informe-styles')
 </head>
 
 <body>
@@ -34,7 +34,7 @@
         </div>
 
         {{-- contenido reutilizable --}}
-        @include('intervenciones.partials.informe-contenido', [
+        @include('intervenciones.partials.informe.informe-contenido', [
             'mostrarIA' => true,
         ])
 

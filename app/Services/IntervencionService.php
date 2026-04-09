@@ -230,8 +230,8 @@ class IntervencionService {
         // ========================= QUERY BASE =========================
         $baseQuery = UnidadProductivaIntervenciones::whereBetween('fecha_inicio', [$fi, $ff])
             ->whereNull('fecha_eliminacion') //
-            ->where('estado', 'REPORTADO')   //
-            ->when($asesor, fn($q) => $q->where('asesor_id', $asesor))
+            //->where('estado', 'REPORTADO')   //
+            //->when($asesor, fn($q) => $q->where('asesor_id', $asesor))
             ->when($unidadReq, function ($q) use ($unidadReq) {
                 // ✅ filtro correcto por relación hija
                 $q->whereHas('unidades', function ($sub) use ($unidadReq) {

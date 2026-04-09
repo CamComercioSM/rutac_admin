@@ -131,190 +131,12 @@
 @endsection
 
 @section('modals')
-    <div class="modal fade" id="importModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h5 class="modal-title">Importar Intervenciones</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <form id="formImport" enctype="multipart/form-data">
-                    @csrf
-
-                    <div class="modal-body">
-                        <p class="mb-2">Seleccione archivo Excel (.xlsx)</p>
-                        <input type="file" name="archivo" class="form-control" accept=".xlsx" required>
-
-                        <div class="alert alert-danger d-none mt-3" id="importErrors"></div>
-
-                        <div class="mt-3">
-                            <a href="/plantilla_intervenciones.xlsx" class="btn btn-outline-primary btn-sm"> Descargar
-                                plantilla
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success" id="btnUpload">Importar</button>
-                    </div>
-                </form>
-
-            </div>
-        </div>
-    </div>
-
-    {{-- ========================= MODAL INFORME AJUSTADO ========================= --}}
-    <div class="modal fade" id="informeModal" tabindex="-1">
-        <div class="modal-dialog modal-lg"> {{-- tamaño más adecuado Materio --}}
-            <div class="modal-content">
-                <form id="formPreviewInforme" action="{{ url('/intervenciones/informe/preview') }}" method="POST"
-                    target="_blank">
-                    @csrf
-
-                    {{-- Campos ocultos que se envían --}}
-                    <input type="hidden" name="asesor" id="preview_asesor">
-                    <input type="hidden" name="unidad" id="preview_unidad">
-
-                    <div class="modal-header">
-                        <h5 class="modal-title">Informe Intervenciones</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-
-                    <div class="modal-body">
-
-                        <div class="row g-3">
-
-                            {{-- FECHA INICIO --}}
-                            <div class="col-md-6">
-                                <label class="form-label">Fecha Inicio</label>
-                                <input type="date" class="form-control" id="fecha_inicio_informe" name="fecha_inicio"
-                                    required>
-                            </div>
-
-                            {{-- FECHA FIN --}}
-                            <div class="col-md-6">
-                                <label class="form-label">Fecha Fin</label>
-                                <input type="date" class="form-control" id="fecha_fin_informe" name="fecha_fin"
-                                    required>
-                            </div>
-
-                            {{-- CONCLUSIONES --}}
-                            <div class="col-12">
-                                <label class="form-label">Conclusiones</label>
-                                <div id="conclusionesI"></div>
-                                <input type="hidden" name="conclusiones" id="conclusionesI_input">
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
-                            Cancelar
-                        </button>
-                        <button type="submit" class="btn btn-primary" id="btnExportInforme">
-                            Generar Informe
-                        </button>
-                    </div>
-
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="textoCompletoModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="textoCompletoModalTitle">Texto completo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="textoCompletoModalContent" style="max-height: 70vh; overflow-y: auto;"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="modalNuevoParticipante" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h5 class="modal-title">Nuevo participante</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="row g-3">
-
-                        <!-- Tipo documento -->
-                        <div class="col-md-4">
-                            <label class="form-label">Tipo documento *</label>
-                            <select class="form-select" id="lead_type">
-                                <option value="1">Cédula</option>
-                                <option value="2">NIT</option>
-                                <option value="3">Cédula extranjería</option>
-                                <option value="4">Tarjeta de Identidad</option>
-                                <option value="5">Pasaporte</option>
-                            </select>
-                        </div>
-
-                        <!-- Documento -->
-                        <div class="col-md-4">
-                            <label class="form-label">Documento *</label>
-                            <input type="text" class="form-control" id="lead_document">
-                        </div>
-
-                        <!-- Teléfono -->
-                        <div class="col-md-4">
-                            <label class="form-label">Teléfono *</label>
-                            <input type="text" class="form-control" id="lead_phone">
-                        </div>
-
-                        <!-- Nombre -->
-                        <div class="col-md-12">
-                            <label class="form-label">Nombre *</label>
-                            <input type="text" class="form-control" id="lead_name">
-                        </div>
-
-                        <!-- Correo -->
-                        <div class="col-md-6">
-                            <label class="form-label">Correo</label>
-                            <input type="email" class="form-control" id="lead_email">
-                        </div>
-
-                        <!-- Observaciones -->
-                        <div class="col-md-6">
-                            <label class="form-label">Observaciones</label>
-                            <input type="text" class="form-control" id="lead_description">
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-                    <button class="btn btn-primary" onclick="guardarLead()">
-                        Guardar
-                    </button>
-                </div>
-
-            </div>
-        </div>
-    </div>
+    @include('intervenciones.partials.modals.import')
+    @include('intervenciones.partials.modals.informe')
+    @include('intervenciones.partials.modals.texto-completo')
+    @include('intervenciones.partials.modals.nuevo-participante')
 @endsection
+
 
 @section('script')
     @vite(['resources/assets/vendor/libs/quill/typography.scss', 'resources/assets/vendor/libs/quill/editor.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss'])
@@ -864,10 +686,7 @@
                 }
             });
 
-            $('#btnInforme').on('click', function() {
-
-                return Helpers.notificarEnConstruccion();                
-
+            $('#btnInforme').on('click', function() {          
                 sincronizarFechasModal();
 
                 // Otros filtros

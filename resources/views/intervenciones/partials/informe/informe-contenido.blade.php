@@ -7,6 +7,101 @@
     </p>
 </div>
 
+{{-- 1. PORTADA --}}
+<div class="portada">
+    <img src="https://cdnsicam.net/img/rutac/rutac-logo-con-ccsm.png" style="max-height: 120px;">
+    <h1>Informe de Gestión de Intervenciones</h1>
+    <h3 class="text-muted">Ruta de Crecimiento (Ruta C)</h3>
+    <div style="margin-top: 50px;">
+        <p><strong>Periodo:</strong> {{ $inicio }} - {{ $fin }}</p>
+        <p><strong>Generado por:</strong> Sistema Administrativo Ruta C</p>
+        <p><strong>Fecha de emisión:</strong> {{ date('d/m/Y') }}</p>
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+{{-- 2. RESUMEN EJECUTIVO Y ANÁLISIS AUTOMÁTICO --}}
+<div class="resumen-ejecutivo">
+    <h2 style="border:none; margin-top:0;">1. Resumen Ejecutivo</h2>
+    <p>
+        Durante el periodo comprendido entre el <strong>{{ $inicio }}</strong> y el <strong>{{ $fin }}</strong>, 
+        se han ejecutado un total de <strong>{{ $totalGeneral }}</strong> intervenciones técnicas. 
+        Este esfuerzo se ha distribuido en <strong>{{ count($porUnidad) }}</strong> unidades productivas únicas, 
+        impactando significativamente en el fortalecimiento del ecosistema empresarial regional.
+    </p>
+    
+    <div class="alert alert-info mt-3" style="background: #eef1f7; border-left: 5px solid #0e188a; padding: 15px;">
+        <strong>Análisis de Cobertura:</strong> 
+        @php
+            $promedioIntervenciones = count($porUnidad) > 0 ? round($totalGeneral / count($porUnidad), 1) : 0;
+        @endphp
+        Se registra un promedio de <strong>{{ $promedioIntervenciones }}</strong> intervenciones por unidad productiva. 
+        La categoría con mayor recurrencia es <strong>{{ $porCategoria->first()->categoria->nombre ?? 'N/A' }}</strong>, 
+        lo que sugiere una tendencia de necesidad técnica en dicha área.
+    </div>
+</div>
+
+{{-- 3. INDICADORES CONSOLIDADOS (Kpis) --}}
+<div class="row text-center mb-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0" style="background: #0e188a; color: white;">
+            <div class="card-body">
+                <small>Total Actividades</small>
+                <h3>{{ $totalGeneral }}</h3>
+            </div>
+        </div>
+    </div>
+    {{-- Repetir estructura para Unidades, Categorías y Transversales con diferentes colores --}}
+</div>
+
+{{-- 4. TABLAS DE DISTRIBUCIÓN (Categorías y Tipos) --}}
+<div class="row">
+    <div class="col-6">
+        <h2>2. Distribución por Categoría</h2>
+        {{-- Tabla de categorías aquí --}}
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+{{-- 5. DETALLE TÉCNICO --}}
+<h2>3. Listado Detallado de Gestión</h2>
+<p class="text-muted small">Cronología de actividades y evidencias de soporte registradas.</p>
+{{-- Mantener la tabla de intervencionesDetalladas pero con fuentes optimizadas --}}
+
+{{-- 6. CONCLUSIONES INSTITUCIONALES --}}
+<div class="conclusiones-section">
+    <h2>4. Conclusiones y Recomendaciones</h2>
+    <div class="contenido-html">
+        @if($conclusiones)
+            {!! $conclusiones !!}
+        @else
+            <p>Se recomienda mantener el seguimiento constante a las unidades intervenidas para asegurar la sostenibilidad de las acciones implementadas durante este periodo.</p>
+        @endif
+    </div>
+</div>
+
+{{-- 7. ANÁLISIS IA (Si aplica) --}}
+@if (!empty($analisis_ia) && ($mostrarIA ?? false))
+    <div class="conclusiones-section" style="border-left-color: #28a745;">
+        <h2>5. Hallazgos Estratégicos (IA)</h2>
+        <div>{!! $analisis_ia !!}</div>
+    </div>
+@endif
+
+{{-- 8. FIRMAS --}}
+<div class="firma-section">
+    <div class="firma-box">
+        <strong>Asesor Responsable</strong><br>
+        Ruta de Crecimiento
+    </div>
+    <div class="firma-box">
+        <strong>Coordinación</strong><br>
+        CCSM / Ruta C
+    </div>
+</div>
+
 <div class="row text-center mb-4">
     <div class="col-md-4">
         <div class="card shadow-sm border-0">
@@ -116,7 +211,6 @@
 
 <!-- LISTADO DETALLADO -->
 <h2>Listado Detallado de Intervenciones</h2>
-
 @php
     $intervencionesDetalladas = collect($intervenciones)->filter(function ($i) {
         return !empty($i->unidadproductiva_id) || !empty($i->lead_id);

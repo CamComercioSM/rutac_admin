@@ -95,11 +95,9 @@
 <body>
 
     {{-- contenido reutilizable --}}
-    @include('intervenciones.partials.informe-contenido', [
+    @include('intervenciones.partials.informe.informe-contenido', [
         'mostrarIA' => false,
     ])
-
-
 
 </body>
 
