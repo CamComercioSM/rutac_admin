@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Intervenciones;
 
 use App\Exports\IntervencionesExport;
 use App\Imports\UnidadProductivaIntervencionesImport;
 use App\Http\Controllers\Controller;
-use App\Models\Empresarios\UnidadProductivaIntervenciones;
 use App\Models\Empresarios\UnidadProductiva;
+use App\Models\Intervenciones\UnidadProductivaIntervenciones;
 use App\Models\Intervenciones\IntervencionLead;
 use App\Models\Intervenciones\IntervencionUnidad;
+use App\Models\Intervenciones\ReporteMensual;
 use App\Models\Lead;
 use App\Models\Programas\FasePrograma;
 use App\Models\Programas\Programa;
 use App\Models\Programas\ProgramaConvocatoria;
-use App\Models\ReporteMensual;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\TablasReferencias\CategoriasIntervenciones;
@@ -28,14 +28,12 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use PDF;
 
-class IntervencionesController extends Controller
-{
+class IntervencionesController extends Controller {
 
     /**
      * Muestra la vista principal con los datos para los selectores.
      */
-    public function list(Request $request)
-    {
+    public function list(Request $request) {
         $data = [
             'programas' => Programa::get(),
             'convocatorias' => ProgramaConvocatoria::get(),
@@ -65,8 +63,7 @@ class IntervencionesController extends Controller
      * Endpoint para DataTables. 
      * Delegamos la construcción del Query al Servicio.
      */
-    public function index(Request $request, IntervencionService $service)
-    {
+    public function index(Request $request, IntervencionService $service) {
         $filters = $request->all();
 
         $query = $service->getListQuery($filters, Auth::user());
@@ -88,8 +85,7 @@ class IntervencionesController extends Controller
     /**
      * Exportación a Excel usando el Query del servicio.
      */
-    public function export(Request $request, IntervencionService $service)
-    {
+    public function export(Request $request, IntervencionService $service) {
         $query = $service->getListQuery($request->all());
         return Excel::download(new IntervencionesExport($query), 'Intervenciones.xlsx');
     }
@@ -97,8 +93,7 @@ class IntervencionesController extends Controller
     /**
      * Importación masiva desde Excel.
      */
-    public function import(Request $request)
-    {
+    public function import(Request $request) {
         // 1. Validar que el archivo exista y sea del tipo correcto
         $request->validate([
             'archivo' => 'required|mimes:xlsx,xls,csv|max:10240', // Máx 10MB
@@ -120,8 +115,7 @@ class IntervencionesController extends Controller
     /**
      * Guardado de nueva intervención.
      */
-    public function store(Request $request, IntervencionService $service)
-    {
+    public function store(Request $request, IntervencionService $service) {
         try {
             DB::beginTransaction();
 
@@ -222,8 +216,7 @@ class IntervencionesController extends Controller
     /**
      * Eliminación con SoftDeletes.
      */
-    public function destroy($id)
-    {
+    public function destroy($id) {
         try {
             DB::beginTransaction();
             $intervencion = UnidadProductivaIntervenciones::findOrFail($id);
@@ -241,8 +234,7 @@ class IntervencionesController extends Controller
         }
     }
 
-    public function show($id)
-    {
+    public function show($id) {
         $intervencion = UnidadProductivaIntervenciones::with([
             'unidades.unidadProductiva',
             'leads.lead',
@@ -255,8 +247,7 @@ class IntervencionesController extends Controller
         return response()->json($intervencion);
     }
 
-    public function edit($id)
-    {
+    public function edit($id) {
         $intervencion = UnidadProductivaIntervenciones::findOrFail($id);
 
         // Cargamos los mismos datos del método list() para los selects
@@ -279,8 +270,7 @@ class IntervencionesController extends Controller
     /**
      * Muestra la previsualización del informe antes de generar el PDF o guardar.
      */
-    public function preview(Request $request, IntervencionService $service, IAService $iaService)
-    {
+    public function preview(Request $request, IntervencionService $service, IAService $iaService) {
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date',
@@ -303,40 +293,48 @@ class IntervencionesController extends Controller
             'usuario_actualizo'    => Auth::id(),
         ]);
 
+        $data['reporte'] = $reporte;
         $data['reporte_id'] = $reporte->id;
-
+        $data['asesor'] = $reporte->asesor;
+        $data['supervisor'] = $reporte->supervisor; 
         return view('intervenciones.preview', $data);
     }
 
     /**
      * Genera el PDF para visualización inmediata (Stream).
      */
-    public function informe(Request $request, IntervencionService $service)
-    {
+    public function informe(Request $request, IntervencionService $service) {
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date',
+            'reporte_id'   => 'required|exists:reportes_mensuales,id'
         ]);
+
+
 
         $data = $service->getInformeData($request->all(), Auth::user());
         $data['analisis_ia'] = null; // Opcional en el PDF según tu lógica
+        $reporte = \App\Models\Intervenciones\ReporteMensual::with(['asesor', 'supervisor'])
+            ->findOrFail($request->reporte_id);
+        $data['reporte'] = $reporte;
+        $data['asesor'] = $reporte->asesor;
+        $data['supervisor'] = $reporte->supervisor;
+
 
         // Asegurar que la carpeta de almacenamiento existe
         $carpeta = public_path('storage/InformesIntervenciones');
         if (!file_exists($carpeta)) {
             mkdir($carpeta, 0777, true);
         }
-
         $pdf = PDF::loadView('intervenciones.informe', $data)->setPaper('a4', 'portrait');
 
-        return $pdf->stream('informe_intervenciones_'.uniqid().'.pdf');
+        return $pdf->stream('informe_intervenciones_' . uniqid() . '.pdf');
     }
 
     /**
      * Guarda el informe físico (PDF) y actualiza el registro mensual en la DB.
      */
-    public function saveInforme(Request $request, IntervencionService $service)
-    {
+    public function saveInforme(Request $request, IntervencionService $service) {
         $request->validate([
             'mes'  => 'required|integer',
             'anio' => 'required|integer',

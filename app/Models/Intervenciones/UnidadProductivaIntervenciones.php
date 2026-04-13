@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Empresarios;
+namespace App\Models\Intervenciones;
 
 use App\Models\Intervenciones\IntervencionLead;
 use App\Models\Intervenciones\IntervencionUnidad;

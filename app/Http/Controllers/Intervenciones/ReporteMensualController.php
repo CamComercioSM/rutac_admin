@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Intervenciones;
 
 use App\Exports\ReporteMensualExport;
 use App\Models\Empresarios\UnidadProductivaIntervenciones;

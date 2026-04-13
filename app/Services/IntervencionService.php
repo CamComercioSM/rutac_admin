@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Helpers\QueryHelper;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Role;
-use App\Models\ReporteMensual;
-use App\Models\Empresarios\UnidadProductivaIntervenciones;
+use App\Models\Intervanciones\ReporteMensual;
+use App\Models\Intervenciones\UnidadProductivaIntervenciones;
 use App\Models\Intervenciones\IntervencionLead;
 use App\Models\Intervenciones\IntervencionUnidad;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -21,7 +21,7 @@ class IntervencionService {
      * clasificaciones, filtros y ORDENAMIENTO original.
      */
     public function getListQuery(array $filters, $user) {
-        $query = UnidadProductivaIntervenciones::query() 
+        $query = UnidadProductivaIntervenciones::query()
             ->select([
                 'unidadesproductivas_intervenciones.*',
                 DB::raw('(COALESCE(unidadesproductivas_intervenciones.participantes, 0) + COALESCE(unidadesproductivas_intervenciones.participantes_otros, 0)) AS participantes_total'),
@@ -267,7 +267,7 @@ class IntervencionService {
                 )
                 ->whereBetween('i.fecha_inicio', [$fi, $ff])
                 ->whereNull('i.fecha_eliminacion')
-                ->where('i.estado', 'REPORTADO')
+                //->where('i.estado', 'REPORTADO')
                 ->when($asesor, fn($q) => $q->where('i.asesor_id', $asesor))
                 ->groupBy('iu.unidadproductiva_id')
                 ->get(),
@@ -281,7 +281,7 @@ class IntervencionService {
                 )
                 ->whereBetween('i.fecha_inicio', [$fi, $ff])
                 ->whereNull('i.fecha_eliminacion')
-                ->where('i.estado', 'REPORTADO')
+                //->where('i.estado', 'REPORTADO')
                 ->when($asesor, fn($q) => $q->where('i.asesor_id', $asesor))
                 ->groupBy('il.lead_id')
                 ->get(),

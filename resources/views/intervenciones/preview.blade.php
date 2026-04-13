@@ -12,6 +12,11 @@
 
 <body>
     <div class="preview-container">
+
+        <div class="preview-header">            
+            <h4>Reporte generado automáticamente con base en intervenciones registradas en el sistema RUTAC desde {{ $inicio }} hasta {{ $fin }}.</h4>
+        </div>
+
         <div class="preview-actions">
             <button type="button" class="btn btn-secondary" onclick="window.close()">Cerrar</button>
             <form id="formGenerarPDF" method="POST" action="{{ url('/intervenciones/informe/generar') }}"
