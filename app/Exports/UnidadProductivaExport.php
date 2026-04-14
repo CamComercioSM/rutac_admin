@@ -12,24 +12,20 @@ use Maatwebsite\Excel\Concerns\{
     Exportable
 };
 
-class UnidadProductivaExport implements FromQuery, WithMapping, WithHeadings, WithChunkReading, ShouldQueue
-{
+class UnidadProductivaExport implements FromQuery, WithMapping, WithHeadings, WithChunkReading, ShouldQueue {
     use Exportable;
 
     protected Builder $query;
 
-    public function __construct(Builder $query)
-    {
+    public function __construct(Builder $query) {
         $this->query = $query;
     }
 
-    public function query(): Builder
-    {
+    public function query(): Builder {
         return $this->query;
     }
 
-    public function headings(): array
-    {
+    public function headings(): array {
         return [
             'ID',
             'Fecha de registro',
@@ -40,15 +36,19 @@ class UnidadProductivaExport implements FromQuery, WithMapping, WithHeadings, Wi
             'Email',
             'Tipo persona',
             'Sector',
+            'Respuesta 113',
+            'Respuesta 114',
+            'Ventas (Clasificación)',
+            'Ventas desde',
+            'Ventas hasta',
             'Tamaño',
             'Etapa',
             'Departamento',
-            'Municipio',           
+            'Municipio',
         ];
     }
 
-    public function map($row): array
-    {
+    public function map($row): array {
         return [
             $row->id,
             $row->fecha_creacion,
@@ -59,6 +59,11 @@ class UnidadProductivaExport implements FromQuery, WithMapping, WithHeadings, Wi
             $row->registration_email,
             $row->tipo_persona,
             $row->sector,
+            $row->respuesta_113 ?? '',
+            $row->respuesta_114 ?? '',
+            $row->ventas_anuales ?? '',
+            $row->ventas_inicio ?? '',
+            $row->ventas_final ?? '',
             $row->tamano,
             $row->etapa,
             $row->departamento,
@@ -66,8 +71,7 @@ class UnidadProductivaExport implements FromQuery, WithMapping, WithHeadings, Wi
         ];
     }
 
-    public function chunkSize(): int
-    {
+    public function chunkSize(): int {
         return 500;
     }
 }

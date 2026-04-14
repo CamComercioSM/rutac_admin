@@ -241,7 +241,7 @@ class IntervencionService {
 
         // ========================= DATA DETALLE =========================
         $intervenciones = (clone $baseQuery)
-            ->with(['unidadProductiva', 'lead', 'asesor', 'categoria', 'tipo', 'fase'])
+            ->with(['asesor', 'categoria', 'tipo', 'fase'])
             ->orderBy('fecha_inicio', 'ASC')
             ->get();
 

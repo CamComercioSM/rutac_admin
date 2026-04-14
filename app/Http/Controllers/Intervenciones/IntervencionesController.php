@@ -293,10 +293,54 @@ class IntervencionesController extends Controller {
             'usuario_actualizo'    => Auth::id(),
         ]);
 
+        // 🔹 Periodo (aún no tienes anio/mes, usamos fechas)
+        $data['periodo'] = Carbon::parse($data['inicio'])->translatedFormat('F Y');
+
+        // 🔹 Fecha generación
+        $data['fecha_generacion'] = now()->format('d/m/Y');
+
+        // 🔹 Estado (preview aún no tiene estado definido)
+        $data['estado_legible'] = 'En construcción';
+
+        // 🔹 Meta y avance (aún no evaluado)
+        $data['meta_texto'] = 'Pendiente de evaluación';
+        $data['avance_texto'] = 'Pendiente de evaluación';
+
         $data['reporte'] = $reporte;
         $data['reporte_id'] = $reporte->id;
         $data['asesor'] = $reporte->asesor;
-        $data['supervisor'] = $reporte->supervisor; 
+        $data['supervisor'] = $reporte->supervisor;
+        $data['total_intervenciones'] = $data['totalGeneral'] ?? 0;
+        $data['total_unidades'] = count($data['porUnidad'] ?? []);
+
+
+        // =========================
+        // RESUMEN EJECUTIVO AUTOMÁTICO
+        // =========================
+        $total = $data['totalGeneral'] ?? 0;
+        $unidades = count($data['porUnidad'] ?? []);
+        $categoriaTop = collect($data['porCategoria'] ?? [])->sortByDesc('total')->first();
+        $tipoTop = collect($data['porTipo'] ?? [])->sortByDesc('total')->first();
+        $texto = "Durante el periodo analizado se registraron {$total} intervenciones";
+        if ($unidades > 0) {
+            $texto .= ", impactando {$unidades} unidades productivas";
+        }
+        $texto .= ".";
+        if ($categoriaTop) {
+            $texto .= " La categoría predominante fue {$categoriaTop->categoria->nombre} ({$categoriaTop->total}).";
+        }
+        if ($tipoTop) {
+            $texto .= " El tipo de intervención más frecuente fue {$tipoTop->tipo->nombre} ({$tipoTop->total}).";
+        }
+        // Evaluación (si ya existe)
+        if (!empty($reporte->meta_intervenciones) && !empty($reporte->avance_meta)) {
+            $porcentaje = $reporte->meta_intervenciones > 0
+                ? round(($reporte->avance_meta / $reporte->meta_intervenciones) * 100, 1)
+                : 0;
+            $texto .= " Se alcanzó un {$porcentaje}% de la meta establecida.";
+        }
+        $data['resumen_ejecutivo'] = $texto;
+        
         return view('intervenciones.preview', $data);
     }
 

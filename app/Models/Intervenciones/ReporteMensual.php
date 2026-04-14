@@ -2,6 +2,7 @@
 
 namespace App\Models\Intervenciones;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -14,22 +15,28 @@ class ReporteMensual extends Model {
         'asesor_id',
         'anio',
         'mes',
+
         'total_intervenciones',
         'total_unidades',
+        
         'estado',
         'conclusiones',
         'observaciones_supervisor',
         'supervisor_id',
+
         'fecha_generacion',
         'fecha_revision',
         'informe_url',
         'hash_consolidado',
+
         'fecha_creacion',
         'fecha_actualizacion',
         'fecha_eliminacion',
+
         'usuario_creo',
         'usuario_actualizo',
         'usuario_elimino',
+
         'meta_intervenciones',
         'avance_meta'
     ];

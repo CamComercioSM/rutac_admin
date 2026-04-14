@@ -2,11 +2,11 @@
 
 namespace App\Models\Intervenciones;
 
+use App\Models\Programas\FasePrograma;
 use App\Models\Intervenciones\IntervencionLead;
 use App\Models\Intervenciones\IntervencionUnidad;
 use App\Models\Lead;
-use App\Models\Programas\FasePrograma;
-use App\Models\User;
+use App\Models\User; 
 use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
@@ -18,13 +18,11 @@ use Illuminate\Support\Facades\DB;
 class UnidadProductivaIntervenciones extends Model {
     use SoftDeletes, UserTrait;
 
-    // Constantes de Categorías
     const CATEGORIA_GESTION_PROGRAMAS = 1;
     const CATEGORIA_GESTION_CAMPANA = 2;
     const CATEGORIA_SOCIALIZACION = 3;
     const CATEGORIA_VINCULACION = 4;
 
-    // Constantes de Tipos
     const TIPO_GESTION_INSCRIPCIONES = 1;
     const TIPO_WHATSAPP = 2;
     const TIPO_LLAMADA = 3;
@@ -47,9 +45,9 @@ class UnidadProductivaIntervenciones extends Model {
         'referencia_id',
         'modalidad',
 
-        'cant_unidades', // Antes unidadproductiva_id
+        'cant_unidades', 
         'participantes',
-        'cant_leads',    // Antes lead_id
+        'cant_leads',  
         'participantes_otros',
 
         'descripcion',
@@ -63,10 +61,6 @@ class UnidadProductivaIntervenciones extends Model {
     ];
 
     // Relaciones
-    public function unidadProductiva() {
-        return $this->belongsTo(UnidadProductiva::class, 'unidadproductiva_id', 'unidadproductiva_id');
-    }
-
     public function asesor() {
         return $this->belongsTo(User::class, 'asesor_id', 'id');
     }

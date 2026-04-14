@@ -64,7 +64,7 @@ class UnidadProductivaController extends Controller {
 
     function export(Request $request) {
         $query = $this->getQuery($request);
-        return Excel::download(new UnidadProductivaExport($query), 'unidadesProductivas.xlsx');
+        return Excel::download(new UnidadProductivaExport($query), uniqid('UnidadesProductivas-') . '.xlsx');
     }
 
     public function index(Request $request) {
@@ -240,13 +240,17 @@ class UnidadProductivaController extends Controller {
             'dp.departamentonombre as departamento',
             'mp.municipionombreoficial as municipio',
             'etapas.name as etapa',
+            'va.ventasAnualesNOMBRE as ventas_anuales',
+            'va.ventasAnualesINICIO as ventas_inicio',
+            'va.ventasAnualesFINAL as ventas_final',
         ])
             ->leftJoin('etapas', 'unidadesproductivas.etapa_id', '=', 'etapas.etapa_id')
             ->leftJoin('unidadesproductivas_personas as tp', 'unidadesproductivas.tipopersona_id', '=', 'tp.tipopersona_id')
             ->leftJoin('ciiu_macrosectores as st', 'unidadesproductivas.sector_id', '=', 'st.sector_id')
             ->leftJoin('unidadesproductivas_tamanos as tm', 'unidadesproductivas.tamano_id', '=', 'tm.tamano_id')
             ->leftJoin('departamentos as dp', 'unidadesproductivas.department_id', '=', 'dp.departamento_id')
-            ->leftJoin('municipios as mp', 'unidadesproductivas.municipality_id', '=', 'mp.municipio_id');
+            ->leftJoin('municipios as mp', 'unidadesproductivas.municipality_id', '=', 'mp.municipio_id')
+            ->leftJoin('ventasanuales as va', 'unidadesproductivas.ventaanual_id', '=', 'va.ventasAnualesID');
 
         if (!empty($search)) {
             $filterts = ['unidadesproductivas.nit', 'unidadesproductivas.business_name', 'unidadesproductivas.name_legal_representative'];
