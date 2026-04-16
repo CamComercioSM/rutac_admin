@@ -21,7 +21,7 @@ class ConvocatoriaController extends Controller
         $data = [ 
             'programas'=> Programa::get(),
             'sectores'=> Sector::get(),
-            'asesores'=> User::where('rol_id', Role::ASESOR)->get(),
+            'asesores'=> User::whereNotNull('rol_id')->get(),
             'preguntas'=> InscripcionesRequisitos::select('requisito_id', 'requisito_titulo')->get(),
             'puedeExportar'=> Auth::user()->rol_id != Role::ASESOR, 
             'filtros'=> $request->all(),
