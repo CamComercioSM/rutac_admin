@@ -15,7 +15,7 @@ use App\Models\TablasReferencias\TiposIntervenciones;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class UnidadProductivaIntervenciones extends Model {
+class IntervencionUnidadProductiva extends Model {
     use SoftDeletes, UserTrait;
 
     const CATEGORIA_GESTION_PROGRAMAS = 1;
@@ -28,7 +28,7 @@ class UnidadProductivaIntervenciones extends Model {
     const TIPO_LLAMADA = 3;
     const TIPO_CORREO = 4;
 
-    protected $table = 'unidadesproductivas_intervenciones';
+    protected $table = 'intervenciones_unidadesproductivas';
     protected $primaryKey = 'id';
 
     protected $fillable = [

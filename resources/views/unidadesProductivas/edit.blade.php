@@ -271,11 +271,11 @@
         [email1, email2, registration].forEach(el => el.setCustomValidity(''));
 
         // Evitar correos duplicados en el formulario
-        if(email1.value && email2.value && email1.value.trim().toLowerCase() === email2.value.trim().toLowerCase()){
-            email2.setCustomValidity('El email de contacto no puede ser igual al email de registro.');
-            email2.reportValidity();
-            return false;
-        }
+        //if(email1.value && email2.value && email1.value.trim().toLowerCase() === email2.value.trim().toLowerCase()){
+            //email2.setCustomValidity('El email de contacto no puede ser igual al email de registro.');
+            //email2.reportValidity();
+            //return false;
+        //}
 
         return true;
     }

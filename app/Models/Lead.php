@@ -21,4 +21,12 @@ class Lead extends Model {
         'municipality',
         'address'
     ];
+
+    public function intervencionesIndividuales() {
+        return $this->hasMany(
+            \App\Models\Intervenciones\IntervencionIndividual::class,
+            'lead_id',
+            'id'
+        );
+    }
 }

@@ -6,7 +6,7 @@ use App\Helpers\QueryHelper;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Role;
 use App\Models\Intervanciones\ReporteMensual;
-use App\Models\Intervenciones\UnidadProductivaIntervenciones;
+use App\Models\Intervenciones\IntervencionUnidadProductiva;
 use App\Models\Intervenciones\IntervencionLead;
 use App\Models\Intervenciones\IntervencionUnidad;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -21,22 +21,22 @@ class IntervencionService {
      * clasificaciones, filtros y ORDENAMIENTO original.
      */
     public function getListQuery(array $filters, $user) {
-        $query = UnidadProductivaIntervenciones::query()
+        $query = IntervencionUnidadProductiva::query()
             ->select([
-                'unidadesproductivas_intervenciones.*',
-                DB::raw('(COALESCE(unidadesproductivas_intervenciones.participantes, 0) + COALESCE(unidadesproductivas_intervenciones.participantes_otros, 0)) AS participantes_total'),
+                'intervenciones_unidadesproductivas.*',
+                DB::raw('(COALESCE(intervenciones_unidadesproductivas.participantes, 0) + COALESCE(intervenciones_unidadesproductivas.participantes_otros, 0)) AS participantes_total'),
                 DB::raw("CONCAT(users.name, ' ', users.lastname) as asesor"),
                 DB::raw("CASE 
-                            WHEN COALESCE(unidadesproductivas_intervenciones.cant_unidades, 0) > 0 AND COALESCE(unidadesproductivas_intervenciones.cant_leads, 0) > 0 THEN 'MIXTO'
-                            WHEN COALESCE(unidadesproductivas_intervenciones.cant_unidades, 0) > 0 THEN 'REGISTRADO'
-                            WHEN COALESCE(unidadesproductivas_intervenciones.cant_leads, 0) > 0 THEN 'NO REGISTRADO'
+                            WHEN COALESCE(intervenciones_unidadesproductivas.cant_unidades, 0) > 0 AND COALESCE(intervenciones_unidadesproductivas.cant_leads, 0) > 0 THEN 'MIXTO'
+                            WHEN COALESCE(intervenciones_unidadesproductivas.cant_unidades, 0) > 0 THEN 'REGISTRADO'
+                            WHEN COALESCE(intervenciones_unidadesproductivas.cant_leads, 0) > 0 THEN 'NO REGISTRADO'
                             ELSE 'SIN PARTICIPANTES'
                         END as clasificacion"),
                 DB::raw("CASE 
-                        WHEN (COALESCE(unidadesproductivas_intervenciones.cant_unidades, 0) + COALESCE(unidadesproductivas_intervenciones.cant_leads, 0)) > 1 
-                            THEN CONCAT(COALESCE(unidadesproductivas_intervenciones.cant_unidades, 0), ' UP / ', COALESCE(unidadesproductivas_intervenciones.cant_leads, 0), ' Leads')
-                        WHEN COALESCE(unidadesproductivas_intervenciones.cant_unidades, 0) = 1 THEN '1 Unidad Productiva'
-                        WHEN COALESCE(unidadesproductivas_intervenciones.cant_leads, 0) = 1 THEN '1 Lead / Ciudadano'
+                        WHEN (COALESCE(intervenciones_unidadesproductivas.cant_unidades, 0) + COALESCE(intervenciones_unidadesproductivas.cant_leads, 0)) > 1 
+                            THEN CONCAT(COALESCE(intervenciones_unidadesproductivas.cant_unidades, 0), ' UP / ', COALESCE(intervenciones_unidadesproductivas.cant_leads, 0), ' Leads')
+                        WHEN COALESCE(intervenciones_unidadesproductivas.cant_unidades, 0) = 1 THEN '1 Unidad Productiva'
+                        WHEN COALESCE(intervenciones_unidadesproductivas.cant_leads, 0) = 1 THEN '1 Lead / Ciudadano'
                         ELSE 'N/A'
                     END as unidad"),
                 'fases_programas.nombre as fase',
@@ -45,38 +45,38 @@ class IntervencionService {
                 'categorias_intervenciones.nombre as categoria',
                 'tipos_intervenciones.nombre as tipo',
             ])
-            ->leftJoin('fases_programas', 'fases_programas.fase_id', '=', 'unidadesproductivas_intervenciones.fase_id')
-            ->leftJoin('programas_convocatorias as pc', 'pc.convocatoria_id', '=', 'unidadesproductivas_intervenciones.convocatoria_id')
-            ->leftJoin('programas as p', 'p.programa_id', '=', 'unidadesproductivas_intervenciones.programa_id')
-            ->join('categorias_intervenciones', 'categorias_intervenciones.id', '=', 'unidadesproductivas_intervenciones.categoria_id')
-            ->join('tipos_intervenciones', 'tipos_intervenciones.id', '=', 'unidadesproductivas_intervenciones.tipo_id')
-            ->join('users', 'users.id', '=', 'unidadesproductivas_intervenciones.asesor_id');
+            ->leftJoin('fases_programas', 'fases_programas.fase_id', '=', 'intervenciones_unidadesproductivas.fase_id')
+            ->leftJoin('programas_convocatorias as pc', 'pc.convocatoria_id', '=', 'intervenciones_unidadesproductivas.convocatoria_id')
+            ->leftJoin('programas as p', 'p.programa_id', '=', 'intervenciones_unidadesproductivas.programa_id')
+            ->join('categorias_intervenciones', 'categorias_intervenciones.id', '=', 'intervenciones_unidadesproductivas.categoria_id')
+            ->join('tipos_intervenciones', 'tipos_intervenciones.id', '=', 'intervenciones_unidadesproductivas.tipo_id')
+            ->join('users', 'users.id', '=', 'intervenciones_unidadesproductivas.asesor_id');
 
         // Seguridad por Rol
         $asesor = ($user->rol_id === Role::ASESOR) ? $user->id : ($filters['asesor'] ?? null);
         if ($asesor) {
-            $query->where('unidadesproductivas_intervenciones.asesor_id', $asesor);
+            $query->where('intervenciones_unidadesproductivas.asesor_id', $asesor);
         }
 
         // Filtros básicos (Llamando a la función privada que tenías)
-        $this->applyFilter($query, $filters, 'programa', 'unidadesproductivas_intervenciones.programa_id');
-        $this->applyFilter($query, $filters, 'convocatoria', 'unidadesproductivas_intervenciones.convocatoria_id');
-        $this->applyFilter($query, $filters, 'fase', 'unidadesproductivas_intervenciones.fase_id');
-        $this->applyFilter($query, $filters, 'categoria', 'unidadesproductivas_intervenciones.categoria_id');
-        $this->applyFilter($query, $filters, 'tipo', 'unidadesproductivas_intervenciones.tipo_id');
+        $this->applyFilter($query, $filters, 'programa', 'intervenciones_unidadesproductivas.programa_id');
+        $this->applyFilter($query, $filters, 'convocatoria', 'intervenciones_unidadesproductivas.convocatoria_id');
+        $this->applyFilter($query, $filters, 'fase', 'intervenciones_unidadesproductivas.fase_id');
+        $this->applyFilter($query, $filters, 'categoria', 'intervenciones_unidadesproductivas.categoria_id');
+        $this->applyFilter($query, $filters, 'tipo', 'intervenciones_unidadesproductivas.tipo_id');
 
         if ($fechaInicio = ($filters['fecha_inicio'] ?? null)) {
-            $query->whereDate('unidadesproductivas_intervenciones.fecha_inicio', '>=', $fechaInicio);
+            $query->whereDate('intervenciones_unidadesproductivas.fecha_inicio', '>=', $fechaInicio);
         }
         if ($fechaFin = ($filters['fecha_fin'] ?? null)) {
-            $query->whereDate('unidadesproductivas_intervenciones.fecha_fin', '<=', $fechaFin);
+            $query->whereDate('intervenciones_unidadesproductivas.fecha_fin', '<=', $fechaFin);
         }
 
         // Búsqueda Global (Incluyendo Hijos)
         if (!empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
-                $q->orWhere('unidadesproductivas_intervenciones.descripcion', 'like', "%{$search}%")
+                $q->orWhere('intervenciones_unidadesproductivas.descripcion', 'like', "%{$search}%")
                     ->orWhere('p.nombre', 'like', "%{$search}%")
                     ->orWhere('pc.nombre_convocatoria', 'like', "%{$search}%")
                     ->orWhere('fases_programas.nombre', 'like', "%{$search}%")
@@ -95,27 +95,27 @@ class IntervencionService {
         $sortName = $filters['sortName'] ?? null;
         $sortOrder = $filters['sortOrder'] ?? 'desc';
         $map = [
-            'fecha_creacion' => 'unidadesproductivas_intervenciones.fecha_creacion',
-            'id' => 'unidadesproductivas_intervenciones.id',
-            'titulo' => 'unidadesproductivas_intervenciones.titulo',
-            'fecha_inicio' => 'unidadesproductivas_intervenciones.fecha_inicio',
-            'fecha_fin' => 'unidadesproductivas_intervenciones.fecha_fin',
+            'fecha_creacion' => 'intervenciones_unidadesproductivas.fecha_creacion',
+            'id' => 'intervenciones_unidadesproductivas.id',
+            'titulo' => 'intervenciones_unidadesproductivas.titulo',
+            'fecha_inicio' => 'intervenciones_unidadesproductivas.fecha_inicio',
+            'fecha_fin' => 'intervenciones_unidadesproductivas.fecha_fin',
             'asesor' => "CONCAT(users.name, ' ', users.lastname)",
             'programa' => 'p.nombre',
             'convocatoria' => 'pc.nombre_convocatoria',
             'fase' => 'fases_programas.nombre',
             'categoria' => 'categorias_intervenciones.nombre',
             'tipo' => 'tipos_intervenciones.nombre',
-            'participantes' => 'unidadesproductivas_intervenciones.participantes',
-            'participantes_otros' => 'unidadesproductivas_intervenciones.participantes_otros',
-            'cant_unidades' => 'unidadesproductivas_intervenciones.cant_unidades',
-            'cant_leads' => 'unidadesproductivas_intervenciones.cant_leads',
+            'participantes' => 'intervenciones_unidadesproductivas.participantes',
+            'participantes_otros' => 'intervenciones_unidadesproductivas.participantes_otros',
+            'cant_unidades' => 'intervenciones_unidadesproductivas.cant_unidades',
+            'cant_leads' => 'intervenciones_unidadesproductivas.cant_leads',
         ];
 
         if ($sortName && isset($map[$sortName])) {
             $query->orderByRaw($map[$sortName] . ' ' . $sortOrder);
         } else {
-            $query->orderBy('unidadesproductivas_intervenciones.fecha_creacion', 'desc');
+            $query->orderBy('intervenciones_unidadesproductivas.fecha_creacion', 'desc');
         }
 
         return $query;
@@ -135,7 +135,7 @@ class IntervencionService {
      * Procesa el guardado (Original).
      */
     public function storeIntervencion(array $data, array $unidades, array $leads) {
-        $intervencion = UnidadProductivaIntervenciones::create($data);
+        $intervencion = IntervencionUnidadProductiva::create($data);
         $this->syncParticipantes($intervencion, $unidades, $leads);
         return $intervencion;
     }
@@ -228,7 +228,7 @@ class IntervencionService {
         $asesor = ($user->rol_id === Role::ASESOR) ? $user->id : $asesorReq;
 
         // ========================= QUERY BASE =========================
-        $baseQuery = UnidadProductivaIntervenciones::whereBetween('fecha_inicio', [$fi, $ff])
+        $baseQuery = IntervencionUnidadProductiva::whereBetween('fecha_inicio', [$fi, $ff])
             ->whereNull('fecha_eliminacion') //
             //->where('estado', 'REPORTADO')   //
             //->when($asesor, fn($q) => $q->where('asesor_id', $asesor))
@@ -259,7 +259,7 @@ class IntervencionService {
             'porTipo'      => QueryHelper::agrupar($baseQuery, 'tipo_id', 'tipo'),
 
             // ========================= POR UNIDAD =========================
-            'porUnidad' => DB::table('unidadesproductivas_intervenciones as i')
+            'porUnidad' => DB::table('intervenciones_unidadesproductivas as i')
                 ->join('intervencion_unidades as iu', 'iu.intervencion_id', '=', 'i.id') // ⚠️ relación real
                 ->select(
                     'iu.unidadproductiva_id',
@@ -273,7 +273,7 @@ class IntervencionService {
                 ->get(),
 
             // ========================= POR LEADS =========================
-            'porLeads' => DB::table('unidadesproductivas_intervenciones as i')
+            'porLeads' => DB::table('intervenciones_unidadesproductivas as i')
                 ->join('intervencion_leads as il', 'il.intervencion_id', '=', 'i.id') // ⚠️ relación real
                 ->select(
                     'il.lead_id',

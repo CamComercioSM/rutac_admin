@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Intervenciones;
 
 use App\Exports\IntervencionesExport;
-use App\Imports\UnidadProductivaIntervencionesImport;
+use App\Imports\IntervencionUnidadProductivaImport;
 use App\Http\Controllers\Controller;
 use App\Models\Empresarios\UnidadProductiva;
-use App\Models\Intervenciones\UnidadProductivaIntervenciones;
+use App\Models\Intervenciones\IntervencionUnidadProductiva;
 use App\Models\Intervenciones\IntervencionLead;
 use App\Models\Intervenciones\IntervencionUnidad;
 use App\Models\Intervenciones\ReporteMensual;
@@ -40,7 +40,7 @@ class IntervencionesController extends Controller {
             'categorias' => CategoriasIntervenciones::get(),
             'fasesProgramas' => FasePrograma::get(),
             'tipos' => TiposIntervenciones::get(),
-            'modalidades' => UnidadProductivaIntervenciones::$modalidades,
+            'modalidades' => IntervencionUnidadProductiva::$modalidades,
             'asesores' => User::whereNotNull('rol_id')->get(),
             'esAsesor' => Auth::user()->rol_id == Role::ASESOR ? 1 : 0,
             'filtros' => $request->all(),
@@ -101,7 +101,7 @@ class IntervencionesController extends Controller {
 
         try {
             // 2. Ejecutar la importación
-            Excel::import(new UnidadProductivaIntervencionesImport, $request->file('archivo'));
+            Excel::import(new IntervencionUnidadProductivaImport, $request->file('archivo'));
             return back()->with('ok', 'Los datos de las intervenciones han sido cargados correctamente.');
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $failures = $e->failures();
@@ -186,7 +186,7 @@ class IntervencionesController extends Controller {
                 : ($request->otrosParticipantes ?? []);
 
             if ($request->id) {
-                $intervencion = UnidadProductivaIntervenciones::findOrFail($request->id);
+                $intervencion = IntervencionUnidadProductiva::findOrFail($request->id);
                 $intervencion->update($data);
                 $service->syncParticipantes($intervencion, $unidades, $leads);
                 DB::commit();
@@ -219,7 +219,7 @@ class IntervencionesController extends Controller {
     public function destroy($id) {
         try {
             DB::beginTransaction();
-            $intervencion = UnidadProductivaIntervenciones::findOrFail($id);
+            $intervencion = IntervencionUnidadProductiva::findOrFail($id);
 
             // Eliminamos relaciones y el padre
             $intervencion->unidades()->delete();
@@ -235,7 +235,7 @@ class IntervencionesController extends Controller {
     }
 
     public function show($id) {
-        $intervencion = UnidadProductivaIntervenciones::with([
+        $intervencion = IntervencionUnidadProductiva::with([
             'unidades.unidadProductiva',
             'leads.lead',
             'categoria',
@@ -248,7 +248,7 @@ class IntervencionesController extends Controller {
     }
 
     public function edit($id) {
-        $intervencion = UnidadProductivaIntervenciones::findOrFail($id);
+        $intervencion = IntervencionUnidadProductiva::findOrFail($id);
 
         // Cargamos los mismos datos del método list() para los selects
         $data = [
