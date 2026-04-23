@@ -13,24 +13,24 @@ return new class extends Migration {
 
             $table->bigIncrements('fase_id');
 
-            $table->string('fase_nombre');
-            $table->text('fase_descripcion')->nullable();
+            $table->string('nombre');
+            $table->text('descripcion')->nullable();
 
-            $table->unsignedInteger('fase_orden')->nullable();
+            $table->unsignedInteger('orden')->nullable();
 
-            $table->boolean('fase_activa')->default(true);
+            $table->boolean('activa')->default(true);
 
             // Auditoría
             $table->timestamp('fecha_creacion')->nullable();
             $table->timestamp('fecha_actualizacion')->nullable();
-            $table->softDeletes('fecha_eliminacion');
+            $table->timestamp('fecha_eliminacion')->nullable()->default(null);
 
             $table->integer('usuario_creo')->nullable();
             $table->integer('usuario_actualizo')->nullable();
             $table->integer('usuario_elimino')->nullable();
 
-            $table->index(['fase_activa']);
-            $table->index(['fase_orden']);
+            $table->index(['activa']);
+            $table->index(['orden']);
         });
     }
 

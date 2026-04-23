@@ -15,6 +15,11 @@ use App\Models\TablasReferencias\InscripcionEstado;
 use App\Models\Empresarios\UnidadProductiva;
 use App\Models\Empresarios\UnidadProductivaIntervenciones;
 use App\Models\Inscripciones\ConvocatoriaInscripcionHistorial;
+use App\Models\Intervenciones\IntervencionCategoria;
+use App\Models\Intervenciones\IntervencionIndividual;
+use App\Models\Intervenciones\IntervencionTipo;
+use App\Models\Programas\FasePrograma;
+use App\Services\IntervencionService;
 use App\Services\MailService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -391,7 +396,7 @@ class InscripcionesController extends Controller {
         return Excel::download(new InscripcionesRespuestasExport($query), 'respuestasInscripcion.xlsx');
     }
 
-    public function intervencion($inscripcion) {
+    public function intervencion(mixed $inscripcion, IntervencionService $intervencionService) {
         $estadosPermitidos = [3, 4];
         if (!in_array($inscripcion->inscripcionestado_id, $estadosPermitidos)) {
             return;
@@ -406,21 +411,15 @@ class InscripcionesController extends Controller {
             ->orderBy('fecha_creacion', 'desc')
             ->value('fecha_creacion');
 
-        $data = [
-            'asesor_id'      => Auth::id(),
-            // PASAMOS LOS IDS EXPLÍCITOS PARA LA TABLA
-            'programa_id'    => $programa->programa_id ?? null,
-            'convocatoria_id' => $convocatoria->convocatoria_id ?? null,
-            'descripcion'    => "Gestión de Inscripción: Cambio de estado a {$nombreEstado}.",
-            'fecha_inicio'   => $fecha_inicio ?? now(),
-            'fecha_fin'      => now(),
-            'categoria_id'   => UnidadProductivaIntervenciones::CATEGORIA_GESTION_PROGRAMAS,
-            'tipo_id'        => UnidadProductivaIntervenciones::TIPO_GESTION_INSCRIPCIONES,
-            'modalidad'      => 'Virtual',
-            'participantes'  => 1,
-            'conclusiones'   => $inscripcion->comentarios ?? 'Sin observaciones.',
-        ];
-
-        UnidadProductivaIntervenciones::registrarParaUnidad($inscripcion->unidadproductiva_id, $data);
+        $intervencionService->registrarIntervencionInscripcion(
+            $inscripcion->unidadproductiva_id,
+            $programa?->programa_id,
+            $convocatoria?->convocatoria_id,
+            FasePrograma::CONVOCATORIA,
+            $nombreEstado,
+            $inscripcion->comentarios,
+            $fecha_inicio,
+            now()
+        );
     }
 }

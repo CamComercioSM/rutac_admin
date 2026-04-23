@@ -280,58 +280,23 @@ class IntervencionesController extends Controller {
 
         // Obtenemos la data procesada desde el servicio
         $data = $service->getInformeData($request->all(), Auth::user());
-
-        // Análisis de IA (Lógica externa o privada del controlador)
-        $data['analisis_ia'] = $iaService->analizarInforme($request, $data);
-
         // Creamos el registro del reporte (Estado inicial)
         $reporte = ReporteMensual::create([
             'asesor_id'            => Auth::id(),
             'fecha_generacion'     => now(),
             'total_intervenciones' => $data['totalGeneral'] ?? 0,
-            'total_unidades'       => count($data['porUnidad'] ?? []),
+            'total_unidades'       => $data['total_unidades'] ?? 0,
             'conclusiones'         => $data['conclusiones'] ?? '',
             'usuario_creo'         => Auth::id(),
             'usuario_actualizo'    => Auth::id(),
         ]);
 
-      
-
         $data['reporte'] = $reporte;
         $data['reporte_id'] = $reporte->id;
         $data['asesor'] = $reporte->asesor;
-        $data['supervisor'] = $reporte->supervisor;
-        $data['total_intervenciones'] = $data['totalGeneral'] ?? 0;
-        $data['total_unidades'] = count($data['porUnidad'] ?? []);
-
-
-        // =========================
-        // RESUMEN EJECUTIVO AUTOMÁTICO
-        // =========================
-        $total = $data['totalGeneral'] ?? 0;
-        $unidades = count($data['porUnidad'] ?? []);
-        $categoriaTop = collect($data['porCategoria'] ?? [])->sortByDesc('total')->first();
-        $tipoTop = collect($data['porTipo'] ?? [])->sortByDesc('total')->first();
-        $texto = "Durante el periodo analizado se registraron {$total} intervenciones";
-        if ($unidades > 0) {
-            $texto .= ", impactando {$unidades} unidades productivas";
-        }
-        $texto .= ".";
-        if ($categoriaTop) {
-            $texto .= " La categoría predominante fue {$categoriaTop->categoria->nombre} ({$categoriaTop->total}).";
-        }
-        if ($tipoTop) {
-            $texto .= " El tipo de intervención más frecuente fue {$tipoTop->tipo->nombre} ({$tipoTop->total}).";
-        }
-        // Evaluación (si ya existe)
-        if (!empty($reporte->meta_intervenciones) && !empty($reporte->avance_meta)) {
-            $porcentaje = $reporte->meta_intervenciones > 0
-                ? round(($reporte->avance_meta / $reporte->meta_intervenciones) * 100, 1)
-                : 0;
-            $texto .= " Se alcanzó un {$porcentaje}% de la meta establecida.";
-        }
-        $data['resumen_ejecutivo'] = $texto;
-        
+        $data['supervisor'] = $reporte->supervisor;        
+        // Análisis de IA (Lógica externa o privada del controlador)
+        $data['analisis_ia'] = $iaService->analizarInforme($request, $data);
         return view('intervenciones.preview', $data);
     }
 

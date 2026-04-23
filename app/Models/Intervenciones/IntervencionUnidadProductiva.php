@@ -66,7 +66,7 @@ class IntervencionUnidadProductiva extends Model
     {
         if (!$this->soporte) return null;
         // Asumiendo que se guardan en el disco 'public' dentro de 'intervenciones'
-        return Storage::url('intervenciones/' . $this->soporte);
+        return $this->soporte;
     }
 
     // Relaciones

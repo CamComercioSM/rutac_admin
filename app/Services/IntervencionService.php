@@ -6,23 +6,90 @@ use App\Helpers\QueryHelper;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Role;
 use App\Models\Intervanciones\ReporteMensual;
+use App\Models\Intervenciones\IntervencionCategoria;
+use App\Models\Intervenciones\IntervencionIndividual;
 use App\Models\Intervenciones\IntervencionUnidadProductiva;
 use App\Models\Intervenciones\IntervencionLead;
+use App\Models\Intervenciones\IntervencionTipo;
 use App\Models\Intervenciones\IntervencionUnidad;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
-class IntervencionService
-{
+class IntervencionService {
+
+    /**
+     * Registra una intervención derivada de una comunicación por WhatsApp.
+     * * @param int $unidadId
+     * @param array $requestData Datos provenientes del request
+     * @param object $template Modelo de la plantilla utilizada
+     * @return IntervencionUnidadProductiva
+     */
+    public function registrarIntervencionWhatsApp(
+        int $unidadId,
+        string $telefonoDestino,
+        string $tipoTelefono,
+        string $nombreEmpresario,
+        string $mensajeOriginal,
+        string $nombrePlantilla
+    ) {
+        $conclusiones = sprintf(
+            "WhatsApp enviado exitosamente por %s.\nDestinatario: %s (%s)\nNúmero: %s\nPlantilla: %s",
+            Auth::user()->full_name ?? Auth::user()->name ?? 'Sistema',
+            $nombreEmpresario ?? 'No especificado',
+            $tipoTelefono ?? 'No especificado',
+            $telefonoDestino ?? 'N/A',
+            $nombrePlantilla ?? 'Sin plantilla'
+        );
+
+        return IntervencionIndividual::registrarEnvioWhatsApp([
+            'programa_id'     => null,
+            'convocatoria_id' => null,
+            'fase_id' => null,
+            'unidadproductiva_id' => $unidadId,
+            'descripcion'  => 'Contenido del mensaje: ' . $mensajeOriginal,
+            'conclusiones' => $conclusiones,
+            'modalidad'    => 'Virtual'
+        ]);
+    }
+
+
+    public function registrarIntervencionInscripcion(
+        int $unidadId,
+        ?int $programaId,
+        ?int $convocatoriaId,
+        ?int $faseId,
+        string $nombreEstado,
+        ?string $comentarios,
+        ?string $fechaInicio,
+        ?string $fechaFinal
+    ) {
+
+        return IntervencionIndividual::registrarSeguimientoInscripcion(
+            [
+
+                'unidadproductiva_id' => $unidadId,
+                'programa_id'     => $programaId ?? null,
+                'convocatoria_id' => $convocatoriaId ?? null,
+                'fase_id'         => $faseId ?? null,
+                'categoria_id'    => IntervencionCategoria::CATEGORIA_GESTION_PROGRAMAS,
+                'tipo_id'         => IntervencionTipo::TIPO_GESTION_INSCRIPCIONES,
+                'descripcion'     => "Gestión de Inscripción: Cambio de estado a {$nombreEstado}.",
+                'conclusiones'    => $comentarios ?? 'Sin observaciones.',
+
+                'fecha_inicio'    => $fechaInicio ?? now(),
+                'fecha_fin'       => $fechaFinal ?? now(),
+            ]
+        );
+    }
+
 
     /**
      * Construye la consulta base para el listado con todos los Joins, 
      * clasificaciones, filtros y ORDENAMIENTO original.
      */
-    public function getListQuery(array $filters, $user)
-    {
+    public function getListQuery(array $filters, $user) {
         $query = IntervencionUnidadProductiva::query()
             ->select([
                 'intervenciones_unidadesproductivas.*',
@@ -50,9 +117,9 @@ class IntervencionService
             ->leftJoin('fases_programas', 'fases_programas.fase_id', '=', 'intervenciones_unidadesproductivas.fase_id')
             ->leftJoin('programas_convocatorias as pc', 'pc.convocatoria_id', '=', 'intervenciones_unidadesproductivas.convocatoria_id')
             ->leftJoin('programas as p', 'p.programa_id', '=', 'intervenciones_unidadesproductivas.programa_id')
-            ->join('intervenciones_categorias', 'intervenciones_categorias.id', '=', 'intervenciones_unidadesproductivas.categoria_id')
-            ->join('intervenciones_tipos', 'intervenciones_tipos.id', '=', 'intervenciones_unidadesproductivas.tipo_id')
-            ->join('users', 'users.id', '=', 'intervenciones_unidadesproductivas.asesor_id');
+            ->leftJoin('intervenciones_categorias', 'intervenciones_categorias.id', '=', 'intervenciones_unidadesproductivas.categoria_id')
+            ->leftJoin('intervenciones_tipos', 'intervenciones_tipos.id', '=', 'intervenciones_unidadesproductivas.tipo_id')
+            ->leftJoin('users', 'users.id', '=', 'intervenciones_unidadesproductivas.asesor_id');
 
         // Seguridad por Rol
         $asesor = ($user->rol_id === Role::ASESOR) ? $user->id : ($filters['asesor'] ?? null);
@@ -119,15 +186,13 @@ class IntervencionService
         } else {
             $query->orderBy('intervenciones_unidadesproductivas.fecha_creacion', 'desc');
         }
-
         return $query;
     }
 
     /**
      * Lógica de filtrado interna.
      */
-    private function applyFilter($query, array $filters, $param, $column)
-    {
+    private function applyFilter($query, array $filters, $param, $column) {
         $value = $filters[$param] ?? null;
         if (!is_null($value) && $value !== '') {
             $query->where($column, $value);
@@ -137,15 +202,13 @@ class IntervencionService
     /**
      * Procesa el guardado (Original).
      */
-    public function storeIntervencion(array $data, array $unidades, array $leads)
-    {
+    public function storeIntervencion(array $data, array $unidades, array $leads) {
         $intervencion = IntervencionUnidadProductiva::create($data);
         $this->syncParticipantes($intervencion, $unidades, $leads);
         return $intervencion;
     }
 
-    public function syncParticipantes($intervencion, array $unidades, array $leads)
-    { // Limpiar actuales
+    public function syncParticipantes($intervencion, array $unidades, array $leads) { // Limpiar actuales
         $intervencion->unidades()->delete();
         $intervencion->leads()->delete();
 
@@ -219,8 +282,7 @@ class IntervencionService
      * - Agrupación por unidad (JOIN)
      * - Agrupación por leads (JOIN)
      */
-    public function getInformeData(array $params, $user): array
-    {
+    public function getInformeData(array $params, $user): array {
         $fi = $params['fecha_inicio'] ?? null;
         $ff = $params['fecha_fin'] ?? null;
 
@@ -232,8 +294,6 @@ class IntervencionService
         $unidadReq = $params['unidad'] ?? null;
 
         $asesor = ($user->rol_id === Role::ASESOR) ? $user->id : $asesorReq;
-
-        // ========================= QUERY BASE =========================
         $baseQuery = IntervencionUnidadProductiva::whereBetween('fecha_inicio', [$fi, $ff])
             ->whereNull('fecha_eliminacion') //
             //->where('estado', 'REPORTADO')   //
@@ -245,7 +305,10 @@ class IntervencionService
                 });
             });
 
-        // ========================= DATA DETALLE =========================
+        $totalGeneral = (clone $baseQuery)->count();
+        $porCategoria = QueryHelper::agrupar($baseQuery, 'categoria_id', 'categoria');
+        $porTipo      = QueryHelper::agrupar($baseQuery, 'tipo_id', 'tipo');
+
         $intervenciones = (clone $baseQuery)
             ->with([
                 'asesor',
@@ -263,61 +326,89 @@ class IntervencionService
             $programa = $item->programa->nombre ?? 'Sin Programa';
             $convocatoria = $item->convocatoria->nombre ?? 'Sin Convocatoria';
             return "{$programa} | {$convocatoria}";
+        })->map(function ($grupoPrograma) {
+            // Sub-agrupación por Fase dentro de cada Programa/Convocatoria
+            return $grupoPrograma->groupBy(function ($item) {
+                return $item->fase->nombre ?? 'Sin Fase definida';
+            });
         });
 
-        // ========================= RESPUESTA =========================
+        // Consulta de Unidades Impactadas
+        $porUnidad = DB::table('intervenciones_unidadesproductivas as i')
+            ->join('intervencion_unidades as iu', 'iu.intervencion_id', '=', 'i.id')
+            ->select('iu.unidadproductiva_id', DB::raw('COUNT(*) as total'))
+            ->whereBetween('i.fecha_inicio', [$fi, $ff])
+            ->whereNull('i.fecha_eliminacion')
+            ->when($asesor, fn($q) => $q->where('i.asesor_id', $asesor))
+            ->groupBy('iu.unidadproductiva_id')
+            ->get();
+
+        // Consulta de Leads Impactados
+        $porLeads = DB::table('intervenciones_unidadesproductivas as i')
+            ->join('intervencion_leads as il', 'il.intervencion_id', '=', 'i.id')
+            ->select('il.lead_id', DB::raw('COUNT(*) as total'))
+            ->whereBetween('i.fecha_inicio', [$fi, $ff])
+            ->whereNull('i.fecha_eliminacion')
+            ->when($asesor, fn($q) => $q->where('i.asesor_id', $asesor))
+            ->groupBy('il.lead_id')
+            ->get();
+
+
+        // =========================
+        // RESUMEN EJECUTIVO AUTOMÁTICO
+        // =========================
+        $unidadesCount = $porUnidad->count();
+        $categoriaTop  = collect($porCategoria)->sortByDesc('total')->first();
+        $tipoTop       = collect($porTipo)->sortByDesc('total')->first();
+
+        $textoResumen = "Durante el periodo analizado se registraron {$totalGeneral} intervenciones";
+        if ($unidadesCount > 0) {
+            $textoResumen .= ", impactando {$unidadesCount} unidades productivas";
+        }
+        $textoResumen .= ".";
+
+        if ($categoriaTop) {
+            $textoResumen .= " La categoría predominante fue {$categoriaTop->categoria->nombre} ({$categoriaTop->total}).";
+        }
+
+        if ($tipoTop) {
+            $textoResumen .= " El tipo de intervención más frecuente fue {$tipoTop->tipo->nombre} ({$tipoTop->total}).";
+        }
+
+        // Evaluación de metas (si el objeto $reporte existe en el contexto)
+        if (isset($reporte) && !empty($reporte->meta_intervenciones) && $reporte->meta_intervenciones > 0) {
+            $porcentaje = round(($totalGeneral / $reporte->meta_intervenciones) * 100, 1);
+            $textoResumen .= " Se alcanzó un {$porcentaje}% de la meta establecida.";
+        }
+
         return [
-            // 🔹 Periodo (aún no tienes anio/mes, usamos fechas)
-            'periodo'          => Carbon::parse($fi)->translatedFormat('F Y'),
-            'fecha_generacion' => now()->format('d/m/Y'),
-            'estado_legible'   => 'En construcción',
-            'meta_texto'       => 'Pendiente de evaluación',
-            'avance_texto'     => 'Pendiente de evaluación',
-            // 🔹 Fechas para encabezados y conclusiones
-            'inicio'         => Carbon::parse($fi)->translatedFormat('Y-m-d H:i'),
-            'fin'            => Carbon::parse($ff)->translatedFormat('Y-m-d H:i'),
-            'conclusiones'   => $params['conclusiones'] ?? '',
-            'intervenciones' => $intervenciones,
-            'reporte_grupos' => $agrupadas,      // Data estructurada para los encabezados
-            'totalGeneral'   => (clone $baseQuery)->count(),
+            // Información General y Tiempos
+            'periodo'            => Carbon::parse($fi)->translatedFormat('F Y'),
+            'fecha_generacion'   => now()->format('d/m/Y'),
+            'estado_legible'     => 'En construcción',
+            'meta_texto'         => 'Pendiente de evaluación',
+            'avance_texto'       => 'Pendiente de evaluación',
+            'inicio'             => Carbon::parse($fi)->translatedFormat('Y-m-d H:i'),
+            'fin'                => Carbon::parse($ff)->translatedFormat('Y-m-d H:i'),
 
-            // ========================= AGRUPACIONES =========================
+            // Contenido Principal
+            'conclusiones'       => $params['conclusiones'] ?? '',
+            'intervenciones'     => $intervenciones,
+            'reporte_grupos'     => $agrupadas,
+            'resumen_ejecutivo'  => $textoResumen,
 
-            'porCategoria' => QueryHelper::agrupar($baseQuery, 'categoria_id', 'categoria'),
-            'porTipo'      => QueryHelper::agrupar($baseQuery, 'tipo_id', 'tipo'),
-
-            // ========================= POR UNIDAD =========================
-            'porUnidad' => DB::table('intervenciones_unidadesproductivas as i')
-                ->join('intervencion_unidades as iu', 'iu.intervencion_id', '=', 'i.id') // ⚠️ relación real
-                ->select(
-                    'iu.unidadproductiva_id',
-                    DB::raw('COUNT(*) as total')
-                )
-                ->whereBetween('i.fecha_inicio', [$fi, $ff])
-                ->whereNull('i.fecha_eliminacion')
-                //->where('i.estado', 'REPORTADO')
-                ->when($asesor, fn($q) => $q->where('i.asesor_id', $asesor))
-                ->groupBy('iu.unidadproductiva_id')
-                ->get(),
-
-            // ========================= POR LEADS =========================
-            'porLeads' => DB::table('intervenciones_unidadesproductivas as i')
-                ->join('intervencion_leads as il', 'il.intervencion_id', '=', 'i.id') // ⚠️ relación real
-                ->select(
-                    'il.lead_id',
-                    DB::raw('COUNT(*) as total')
-                )
-                ->whereBetween('i.fecha_inicio', [$fi, $ff])
-                ->whereNull('i.fecha_eliminacion')
-                //->where('i.estado', 'REPORTADO')
-                ->when($asesor, fn($q) => $q->where('i.asesor_id', $asesor))
-                ->groupBy('il.lead_id')
-                ->get(),
+            // Métricas y Agrupaciones
+            'totalGeneral'       => $totalGeneral,
+            'total_intervenciones'       => $totalGeneral,
+            'total_unidades'     => $unidadesCount,
+            'porCategoria'       => $porCategoria,
+            'porTipo'            => $porTipo,
+            'porUnidad'          => $porUnidad,
+            'porLeads'           => $porLeads,
         ];
     }
 
-    public function procesarDataReporte(array $data)
-    {
+    public function procesarDataReporte(array $data) {
         $intervenciones = collect($data['intervenciones'])->map(function ($item) {
             // 1. Actividad (Categoría + Tipo)
             $categoria = $item['categoria']['nombre'] ?? 'N/A';
@@ -331,6 +422,7 @@ class IntervencionService
             $total_asistentes = $asistentes_unidad + $asistentes_leads;
 
             return (object) [
+                'programa_convocatoria' => ($item['programa']['nombre'] ?? 'Sin Programa') . " | " . ($item['convocatoria']['nombre'] ?? 'Sin Convocatoria'),
                 'fase' => $item['fase']['nombre'] ?? 'Sin Fase',
                 'actividad' => "{$categoria} / {$tipo}",
                 'modalidad' => $item['modalidad'] ?? 'No definida',
@@ -348,18 +440,23 @@ class IntervencionService
             ];
         });
 
+        // Agrupamos también aquí para que la vista del PDF reciba la estructura jerárquica
+        $itemsAgrupados = $intervenciones->groupBy('programa_convocatoria')->map(function ($fases) {
+            return $fases->groupBy('fase');
+        });
+
         return [
             'periodo' => $data['inicio'] . ' al ' . $data['fin'],
             'conclusiones_generales' => $data['conclusiones'],
-            'items' => $intervenciones
+            'items' => $intervenciones,
+            'items_agrupados' => $itemsAgrupados // Nueva estructura jerárquica
         ];
     }
 
     /**
      * Valida si ya existe un reporte mensual para evitar duplicados (Original).
      */
-    public function validarReporteDuplicado(int $asesorId, int $anio, int $mes, ?int $reporteId = null): bool
-    {
+    public function validarReporteDuplicado(int $asesorId, int $anio, int $mes, ?int $reporteId = null): bool {
         return ReporteMensual::where('asesor_id', $asesorId)
             ->where('anio', $anio)
             ->where('mes', $mes)
@@ -368,8 +465,7 @@ class IntervencionService
             ->exists();
     }
 
-    public function generarInformePDF(array $data, string $rutaPublica): string
-    {
+    public function generarInformePDF(array $data, string $rutaPublica): string {
         $pdf = Pdf::loadView('intervenciones.informe', $data)
             ->setPaper('a4', 'portrait');
 

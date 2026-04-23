@@ -5,13 +5,12 @@ namespace App\Models\Intervenciones;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Traits\UserTrait;
-use App\Models\Traits\AuditTrait;
 use App\Models\Empresarios\UnidadProductiva;
 use App\Models\Empresarios\UnidadProductivaIntervenciones;
+use App\Models\RutaCModel;
 
-class IntervencionUnidad extends Model
+class IntervencionUnidad extends RutaCModel
 {
-    use SoftDeletes, UserTrait, AuditTrait;
 
     protected $table = 'intervencion_unidades';
     protected $primaryKey = 'intervencion_unidad_id';
@@ -24,7 +23,7 @@ class IntervencionUnidad extends Model
 
     public function intervencion()
     {
-        return $this->belongsTo(UnidadProductivaIntervenciones::class, 'intervencion_id', 'id');
+        return $this->belongsTo(IntervencionUnidadProductiva::class, 'intervencion_id', 'id');
     }
 
     public function unidadProductiva()
@@ -36,7 +35,4 @@ class IntervencionUnidad extends Model
         );
     }
 
-    const CREATED_AT = 'fecha_creacion';
-    const UPDATED_AT = 'fecha_actualizacion';
-    const DELETED_AT = 'fecha_eliminacion';
 }

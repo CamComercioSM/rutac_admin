@@ -28,6 +28,7 @@ use App\Models\WhatsappMessageLog;
 
 use App\Models\Role;
 use App\Models\UnidadProductivaWhatsappLog;
+use App\Services\IntervencionService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -321,7 +322,7 @@ class UnidadProductivaController extends Controller {
         return response()->json(['exists' => $query->exists()]);
     }
 
-    public function enviarWhatsApp($id, Request $request) {
+    public function enviarWhatsApp($id, Request $request, IntervencionService $intervencionService) {
         $request->validate([
             'telefono' => 'required|string',
             'phone_type' => 'nullable|string|in:mobile,telephone,contact_phone',
@@ -488,28 +489,22 @@ class UnidadProductivaController extends Controller {
         ]);
 
         if ($resultado['success']) {
-
-            $tipoTelefonoLabel = [
-                'mobile' => 'Móvil',
-                'telephone' => 'Teléfono Fijo',
+            $labels = [
+                'mobile'        => 'Móvil',
+                'telephone'     => 'Teléfono Fijo',
                 'contact_phone' => 'Teléfono de Contacto'
-            ][$request->phone_type] ?? 'No especificado';
+            ];
+            $tipoLabel = $labels[$request->phone_type] ?? 'No especificado';
 
-            $conclusionesEnriquecidas = sprintf(
-                "WhatsApp enviado exitosamente por %s. \nDestinatario: %s (%s) \nNúmero: %s \nPlantilla: %s",
-                Auth::user()->name,
-                $request->nombre_empresario ?? 'No especificado',
-                $tipoTelefonoLabel,
+            // Invocación limpia
+            $intervencionService->registrarIntervencionWhatsApp(
+                $unidadProductiva->unidadproductiva_id,
                 $to,
+                $tipoLabel,
+                $request->nombre_empresario ?? 'No especificado',
+                $request->mensaje,
                 $template->name
             );
-
-            IntervencionIndividual::registrarParaUnidad($unidadProductiva->unidadproductiva_id, [
-                'categoria_id' => IntervencionCategoria::CATEGORIA_GESTION_PROGRAMAS,
-                'tipo_id'      => IntervencionTipo::TIPO_WHATSAPP,
-                'descripcion'  => 'Contenido del mensaje: ' . $request->mensaje,
-                'conclusiones' => $conclusionesEnriquecidas,
-            ]);
 
             Log::info('WhatsApp enviado', [
                 'unidad_productiva_id' => $unidadProductiva->unidadproductiva_id,

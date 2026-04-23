@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\Empresarios\UnidadProductiva;
 use App\Models\Lead;
 use App\Models\Programas\FasePrograma;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class IntervencionIndividual extends Model {
     use SoftDeletes, UserTrait;
@@ -100,23 +102,57 @@ class IntervencionIndividual extends Model {
         return !is_null($this->lead_id);
     }
 
+    public static function registrarSeguimientoInscripcion(array $inscripcion) {
+        return self::registrarParaUnidad($inscripcion['unidadproductiva_id'], [
+            'categoria_id'    => IntervencionCategoria::CATEGORIA_GESTION_PROGRAMAS,
+            'tipo_id'         => IntervencionTipo::TIPO_GESTION_INSCRIPCIONES,
+            'programa_id'     => $inscripcion['programa_id'] ?? null,
+            'convocatoria_id' => $inscripcion['convocatoria_id'] ?? null,
+            'fase_id'         => $inscripcion['fase_id'] ?? null,
+
+            'descripcion'     => $inscripcion['descripcion'],
+            'conclusiones'    => $inscripcion['conclusiones'] ?? null,
+
+            'fecha_inicio'    => $inscripcion['fecha_inicio'] ?? now(),
+            'fecha_fin'       => $inscripcion['fecha_final'] ?? now(),
+        ]);
+    }
+
+    /**
+     * Registra una intervención individual a partir de un envío de WhatsApp.
+     * * @param int $unidadId
+     * @param array $requestData Datos del request (phone_type, to, nombre_empresario, mensaje)
+     * @param object $template El modelo de la plantilla de WhatsApp utilizada
+     */
+    public static function registrarEnvioWhatsApp(array $mensajeWhatsapp) {
+        return self::registrarParaUnidad($mensajeWhatsapp['unidadproductiva_id'], [
+            'categoria_id'     => $mensajeWhatsapp['categoria_id'] ?? IntervencionCategoria::CATEGORIA_GESTION_PROGRAMAS,
+            'tipo_id'          => IntervencionTipo::TIPO_WHATSAPP,
+            'programa_id'      => $mensajeWhatsapp['programa_id'] ?? null,
+            'convocatoria_id'  => $mensajeWhatsapp['convocatoria_id'] ?? null,
+            'fase_id'          => $mensajeWhatsapp['fase_id'] ?? null,
+            'descripcion'      => $mensajeWhatsapp['descripcion'] ?? 'Sin contenido',
+            'conclusiones'     => $mensajeWhatsapp['conclusiones'] ?? null,
+            'modalidad'        => $mensajeWhatsapp['modalidad'] ?? 'Virtual',
+        ]);
+    }
 
 
-    public static function registrarParaUnidad($unidadId, array $datos) {
+
+    public static function registrarParaUnidad(int $unidadId, array $datos) {
+        if (empty($unidadId)) {
+            throw new \Exception('unidadproductiva_id es obligatorio');
+        }
         return DB::transaction(function () use ($unidadId, $datos) {
             $now = now();
-
             $intervencion = self::create([
                 'asesor_id'      => $datos['asesor_id'] ?? Auth::id(),
-
                 'programa_id'    => $datos['programa_id'] ?? null,
                 'convocatoria_id' => $datos['convocatoria_id'] ?? null,
                 'fase_id' => $datos['fase_id'] ?? null,
                 'unidadproductiva_id' => $unidadId,
-
-                'categoria_id'   => $datos['categoria_id'] ?? self::CATEGORIA_GESTION_PROGRAMAS,
-                'tipo_id'        => $datos['tipo_id'] ?? self::TIPO_WHATSAPP,
-                'descripcion'    => $datos['descripcion'],
+                'categoria_id'   => $datos['categoria_id'] ?? null,
+                'tipo_id'        => $datos['tipo_id'] ?? null,
                 'fecha_inicio'   => $datos['fecha_inicio'] ?? $now,
                 'fecha_fin'      => $datos['fecha_fin'] ?? $now,
                 'modalidad'      => $datos['modalidad'] ?? 'Virtual',
