@@ -6,8 +6,10 @@ use App\Exports\IntervencionesExport;
 use App\Imports\IntervencionUnidadProductivaImport;
 use App\Http\Controllers\Controller;
 use App\Models\Empresarios\UnidadProductiva;
+use App\Models\Intervenciones\IntervencionCategoria;
 use App\Models\Intervenciones\IntervencionUnidadProductiva;
 use App\Models\Intervenciones\IntervencionLead;
+use App\Models\Intervenciones\IntervencionTipo;
 use App\Models\Intervenciones\IntervencionUnidad;
 use App\Models\Intervenciones\ReporteMensual;
 use App\Models\Lead;
@@ -37,9 +39,9 @@ class IntervencionesController extends Controller {
         $data = [
             'programas' => Programa::get(),
             'convocatorias' => ProgramaConvocatoria::get(),
-            'categorias' => CategoriasIntervenciones::get(),
+            'categorias' => IntervencionCategoria::get(),
             'fasesProgramas' => FasePrograma::get(),
-            'tipos' => TiposIntervenciones::get(),
+            'tipos' => IntervencionTipo::get(),
             'modalidades' => IntervencionUnidadProductiva::$modalidades,
             'asesores' => User::whereNotNull('rol_id')->get(),
             'esAsesor' => Auth::user()->rol_id == Role::ASESOR ? 1 : 0,
@@ -255,8 +257,8 @@ class IntervencionesController extends Controller {
             'intervencion'  => $intervencion,
             'programas'     => Programa::get(),
             'convocatorias' => ProgramaConvocatoria::get(),
-            'categorias'    => CategoriasIntervenciones::get(),
-            'tipos'         => TiposIntervenciones::get(),
+            'categorias'    => IntervencionCategoria::get(),
+            'tipos'         => IntervencionTipo::get(),
             // Cargamos las unidades y leads ya asociados para que aparezcan en el Select2/Tagify
             'unidadesAsociadas' => $intervencion->unidades()->with('unidadProductiva')->get(),
             'leadsAsociados'    => $intervencion->leads()->with('lead')->get(),
@@ -278,6 +280,8 @@ class IntervencionesController extends Controller {
 
         // Obtenemos la data procesada desde el servicio
         $data = $service->getInformeData($request->all(), Auth::user());
+        echo json_encode($data);
+        die();
 
         // Análisis de IA (Lógica externa o privada del controlador)
         $data['analisis_ia'] = $iaService->analizarInforme($request, $data);

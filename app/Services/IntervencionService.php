@@ -42,14 +42,14 @@ class IntervencionService {
                 'fases_programas.nombre as fase',
                 'pc.nombre_convocatoria as convocatoria',
                 'p.nombre as programa',
-                'categorias_intervenciones.nombre as categoria',
-                'tipos_intervenciones.nombre as tipo',
+                'intervenciones_categorias.nombre as categoria',
+                'intervenciones_tipos.nombre as tipo',
             ])
             ->leftJoin('fases_programas', 'fases_programas.fase_id', '=', 'intervenciones_unidadesproductivas.fase_id')
             ->leftJoin('programas_convocatorias as pc', 'pc.convocatoria_id', '=', 'intervenciones_unidadesproductivas.convocatoria_id')
             ->leftJoin('programas as p', 'p.programa_id', '=', 'intervenciones_unidadesproductivas.programa_id')
-            ->join('categorias_intervenciones', 'categorias_intervenciones.id', '=', 'intervenciones_unidadesproductivas.categoria_id')
-            ->join('tipos_intervenciones', 'tipos_intervenciones.id', '=', 'intervenciones_unidadesproductivas.tipo_id')
+            ->join('intervenciones_categorias', 'intervenciones_categorias.id', '=', 'intervenciones_unidadesproductivas.categoria_id')
+            ->join('intervenciones_tipos', 'intervenciones_tipos.id', '=', 'intervenciones_unidadesproductivas.tipo_id')
             ->join('users', 'users.id', '=', 'intervenciones_unidadesproductivas.asesor_id');
 
         // Seguridad por Rol
@@ -104,8 +104,8 @@ class IntervencionService {
             'programa' => 'p.nombre',
             'convocatoria' => 'pc.nombre_convocatoria',
             'fase' => 'fases_programas.nombre',
-            'categoria' => 'categorias_intervenciones.nombre',
-            'tipo' => 'tipos_intervenciones.nombre',
+            'categoria' => 'intervenciones_categorias.nombre',
+            'tipo' => 'intervenciones_tipos.nombre',
             'participantes' => 'intervenciones_unidadesproductivas.participantes',
             'participantes_otros' => 'intervenciones_unidadesproductivas.participantes_otros',
             'cant_unidades' => 'intervenciones_unidadesproductivas.cant_unidades',

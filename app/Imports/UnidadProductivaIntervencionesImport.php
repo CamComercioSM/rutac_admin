@@ -4,6 +4,9 @@ namespace App\Imports;
 
 use App\Models\Empresarios\UnidadProductivaIntervenciones;
 use App\Models\Empresarios\UnidadProductiva;
+use App\Models\Intervenciones\IntervencionCategoria;
+use App\Models\Intervenciones\IntervencionTipo;
+use App\Models\Intervenciones\IntervencionUnidadProductiva;
 use App\Models\TablasReferencias\CategoriasIntervenciones;
 use App\Models\TablasReferencias\TiposIntervenciones;
 use App\Models\User;
@@ -15,7 +18,7 @@ class UnidadProductivaIntervencionesImport implements ToModel, WithHeadingRow
 {
     public function model(array $row)
     { 
-        return new UnidadProductivaIntervenciones([
+        return new IntervencionUnidadProductiva([
             'asesor_id'          => $this->buscarAsesor($row['asesor']),
             'unidadproductiva_id'=> $this->buscarUP($row['unidad_productiva']),
             'descripcion'        => $row['descripcion'],
@@ -75,11 +78,11 @@ class UnidadProductivaIntervencionesImport implements ToModel, WithHeadingRow
 
     private function buscarCategoria($nombre)
     {
-        return CategoriasIntervenciones::where('nombre', 'like', $nombre)->value('id') ?? 0;
+        return IntervencionCategoria::where('nombre', 'like', $nombre)->value('id') ?? 0;
     }
 
     private function buscarTipo($nombre)
     {
-        return TiposIntervenciones::where('nombre', 'like', $nombre)->value('id') ?? 0;
+        return IntervencionTipo::where('nombre', 'like', $nombre)->value('id') ?? 0;
     }
 }

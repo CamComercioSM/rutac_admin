@@ -5,12 +5,13 @@ namespace App\Models\Intervenciones;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Traits\UserTrait;
+use App\Models\Traits\AuditTrait;
 use App\Models\Empresarios\UnidadProductiva;
 use App\Models\Empresarios\UnidadProductivaIntervenciones;
 
 class IntervencionUnidad extends Model
 {
-    use SoftDeletes, UserTrait;
+    use SoftDeletes, UserTrait, AuditTrait;
 
     protected $table = 'intervencion_unidades';
     protected $primaryKey = 'intervencion_unidad_id';

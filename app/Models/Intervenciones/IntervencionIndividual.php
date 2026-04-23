@@ -99,4 +99,37 @@ class IntervencionIndividual extends Model {
     public function esLead() {
         return !is_null($this->lead_id);
     }
+
+
+
+    public static function registrarParaUnidad($unidadId, array $datos) {
+        return DB::transaction(function () use ($unidadId, $datos) {
+            $now = now();
+
+            $intervencion = self::create([
+                'asesor_id'      => $datos['asesor_id'] ?? Auth::id(),
+
+                'programa_id'    => $datos['programa_id'] ?? null,
+                'convocatoria_id' => $datos['convocatoria_id'] ?? null,
+                'fase_id' => $datos['fase_id'] ?? null,
+                'unidadproductiva_id' => $unidadId,
+
+                'categoria_id'   => $datos['categoria_id'] ?? self::CATEGORIA_GESTION_PROGRAMAS,
+                'tipo_id'        => $datos['tipo_id'] ?? self::TIPO_WHATSAPP,
+                'descripcion'    => $datos['descripcion'],
+                'fecha_inicio'   => $datos['fecha_inicio'] ?? $now,
+                'fecha_fin'      => $datos['fecha_fin'] ?? $now,
+                'modalidad'      => $datos['modalidad'] ?? 'Virtual',
+                'participantes'  => $datos['participantes'] ?? 1,
+                'descripcion'   => $datos['descripcion'] ?? null,
+                'conclusiones'   => $datos['conclusiones'] ?? null,
+            ]);
+
+            return $intervencion;
+        });
+    }
+
+    const CREATED_AT = 'fecha_creacion';
+    const UPDATED_AT = 'fecha_actualizacion';
+    const DELETED_AT = 'fecha_eliminacion';
 }

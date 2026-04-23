@@ -7,6 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Diagnosticos\ResultadosDiagnostico;
 use App\Models\Empresarios\UnidadProductiva;
 use App\Models\Empresarios\UnidadProductivaIntervenciones;
+use App\Models\Intervenciones\IntervencionCategoria;
+use App\Models\Intervenciones\IntervencionIndividual;
+use App\Models\Intervenciones\IntervencionTipo;
 use App\Models\TablasReferencias\Etapa;
 use App\Models\TablasReferencias\Sector;
 use App\Models\TablasReferencias\SectorSecciones;
@@ -485,11 +488,27 @@ class UnidadProductivaController extends Controller {
         ]);
 
         if ($resultado['success']) {
-            // Registrar como intervención 
-            UnidadProductivaIntervenciones::registrarParaUnidad($unidadProductiva->unidadproductiva_id, [
-                'categoria_id' => UnidadProductivaIntervenciones::CATEGORIA_GESTION_PROGRAMAS,
-                'tipo_id'      => UnidadProductivaIntervenciones::TIPO_WHATSAPP,
-                'descripcion'  => 'Mensaje enviado vía WhatsApp: ' . $request->mensaje,
+
+            $tipoTelefonoLabel = [
+                'mobile' => 'Móvil',
+                'telephone' => 'Teléfono Fijo',
+                'contact_phone' => 'Teléfono de Contacto'
+            ][$request->phone_type] ?? 'No especificado';
+
+            $conclusionesEnriquecidas = sprintf(
+                "WhatsApp enviado exitosamente por %s. \nDestinatario: %s (%s) \nNúmero: %s \nPlantilla: %s",
+                Auth::user()->name,
+                $request->nombre_empresario ?? 'No especificado',
+                $tipoTelefonoLabel,
+                $to,
+                $template->name
+            );
+
+            IntervencionIndividual::registrarParaUnidad($unidadProductiva->unidadproductiva_id, [
+                'categoria_id' => IntervencionCategoria::CATEGORIA_GESTION_PROGRAMAS,
+                'tipo_id'      => IntervencionTipo::TIPO_WHATSAPP,
+                'descripcion'  => 'Contenido del mensaje: ' . $request->mensaje,
+                'conclusiones' => $conclusionesEnriquecidas,
             ]);
 
             Log::info('WhatsApp enviado', [
