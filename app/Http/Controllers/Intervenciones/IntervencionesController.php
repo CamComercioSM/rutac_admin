@@ -280,6 +280,7 @@ class IntervencionesController extends Controller {
 
         // Obtenemos la data procesada desde el servicio
         $data = $service->getInformeData($request->all(), Auth::user());
+        header('Content-Type: application/json');
         echo json_encode($data);
         die();
 

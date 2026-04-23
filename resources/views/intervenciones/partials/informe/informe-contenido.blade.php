@@ -84,6 +84,10 @@
     </div>
 </div>
 
+
+@include('intervenciones.partials.informe.tabla-por-programa')
+
+
 <div class="page-break"></div>
 
 {{-- 5. DETALLE TÉCNICO --}}

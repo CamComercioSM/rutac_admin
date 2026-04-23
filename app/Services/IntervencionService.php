@@ -245,12 +245,19 @@ class IntervencionService {
             ->orderBy('fecha_inicio', 'ASC')
             ->get();
 
+        $agrupadas = $intervenciones->groupBy(function ($item) {
+            $programa = $item->programa->nombre ?? 'Sin Programa';
+            $convocatoria = $item->convocatoria->nombre ?? 'Sin Convocatoria';
+            return "{$programa} | {$convocatoria}";
+        });
+
         // ========================= RESPUESTA =========================
         return [
             'inicio'         => Carbon::parse($fi)->translatedFormat('Y-m-d H:i'),
             'fin'            => Carbon::parse($ff)->translatedFormat('Y-m-d H:i'),
             'conclusiones'   => $params['conclusiones'] ?? '',
             'intervenciones' => $intervenciones,
+            'reporte_grupos' => $agrupadas,      // Data estructurada para los encabezados
             'totalGeneral'   => (clone $baseQuery)->count(),
 
             // ========================= AGRUPACIONES =========================
@@ -285,6 +292,44 @@ class IntervencionService {
                 ->when($asesor, fn($q) => $q->where('i.asesor_id', $asesor))
                 ->groupBy('il.lead_id')
                 ->get(),
+        ];
+    }
+
+    public function procesarDataReporte(array $data) {
+        $intervenciones = collect($data['intervenciones'])->map(function ($item) {
+            // 1. Actividad (Categoría + Tipo)
+            $categoria = $item['categoria']['nombre'] ?? 'N/A';
+            $tipo = $item['tipo']['nombre'] ?? 'N/A';
+
+            // 2. Resultado (Cálculo de totales)
+            $unidades = $item['cant_unidades'] ?? 0;
+            $leads = $item['cant_leads'] ?? 0;
+            $asistentes_unidad = $item['participantes'] ?? 0;
+            $asistentes_leads = $item['participantes_otros'] ?? 0;
+            $total_asistentes = $asistentes_unidad + $asistentes_leads;
+
+            return (object) [
+                'fase' => $item['fase']['nombre'] ?? 'Sin Fase',
+                'actividad' => "{$categoria} / {$tipo}",
+                'modalidad' => $item['modalidad'] ?? 'No definida',
+                'tipo' => $tipo,
+                'descripcion_ejecutado' => ($item['descripcion'] ?? '') . " | Conclusiones: " . ($item['conclusiones'] ?? 'N/A'),
+                'resultados' => [
+                    'unidades' => $unidades,
+                    'leads' => $leads,
+                    'total_asistentes' => $total_asistentes
+                ],
+                'evidencia' => [
+                    'nombre' => $item['soporte'] ?? 'Sin soporte',
+                    'url' => $item['evidencia_url'] ?? '#'
+                ]
+            ];
+        });
+
+        return [
+            'periodo' => $data['inicio'] . ' al ' . $data['fin'],
+            'conclusiones_generales' => $data['conclusiones'],
+            'items' => $intervenciones
         ];
     }
 
