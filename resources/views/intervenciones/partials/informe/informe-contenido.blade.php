@@ -1,11 +1,7 @@
-{{-- 1. PORTADA --}}
-
-
 @include('intervenciones.partials.informe.portada')
 
 <div class="page-break"></div>
 
-{{-- 2. RESUMEN EJECUTIVO Y ANÁLISIS AUTOMÁTICO --}}
 <div class="resumen-ejecutivo">
     <h2 style="border:none; margin-top:0;">1. Resumen Ejecutivo</h2>
     <p>
@@ -27,8 +23,7 @@
     </div>
 </div>
 
-{{-- 3. INDICADORES CONSOLIDADOS (Kpis) --}}
-
+<div class="page-break"></div>
 @php
     $intervencionesDetalladas = collect($intervenciones)->filter(function ($i) {
         return !empty($i->unidadproductiva_id) || !empty($i->lead_id);
@@ -76,58 +71,6 @@
     </div>
 </div>
 
-{{-- 4. TABLAS DE DISTRIBUCIÓN (Categorías y Tipos) --}}
-<div class="row">
-    <div class="col-6">
-        <h2>2. Distribución por Categoría</h2>
-        {{-- Tabla de categorías aquí --}}
-    </div>
-</div>
-
-
-@include('intervenciones.partials.informe.tabla-por-programa')
-
-
-<div class="page-break"></div>
-
-{{-- 5. DETALLE TÉCNICO --}}
-<h2>3. Listado Detallado de Gestión</h2>
-<p class="text-muted small">Cronología de actividades y evidencias de soporte registradas.</p>
-{{-- Mantener la tabla de intervencionesDetalladas pero con fuentes optimizadas --}}
-
-{{-- 6. CONCLUSIONES INSTITUCIONALES --}}
-<div class="conclusiones-section">
-    <h2>4. Conclusiones y Recomendaciones</h2>
-    <div class="contenido-html">
-        @if ($conclusiones)
-            {!! $conclusiones !!}
-        @else
-            <p>Se recomienda mantener el seguimiento constante a las unidades intervenidas para asegurar la
-                sostenibilidad de las acciones implementadas durante este periodo.</p>
-        @endif
-    </div>
-</div>
-
-{{-- 7. ANÁLISIS IA (Si aplica) --}}
-@if (!empty($analisis_ia) && ($mostrarIA ?? false))
-    <div class="conclusiones-section" style="border-left-color: #28a745;">
-        <h2>5. Hallazgos Estratégicos (IA)</h2>
-        <div>{!! $analisis_ia !!}</div>
-    </div>
-@endif
-
-{{-- 8. FIRMAS --}}
-<div class="firma-section">
-    <div class="firma-box">
-        <strong>Asesor Responsable</strong><br>
-        Ruta de Crecimiento
-    </div>
-    <div class="firma-box">
-        <strong>Coordinación</strong><br>
-        CCSM / Ruta C
-    </div>
-</div>
-
 <div class="row text-center mb-4">
     <div class="col-md-4">
         <div class="card shadow-sm border-0">
@@ -157,141 +100,10 @@
     </div>
 </div>
 
-<!-- SECCIÓN 1: CATEGORÍAS -->
-<h2>Categorías de Intervención</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Categorías de Intervención</th>
-            <th style="width: 100px">Cantidad</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse($porCategoria as $c)
-            <tr>
-                <td>
-                    <strong>{{ $c->categoria->nombre ?? 'Sin categoría' }}</strong>
-                </td>
-                <td class="text-right">{{ $c->total }}</td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="2" style="text-align: center; color: #666;">No hay datos disponibles</td>
-            </tr>
-        @endforelse
-    </tbody>
-</table>
-
-<!-- SECCIÓN 2: TIPOS -->
-<h2>Tipos de Intervención</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Tipo</th>
-            <th style="width: 100px">Cantidad</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse($porTipo as $t)
-            <tr>
-                <td>
-                    <strong>{{ $t->tipo->nombre ?? 'Sin tipo' }}</strong>
-                </td>
-                <td class="text-right">{{ $t->total }}</td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="2" style="text-align: center; color: #666;">No hay datos disponibles</td>
-            </tr>
-        @endforelse
-    </tbody>
-</table>
-
-<!-- SECCIÓN 3: UNIDADES PRODUCTIVAS -->
-<h2>Unidades Productivas</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Unidad Productiva</th>
-            <th style="width: 100px">Cantidad</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse($porUnidad as $u)
-            <tr>
-                <td>
-                    <strong>{{ $u->unidadProductiva?->business_name ?? 'Sin unidad productiva' }}</strong>
-                </td>
-                <td class="text-right">{{ $u->total }}</td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="2" style="text-align: center; color: #666;">No hay datos disponibles</td>
-            </tr>
-        @endforelse
-    </tbody>
-</table>
-
-<div class="page-break"></div>
 
 
-<!-- LISTADO DETALLADO -->
-<h2>Listado Detallado de Intervenciones</h2>
+@include('intervenciones.partials.informe.tabla-por-programa')
 
-<table>
-    <thead>
-        <tr>
-            <th style="width: 100px;">Fecha</th>
-            <th style="width: 260px;">Intervenido / Asesor</th>
-            <th style="width: 120px;">Categoría / Tipo</th>
-            <th>Descripción</th>
-            <th style="width: 180px;">Evidencia</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse($intervencionesDetalladas as $i)
-            <tr>
-                <td>{{ $i->fecha_inicio }}</td>
-                <td>
-                    <div>
-                        <strong>
-                            {{ $i->unidadProductiva?->business_name ?? ($i->lead?->name ?? 'N/A') }}
-                        </strong>
-                    </div>
-                    <small style="color: #666;">
-                        {{ $i->unidadProductiva?->business_name ? 'Unidad productiva' : 'Otro participante' }}
-                    </small>
-
-                    <div style="margin-top: 8px;">
-                        <small style="color: #666;">
-                            <strong>Asesor:</strong> {{ $i->asesor?->name ?? 'N/A' }}
-                        </small>
-                    </div>
-                </td>
-                <td>
-                    <div><strong>{{ $i->categoria?->nombre ?? 'N/A' }}</strong></div>
-                    <small style="color: #666;">{{ $i->tipo?->nombre ?? 'N/A' }}</small>
-                </td>
-                <td>{!! $i->descripcion ?? '<span style="color:#666;">Sin descripción</span>' !!}</td>
-                <td class="text-break">
-                    @if (!empty($i->soporte))
-                        <a href="{{ $i->soporte }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                            Ver soporte - <span style="font-size: 50%;">{{ $i->soporte }}</span>
-                        </a>
-                    @else
-                        <span class="text-muted">Sin soporte</span>
-                    @endif
-                </td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="5" style="text-align: center; color: #666;">
-                    No hay intervenciones con unidad productiva u otro participante en el rango seleccionado
-                </td>
-            </tr>
-        @endforelse
-    </tbody>
-</table>
 
 <h2>Actividades Transversales</h2>
 <table>
@@ -336,6 +148,29 @@
 
 <div class="page-break"></div>
 
+{{-- 6. CONCLUSIONES INSTITUCIONALES --}}
+<div class="conclusiones-section">
+    <h2>Análisis de la Gestión y Resultados</h2>
+    <div class="contenido-html">
+        @if ($conclusiones)
+            {!! $conclusiones !!}
+        @else
+            <p>Se recomienda mantener el seguimiento constante a las unidades intervenidas para asegurar la
+                sostenibilidad de las acciones implementadas durante este periodo.</p>
+        @endif
+    </div>
+</div>
+
+{{-- 7. ANÁLISIS IA (Si aplica) --}}
+@if (!empty($analisis_ia) && ($mostrarIA ?? false))
+    <div class="conclusiones-section" style="border-left-color: #28a745;">
+        <h2>5. Hallazgos Estratégicos (IA)</h2>
+        <div>{!! $analisis_ia !!}</div>
+    </div>
+@endif
+
+<div class="page-break"></div>
+
 <div class="conclusiones-section">
     <h2>Conclusiones</h2>
     <div class="contenido-html">
@@ -349,6 +184,18 @@
         <div>{!! $analisis_ia !!}</div>
     </div>
 @endif
+
+{{-- 8. FIRMAS --}}
+<div class="firma-section">
+    <div class="firma-box">
+        <strong>Asesor Responsable</strong><br>
+        Ruta de Crecimiento
+    </div>
+    <div class="firma-box">
+        <strong>Coordinación</strong><br>
+        CCSM / Ruta C
+    </div>
+</div>
 
 <div class="footer-info">
     Intervenciones - Generado el {{ date('d/m/Y H:i') }}

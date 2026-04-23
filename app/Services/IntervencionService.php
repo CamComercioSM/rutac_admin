@@ -14,13 +14,15 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
-class IntervencionService {
+class IntervencionService
+{
 
     /**
      * Construye la consulta base para el listado con todos los Joins, 
      * clasificaciones, filtros y ORDENAMIENTO original.
      */
-    public function getListQuery(array $filters, $user) {
+    public function getListQuery(array $filters, $user)
+    {
         $query = IntervencionUnidadProductiva::query()
             ->select([
                 'intervenciones_unidadesproductivas.*',
@@ -124,7 +126,8 @@ class IntervencionService {
     /**
      * Lógica de filtrado interna.
      */
-    private function applyFilter($query, array $filters, $param, $column) {
+    private function applyFilter($query, array $filters, $param, $column)
+    {
         $value = $filters[$param] ?? null;
         if (!is_null($value) && $value !== '') {
             $query->where($column, $value);
@@ -134,13 +137,15 @@ class IntervencionService {
     /**
      * Procesa el guardado (Original).
      */
-    public function storeIntervencion(array $data, array $unidades, array $leads) {
+    public function storeIntervencion(array $data, array $unidades, array $leads)
+    {
         $intervencion = IntervencionUnidadProductiva::create($data);
         $this->syncParticipantes($intervencion, $unidades, $leads);
         return $intervencion;
     }
 
-    public function syncParticipantes($intervencion, array $unidades, array $leads) { // Limpiar actuales
+    public function syncParticipantes($intervencion, array $unidades, array $leads)
+    { // Limpiar actuales
         $intervencion->unidades()->delete();
         $intervencion->leads()->delete();
 
@@ -214,7 +219,8 @@ class IntervencionService {
      * - Agrupación por unidad (JOIN)
      * - Agrupación por leads (JOIN)
      */
-    public function getInformeData(array $params, $user): array {
+    public function getInformeData(array $params, $user): array
+    {
         $fi = $params['fecha_inicio'] ?? null;
         $ff = $params['fecha_fin'] ?? null;
 
@@ -241,9 +247,17 @@ class IntervencionService {
 
         // ========================= DATA DETALLE =========================
         $intervenciones = (clone $baseQuery)
-            ->with(['asesor', 'categoria', 'tipo', 'fase'])
+            ->with([
+                'asesor',
+                'categoria',
+                'tipo',
+                'fase',
+                'programa',
+                'convocatoria'
+            ])
             ->orderBy('fecha_inicio', 'ASC')
             ->get();
+
 
         $agrupadas = $intervenciones->groupBy(function ($item) {
             $programa = $item->programa->nombre ?? 'Sin Programa';
@@ -253,6 +267,13 @@ class IntervencionService {
 
         // ========================= RESPUESTA =========================
         return [
+            // 🔹 Periodo (aún no tienes anio/mes, usamos fechas)
+            'periodo'          => Carbon::parse($fi)->translatedFormat('F Y'),
+            'fecha_generacion' => now()->format('d/m/Y'),
+            'estado_legible'   => 'En construcción',
+            'meta_texto'       => 'Pendiente de evaluación',
+            'avance_texto'     => 'Pendiente de evaluación',
+            // 🔹 Fechas para encabezados y conclusiones
             'inicio'         => Carbon::parse($fi)->translatedFormat('Y-m-d H:i'),
             'fin'            => Carbon::parse($ff)->translatedFormat('Y-m-d H:i'),
             'conclusiones'   => $params['conclusiones'] ?? '',
@@ -295,7 +316,8 @@ class IntervencionService {
         ];
     }
 
-    public function procesarDataReporte(array $data) {
+    public function procesarDataReporte(array $data)
+    {
         $intervenciones = collect($data['intervenciones'])->map(function ($item) {
             // 1. Actividad (Categoría + Tipo)
             $categoria = $item['categoria']['nombre'] ?? 'N/A';
@@ -336,7 +358,8 @@ class IntervencionService {
     /**
      * Valida si ya existe un reporte mensual para evitar duplicados (Original).
      */
-    public function validarReporteDuplicado(int $asesorId, int $anio, int $mes, ?int $reporteId = null): bool {
+    public function validarReporteDuplicado(int $asesorId, int $anio, int $mes, ?int $reporteId = null): bool
+    {
         return ReporteMensual::where('asesor_id', $asesorId)
             ->where('anio', $anio)
             ->where('mes', $mes)
@@ -345,7 +368,8 @@ class IntervencionService {
             ->exists();
     }
 
-    public function generarInformePDF(array $data, string $rutaPublica): string {
+    public function generarInformePDF(array $data, string $rutaPublica): string
+    {
         $pdf = Pdf::loadView('intervenciones.informe', $data)
             ->setPaper('a4', 'portrait');
 

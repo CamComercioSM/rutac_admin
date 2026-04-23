@@ -280,9 +280,6 @@ class IntervencionesController extends Controller {
 
         // Obtenemos la data procesada desde el servicio
         $data = $service->getInformeData($request->all(), Auth::user());
-        header('Content-Type: application/json');
-        echo json_encode($data);
-        die();
 
         // Análisis de IA (Lógica externa o privada del controlador)
         $data['analisis_ia'] = $iaService->analizarInforme($request, $data);
@@ -298,18 +295,7 @@ class IntervencionesController extends Controller {
             'usuario_actualizo'    => Auth::id(),
         ]);
 
-        // 🔹 Periodo (aún no tienes anio/mes, usamos fechas)
-        $data['periodo'] = Carbon::parse($data['inicio'])->translatedFormat('F Y');
-
-        // 🔹 Fecha generación
-        $data['fecha_generacion'] = now()->format('d/m/Y');
-
-        // 🔹 Estado (preview aún no tiene estado definido)
-        $data['estado_legible'] = 'En construcción';
-
-        // 🔹 Meta y avance (aún no evaluado)
-        $data['meta_texto'] = 'Pendiente de evaluación';
-        $data['avance_texto'] = 'Pendiente de evaluación';
+      
 
         $data['reporte'] = $reporte;
         $data['reporte_id'] = $reporte->id;
