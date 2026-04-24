@@ -11,30 +11,32 @@
 </head>
 
 <body>
+    <div class="preview-header">
+        <small>
+            Reporte generado automáticamente con base en intervenciones registradas en el sistema RUTAC desde
+            {{ $inicio }} hasta {{ $fin }}.
+        </small>
+    </div>
+    <div class="preview-actions">
+        <button type="button" class="btn btn-secondary" onclick="window.close()">Cerrar</button>
+        <form id="formGenerarPDF" method="POST" action="{{ url('/intervenciones/informe/generar') }}"
+            style="display: inline;" target="_blank">
+            @csrf
+            <input type="hidden" name="fecha_inicio"
+                value="{{ request('fecha_inicio') ?? request()->input('fecha_inicio') }}">
+            <input type="hidden" name="fecha_fin" value="{{ request('fecha_fin') ?? request()->input('fecha_fin') }}">
+            @if (request('asesor') || request()->input('asesor'))
+                <input type="hidden" name="asesor" value="{{ request('asesor') ?? request()->input('asesor') }}">
+            @endif
+            @if (request('unidad') || request()->input('unidad'))
+                <input type="hidden" name="unidad" value="{{ request('unidad') ?? request()->input('unidad') }}">
+            @endif
+            <input type="hidden" name="conclusiones" value="{{ $conclusiones }}">
+            <button type="submit" class="btn btn-primary">Generar PDF</button>
+        </form>
+        <button type="button" id="btnGuardarInforme" class="btn btn-success">Guardar Reporte</button>
+    </div>
     <div class="preview-container">
-        <div class="preview-header">            
-            <h4>Reporte generado automáticamente con base en intervenciones registradas en el sistema RUTAC desde {{ $inicio }} hasta {{ $fin }}.</h4>
-        </div>
-        <div class="preview-actions">
-            <button type="button" class="btn btn-secondary" onclick="window.close()">Cerrar</button>
-            <form id="formGenerarPDF" method="POST" action="{{ url('/intervenciones/informe/generar') }}"
-                style="display: inline;" target="_blank">
-                @csrf
-                <input type="hidden" name="fecha_inicio"
-                    value="{{ request('fecha_inicio') ?? request()->input('fecha_inicio') }}">
-                <input type="hidden" name="fecha_fin"
-                    value="{{ request('fecha_fin') ?? request()->input('fecha_fin') }}">
-                @if (request('asesor') || request()->input('asesor'))
-                    <input type="hidden" name="asesor" value="{{ request('asesor') ?? request()->input('asesor') }}">
-                @endif
-                @if (request('unidad') || request()->input('unidad'))
-                    <input type="hidden" name="unidad" value="{{ request('unidad') ?? request()->input('unidad') }}">
-                @endif
-                <input type="hidden" name="conclusiones" value="{{ $conclusiones }}">
-                <button type="submit" class="btn btn-primary">Generar PDF</button>
-            </form>
-            <button type="button" id="btnGuardarInforme" class="btn btn-success">Guardar Reporte</button>
-        </div>
 
         {{-- contenido reutilizable --}}
         @include('intervenciones.partials.informe.informe-contenido', [
@@ -59,7 +61,7 @@
                             value="{{ request('asesor') ?? request()->input('asesor') }}">
                     @endif
                     <input type="hidden" name="conclusiones" value="{{ $conclusiones }}">
-                    <input type="hidden" name="reporte_id" id="reporte_id" value="{{ $reporte_id }}">
+                    <input type="hidden" name="reporte_id" id="reporte_id" value="{{ $reporte_id ?? '' }}">
 
                     <div class="modal-header">
                         <h5 class="modal-title">Guardar informe de intervencion</h5>

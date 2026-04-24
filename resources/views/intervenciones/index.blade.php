@@ -79,7 +79,7 @@
             <small class="fw-medium">Actividad</small>
             <div class="bs-stepper vertical wizard-modern wizard-modern-vertical mt-2">
                 <div class="bs-stepper-header gap-lg-2">
-                    @include('intervenciones.partials.stepper-header')
+                    @include('intervenciones.partials.formulario.stepper-header')
                 </div>
                 <div class="bs-stepper-content">
 
@@ -95,19 +95,19 @@
 
                     <!-- informacion de intervencion -->
                     <div id="account-details-modern-vertical" class="content">
-                        @include('intervenciones.partials.step1-datos')
+                        @include('intervenciones.partials.formulario.step1-datos')
                     </div>
                     <!-- Avances -->
                     <div id="avances-info-modern-vertical" class="content">
-                        @include('intervenciones.partials.step2-avances')
+                        @include('intervenciones.partials.formulario.step2-avances')
                     </div>
                     <!-- Unidades productivas -->
                     <div id="personal-info-modern-vertical" class="content">
-                        @include('intervenciones.partials.step3-unidades')
+                        @include('intervenciones.partials.formulario.step3-unidades')
                     </div>
                     <!-- Soporte -->
                     <div id="social-links-modern-vertical" class="content">
-                        @include('intervenciones.partials.step4-soportes')
+                        @include('intervenciones.partials.formulario.step4-soportes')
                     </div>
 
                     {{-- Input oculto para el estado --}}

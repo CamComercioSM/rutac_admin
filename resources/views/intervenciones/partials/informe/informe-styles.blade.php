@@ -7,7 +7,7 @@
 
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        font-size: 14px;
+        font-size: 12px;
         line-height: 1.6;
         color: #333;
         background: #f5f5f5;
@@ -49,7 +49,7 @@
         position: sticky;
         top: 0;
         background: white;
-        padding: 15px;
+        padding: 10px;
         margin: -30px -30px 30px -30px;
         border-bottom: 2px solid #0e188a;
         display: flex;
@@ -59,11 +59,11 @@
     }
 
     .btn {
-        padding: 10px 20px;
+        padding: 5px 10px;
         border: none;
         border-radius: 5px;
         cursor: pointer;
-        font-size: 14px;
+        font-size: 9px;
         text-decoration: none;
         display: inline-block;
         transition: all 0.3s;
@@ -101,14 +101,40 @@
         font-size: 16px;
     }
 
+
+    h1 {
+        font-size: 18px;
+        margin-bottom: 5px;
+        color: #2b343a;
+    }
+    
     h2 {
         color: #0e188a;
-        margin-top: 30px;
         margin-bottom: 15px;
         font-size: 20px;
         padding-bottom: 10px;
         border-bottom: 2px solid #e9ecef;
     }
+
+    h3 {
+        font-size: 14px;
+        font-weight: normal;
+        margin-top: 0;
+    }
+
+    h4 {
+        font-size: 12px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 3px;
+        margin-top: 10px;
+    }
+
+    h5 {
+        font-size: 10px;
+        padding-bottom: 3px;
+        margin-top: 10px;
+    }
+
 
     table {
         width: 100%;
@@ -133,6 +159,7 @@
         color: white;
         font-weight: bold;
         text-align: left;
+        font-size: 10px;
     }
 
     td {
@@ -147,14 +174,61 @@
         background: #e9ecef;
     }
 
-    .text-right {
-        text-align: right;
-    }
 
     .page-break {
         margin: 40px 0;
         border-top: 2px dashed #dee2e6;
+        page-break-after: always;
     }
+
+
+    .portada {
+        position: relative;
+        height: 1000px;
+        /* Altura fija aproximada para A4 a 72dpi */
+        width: 100%;
+        border: 1px solid #eee;
+        /* El recuadro que mencionaste */
+    }
+
+    .contenido-portada {
+        position: absolute;
+        top: 45%;
+        /* Ajustado para que quede un poco más arriba de la mitad */
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        text-align: center;
+    }
+
+    .logo-portada {
+        max-height: 100px;
+        margin-bottom: 20px;
+    }
+
+    .seccion-info {
+        margin-top: 30px;
+        text-align: left;
+        width: 85%;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.4;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-muted {
+        color: #6c757d;
+    }
+
+
+
+    .text-right {
+        text-align: right;
+    }
+
 
     .contenido-html {
         font-size: 14px;

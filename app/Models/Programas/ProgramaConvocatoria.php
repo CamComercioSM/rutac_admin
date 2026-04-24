@@ -28,6 +28,10 @@ class ProgramaConvocatoria extends Model
         'con_matricula',
         'sector_id',
     ];
+    protected $casts = [
+        'fecha_apertura_convocatoria' => 'datetime',
+        'fecha_cierre_convocatoria'   => 'datetime',
+    ];
 
     // Definición de constantes para los timestamps personalizados
     const CREATED_AT = 'fecha_creacion';

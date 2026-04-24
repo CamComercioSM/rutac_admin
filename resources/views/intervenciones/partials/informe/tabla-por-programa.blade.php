@@ -3,158 +3,204 @@
 @foreach ($reporte_grupos as $encabezado => $fases)
     <div class="card mb-4">
         <div class="card-header bg-primary py-3">
-            <h5 class="text-white mb-0">
-                <i class="bx bx-collection me-2"></i> {{ $encabezado }}
-            </h5>
+
+            @php
+                // Obtenemos el primer registro del grupo para extraer la información de la convocatoria
+                $primerRegistro = $fases->first()->first();
+                $convocatoria = $primerRegistro?->convocatoria;
+            @endphp
+
+            <h2 class="text-white mb-1">
+                <i class="icon-base ri ri-collection me-2"></i> {{ $encabezado }} 
+                <small>[
+                <i class="icon-base ri ri-calendar-event-line me-1"></i>
+                @if ($convocatoria && $convocatoria->fecha_apertura_convocatoria)
+                    {{ $convocatoria->fecha_apertura_convocatoria->format('d/m/Y') }}
+                @else
+                    <span class="text-muted">Sin fecha apertura</span>
+                @endif
+
+                <span class="mx-2 text-muted">-</span>
+
+                @if ($convocatoria && $convocatoria->fecha_cierre_convocatoria)
+                    {{ $convocatoria->fecha_cierre_convocatoria->format('d/m/Y') }}
+                @else
+                    <span class="text-muted">Sin fecha cierre</span>
+                @endif
+                ]</small>
+            </h2>
             <div class="d-flex gap-2">
                 <span class="badge bg-primary">
-                    {{-- Usamos flatten() para contar todas las intervenciones de todas las fases --}}
-                    {{ $fases->flatten()->count() }} Actividades Reportadas
+                    {{ $fases->flatten()->count() }} Actividades
                 </span>
                 <span class="badge bg-white text-primary border">
-                    Unidades: {{ $fases->flatten()->sum('cant_unidades') }}
+                    Inscritas (UND): {{ $fases->flatten()->sum('cant_unidades') }}
+                    [{{ $fases->flatten()->sum(fn($i) => $i->participantes ?? 0) }}]
                 </span>
                 <span class="badge bg-white text-primary border">
-                    Leads: {{ $fases->flatten()->sum('cant_leads') }}
+                    Externas (EXT): {{ $fases->flatten()->sum('cant_leads') }}
+                    [{{ $fases->flatten()->sum(fn($i) => $i->participantes_otros ?? 0) }}]
                 </span>
                 <span class="badge bg-white text-primary border">
-                    {{-- Aquí estaba el error. Al usar flatten(), $i vuelve a ser una Intervención individual --}}
-                    Asistentes:
+                    Total Unidades:
+                    {{ $fases->flatten()->sum('cant_unidades') + $fases->flatten()->sum('cant_leads') }}
+                </span>
+                <span class="badge bg-white text-primary border">
+                    Total Asistentes:
                     {{ $fases->flatten()->sum(fn($i) => ($i->participantes ?? 0) + ($i->participantes_otros ?? 0)) }}
                 </span>
             </div>
         </div>
-
-
         @foreach ($fases as $faseNombre => $items)
-            {{-- 🟦 Sub-encabezado de Fase (Estilo inspirado en la imagen) --}}
-            <div class="bg-light">
+            <div class="bg-lighter ">
                 <div colspan="3" class="py-2 px-4">
                     <div class="d-flex align-items-center">
-                        <i class="bx bx-right-arrow-alt text-primary me-2"></i>
+                        <i class="icon-base ri ri-arrow-right-s-fill text-primary me-2"></i>
                         <span class="fw-bold text-dark uppercase small">FASE: {{ $faseNombre }}</span>
                         <span class="badge badge-dot bg-primary ms-2"></span>
-                        <small class="text-muted ms-auto">{{ $items->count() }} registros en esta
-                            fase</small>
+                        <small class="text-muted ms-auto">{{ $items->count() }} registros en esta fase</small>
                     </div>
                 </div>
             </div>
-
             <div class="table-responsive">
-
 
                 @foreach ($items as $intervencion)
                     @php
-                        $totalAsistentes =
-                            ($intervencion->participantes ?? 0) + ($intervencion->participantes_otros ?? 0);
+                        $u_inscritas = $intervencion->cant_unidades ?? 0;
+                        $p_inscritas = $intervencion->participantes ?? 0;
 
-                        // Cálculo de Duración
+                        $u_externas = $intervencion->cant_leads ?? 0;
+                        $p_externos = $intervencion->participantes_otros ?? 0;
+
+                        $total_unidades = $u_inscritas + $u_externas;
+                        $total_asistentes = $p_inscritas + $p_externos;
+
                         $inicio = $intervencion->fecha_inicio;
                         $fin = $intervencion->fecha_fin;
                         $diferencia = $inicio->diff($fin);
-                        $duracion = $diferencia->format('%h h %i min');
-                        if ($diferencia->days > 0) {
-                            $duracion = $diferencia->format('%d d %h h');
-                        }
+                        $duracion =
+                            $diferencia->days > 0
+                                ? $diferencia->format('%d d %h h')
+                                : $diferencia->format('%h h %i min');
                     @endphp
-                    <table class="table table-hover" style="margin: 0px;">
-                        <thead>
+                    <table class="table table-sm table-hover align-middle mt-0">
+                        <thead class="table-light">
                             <tr>
-                                <th width="12%" class="text-center">Inicio</th>
-                                <th width="12%" class="text-center">Fin</th>
-                                <th width="15%">Actividad / Tipo</th>
-                                <th width="10%">Modalidad</th>
+                                <th style="width: 15%;">Fecha y Duración</th>
+                                <th style="width: 25%;">Actividad / Tarea</th>
+                                <th style="width: 60%;">Impacto</th>
                             </tr>
                         </thead>
                         <tbody>
 
+                            <tr class="border-top">
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold text-dark">{{ $inicio->format('d/m/Y') }}</span>
+                                        <small class="text-muted">
+                                            <i class="bx bx-time-five size-xs"></i> {{ $inicio->format('h:i A') }}
+                                            -
+                                            {{ $fin->format('h:i A') }}
+                                        </small>
+                                        <span class="mt-1" style="width: fit-content;">
+                                            {{ $duracion }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="text-uppercase fw-semibold">
+                                            {{ $intervencion->categoria->nombre ?? 'N/A' }}
+                                        </span>
+                                        <small class="text-uppercase" style="font-size: 0.6rem;">
+                                            {{ $intervencion->tipo->nombre ?? 'N/A' }}
+                                        </small>
+                                        <span class="">
+                                            <b>Modalidad:</b> <i
+                                                class="icon-base ri  ri-{{ $intervencion->modalidad == 'Virtual' ? 'ri-laptop' : 'ri-map-pin' }} me-1"></i>
+                                            {{ $intervencion->modalidad }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    {{-- Desglose de Impacto Solicitado --}}
+                                    <div class="d-flex gap-2 mb-3">
+                                        {{-- Inscritas --}}
+                                        <div class="p-2 border rounded bg-label-primary text-center" style="flex: 1;">
+                                            <small class="d-block fw-bold" style="font-size: 0.6rem;">UNIDADES
+                                                INSCRITAS</small>
+                                            <div class="d-flex justify-content-around mt-1">
+                                                <span><small>Und:</small>
+                                                    <strong>{{ $u_inscritas }}</strong></span>
+                                                <span><small>Asist:</small>
+                                                    <strong>{{ $p_inscritas }}</strong></span>
+                                            </div>
+                                        </div>
+                                        {{-- Externas --}}
+                                        <div class="p-2 border rounded bg-label-secondary text-center" style="flex: 1;">
+                                            <small class="d-block fw-bold" style="font-size: 0.6rem;">UNIDADES
+                                                EXTERNAS</small>
+                                            <div class="d-flex justify-content-around mt-1">
+                                                <span><small>Und:</small>
+                                                    <strong>{{ $u_externas }}</strong></span>
+                                                <span><small>Asist:</small>
+                                                    <strong>{{ $p_externos }}</strong></span>
+                                            </div>
+                                        </div>
+                                        {{-- Total Consolidado --}}
+                                        <div class="p-2 border rounded bg-dark text-white text-center" style="flex: 1;">
+                                            <small class="d-block fw-bold" style="font-size: 0.6rem;">TOTAL
+                                                CONSOLIDADO</small>
+                                            <div class="d-flex justify-content-around mt-1">
+                                                <span><small>Und:</small>
+                                                    <strong>{{ $total_unidades }}</strong></span>
+                                                <span><small>Asist:</small>
+                                                    <strong>{{ $total_asistentes }}</strong></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
                             <tr>
-                                {{-- Celda Inicio --}}
-                                <td class="ps-4">
-                                    <div class="d-flex flex-column">
-                                        <span class="fw-semibold text-dark">{{ $inicio->format('d/m/Y') }}</span>
-                                        <small class="text-primary fw-bold">{{ $inicio->format('h:i A') }}</small>
-                                    </div>
-                                </td>
-                                {{-- Celda Fin --}}
-                                <td>
-                                    <div class="d-flex flex-column">
-                                        <span class="fw-semibold text-dark">{{ $fin->format('d/m/Y') }}</span>
-                                        <small class="text-muted">{{ $fin->format('h:i A') }}</small>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="d-flex flex-column">
-                                        <span class="fw-bold">{{ $intervencion->categoria->nombre ?? 'N/A' }}</span>
-                                        <small class="text-muted">{{ $intervencion->tipo->nombre ?? 'N/A' }}</small>
-                                    </div>
-                                </td>
-                                <td>
-                                    <small class="d-block text-muted">{{ $intervencion->modalidad }}</small>
-                                </td>
-                            </tr>
-                            <tr class="border-bottom">
-                                <th width="35%" colspan="4">Descripción y Conclusiones</th>
-                            </tr>
-                            <tr class="border-bottom">
-                                <td style="white-space: normal;" colspan="4">
-                                    <div class="text-wrap" style="font-size: 0.85rem;">
-                                        <p class="mb-1">{!! $intervencion->descripcion ?? '<span style="color:#666;">Sin descripción</span>' !!}</p>
+                                <td colspan="3" class="pt-0 border-bottom-1">
+                                    <div class="p-1">
+                                        <div class="text-wrap" style="color: #566a7f;">
+                                            <strong>Descripción:</strong> {!! $intervencion->descripcion ?? 'N/A' !!}
+                                        </div>
                                         @if ($intervencion->conclusiones)
-                                            <div class="mt-1 p-2 bg-label-success rounded">
-                                                <i class="bx bx-comment-check me-1"></i>
-                                                <small class="fst-italic">{!! $intervencion->conclusiones ?? '<span style="color:#666;">Sin conclusiones</span>' !!}</small>
+                                            <div class="mt-2 text-" style="">
+                                                <i class="bx bx-check-double me-1"></i>
+                                                <strong>Conclusión:</strong> {!! $intervencion->conclusiones !!}
                                             </div>
                                         @endif
                                     </div>
                                 </td>
                             </tr>
-                            <tr class="border-bottom">
-                                <th width="40%">Resultados (U / L / T)</th>
-                                <th width="60%" class="text-center" colspan="3">Evidencias</th>
-                            </tr>
-                            <tr class="border-bottom">
-                                <td>
-                                    <div class="d-flex justify-content-between mb-1">
-                                        <span class="badge bg-label-warning fw-bold">
-                                            <i class="bi bi-time-five me-1"></i> Duración: {{ $duracion }}
-                                        </span>
-                                    </div>
-                                    <div class="d-flex flex-column">
-                                        <div class="px-2 py-1 bg-light rounded shadow-xs" style="font-size: 0.75rem;">
-                                            <div class="d-flex justify-content-between">
-                                                <span class="text-muted">Unidades:</span>
-                                                <span class="fw-bold">{{ $intervencion->cant_unidades }}</span>
-                                            </div>
-                                            <div class="d-flex justify-content-between">
-                                                <span class="text-muted">Leads:</span>
-                                                <span class="fw-bold">{{ $intervencion->cant_leads }}</span>
-                                            </div>
-                                            <div class="d-flex justify-content-between border-top mt-1 pt-1">
-                                                <span class="text-dark fw-bold">Asistentes:</span>
-                                                <span class="text-primary fw-bold">{{ $totalAsistentes }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-center" colspan="3">
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th style="background: #eeeeee">
+                                    <span class="">Evidencia</span>
+                                </th>
+                                <td colspan="2" class="p-1 text-center">
                                     @if ($intervencion->evidencia_url)
-                                        <a href="{{ $intervencion->evidencia_url }}" target="_blank"
-                                            class="btn btn-icon btn-sm btn-outline-primary">
-                                            <i class="bx bx-file"></i> {{ $intervencion->evidencia_url }}
+                                        <a href="{{ $intervencion->evidencia_url }}" target="_blank" class="shadow-sm"
+                                            title="Ver Evidencia">
+                                            <span class=" icon-base ri ri-external-link-line"></span>
+                                            {{ $intervencion->evidencia_url }}
                                         </a>
                                     @else
-                                        <span class="text-muted small">Sin archivo</span>
+                                        <span class="text-muted small fst-italic">Sin adjunto</span>
                                     @endif
                                 </td>
                             </tr>
-
-                        </tbody>
+                        </tfoot>
                     </table>
-                    <hr />
                 @endforeach
+            </div>
         @endforeach
-    </div>
+
     </div>
 @endforeach
 
