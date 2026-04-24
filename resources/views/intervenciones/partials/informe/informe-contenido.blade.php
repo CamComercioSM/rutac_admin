@@ -4,8 +4,10 @@
     });
 
     $actividadesTransversales = collect($intervenciones)->filter(function ($i) {
-        return empty($i->unidadproductiva_id) && empty($i->lead_id);
+        return empty($i->programa_id) && empty($i->convocatoria_id);
     });
+
+    dd($actividadesTransversales);
 @endphp
 
 
